@@ -170,20 +170,12 @@ export async function transform(context) {
 
   core.info(`Transformation step completed (${tokensUsed} tokens)`);
 
-  // Detect mission-complete: if the LLM made no changes and indicates mission satisfaction
+  // Detect mission-complete hint: if the LLM indicates mission satisfaction, log it
+  // but do NOT write MISSION_COMPLETE.md — the supervisor is the single authority
+  // for mission lifecycle declarations (it also handles bot announcements)
   const lowerResult = resultContent.toLowerCase();
   if (lowerResult.includes("mission is satisfied") || lowerResult.includes("mission is complete") || lowerResult.includes("no changes needed")) {
-    core.info("Mission appears complete — writing MISSION_COMPLETE.md signal");
-    const signal = [
-      "# Mission Complete",
-      "",
-      `- **Timestamp:** ${new Date().toISOString()}`,
-      `- **Detected by:** transform`,
-      `- **Reason:** ${resultContent.substring(0, 200)}`,
-      "",
-      "This file was created automatically. To restart transformations, delete this file or run `npx @xn-intenton-z2a/agentic-lib init --reseed`.",
-    ].join("\n");
-    writeFileSync("MISSION_COMPLETE.md", signal);
+    core.info("Transform indicates mission may be complete — supervisor will verify on next cycle");
   }
 
   const promptBudget = [

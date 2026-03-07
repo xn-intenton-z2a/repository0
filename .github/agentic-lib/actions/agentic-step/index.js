@@ -45,6 +45,8 @@ async function run() {
     const writablePathsOverride = core.getInput("writable-paths");
     const testCommandInput = core.getInput("test-command");
     const discussionUrl = core.getInput("discussion-url");
+    const commentNodeId = core.getInput("comment-node-id");
+    const commentCreatedAt = core.getInput("comment-created-at");
     const model = core.getInput("model");
 
     core.info(`agentic-step: task=${task}, model=${model}`);
@@ -80,6 +82,8 @@ async function run() {
       writablePaths,
       testCommand,
       discussionUrl,
+      commentNodeId,
+      commentCreatedAt,
       model,
       octokit: github.getOctokit(process.env.GITHUB_TOKEN),
       repo: github.context.repo,

@@ -9,6 +9,67 @@ import * as core from "@actions/core";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { runCopilotTask, readOptionalFile, scanDirectory, filterIssues } from "../copilot.js";
 
+/**
+ * Look up the "Talk to the repository" discussion URL via GraphQL.
+ * Returns { url, nodeId } or { url: "", nodeId: "" } on failure.
+ */
+async function findTalkDiscussion(octokit, repo) {
+  try {
+    const query = `query($owner: String!, $name: String!) {
+      repository(owner: $owner, name: $name) {
+        discussions(first: 10, orderBy: { field: CREATED_AT, direction: DESC }) {
+          nodes {
+            id
+            number
+            title
+            url
+          }
+        }
+      }
+    }`;
+    const result = await octokit.graphql(query, { owner: repo.owner, name: repo.repo });
+    const disc = result.repository.discussions.nodes.find(
+      (d) => d.title.toLowerCase().includes("talk to the repository"),
+    );
+    if (disc) {
+      return { url: disc.url, nodeId: disc.id };
+    }
+  } catch (err) {
+    core.warning(`Could not look up Talk discussion: ${err.message}`);
+  }
+  return { url: "", nodeId: "" };
+}
+
+/**
+ * Construct the GitHub Pages website URL for a repository.
+ */
+function getWebsiteUrl(repo) {
+  return `https://${repo.owner}.github.io/${repo.repo}/`;
+}
+
+/**
+ * Dispatch the discussions bot with a message and discussion URL.
+ */
+async function dispatchBot(octokit, repo, message, discussionUrl) {
+  if (process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib") {
+    core.info("Skipping bot dispatch — running in SDK repo");
+    return;
+  }
+  const inputs = { message };
+  if (discussionUrl) inputs["discussion-url"] = discussionUrl;
+  try {
+    await octokit.rest.actions.createWorkflowDispatch({
+      ...repo,
+      workflow_id: "agentic-lib-bot.yml",
+      ref: "main",
+      inputs,
+    });
+    core.info(`Dispatched bot: ${message.substring(0, 100)}`);
+  } catch (err) {
+    core.warning(`Could not dispatch bot: ${err.message}`);
+  }
+}
+
 async function gatherContext(octokit, repo, config, t) {
   const mission = readOptionalFile(config.paths.mission.path);
   const intentionLogFull = readOptionalFile(config.intentionBot.intentionFilepath);
@@ -37,7 +98,13 @@ async function gatherContext(octokit, repo, config, t) {
 
   // Extract discussion URL from recent activity for supervisor reporting
   const discussionUrlMatch = recentActivity.match(/https:\/\/github\.com\/[^/]+\/[^/]+\/discussions\/\d+/);
-  const activeDiscussionUrl = discussionUrlMatch ? discussionUrlMatch[0] : "";
+  let activeDiscussionUrl = discussionUrlMatch ? discussionUrlMatch[0] : "";
+
+  // Fallback: look up the "Talk to the repository" discussion if not found in activity log
+  if (!activeDiscussionUrl) {
+    const talk = await findTalkDiscussion(octokit, repo);
+    activeDiscussionUrl = talk.url;
+  }
 
   const featuresPath = config.paths.features.path;
   const featureNames = existsSync(featuresPath)
@@ -345,11 +412,16 @@ function parseReasoning(content) {
   return match ? match[1].trim() : "";
 }
 
-async function executeDispatch(octokit, repo, actionName, params) {
+async function executeDispatch(octokit, repo, actionName, params, ctx) {
   const workflowFile = actionName.replace("dispatch:", "") + ".yml";
   const inputs = {};
   if (params["pr-number"]) inputs["pr-number"] = params["pr-number"];
   if (params["issue-number"]) inputs["issue-number"] = params["issue-number"];
+
+  // Pass discussion-url when dispatching the bot
+  if (workflowFile === "agentic-lib-bot.yml" && ctx?.activeDiscussionUrl) {
+    if (!inputs["discussion-url"]) inputs["discussion-url"] = ctx.activeDiscussionUrl;
+  }
 
   // Guard: never dispatch workflows from the SDK repo itself (agentic-lib)
   if (process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib") {
@@ -434,9 +506,9 @@ async function executeCloseIssue(octokit, repo, params) {
   return "skipped:close-issue-missing-number";
 }
 
-async function executeRespondDiscussions(octokit, repo, params) {
+async function executeRespondDiscussions(octokit, repo, params, ctx) {
   const message = params.message || "";
-  const url = params["discussion-url"] || "";
+  const url = params["discussion-url"] || ctx?.activeDiscussionUrl || "";
   if (message) {
     if (process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib") {
       core.info("Skipping bot dispatch — running in SDK repo");
@@ -456,7 +528,7 @@ async function executeRespondDiscussions(octokit, repo, params) {
   return "skipped:respond-no-message";
 }
 
-async function executeMissionComplete(octokit, repo, params) {
+async function executeMissionComplete(octokit, repo, params, ctx) {
   const reason = params.reason || "All acceptance criteria satisfied";
   const signal = [
     "# Mission Complete",
@@ -480,11 +552,16 @@ async function executeMissionComplete(octokit, repo, params) {
     } catch (err) {
       core.warning(`Could not set schedule to off: ${err.message}`);
     }
+
+    // Announce mission complete via bot
+    const websiteUrl = getWebsiteUrl(repo);
+    const discussionUrl = ctx?.activeDiscussionUrl || "";
+    await dispatchBot(octokit, repo, `Mission complete! ${reason}\n\nWebsite: ${websiteUrl}`, discussionUrl);
   }
   return `mission-complete:${reason.substring(0, 100)}`;
 }
 
-async function executeMissionFailed(octokit, repo, params) {
+async function executeMissionFailed(octokit, repo, params, ctx) {
   const reason = params.reason || "Mission could not be completed";
   const signal = [
     "# Mission Failed",
@@ -508,6 +585,11 @@ async function executeMissionFailed(octokit, repo, params) {
     } catch (err) {
       core.warning(`Could not set schedule to off: ${err.message}`);
     }
+
+    // Announce mission failed via bot
+    const websiteUrl = getWebsiteUrl(repo);
+    const discussionUrl = ctx?.activeDiscussionUrl || "";
+    await dispatchBot(octokit, repo, `Mission failed. ${reason}\n\nWebsite: ${websiteUrl}`, discussionUrl);
   }
   return `mission-failed:${reason.substring(0, 100)}`;
 }
@@ -540,12 +622,12 @@ async function executeSetSchedule(octokit, repo, frequency) {
   return `set-schedule:${frequency}`;
 }
 
-async function executeAction(octokit, repo, action, params) {
-  if (action.startsWith("dispatch:")) return executeDispatch(octokit, repo, action, params);
+async function executeAction(octokit, repo, action, params, ctx) {
+  if (action.startsWith("dispatch:")) return executeDispatch(octokit, repo, action, params, ctx);
   if (action.startsWith("set-schedule:")) return executeSetSchedule(octokit, repo, action.replace("set-schedule:", ""));
   if (action === "nop") return "nop";
   const handler = ACTION_HANDLERS[action];
-  if (handler) return handler(octokit, repo, params);
+  if (handler) return handler(octokit, repo, params, ctx);
   core.warning(`Unknown action: ${action}`);
   return `unknown:${action}`;
 }
@@ -561,6 +643,22 @@ export async function supervise(context) {
   const t = config.tuning || {};
 
   const ctx = await gatherContext(octokit, repo, config, t);
+  const websiteUrl = getWebsiteUrl(repo);
+
+  // --- Deterministic lifecycle posts (before LLM) ---
+
+  // Step 2: Auto-announce on first run after init
+  // Detect first supervisor run: initTimestamp exists but no supervisor entries in activity
+  if (ctx.initTimestamp && !ctx.missionComplete && !ctx.missionFailed) {
+    const hasPriorSupervisor = ctx.recentActivity.includes("supervisor");
+    if (!hasPriorSupervisor && ctx.mission && ctx.activeDiscussionUrl) {
+      core.info("First supervisor run after init — announcing mission");
+      const announcement = `New mission started!\n\n**Mission:** ${ctx.mission.substring(0, 300)}\n\n**Website:** ${websiteUrl}`;
+      await dispatchBot(octokit, repo, announcement, ctx.activeDiscussionUrl);
+    }
+  }
+
+  // --- LLM decision ---
   const agentInstructions = instructions || "You are the supervisor. Decide what actions to take.";
   const prompt = buildPrompt(ctx, agentInstructions);
 
@@ -582,12 +680,30 @@ export async function supervise(context) {
   const results = [];
   for (const { action, params } of actions) {
     try {
-      const result = await executeAction(octokit, repo, action, params);
+      const result = await executeAction(octokit, repo, action, params, ctx);
       results.push(result);
       core.info(`Action result: ${result}`);
     } catch (err) {
       core.warning(`Action ${action} failed: ${err.message}`);
       results.push(`error:${action}:${err.message}`);
+    }
+  }
+
+  // --- Deterministic lifecycle posts (after LLM) ---
+
+  // Step 3: Auto-respond when a message referral is present
+  // If the workflow was triggered with a message (from bot's request-supervisor),
+  // and the LLM didn't include a respond:discussions action, post back automatically
+  const workflowMessage = context.discussionUrl ? "" : (process.env.INPUT_MESSAGE || "");
+  if (workflowMessage && ctx.activeDiscussionUrl) {
+    const hasDiscussionResponse = results.some((r) => r.startsWith("respond-discussions:"));
+    if (!hasDiscussionResponse) {
+      core.info("Message referral detected — auto-responding to discussion");
+      const response = reasoning
+        ? `Supervisor update: ${reasoning.substring(0, 400)}`
+        : `Supervisor processed your request. Actions taken: ${results.join(", ")}`;
+      await dispatchBot(octokit, repo, response, ctx.activeDiscussionUrl);
+      results.push(`auto-respond:${ctx.activeDiscussionUrl}`);
     }
   }
 

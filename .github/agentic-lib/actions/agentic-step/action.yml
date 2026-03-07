@@ -38,6 +38,14 @@ inputs:
   discussion-url:
     description: "GitHub Discussion URL (for discussions task)"
     required: false
+  comment-node-id:
+    description: "Node ID of the triggering discussion comment (for precise trigger identification)"
+    required: false
+    default: ""
+  comment-created-at:
+    description: "Timestamp of the triggering discussion comment (ISO 8601)"
+    required: false
+    default: ""
   model:
     description: "Copilot SDK model to use"
     required: false

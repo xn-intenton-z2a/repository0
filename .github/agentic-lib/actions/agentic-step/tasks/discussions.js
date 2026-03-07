@@ -28,6 +28,7 @@ async function fetchDiscussion(octokit, discussionUrl, commentsLimit = 10) {
           body
           comments(last: ${commentsLimit}) {
             nodes {
+              id
               body
               author { login }
               createdAt
@@ -53,7 +54,7 @@ async function fetchDiscussion(octokit, discussionUrl, commentsLimit = 10) {
   }
 }
 
-function buildPrompt(discussionUrl, discussion, context, t, repoContext) {
+function buildPrompt(discussionUrl, discussion, context, t, repoContext, triggerComment) {
   const { config, instructions } = context;
   const { title, body, comments } = discussion;
 
@@ -84,8 +85,18 @@ function buildPrompt(discussionUrl, discussion, context, t, repoContext) {
   if (humanComments.length > 0) {
     parts.push("", "### Conversation History");
     for (const c of humanComments) {
-      const prefix = c === latestHumanComment ? ">>> **[LATEST — RESPOND TO THIS]** " : "";
-      parts.push(`${prefix}**${c.author?.login || "unknown"}** (${c.createdAt}):\n${c.body}`);
+      // Identify the triggering comment: match by node_id, then by createdAt, then fall back to latest
+      let isTrigger = false;
+      if (triggerComment?.nodeId && c.id) {
+        isTrigger = c.id === triggerComment.nodeId;
+      } else if (triggerComment?.createdAt && c.createdAt) {
+        isTrigger = c.createdAt === triggerComment.createdAt;
+      } else {
+        isTrigger = c === latestHumanComment;
+      }
+      const prefix = isTrigger ? ">>> **[TRIGGER — RESPOND TO THIS]** " : "";
+      const nodeIdTag = c.id ? ` [node:${c.id}]` : "";
+      parts.push(`${prefix}**${c.author?.login || "unknown"}** (${c.createdAt})${nodeIdTag}:\n${c.body}`);
     }
   }
 
@@ -248,7 +259,24 @@ export async function discussions(context) {
     discussion.comments = discussion.comments.filter((c) => new Date(c.createdAt) >= initDate);
   }
 
-  const prompt = buildPrompt(discussionUrl, discussion, context, t, repoContext);
+  // Extract trigger comment info from multiple sources:
+  // 1. Event payload (discussion_comment event) — most reliable
+  // 2. Explicit inputs (comment-node-id, comment-created-at) — for workflow_dispatch
+  // 3. Fall back to latest human comment (handled in buildPrompt)
+  const triggerComment = {};
+  const eventComment = context.github?.payload?.comment;
+  if (eventComment) {
+    triggerComment.nodeId = eventComment.node_id || "";
+    triggerComment.createdAt = eventComment.created_at || "";
+    triggerComment.body = eventComment.body || "";
+    triggerComment.login = eventComment.user?.login || "";
+    core.info(`Trigger comment from event payload: ${triggerComment.login} at ${triggerComment.createdAt}`);
+  }
+  // Explicit inputs override event payload (workflow_dispatch or workflow_call may pass these)
+  if (context.commentNodeId) triggerComment.nodeId = context.commentNodeId;
+  if (context.commentCreatedAt) triggerComment.createdAt = context.commentCreatedAt;
+
+  const prompt = buildPrompt(discussionUrl, discussion, context, t, repoContext, triggerComment);
   const { content, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage:
