@@ -7,7 +7,7 @@
 
 import * as core from "@actions/core";
 import { existsSync } from "fs";
-import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection } from "../copilot.js";
+import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
 
 /**
  * Maintain the library of knowledge documents from source URLs.
@@ -81,10 +81,10 @@ export async function maintainLibrary(context) {
     ].join("\n");
   }
 
-  const { tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
+  const { content: resultContent, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage:
-      "You are a knowledge librarian. Maintain a library of technical documents extracted from web sources.",
+      "You are a knowledge librarian. Maintain a library of technical documents extracted from web sources." + NARRATIVE_INSTRUCTION,
     prompt,
     writablePaths,
     tuning: t,
@@ -103,5 +103,6 @@ export async function maintainLibrary(context) {
     cost,
     model,
     details: detailsMsg,
+    narrative: extractNarrative(resultContent, detailsMsg),
   };
 }

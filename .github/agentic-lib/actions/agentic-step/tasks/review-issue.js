@@ -161,6 +161,7 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
       cost,
       model,
       details: `Closed issue #${targetIssueNumber}: ${verdict.substring(0, 200)}`,
+      narrative: `Reviewed issue #${targetIssueNumber} and closed it as resolved.`,
     };
   }
 
@@ -173,6 +174,7 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
     cost,
     model,
     details: `Issue #${targetIssueNumber} remains open: ${verdict.substring(0, 200)}`,
+    narrative: `Reviewed issue #${targetIssueNumber} — still open, not yet resolved.`,
   };
 }
 
@@ -271,5 +273,6 @@ export async function reviewIssue(context) {
       .map((r) => r.details)
       .join("; ")
       .substring(0, 500)}`,
+    narrative: `Reviewed ${reviewed} issue(s), closed ${closed} as resolved.`,
   };
 }

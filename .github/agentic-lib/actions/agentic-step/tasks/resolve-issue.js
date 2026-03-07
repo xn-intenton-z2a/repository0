@@ -7,7 +7,7 @@
 
 import * as core from "@actions/core";
 import { checkAttemptLimit, checkWipLimit, isIssueResolved } from "../safety.js";
-import { runCopilotTask, readOptionalFile, formatPathsSection } from "../copilot.js";
+import { runCopilotTask, readOptionalFile, formatPathsSection, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
 
 /**
  * Resolve a GitHub issue by generating code and creating a PR.
@@ -81,7 +81,7 @@ export async function resolveIssue(context) {
   const t = config.tuning || {};
   const { content: resultContent, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
-    systemMessage: `You are an autonomous coding agent resolving GitHub issue #${issueNumber}. Write clean, tested code. Only modify files listed under "Writable" paths. Read-only paths are for context only.`,
+    systemMessage: `You are an autonomous coding agent resolving GitHub issue #${issueNumber}. Write clean, tested code. Only modify files listed under "Writable" paths. Read-only paths are for context only.` + NARRATIVE_INSTRUCTION,
     prompt,
     writablePaths,
     tuning: t,
@@ -99,6 +99,6 @@ export async function resolveIssue(context) {
     model,
     commitUrl: null,
     details: `Generated code for issue #${issueNumber}: ${resultContent.substring(0, 200)}`,
-    narrative: (resultContent || "").substring(0, 2000),
+    narrative: extractNarrative(resultContent, `Generated code for issue #${issueNumber}.`),
   };
 }

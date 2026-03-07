@@ -7,7 +7,7 @@
 
 import * as core from "@actions/core";
 import { writeFileSync, existsSync } from "fs";
-import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection, filterIssues, summariseIssue, extractFeatureSummary } from "../copilot.js";
+import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection, filterIssues, summariseIssue, extractFeatureSummary, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
 
 /**
  * Run the full transformation pipeline from mission to code.
@@ -162,7 +162,7 @@ export async function transform(context) {
   } = await runCopilotTask({
     model,
     systemMessage:
-      "You are an autonomous code transformation agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.",
+      "You are an autonomous code transformation agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step." + NARRATIVE_INSTRUCTION,
     prompt,
     writablePaths,
     tuning: t,
@@ -201,7 +201,7 @@ export async function transform(context) {
     cost,
     model,
     details: resultContent.substring(0, 500),
-    narrative: (resultContent || "").substring(0, 2000),
+    narrative: extractNarrative(resultContent, "Transformation step completed."),
     promptBudget,
     contextNotes: `Transformed with ${sourceFiles.length} source files (mtime-sorted, cleaned), ${features.length} features, ${openIssues.length} issues (${rawIssues.length - openIssues.length} stale filtered).`,
   };
@@ -324,7 +324,7 @@ async function transformTdd({
   const phase2 = await runCopilotTask({
     model,
     systemMessage:
-      "You are a TDD agent. A failing test was written in Phase 1. Write the minimum implementation to make it pass. Do not modify the test.",
+      "You are a TDD agent. A failing test was written in Phase 1. Write the minimum implementation to make it pass. Do not modify the test." + NARRATIVE_INSTRUCTION,
     prompt: implPrompt,
     writablePaths,
     tuning: t,
@@ -341,5 +341,6 @@ async function transformTdd({
     cost: (phase1.cost || 0) + (phase2.cost || 0),
     model,
     details: `TDD transformation: Phase 1 (failing test) + Phase 2 (implementation). ${testResult.substring(0, 200)}`,
+    narrative: extractNarrative(phase2.content, "TDD transformation: wrote failing test then implementation."),
   };
 }

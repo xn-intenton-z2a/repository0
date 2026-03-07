@@ -102,6 +102,7 @@ async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instruct
     cost,
     model,
     details: `Enhanced issue #${issueNumber} with acceptance criteria`,
+    narrative: `Enhanced issue #${issueNumber} with testable acceptance criteria.`,
   };
 }
 
@@ -173,5 +174,6 @@ export async function enhanceIssue(context) {
       .map((r) => r.details)
       .join("; ")
       .substring(0, 500)}`,
+    narrative: `Enhanced ${enhanced} issue(s) with testable acceptance criteria.`,
   };
 }

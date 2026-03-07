@@ -6,7 +6,7 @@
 // prunes completed/irrelevant features, and ensures quality.
 
 import { existsSync } from "fs";
-import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection, extractFeatureSummary } from "../copilot.js";
+import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection, extractFeatureSummary, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
 import { checkWipLimit } from "../safety.js";
 
 /**
@@ -45,13 +45,20 @@ export async function maintainFeatures(context) {
     contentLimit: t.documentSummary || 1000,
   });
 
-  const { data: closedIssues } = await octokit.rest.issues.listForRepo({
+  // Filter closed issues to only those created after the most recent init
+  const initTimestamp = config.init?.timestamp || null;
+  const initEpoch = initTimestamp ? new Date(initTimestamp).getTime() : 0;
+
+  const { data: closedIssuesRaw } = await octokit.rest.issues.listForRepo({
     ...repo,
     state: "closed",
     per_page: t.issuesScan || 20,
     sort: "updated",
     direction: "desc",
   });
+  const closedIssues = initEpoch > 0
+    ? closedIssuesRaw.filter((i) => new Date(i.created_at).getTime() >= initEpoch)
+    : closedIssuesRaw;
 
   const agentInstructions = instructions || "Maintain the feature set by creating, updating, or pruning features.";
 
@@ -68,7 +75,7 @@ export async function maintainFeatures(context) {
     libraryDocs.length > 0 ? `## Library Documents (${libraryDocs.length})` : "",
     ...libraryDocs.map((d) => `### ${d.name}\n${d.content}`),
     "",
-    `## Recently Closed Issues (${closedIssues.length})`,
+    `## Recently Closed Issues (${closedIssues.length}${initTimestamp ? `, since init ${initTimestamp}` : ""})`,
     ...closedIssues.slice(0, Math.floor((t.issuesScan || 20) / 2)).map((i) => `- #${i.number}: ${i.title}`),
     "",
     "## Your Task",
@@ -83,10 +90,10 @@ export async function maintainFeatures(context) {
     "- Feature files must be markdown with a descriptive filename (e.g. HTTP_SERVER.md)",
   ].join("\n");
 
-  const { tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
+  const { content: resultContent, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage:
-      "You are a feature lifecycle manager. Create, update, and prune feature specification files to keep the project focused on its mission.",
+      "You are a feature lifecycle manager. Create, update, and prune feature specification files to keep the project focused on its mission." + NARRATIVE_INSTRUCTION,
     prompt,
     writablePaths,
     tuning: t,
@@ -100,5 +107,6 @@ export async function maintainFeatures(context) {
     cost,
     model,
     details: `Maintained features (${features.length} existing, limit ${featureLimit})`,
+    narrative: extractNarrative(resultContent, `Maintained ${features.length} features (limit ${featureLimit}).`),
   };
 }

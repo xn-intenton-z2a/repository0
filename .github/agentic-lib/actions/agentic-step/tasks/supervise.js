@@ -51,6 +51,9 @@ async function gatherContext(octokit, repo, config, t) {
     : [];
   const libraryLimit = config.paths.library?.limit || 32;
 
+  // Read init timestamp for epoch boundary (used by issue filtering below)
+  const initTimestamp = config.init?.timestamp || null;
+
   const { data: openIssues } = await octokit.rest.issues.listForRepo({
     ...repo,
     state: "open",
@@ -59,7 +62,7 @@ async function gatherContext(octokit, repo, config, t) {
     direction: "asc",
   });
   const issuesOnly = openIssues.filter((i) => !i.pull_request);
-  const filteredIssues = filterIssues(issuesOnly, { staleDays: t.staleDays || 30 });
+  const filteredIssues = filterIssues(issuesOnly, { staleDays: t.staleDays || 30, initTimestamp });
   const oldestReadyIssue = filteredIssues.find((i) => i.labels.some((l) => l.name === "ready"));
   const issuesSummary = filteredIssues.map((i) => {
     const age = Math.floor((Date.now() - new Date(i.created_at).getTime()) / 86400000);
@@ -77,7 +80,11 @@ async function gatherContext(octokit, repo, config, t) {
       sort: "updated",
       direction: "desc",
     });
-    for (const ci of closedIssuesRaw.filter((i) => !i.pull_request)) {
+    const initEpoch = initTimestamp ? new Date(initTimestamp).getTime() : 0;
+    const closedIssuesFiltered = closedIssuesRaw.filter((i) =>
+      !i.pull_request && (initEpoch <= 0 || new Date(i.created_at).getTime() >= initEpoch)
+    );
+    for (const ci of closedIssuesFiltered) {
       let closeReason = "closed";
       try {
         const { data: comments } = await octokit.rest.issues.listComments({
@@ -109,9 +116,6 @@ async function gatherContext(octokit, repo, config, t) {
     const labels = pr.labels.map((l) => l.name).join(", ");
     return `#${pr.number}: ${pr.title} (${pr.head.ref}) [${labels || "no labels"}] (${age}d old)`;
   });
-
-  // Read init timestamp for epoch boundary
-  const initTimestamp = config.init?.timestamp || null;
 
   let workflowsSummary = [];
   let actionsSinceInit = [];

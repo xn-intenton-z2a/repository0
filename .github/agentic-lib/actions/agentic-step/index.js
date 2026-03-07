@@ -98,6 +98,7 @@ async function run() {
     if (result.model) core.setOutput("model", result.model);
     if (result.action) core.setOutput("action", result.action);
     if (result.actionArg) core.setOutput("action-arg", result.actionArg);
+    if (result.narrative) core.setOutput("narrative", result.narrative);
 
     const profileName = config.tuning?.profileName || "unknown";
 

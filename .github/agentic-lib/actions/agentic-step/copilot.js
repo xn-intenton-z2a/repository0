@@ -83,19 +83,27 @@ export function generateOutline(raw, filePath) {
 }
 
 /**
- * Filter issues by recency and label quality.
+ * Filter issues by recency, init epoch, and label quality.
  *
  * @param {Array} issues - GitHub issue objects
  * @param {Object} [options]
  * @param {number} [options.staleDays=30] - Issues older than this with no activity are excluded
  * @param {boolean} [options.excludeBotOnly=true] - Exclude issues with only bot labels
+ * @param {string} [options.initTimestamp] - ISO timestamp; exclude issues created before this epoch
  * @returns {Array} Filtered issues
  */
 export function filterIssues(issues, options = {}) {
-  const { staleDays = 30, excludeBotOnly = true } = options;
+  const { staleDays = 30, excludeBotOnly = true, initTimestamp } = options;
   const cutoff = Date.now() - staleDays * 86400000;
+  const initEpoch = initTimestamp ? new Date(initTimestamp).getTime() : 0;
 
   return issues.filter((issue) => {
+    // Exclude issues created before the most recent init
+    if (initEpoch > 0) {
+      const created = new Date(issue.created_at).getTime();
+      if (created < initEpoch) return false;
+    }
+
     const lastActivity = new Date(issue.updated_at || issue.created_at).getTime();
     if (lastActivity < cutoff) return false;
 
@@ -397,6 +405,28 @@ async function _runCopilotTaskOnce({
     await client.stop();
   }
 }
+
+/**
+ * Extract a [NARRATIVE] line from an LLM response.
+ * Returns the text after the tag, or a fallback summary.
+ *
+ * @param {string} content - Raw LLM response content
+ * @param {string} [fallback] - Fallback if no [NARRATIVE] tag found
+ * @returns {string} The narrative sentence
+ */
+export function extractNarrative(content, fallback) {
+  if (!content) return fallback || "";
+  const match = content.match(/\[NARRATIVE\]\s*(.+)/);
+  if (match) return match[1].trim();
+  return fallback || "";
+}
+
+/**
+ * Narrative solicitation to append to system messages.
+ * Asks the LLM to end its response with a one-sentence summary.
+ */
+export const NARRATIVE_INSTRUCTION =
+  "\n\nAfter completing your task, end your response with a line starting with [NARRATIVE] followed by one plain English sentence describing what you did and why, for the activity log.";
 
 /**
  * Read a file, returning empty string on failure. For optional context files.

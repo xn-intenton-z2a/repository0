@@ -9,7 +9,7 @@
 import * as core from "@actions/core";
 import { readFileSync } from "fs";
 import { execSync } from "child_process";
-import { runCopilotTask, formatPathsSection } from "../copilot.js";
+import { runCopilotTask, formatPathsSection, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
 
 /**
  * Extract run_id from a check run's details_url.
@@ -100,7 +100,7 @@ async function resolveConflicts({ config, pr, prNumber, instructions, model, wri
   const t = config.tuning || {};
   const { tokensUsed, inputTokens, outputTokens, cost, content: resultContent } = await runCopilotTask({
     model,
-    systemMessage: `You are resolving git merge conflicts on PR #${prNumber}. Write resolved versions of each conflicted file, removing all conflict markers. Preserve the PR's feature intent while incorporating main's updates.`,
+    systemMessage: `You are resolving git merge conflicts on PR #${prNumber}. Write resolved versions of each conflicted file, removing all conflict markers. Preserve the PR's feature intent while incorporating main's updates.` + NARRATIVE_INSTRUCTION,
     prompt,
     writablePaths,
     tuning: t,
@@ -116,7 +116,7 @@ async function resolveConflicts({ config, pr, prNumber, instructions, model, wri
     cost,
     model,
     details: `Resolved ${conflicts.length} conflicted file(s) on PR #${prNumber}`,
-    narrative: (resultContent || "").substring(0, 2000),
+    narrative: extractNarrative(resultContent, `Resolved ${conflicts.length} merge conflict(s) on PR #${prNumber}.`),
   };
 }
 
@@ -189,7 +189,7 @@ export async function fixCode(context) {
   const t = config.tuning || {};
   const { tokensUsed, inputTokens, outputTokens, cost, content: resultContent } = await runCopilotTask({
     model,
-    systemMessage: `You are an autonomous coding agent fixing failing tests on PR #${prNumber}. Make minimal, targeted changes to fix the test failures.`,
+    systemMessage: `You are an autonomous coding agent fixing failing tests on PR #${prNumber}. Make minimal, targeted changes to fix the test failures.` + NARRATIVE_INSTRUCTION,
     prompt,
     writablePaths,
     tuning: t,
@@ -205,6 +205,6 @@ export async function fixCode(context) {
     cost,
     model,
     details: `Applied fix for ${failedChecks.length} failing check(s) on PR #${prNumber}`,
-    narrative: (resultContent || "").substring(0, 2000),
+    narrative: extractNarrative(resultContent, `Fixed ${failedChecks.length} failing check(s) on PR #${prNumber}.`),
   };
 }

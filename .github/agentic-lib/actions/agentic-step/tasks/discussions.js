@@ -187,8 +187,10 @@ export async function discussions(context) {
       const { data: openIssues } = await octokit.rest.issues.listForRepo({
         ...repo, state: "open", per_page: 10, sort: "created", direction: "asc",
       });
+      const initTimestampForIssues = config?.init?.timestamp || null;
+      const initEpochForIssues = initTimestampForIssues ? new Date(initTimestampForIssues).getTime() : 0;
       repoContext.issuesSummary = openIssues
-        .filter((i) => !i.pull_request)
+        .filter((i) => !i.pull_request && (initEpochForIssues <= 0 || new Date(i.created_at).getTime() >= initEpochForIssues))
         .map((i) => {
           const labels = i.labels.map((l) => l.name).join(", ");
           return `#${i.number}: ${i.title} [${labels || "no labels"}]`;
@@ -238,6 +240,14 @@ export async function discussions(context) {
   }
 
   const discussion = await fetchDiscussion(octokit, discussionUrl, t.discussionComments || 10);
+
+  // Filter discussion comments to only those after the most recent init
+  const initTs = config?.init?.timestamp || null;
+  if (initTs && discussion.comments.length > 0) {
+    const initDate = new Date(initTs);
+    discussion.comments = discussion.comments.filter((c) => new Date(c.createdAt) >= initDate);
+  }
+
   const prompt = buildPrompt(discussionUrl, discussion, context, t, repoContext);
   const { content, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
@@ -336,6 +346,7 @@ export async function discussions(context) {
     cost,
     model,
     details: `Action: ${action}${argSuffix}\nReply: ${replyBody.substring(0, 200)}`,
+    narrative: `Responded to discussion with action ${action}${argSuffix}.`,
     action,
     actionArg,
     replyBody,
