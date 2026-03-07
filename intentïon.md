@@ -305,3 +305,63 @@ Added three concise, technical library documents (RDF primer, schema.org guide, 
 Maintained library (2 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T22:01:03.319Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 34878 (in: 31480, out: 3398)
+**Duration:** 51s (~0.9 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22808107826](https://github.com/xn-intenton-z2a/repository0/actions/runs/22808107826)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 11/32 | 21 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 5/32 | 27 remaining | n/a |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Merged the animal seed into the JSON-LD persistence feature and removed the separate seed feature to consolidate design and ensure there are at most four feature files.
+
+Maintained features (5 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T22:02:03.116Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 103677 (in: 101001, out: 2676)
+**Duration:** 59s (~1.0 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22808107826](https://github.com/xn-intenton-z2a/repository0/actions/runs/22808107826)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 12/32 | 20 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 5/32 | 27 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Read SOURCES.md and library files, extracted and validated that each source has a matching actionable technical document and preserved the consolidated LINKED_DATA extract for implementation use.
+
+Maintained library (5 docs, limit 32)
+
+---
