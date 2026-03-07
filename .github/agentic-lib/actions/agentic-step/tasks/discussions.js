@@ -191,6 +191,50 @@ export async function discussions(context) {
     core.info("Mission complete signal written (MISSION_COMPLETE.md)");
   }
 
+  // Create issue when bot requests it
+  if (action === "create-issue" && actionArg) {
+    try {
+      const { data: issue } = await octokit.rest.issues.create({
+        ...context.repo,
+        title: actionArg,
+        labels: ["automated", "enhancement"],
+      });
+      core.info(`Created issue #${issue.number}: ${actionArg}`);
+    } catch (err) {
+      core.warning(`Failed to create issue: ${err.message}`);
+    }
+  }
+
+  // Request supervisor evaluation
+  if (action === "request-supervisor") {
+    try {
+      await octokit.rest.actions.createWorkflowDispatch({
+        ...context.repo,
+        workflow_id: "agentic-lib-workflow.yml",
+        ref: "main",
+        inputs: { message: actionArg || "Discussion bot referral" },
+      });
+      core.info(`Dispatched supervisor with message: ${actionArg}`);
+    } catch (err) {
+      core.warning(`Failed to dispatch supervisor: ${err.message}`);
+    }
+  }
+
+  // Stop automation
+  if (action === "stop") {
+    try {
+      await octokit.rest.actions.createWorkflowDispatch({
+        ...context.repo,
+        workflow_id: "agentic-lib-schedule.yml",
+        ref: "main",
+        inputs: { frequency: "off" },
+      });
+      core.info("Automation stopped via discussions bot");
+    } catch (err) {
+      core.warning(`Failed to stop automation: ${err.message}`);
+    }
+  }
+
   await postReply(octokit, discussion.nodeId, replyBody);
 
   const argSuffix = actionArg ? ` (${actionArg})` : "";

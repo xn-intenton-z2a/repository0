@@ -6,18 +6,30 @@
 // asks the Copilot SDK to choose multiple concurrent actions, then dispatches them.
 
 import * as core from "@actions/core";
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { runCopilotTask, readOptionalFile, scanDirectory, filterIssues } from "../copilot.js";
 
 async function gatherContext(octokit, repo, config, t) {
   const mission = readOptionalFile(config.paths.mission.path);
-  const recentActivity = readOptionalFile(config.intentionBot.intentionFilepath).split("\n").slice(-20).join("\n");
+  const intentionLogFull = readOptionalFile(config.intentionBot.intentionFilepath);
+  const recentActivity = intentionLogFull.split("\n").slice(-20).join("\n");
+
+  // Read cumulative transformation cost from the activity log
+  const costMatches = intentionLogFull.matchAll(/\*\*agentic-lib transformation cost:\*\* (\d+)/g);
+  const cumulativeTransformationCost = [...costMatches].reduce((sum, m) => sum + parseInt(m[1], 10), 0);
 
   // Check mission-complete signal
   const missionComplete = existsSync("MISSION_COMPLETE.md");
   let missionCompleteInfo = "";
   if (missionComplete) {
     missionCompleteInfo = readFileSync("MISSION_COMPLETE.md", "utf8").substring(0, 500);
+  }
+
+  // Check mission-failed signal
+  const missionFailed = existsSync("MISSION_FAILED.md");
+  let missionFailedInfo = "";
+  if (missionFailed) {
+    missionFailedInfo = readFileSync("MISSION_FAILED.md", "utf8").substring(0, 500);
   }
 
   // Check transformation budget
@@ -54,6 +66,36 @@ async function gatherContext(octokit, repo, config, t) {
     const labels = i.labels.map((l) => l.name).join(", ");
     return `#${i.number}: ${i.title} [${labels || "no labels"}] (${age}d old)`;
   });
+
+  // Fetch recently-closed issues for mission-complete detection and dedup
+  let recentlyClosedSummary = [];
+  try {
+    const { data: closedIssuesRaw } = await octokit.rest.issues.listForRepo({
+      ...repo,
+      state: "closed",
+      per_page: 5,
+      sort: "updated",
+      direction: "desc",
+    });
+    for (const ci of closedIssuesRaw.filter((i) => !i.pull_request)) {
+      let closeReason = "closed";
+      try {
+        const { data: comments } = await octokit.rest.issues.listComments({
+          ...repo,
+          issue_number: ci.number,
+          per_page: 1,
+          sort: "created",
+          direction: "desc",
+        });
+        if (comments.length > 0 && comments[0].body?.includes("Automated Review Result")) {
+          closeReason = "closed by review as RESOLVED";
+        }
+      } catch (_) { /* ignore */ }
+      recentlyClosedSummary.push(`#${ci.number}: ${ci.title} — ${closeReason}`);
+    }
+  } catch (err) {
+    core.warning(`Could not fetch recently closed issues: ${err.message}`);
+  }
 
   const { data: openPRs } = await octokit.rest.pulls.list({
     ...repo,
@@ -98,7 +140,11 @@ async function gatherContext(octokit, repo, config, t) {
     activeDiscussionUrl,
     missionComplete,
     missionCompleteInfo,
+    missionFailed,
+    missionFailedInfo,
     transformationBudget,
+    cumulativeTransformationCost,
+    recentlyClosedSummary,
   };
 }
 
@@ -113,6 +159,9 @@ function buildPrompt(ctx, agentInstructions) {
     "## Repository State",
     `### Open Issues (${ctx.issuesSummary.length})`,
     ctx.issuesSummary.join("\n") || "none",
+    "",
+    `### Recently Closed Issues (${ctx.recentlyClosedSummary.length})`,
+    ctx.recentlyClosedSummary.join("\n") || "none",
     "",
     `### Open PRs (${ctx.prsSummary.length})`,
     ctx.prsSummary.join("\n") || "none",
@@ -150,8 +199,17 @@ function buildPrompt(ctx, agentInstructions) {
           "",
         ]
       : []),
+    ...(ctx.missionFailed
+      ? [
+          `### Mission Status: FAILED`,
+          ctx.missionFailedInfo,
+          "The mission has been declared failed. The schedule should be set to off.",
+          "You may still: review/close issues, respond to discussions.",
+          "",
+        ]
+      : []),
     ...(ctx.transformationBudget > 0
-      ? [`### Transformation Budget: ${ctx.transformationBudget} cycles per run`, ""]
+      ? [`### Transformation Budget: ${ctx.cumulativeTransformationCost}/${ctx.transformationBudget} used (${Math.max(0, ctx.transformationBudget - ctx.cumulativeTransformationCost)} remaining)`, ""]
       : []),
     `### Issue Limits`,
     `Feature development WIP limit: ${ctx.featureIssuesWipLimit}`,
@@ -175,6 +233,10 @@ function buildPrompt(ctx, agentInstructions) {
     "",
     "### Communication",
     "- `respond:discussions | message: <text> | discussion-url: <url>` — Reply via discussions bot",
+    "",
+    "### Mission Lifecycle",
+    "- `mission-complete | reason: <text>` — Declare mission accomplished. Writes MISSION_COMPLETE.md and sets schedule to off. Use when: all acceptance criteria in MISSION.md are satisfied, tests pass, and recently-closed issues confirm resolution.",
+    "- `mission-failed | reason: <text>` — Declare mission failed. Writes MISSION_FAILED.md and sets schedule to off. Use when: transformation budget is exhausted with no progress, pipeline is stuck in a loop, or the mission is unachievable.",
     "",
     "### Schedule Control",
     "- `set-schedule:<frequency>` — Change supervisor schedule (off, weekly, daily, hourly, continuous). Use `set-schedule:weekly` when mission is substantially complete, `set-schedule:continuous` to ramp up.",
@@ -253,6 +315,31 @@ async function executeDispatch(octokit, repo, actionName, params) {
 async function executeCreateIssue(octokit, repo, params) {
   const title = params.title || "Untitled issue";
   const labels = params.labels ? params.labels.split(",").map((l) => l.trim()) : ["automated"];
+
+  // Dedup guard: skip if a similarly-titled issue was closed in the last hour
+  try {
+    const { data: recent } = await octokit.rest.issues.listForRepo({
+      ...repo,
+      state: "closed",
+      sort: "updated",
+      direction: "desc",
+      per_page: 5,
+    });
+    const titlePrefix = title.toLowerCase().substring(0, 30);
+    const duplicate = recent.find(
+      (i) =>
+        !i.pull_request &&
+        i.title.toLowerCase().includes(titlePrefix) &&
+        Date.now() - new Date(i.closed_at).getTime() < 3600000,
+    );
+    if (duplicate) {
+      core.info(`Skipping duplicate issue (similar to recently closed #${duplicate.number})`);
+      return `skipped:duplicate-of-#${duplicate.number}`;
+    }
+  } catch (err) {
+    core.warning(`Dedup check failed: ${err.message}`);
+  }
+
   core.info(`Creating issue: ${title}`);
   const { data: issue } = await octokit.rest.issues.create({ ...repo, title, labels });
   return `created-issue:#${issue.number}`;
@@ -297,11 +384,65 @@ async function executeRespondDiscussions(octokit, repo, params) {
   return "skipped:respond-no-message";
 }
 
+async function executeMissionComplete(octokit, repo, params) {
+  const reason = params.reason || "All acceptance criteria satisfied";
+  const signal = [
+    "# Mission Complete",
+    "",
+    `- **Timestamp:** ${new Date().toISOString()}`,
+    `- **Detected by:** supervisor`,
+    `- **Reason:** ${reason}`,
+    "",
+    "This file was created automatically. To restart transformations, delete this file or run `npx @xn-intenton-z2a/agentic-lib init --reseed`.",
+  ].join("\n");
+  writeFileSync("MISSION_COMPLETE.md", signal);
+  core.info(`Mission complete signal written: ${reason}`);
+  try {
+    await octokit.rest.actions.createWorkflowDispatch({
+      ...repo,
+      workflow_id: "agentic-lib-schedule.yml",
+      ref: "main",
+      inputs: { frequency: "off" },
+    });
+  } catch (err) {
+    core.warning(`Could not set schedule to off: ${err.message}`);
+  }
+  return `mission-complete:${reason.substring(0, 100)}`;
+}
+
+async function executeMissionFailed(octokit, repo, params) {
+  const reason = params.reason || "Mission could not be completed";
+  const signal = [
+    "# Mission Failed",
+    "",
+    `- **Timestamp:** ${new Date().toISOString()}`,
+    `- **Detected by:** supervisor`,
+    `- **Reason:** ${reason}`,
+    "",
+    "This file was created automatically. To restart, delete this file and run `npx @xn-intenton-z2a/agentic-lib init --reseed`.",
+  ].join("\n");
+  writeFileSync("MISSION_FAILED.md", signal);
+  core.info(`Mission failed signal written: ${reason}`);
+  try {
+    await octokit.rest.actions.createWorkflowDispatch({
+      ...repo,
+      workflow_id: "agentic-lib-schedule.yml",
+      ref: "main",
+      inputs: { frequency: "off" },
+    });
+  } catch (err) {
+    core.warning(`Could not set schedule to off: ${err.message}`);
+  }
+  return `mission-failed:${reason.substring(0, 100)}`;
+}
+
 const ACTION_HANDLERS = {
   "github:create-issue": executeCreateIssue,
   "github:label-issue": executeLabelIssue,
   "github:close-issue": executeCloseIssue,
   "respond:discussions": executeRespondDiscussions,
+  "mission-complete": executeMissionComplete,
+  "mission-failed": executeMissionFailed,
 };
 
 async function executeSetSchedule(octokit, repo, frequency) {
@@ -370,6 +511,17 @@ export async function supervise(context) {
     }
   }
 
+  // Build changes list from executed actions
+  const changes = results
+    .filter((r) => r.startsWith("created-issue:") || r.startsWith("mission-complete:") || r.startsWith("mission-failed:"))
+    .map((r) => {
+      if (r.startsWith("created-issue:")) return { action: "created-issue", file: r.replace("created-issue:", ""), sizeInfo: "" };
+      if (r.startsWith("mission-complete:")) return { action: "mission-complete", file: "MISSION_COMPLETE.md", sizeInfo: r.replace("mission-complete:", "") };
+      if (r.startsWith("mission-failed:")) return { action: "mission-failed", file: "MISSION_FAILED.md", sizeInfo: r.replace("mission-failed:", "") };
+      return null;
+    })
+    .filter(Boolean);
+
   return {
     outcome: actions.length === 0 ? "nop" : `supervised:${actions.length}-actions`,
     tokensUsed,
@@ -378,5 +530,7 @@ export async function supervise(context) {
     cost,
     model,
     details: `Actions: ${results.join(", ")}\nReasoning: ${reasoning.substring(0, 300)}`,
+    narrative: reasoning.substring(0, 500),
+    changes,
   };
 }

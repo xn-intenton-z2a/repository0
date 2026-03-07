@@ -13,8 +13,6 @@ name: agentic-lib-init
 run-name: "agentic-lib-init [${{ github.ref_name }}]"
 
 on:
-  schedule:
-    - cron: "0 5 * * *"
   workflow_call:
     inputs:
       mode:
