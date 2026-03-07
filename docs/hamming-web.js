@@ -1,23 +1,4 @@
-#!/usr/bin/env node
-// SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
-// src/lib/main.js
-
-import { createRequire } from "module";
-import { fileURLToPath } from "url";
-
-const require = createRequire(import.meta.url);
-const pkg = require("../../package.json");
-
-export const name = pkg.name;
-export const version = pkg.version;
-export const description = pkg.description;
-
-export function getIdentity() {
-  return { name, version, description };
-}
-
-// Hamming distance for Unicode-aware strings (by code point)
+// Browser-friendly implementations of the Hamming functions used on the demo page.
 export function hammingDistance(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') {
     throw new TypeError('hammingDistance expects two strings');
@@ -34,7 +15,6 @@ export function hammingDistance(a, b) {
   return diff;
 }
 
-// Hamming distance for non-negative integers (supports Number and BigInt)
 export function hammingDistanceBits(x, y) {
   const isBigInt = (v) => typeof v === 'bigint';
   const isNumber = (v) => typeof v === 'number';
@@ -59,7 +39,6 @@ export function hammingDistanceBits(x, y) {
     throw new RangeError('hammingDistanceBits expects non-negative integers');
   }
 
-  // Use BigInt for bitwise operations to support large integers
   const bx = isBigInt(x) ? x : BigInt(x);
   const by = isBigInt(y) ? y : BigInt(y);
   let v = bx ^ by;
@@ -69,21 +48,4 @@ export function hammingDistanceBits(x, y) {
     v = v >> 1n;
   }
   return count;
-}
-
-export function main(args) {
-  if (args?.includes("--version")) {
-    console.log(version);
-    return;
-  }
-  if (args?.includes("--identity")) {
-    console.log(JSON.stringify(getIdentity(), null, 2));
-    return;
-  }
-  console.log(`${name}@${version}`);
-}
-
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2);
-  main(args);
 }
