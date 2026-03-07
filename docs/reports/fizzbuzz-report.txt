@@ -1,4 +1,0 @@
-FizzBuzz feature implemented.
-- Exports: fizzBuzzSingle, fizzBuzz
-- Tests: tests/unit/main.test.js (covers normal and invalid inputs)
-- Example and evidence files created under docs/examples and docs/evidence
