@@ -14,48 +14,45 @@ import { fileURLToPath } from "url";
  * @returns {string}
  */
 export function fizzBuzzSingle(n) {
-  if (!Number.isFinite(n)) {
-    throw new TypeError("fizzBuzzSingle: input must be a finite number");
+  // Validation: require a finite numeric value that is an integer (3 or 3.0 accepted).
+  if (typeof n !== 'number' || !Number.isFinite(n)) {
+    throw new TypeError('fizzBuzzSingle: input must be a finite number');
   }
-  // Accept numbers that are mathematically integers (3.0 -> 3)
   if (!Number.isInteger(n)) {
-    throw new TypeError("fizzBuzzSingle: input must be an integer");
+    throw new TypeError('fizzBuzzSingle: input must be an integer');
   }
 
   const value = n;
   const isFizz = value % 3 === 0;
   const isBuzz = value % 5 === 0;
 
-  if (isFizz && isBuzz) return "fizzbuzz";
-  if (isFizz) return "fizz";
-  if (isBuzz) return "buzz";
+  if (isFizz && isBuzz) return 'FizzBuzz';
+  if (isFizz) return 'Fizz';
+  if (isBuzz) return 'Buzz';
   return String(value);
 }
 
 /**
- * Return an array of FizzBuzz results for the inclusive range [start, end].
- * Validation policy:
- * - start and end must be finite integers.
- * - If start > end, returns an empty array.
- * - Throws TypeError for invalid inputs.
+ * fizzBuzz(n[, options]) -> string[]
+ * - n: number (integer >= 0). Returns results for 1..n inclusive.
+ * - Throws TypeError for non-number or non-integer inputs.
+ * - For n <= 0 returns an empty array.
  *
- * @param {number} start
- * @param {number} end
- * @returns {string[]}
+ * Examples:
+ *   fizzBuzz(5) -> ["1","2","Fizz","4","Buzz"]
  */
-export function fizzBuzz(start, end) {
-  if (!Number.isFinite(start) || !Number.isFinite(end)) {
-    throw new TypeError("fizzBuzz: start and end must be finite numbers");
+export function fizzBuzz(n) {
+  if (typeof n !== 'number' || !Number.isFinite(n)) {
+    throw new TypeError('fizzBuzz: n must be a finite number');
   }
-  if (!Number.isInteger(start) || !Number.isInteger(end)) {
-    throw new TypeError("fizzBuzz: start and end must be integers");
+  if (!Number.isInteger(n)) {
+    throw new TypeError('fizzBuzz: n must be an integer');
   }
+  if (n <= 0) return [];
 
-  if (start > end) return [];
-
-  const out = [];
-  for (let i = start; i <= end; i++) {
-    out.push(fizzBuzzSingle(i));
+  const out = new Array(n);
+  for (let i = 1; i <= n; i++) {
+    out[i - 1] = fizzBuzzSingle(i);
   }
   return out;
 }
