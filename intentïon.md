@@ -126,3 +126,63 @@ Wrote a focused technical library document HAMMING_DISTANCE synthesizing Wikiped
 Maintained library (0 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T17:53:37.139Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 71134 (in: 66700, out: 4434)
+**Duration:** 79s (~1.3 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22804093783](https://github.com/xn-intenton-z2a/repository0/actions/runs/22804093783)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 5/32 | 27 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 0/32 | 32 remaining | n/a |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Updated the core feature spec to include BIGINT_SUPPORT, expanding hammingDistanceBits to accept BigInt and mixed Number/BigInt inputs so the library correctly handles very large integers.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T17:54:58.836Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 29313 (in: 24175, out: 5138)
+**Duration:** 81s (~1.4 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22804093783](https://github.com/xn-intenton-z2a/repository0/actions/runs/22804093783)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 6/32 | 26 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 0/32 | 32 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Created a consolidated HAMMING_DISTANCE library document extracting implementation-ready details (XOR+popcount, SWAR, Kernighan, BigInt, Unicode code-point handling, APIs and signatures) and recorded source list for attribution.
+
+Maintained library (0 docs, limit 32)
+
+---
