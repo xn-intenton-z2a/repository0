@@ -6,7 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "continuous"              # off | weekly | daily | hourly | continuous
+supervisor = "daily"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -133,7 +133,7 @@ library-limit = 64                     # max library entries in library/ directo
 log-file = "intentïon.md"
 
 [init]
-timestamp = "2026-03-07T16:15:24.967Z"
+timestamp = "2026-03-07T17:07:31.779Z"
 mode = "purge"
-mission = "fizz-buzz"
+mission = "hamming-distance"
 version = "7.1.76"
