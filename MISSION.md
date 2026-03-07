@@ -1,34 +1,37 @@
 # Mission
 
-A JavaScript library that manages a simple OWL-like ontology stored as JSON-LD files in a `data/` directory. The pipeline should both build the library AND populate it with example ontology data over successive transform cycles.
-
-This is an ongoing mission. Do not set schedule to off.
+A JavaScript library that explores the frontier of binary-to-text encoding density using printable characters. The benchmark: produce the shortest possible printable representation of a v7 UUID.
 
 ## Core Functions
 
-- `defineClass(name, superclass?)` — define an ontology class, optionally as a subclass.
-- `defineProperty(name, domain, range, opts?)` — define a property linking two classes.
-- `addIndividual(className, id, properties)` — add an instance of a class with property values.
-- `query(pattern)` — basic pattern matching over the ontology (e.g. find all instances of a class, find by property value).
-- `load(dir?)` — load ontology from JSON-LD files in the data directory.
-- `save(dir?)` — persist the ontology to JSON-LD files.
-- `stats()` — return counts of classes, properties, and individuals.
+- `encode(buffer, encoding)` / `decode(str, encoding)` — encode/decode arbitrary binary data using a named encoding.
+- `encodeUUID(uuid)` / `decodeUUID(str)` — shorthand for UUID encoding (strip dashes, encode the 16 bytes).
+- `createEncoding(name, charset)` — define a custom encoding from a character set string.
+- `listEncodings()` — return available encodings with their bit density and charset info.
+
+## Built-in Encodings
+
+The library should implement progressively denser encodings:
+
+- `base62` — `[0-9a-zA-Z]`, ~5.95 bits/char, URL-safe, 22 chars for a UUID
+- `base85` (Ascii85/Z85) — ~6.41 bits/char, 20 chars for a UUID
+- `base91` — ~6.50 bits/char, ~20 chars for a UUID
+- Optionally: custom higher bases cherry-picking from safe printable Unicode
 
 ## Requirements
 
-- Store data as JSON-LD files in `data/` (one file per class or a single graph file — implementer's choice).
-- The library should be usable both programmatically and to build up ontology data over time.
+- Round-trip property: `decode(encode(x, enc), enc)` must equal `x` for all inputs and all encodings.
+- No control characters, no ambiguous characters (0/O, 1/l/I in contexts where they matter).
+- Test across edge cases: all-zero bytes, all-0xFF bytes, single byte, empty buffer.
+- Compare encoded UUID lengths across all encodings.
 - Export all functions as named exports from `src/lib/main.js`.
-- Include seed ontology data (e.g. a simple animal taxonomy) to demonstrate the library works.
-- Unit tests covering CRUD operations, querying, and persistence.
-- README with usage examples.
+- README with UUID encoding comparison table.
 
 ## Acceptance Criteria
 
-- [ ] Can define classes and properties
-- [ ] Can add individuals and query them
-- [ ] Data persists to and loads from JSON-LD files
-- [ ] At least one example ontology (e.g. animals) is populated in `data/`
-- [ ] `stats()` returns correct counts
+- [ ] At least 3 working encodings (base62, base85, one higher)
+- [ ] Round-trip correct for arbitrary binary data including edge cases
+- [ ] UUID encoding shorter than base64 (< 24 chars) for the densest encoding
+- [ ] `listEncodings()` returns encoding metadata
 - [ ] All unit tests pass
-- [ ] README documents the API with examples
+- [ ] README shows UUID encoding comparison table

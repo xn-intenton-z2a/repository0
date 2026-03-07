@@ -71,6 +71,36 @@ async function dispatchBot(octokit, repo, message, discussionUrl) {
   }
 }
 
+/**
+ * Post a comment directly to a discussion via GraphQL.
+ * Used for supervisor-originated messages to avoid triggering the bot workflow
+ * (which could loop back via request-supervisor).
+ */
+async function postDirectReply(octokit, repo, nodeId, body) {
+  if (process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib") {
+    core.info("Skipping direct reply — running in SDK repo");
+    return;
+  }
+  if (!nodeId || !body) {
+    core.warning(`Cannot post direct reply: ${!nodeId ? "no nodeId" : "no body"}`);
+    return;
+  }
+  try {
+    const mutation = `mutation($discussionId: ID!, $body: String!) {
+      addDiscussionComment(input: { discussionId: $discussionId, body: $body }) {
+        comment { url }
+      }
+    }`;
+    const { addDiscussionComment } = await octokit.graphql(mutation, {
+      discussionId: nodeId,
+      body,
+    });
+    core.info(`Posted direct reply: ${addDiscussionComment.comment.url}`);
+  } catch (err) {
+    core.warning(`Could not post direct reply: ${err.message}`);
+  }
+}
+
 async function gatherContext(octokit, repo, config, t) {
   const mission = readOptionalFile(config.paths.mission.path);
   const intentionLogFull = readOptionalFile(config.intentionBot.intentionFilepath);
@@ -100,11 +130,21 @@ async function gatherContext(octokit, repo, config, t) {
   // Extract discussion URL from recent activity for supervisor reporting
   const discussionUrlMatch = recentActivity.match(/https:\/\/github\.com\/[^/]+\/[^/]+\/discussions\/\d+/);
   let activeDiscussionUrl = discussionUrlMatch ? discussionUrlMatch[0] : "";
+  let activeDiscussionNodeId = "";
 
   // Fallback: look up the "Talk to the repository" discussion if not found in activity log
   if (!activeDiscussionUrl) {
     const talk = await findTalkDiscussion(octokit, repo);
     activeDiscussionUrl = talk.url;
+    activeDiscussionNodeId = talk.nodeId;
+  }
+
+  // Resolve node ID from URL if we got the URL from activity log
+  if (activeDiscussionUrl && !activeDiscussionNodeId) {
+    const talk = await findTalkDiscussion(octokit, repo);
+    if (talk.url === activeDiscussionUrl) {
+      activeDiscussionNodeId = talk.nodeId;
+    }
   }
 
   const featuresPath = config.paths.features.path;
@@ -271,6 +311,7 @@ async function gatherContext(octokit, repo, config, t) {
     featureIssuesWipLimit: config.featureDevelopmentIssuesWipLimit,
     maintenanceIssuesWipLimit: config.maintenanceIssuesWipLimit,
     activeDiscussionUrl,
+    activeDiscussionNodeId,
     missionComplete,
     missionCompleteInfo,
     missionFailed,
@@ -670,14 +711,15 @@ export async function supervise(context) {
   // Step 2: Auto-announce on first run after init
   // Detect first supervisor run: initTimestamp exists but no prior supervisor workflow runs since init
   if (ctx.initTimestamp && !ctx.missionComplete && !ctx.missionFailed) {
-    const hasPriorSupervisor = ctx.actionsSinceInit.some(
-      (a) => a.name === "agentic-lib-workflow" && a.conclusion === "success" &&
-        a.commitMessage?.toLowerCase().includes("supervisor"),
-    ) || ctx.recentActivity.includes("supervised:");
+    // Check for any prior agentic-lib-workflow runs since init (count > 1 because current run is included)
+    const supervisorRunCount = ctx.actionsSinceInit.filter(
+      (a) => a.name === "agentic-lib-workflow",
+    ).length;
+    const hasPriorSupervisor = supervisorRunCount > 1 || ctx.recentActivity.includes("supervised:");
     if (!hasPriorSupervisor && ctx.mission && ctx.activeDiscussionUrl) {
-      core.info("First supervisor run after init — announcing mission");
+      core.info("First supervisor run after init — announcing mission directly");
       const announcement = `New mission started!\n\n**Mission:** ${ctx.mission.substring(0, 300)}\n\n**Website:** ${websiteUrl}`;
-      await dispatchBot(octokit, repo, announcement, ctx.activeDiscussionUrl);
+      await postDirectReply(octokit, repo, ctx.activeDiscussionNodeId, announcement);
     }
   }
 
@@ -738,16 +780,18 @@ export async function supervise(context) {
 
   // Step 3: Auto-respond when a message referral is present
   // If the workflow was triggered with a message (from bot's request-supervisor),
-  // and the LLM didn't include a respond:discussions action, post back automatically
+  // and the LLM didn't include a respond:discussions action, post back directly.
+  // Posts directly via GraphQL to avoid triggering the bot workflow (which would
+  // request-supervisor again, creating an infinite loop).
   const workflowMessage = context.discussionUrl ? "" : (process.env.INPUT_MESSAGE || "");
   if (workflowMessage && ctx.activeDiscussionUrl) {
     const hasDiscussionResponse = results.some((r) => r.startsWith("respond-discussions:"));
     if (!hasDiscussionResponse) {
-      core.info("Message referral detected — auto-responding to discussion");
+      core.info("Message referral detected — posting auto-response directly");
       const response = reasoning
         ? `Supervisor update: ${reasoning.substring(0, 400)}`
         : `Supervisor processed your request. Actions taken: ${results.join(", ")}`;
-      await dispatchBot(octokit, repo, response, ctx.activeDiscussionUrl);
+      await postDirectReply(octokit, repo, ctx.activeDiscussionNodeId, response);
       results.push(`auto-respond:${ctx.activeDiscussionUrl}`);
     }
   }

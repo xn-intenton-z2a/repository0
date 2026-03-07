@@ -1,4 +1,0 @@
-Seed ontology summary:
-Classes: Animal, Mammal (Mammal subClassOf Animal)
-Properties: hasFriend (domain: Animal, range: Animal)
-Individuals: fluffy (type Mammal), buddy (type Animal)

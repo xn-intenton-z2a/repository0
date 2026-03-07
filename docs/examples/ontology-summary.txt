@@ -1,5 +1,0 @@
-Ontology Summary (example):
-
-Classes: http://example.org/Animal, http://example.org/Mammal
-Properties: http://example.org/hasFriend (domain=http://example.org/Animal, range=http://example.org/Animal)
-Individuals: http://example.org/fluffy, http://example.org/buddy
