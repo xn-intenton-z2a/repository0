@@ -14,9 +14,6 @@
     .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-    .social { display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap; }
-    .social a { display: inline-block; padding: 0.4rem 0.8rem; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; font-size: 0.9rem; }
-    .social a:hover { background: #f6f8fa; }
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
   </style>
 </head>
@@ -48,6 +45,16 @@
       document.getElementById('lib-description').textContent = description || '(no description)';
       document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
+
+      // Browser-friendly FizzBuzz demo using a small bundled helper
+      try {
+        const lib = await import('./lib.browser.js');
+        const demo = lib.fizzBuzz(15);
+        document.getElementById('demo-output').textContent = demo.join('\n');
+      } catch (e) {
+        // if browser fizz helper not available, keep metadata dump
+      }
+
       const pageUrl = encodeURIComponent(window.location.href);
       const text = encodeURIComponent('Check out ' + name + ' v' + version + ' — ' + description);
       document.getElementById('share-twitter').href = 'https://x.com/intent/tweet?url=' + pageUrl + '&text=' + text;
