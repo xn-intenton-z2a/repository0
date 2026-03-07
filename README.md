@@ -1,32 +1,23 @@
-# Hamming Distance Library
+# repository0
 
-This repository provides a small JavaScript library that implements Hamming distance functions for strings and integers.
+A JavaScript library exporting Hamming distance functions.
 
-Features
-- hammingDistance(a, b): Compute the Hamming distance between two strings (compares Unicode code points).
-- hammingDistanceBits(x, y): Compute the number of differing bits between two non-negative integers (supports Number and BigInt).
+## CLI
 
-Usage
+Usage:
 
-Node (ES module):
+- node src/lib/main.js string <left> <right>
+  - Prints the Hamming distance (by code point) between two strings and exits with code 0 on success.
+- node src/lib/main.js bits <x> <y>
+  - Prints the Hamming distance (in bits) between two non-negative integers and exits with code 0 on success.
 
-import { hammingDistance, hammingDistanceBits } from './src/lib/main.js';
+Canonical examples (also available in docs/examples/cli-output.md):
 
-console.log(hammingDistance('karolin', 'kathrin')); // 3
-console.log(hammingDistance('', '')); // 0
-console.log(hammingDistanceBits(1, 4)); // 2
+- node src/lib/main.js string karolin kathrin  => stdout: 3, exit: 0
+- node src/lib/main.js bits 1 4               => stdout: 2, exit: 0
 
-API
+View the example on the local docs site after building the site:
 
-- hammingDistance(a: string, b: string): number
-  - Throws TypeError if arguments are not strings.
-  - Throws RangeError if strings have different lengths (by Unicode code points).
+- npm run build:web && npm run start
 
-- hammingDistanceBits(x: number|bigint, y: number|bigint): number
-  - Accepts Number (integer >= 0) or BigInt (>= 0).
-  - Throws TypeError for non-number/non-BigInt arguments.
-  - Throws RangeError for negative integers.
-
-Examples
-
-See docs/examples/hamming-output.txt and docs/evidence/hamming-results.json for example outputs and machine-readable results.
+For library API usage and exported functions, see src/lib/main.js and the tests in tests/unit/.

@@ -1,10 +1,9 @@
 #!/usr/bin/env node
-// SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
 // src/lib/main.js
 
 import { createRequire } from "module";
 import { fileURLToPath } from "url";
+import path from 'path';
 
 const require = createRequire(import.meta.url);
 const pkg = require("../../package.json");
@@ -71,19 +70,73 @@ export function hammingDistanceBits(x, y) {
   return count;
 }
 
+export function usage() {
+  return `Usage: node ${path.relative(process.cwd(), fileURLToPath(import.meta.url))} <mode> <arg1> <arg2>\n
+Modes:\n  string <left> <right>   Compute Hamming distance between two strings (by code point)\n  bits <x> <y>            Compute Hamming distance between two non-negative integers (bits)\n`;
+}
+
 export function main(args) {
-  if (args?.includes("--version")) {
+  // args: array of arguments, e.g. ['string', 'a', 'b']
+  if (!args || args.length === 0) {
+    console.error(usage());
+    return 2;
+  }
+
+  const mode = args[0];
+  if (mode === '--version') {
     console.log(version);
-    return;
+    return 0;
   }
-  if (args?.includes("--identity")) {
+  if (mode === '--identity') {
     console.log(JSON.stringify(getIdentity(), null, 2));
-    return;
+    return 0;
   }
-  console.log(`${name}@${version}`);
+
+  if (mode === 'string') {
+    if (args.length !== 3) {
+      console.error('Error: string mode requires two string arguments.');
+      console.error(usage());
+      return 2;
+    }
+    try {
+      const res = hammingDistance(args[1], args[2]);
+      console.log(String(res));
+      return 0;
+    } catch (e) {
+      console.error(e.message);
+      return 2;
+    }
+  }
+
+  if (mode === 'bits') {
+    if (args.length !== 3) {
+      console.error('Error: bits mode requires two integer arguments.');
+      console.error(usage());
+      return 2;
+    }
+    try {
+      const x = Number(args[1]);
+      const y = Number(args[2]);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) {
+        throw new TypeError('bits arguments must be finite numbers');
+      }
+      const res = hammingDistanceBits(x, y);
+      console.log(String(res));
+      return 0;
+    } catch (e) {
+      console.error(e.message);
+      return 2;
+    }
+  }
+
+  console.error(`Unknown mode: ${mode}`);
+  console.error(usage());
+  return 2;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
-  main(args);
+  const code = main(args);
+  // Ensure explicit exit code for CLI invocation
+  process.exit(code);
 }
