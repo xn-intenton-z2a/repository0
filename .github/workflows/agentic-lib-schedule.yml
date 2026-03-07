@@ -159,4 +159,16 @@ jobs:
           git add .github/workflows/agentic-lib-workflow.yml agentic-lib.toml
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "schedule: set to ${FREQUENCY}, model ${MODEL:-gpt-5-mini}"
-          git push origin main
+          for attempt in 1 2 3; do
+            git push origin main && break
+            echo "Push failed (attempt $attempt) — pulling and retrying"
+            git pull --rebase origin main || {
+              echo "Rebase conflict — aborting rebase and retrying"
+              git rebase --abort 2>/dev/null || true
+            }
+            sleep $((attempt * 2))
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::Failed to push after 3 attempts"
+              exit 1
+            fi
+          done

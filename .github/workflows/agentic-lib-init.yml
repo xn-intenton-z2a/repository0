@@ -265,4 +265,16 @@ jobs:
           git diff --cached --quiet && echo "No changes" && exit 0
           VERSION=$(npx @xn-intenton-z2a/agentic-lib version 2>/dev/null || echo "latest")
           git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION}) [skip ci]"
-          git push origin main
+          for attempt in 1 2 3; do
+            git push origin main && break
+            echo "Push failed (attempt $attempt) — pulling and retrying"
+            git pull --rebase origin main || {
+              echo "Rebase conflict — aborting rebase and retrying"
+              git rebase --abort 2>/dev/null || true
+            }
+            sleep $((attempt * 2))
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::Failed to push after 3 attempts"
+              exit 1
+            fi
+          done
