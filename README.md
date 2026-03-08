@@ -16,4 +16,14 @@ CLI examples:
 - npm run start:cli then: node src/lib/main.js to-roman 1994
 - npm run start:cli then: node src/lib/main.js from-roman MCMXCIV
 
-Docs/examples: docs/roman-examples.txt
+Docs/examples: docs/examples/roman-examples.txt
+
+Strict vs permissive parsing:
+- fromRoman(s, {strict: true}) will reject non-canonical forms such as "IIII", "VX", "IIV" by throwing SyntaxError.
+- fromRoman(s, {strict: false}) (default) accepts canonical forms only; non-canonical inputs are rejected to encourage round-trip safety.
+
+CLI:
+- npm run start:cli then: node src/lib/main.js to-roman 1994
+- npm run start:cli then: node src/lib/main.js from-roman MCMXCIV
+
+Mission: Implements Roman numeral conversion with canonical subtractive notation (IV, IX, XL, XC, CD, CM).
