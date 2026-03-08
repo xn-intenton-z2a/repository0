@@ -305,3 +305,63 @@ Extracted Roman numerals technical rules and created a normalized library docume
 Maintained library (0 docs, limit 8)
 
 ---
+## maintain-features at 2026-03-08T05:34:35.796Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 26113 (in: 25859, out: 254)
+**Duration:** 11s (~0.2 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22814829183](https://github.com/xn-intenton-z2a/repository0/actions/runs/22814829183)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 11/16 | 5 remaining |  |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining |  |
+| library | 0/8 | 8 remaining | n/a |
+
+### Closing Notes
+features at capacity (2/2) — actions will be blocked.
+
+### Narrative
+Merged and replaced overlapping CLI and strict-parser features into one comprehensive feature spec that adds a CLI harness and explicit parseRoman strictness to align with the mission.
+
+Maintained features (2 existing, limit 2)
+
+---
+## maintain-library at 2026-03-08T05:34:48.097Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 23101 (in: 22883, out: 218)
+**Duration:** 12s (~0.2 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22814829183](https://github.com/xn-intenton-z2a/repository0/actions/runs/22814829183)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 12/16 | 4 remaining |  |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining | n/a |
+| library | 0/8 | 8 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Maintained library (0 docs, limit 8)
+
+Maintained library (0 docs, limit 8)
+
+---
