@@ -1,0 +1,7 @@
+toRoman(1) => I
+toRoman(4) => IV
+toRoman(9) => IX
+toRoman(40) => XL
+toRoman(1994) => MCMXCIV
+toRoman(3999) => MMMCMXCIX
+fromRoman('MCMXCIV') => 1994
