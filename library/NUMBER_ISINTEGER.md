@@ -70,7 +70,7 @@ Number.isInteger(value) -> boolean
 10. Detailed digest and retrieval metadata
 - Source referenced: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
 - Extracted technical content: algorithmic checks, edge cases, polyfill algorithm, practical caveats and related built-ins.
-- Retrieval date: 2026-03-08
+- Retrieval date: 2026-03-08T19:59:36.838Z
 
 11. Attribution and data size
 - Attribution: Content derived from MDN Web Docs – Number.isInteger (developer.mozilla.org)

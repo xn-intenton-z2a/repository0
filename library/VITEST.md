@@ -126,7 +126,7 @@ Table of contents
 
 4.1 Source URL and retrieval date
 - Source: https://vitest.dev/guide/
-- Retrieval date: 2026-03-08
+- Retrieval date: 2026-03-08T19:59:36.838Z
 
 4.2 Crawl data size
 - Extracted content length from the source: approximately 13,200 characters.
