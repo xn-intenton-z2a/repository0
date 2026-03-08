@@ -46,13 +46,37 @@ Edge cases and errors
 - If n is not an integer, both formatted helpers must throw TypeError with the same descriptive message used by the canonical functions.
 - If formatter is missing or not a function, throw TypeError and do not call the formatter.
 
+Statistics extension (optional)
+
+Summary
+
+Provide a small, opt-in statistics helper that counts how many Fizz, Buzz, FizzBuzz and plain number entries occur in the sequence 1..n. This is an additive convenience for consumers and tooling and must not change canonical outputs.
+
+Specification
+
+- Add one new named export from src/lib/main.js: fizzBuzzStats.
+- fizzBuzzStats(n): return a plain object with the following integer properties:
+  - fizz: count of entries that are "Fizz" (multiples of 3 but not 5)
+  - buzz: count of entries that are "Buzz" (multiples of 5 but not 3)
+  - fizzBuzz: count of entries that are "FizzBuzz" (multiples of both 3 and 5)
+  - numbers: count of entries that are decimal numeric strings (not replaced)
+  - total: n (the requested upper bound)
+- The helper must reuse the library's validation logic for n: non-integer inputs cause TypeError, negative integers cause RangeError, and n=0 returns an object with all zero counts and total 0.
+- Implement fizzBuzzStats as a thin analysis wrapper that calls fizzBuzz(n) and computes counts by iterating the resulting array. Do not reimplement Fizz/Buzz rules separately.
+
+Examples
+
+- fizzBuzzStats(15) => { fizz: 4, buzz: 2, fizzBuzz: 1, numbers: 8, total: 15 }
+- fizzBuzzStats(0) => { fizz: 0, buzz: 0, fizzBuzz: 0, numbers: 0, total: 0 }
+
 Testing guidance
 
-- Unit tests should import the four named exports from src/lib/main.js and assert exact output for both canonical and formatted helpers.
-- Tests for formatter helpers should include:
-  - A basic formatter that wraps or appends to strings and asserts exact transformed output for fizzBuzzFormatted(5, formatter) and fizzBuzzSingleFormatted(3, formatter).
-  - A test asserting that a non-function formatter (null, string, number) causes a TypeError containing the word "formatter".
-  - Validation tests reusing the FIZZBUZZ_VALIDATION cases to ensure identical error types/messages for invalid n.
+- Unit tests should import fizzBuzz, fizzBuzzSingle, fizzBuzzFormatted, fizzBuzzSingleFormatted and fizzBuzzStats from src/lib/main.js and assert exact outputs for canonical, formatted and stats helpers.
+- For fizzBuzzStats include tests that assert exact counts for known inputs such as:
+  - fizzBuzzStats(15) returns an object exactly matching { fizz: 4, buzz: 2, fizzBuzz: 1, numbers: 8, total: 15 }
+  - fizzBuzzStats(0) returns zeros with total 0
+- Validation tests: ensure that invalid n values cause the same error types and messages as the canonical functions.
+- Tests should verify that fizzBuzzStats is implemented by mapping fizzBuzz output (for example by spying or by asserting behaviour) rather than duplicating logic; however prefer black-box assertions on outputs and counts.
 
 Acceptance criteria
 
@@ -67,10 +91,14 @@ Acceptance criteria
   - fizzBuzzFormatted(5, s => `[` + s + `]`) returns ["[1]","[2]","[Fizz]","[4]","[Buzz]"]
   - fizzBuzzSingleFormatted(3, s => s + "!") returns "Fizz!"
   - Passing a non-function formatter throws a TypeError whose message contains "formatter".
-- Unit tests exist and pass for both canonical and formatted helpers.
+- Acceptance criteria for statistics helper:
+  - fizzBuzzStats(15) returns { fizz: 4, buzz: 2, fizzBuzz: 1, numbers: 8, total: 15 }
+  - fizzBuzzStats(0) returns counts all zero with total 0
+  - Invalid n values throw the same error types and messages as the canonical functions.
+- Unit tests exist and pass for canonical, formatted and statistics helpers.
 
 Notes
 
-- Keep the implementation minimal: implement formatted helpers as thin wrappers that call the canonical functions and then map the result through the formatter, or call formatter on the single result. Do not duplicate core fizz/fizzbuzz logic.
-- This extension keeps the original API stable for downstream consumers and adds a small, testable convenience for presentation-level transformations.
-- The new helpers should be demonstrated in README examples and in the web demo where appropriate, but core behaviour and tests remain authoritative.
+- Keep the implementation minimal: implement formatted helpers and fizzBuzzStats as thin wrappers that call the canonical functions and then map or analyse the result; do not duplicate the core fizz/fizzbuzz logic.
+- This extension keeps the original API stable for downstream consumers and adds small, testable conveniences for presentation-level transformations and basic analytics.
+- Demonstrate the new stats helper in README examples and optionally in the web demo where appropriate; ensure the demo imports the helper from src/lib/main.js and displays the returned counts.
