@@ -1,0 +1,145 @@
+NORMALISED EXTRACT
+
+Table of contents:
+1. Problem specification
+2. Input validation rules
+3. Output format and mapping rules
+4. Efficient generation algorithm
+5. Edge cases and behaviour for non-integers and out-of-range values
+6. Implementation patterns (JS API signature and return types)
+
+1. Problem specification
+Given a positive integer n, produce an ordered sequence of length n mapping each integer i from 1 to n to a string as follows:
+- If i is divisible by 3 and not by 5, output "Fizz".
+- If i is divisible by 5 and not by 3, output "Buzz".
+- If i is divisible by both 3 and 5, output "FizzBuzz".
+- Otherwise output the decimal representation of i.
+The sequence must be deterministic and reproducible for identical inputs.
+
+2. Input validation rules
+- Accept a single input parameter n representing the number of items to produce.
+- Validate that n is an integer: use Number.isInteger(n).
+- Validate that n is within an allowed range: n > 0. If a maximum is required, choose an implementation limit (example: n <= 1_000_000) to prevent resource exhaustion; when exceeded throw RangeError.
+- On invalid type (non-number) or non-integer, throw TypeError or return an explicit error object as per host API conventions.
+- On out-of-range integer, throw RangeError with message describing allowed range.
+
+3. Output format and mapping rules
+- Return an Array of strings of length n where array index 0 corresponds to i = 1.
+- Each element must be the exact strings: "Fizz", "Buzz", "FizzBuzz" or the decimal string of the number with no extra whitespace or punctuation.
+- Preserve order: element at index (i-1) corresponds to i.
+
+4. Efficient generation algorithm
+- Prefer single-pass iteration from 1 to n, computing divisibility using modular arithmetic: i % 3 === 0 and i % 5 === 0.
+- For memory-constrained environments, support generator-based streaming APIs that yield each string on demand instead of building the full array.
+- Optimization: compute both divisibility tests per iteration and avoid repeated string concatenation. Use precomputed constants for 3 and 5 where helpful.
+- Time complexity: O(n). Space complexity: O(n) for full-array implementation, O(1) auxiliary.
+
+5. Edge cases and behaviour for non-integers and out-of-range values
+- Non-integer numbers: reject via Number.isInteger; if accepted, define behaviour explicitly (e.g., floor to integer or throw). Recommended: throw TypeError.
+- Zero and negative numbers: treat as invalid; throw RangeError.
+- Extremely large n: enforce application limit and throw RangeError when exceeded. Document memory/time implications and suggest streaming.
+- Non-number inputs: throw TypeError.
+
+6. Implementation patterns (JS API signature and return types)
+- Exported function signature:
+  function fizzBuzz(n: number): string[]
+  - Parameters: n (number) — required, must be integer > 0 and <= MAX_LIMIT when defined.
+  - Returns: Array<string> — length n, ordered mapping for 1..n.
+  - Errors thrown: TypeError for invalid type/non-integer; RangeError for out-of-range values.
+
+- Alternative streaming API signature:
+  function* fizzBuzzGenerator(n: number): Generator<string>
+  - Yields: string values for i = 1..n in order.
+  - Same validation rules apply before yielding.
+
+SUPPLEMENTARY DETAILS
+
+Technical specifications and implementation details:
+- Use Number.isInteger to detect integers with correct semantics for NaN, Infinity and non-number types.
+- Use explicit RangeError instances: throw new RangeError('n must be an integer between 1 and 1000000') with concrete limit if applied.
+- For array creation, pre-allocate via new Array(n) and populate via for loop using zero-based indices to reduce push overhead when performance matters.
+- For generator implementations, perform validation at the start, then use for (let i = 1; i <= n; ++i) { if (i % 15 === 0) yield 'FizzBuzz'; else if (i % 3 === 0) yield 'Fizz'; else if (i % 5 === 0) yield 'Buzz'; else yield String(i); }
+- Avoid repeated string conversions by calling String(i) only for the else branch per iteration.
+- For combined checks, using i % 15 === 0 is slightly cheaper than checking both i % 3 === 0 && i % 5 === 0 in most JS engines.
+
+REFERENCE DETAILS
+
+API specifications and exact implementation patterns:
+1) Full-array implementation
+Signature: function fizzBuzz(n: number): string[]
+Parameters:
+- n: number (integer, >0, <= MAX_LIMIT)
+Return type: Array<string>
+Behavior:
+- Validate: if (typeof n !== 'number' || !Number.isInteger(n)) throw new TypeError('n must be an integer');
+- Validate range: if (n < 1 || n > MAX_LIMIT) throw new RangeError('n out of range');
+- Allocate: const out = new Array(n);
+- Loop: for (let i = 1; i <= n; ++i) {
+    const idx = i - 1;
+    if (i % 15 === 0) out[idx] = 'FizzBuzz';
+    else if (i % 3 === 0) out[idx] = 'Fizz';
+    else if (i % 5 === 0) out[idx] = 'Buzz';
+    else out[idx] = String(i);
+  }
+- Return out.
+
+2) Generator (streaming) implementation
+Signature: function* fizzBuzzGenerator(n: number): Generator<string>
+Parameters:
+- n: number (integer >0 <= MAX_LIMIT)
+Return type: Generator<string>
+Behavior:
+- Validate inputs and range identically to full-array implementation.
+- for (let i = 1; i <= n; ++i) yield value computed by divisibility checks above.
+
+3) NPM package API pattern (module export)
+- Export default or named export: module should export fizzBuzz and fizzBuzzGenerator functions.
+- package.json should set "main" to the entry JS file and declare type as module if using ESM.
+
+4) Testing patterns
+- Unit tests: assert mapping for sample range 1..15 exactly matches canonical list:
+  ["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]
+- Test invalid inputs: non-number, NaN, Infinity, 0, negative, non-integer (e.g., 3.5) and extremely large numbers beyond limit.
+- Performance tests: measure runtime for large n and memory growth for array implementation; verify generator uses minimal memory.
+
+5) Best practices
+- Throw explicit, descriptive errors rather than returning null/undefined.
+- Document MAX_LIMIT and recommend generator API for large or unbounded inputs.
+- Use i % 15 === 0 for combined divisibility check to minimize operations.
+
+TROUBLESHOOTING
+
+Step-by-step fixes for common issues:
+- Unexpected output sequence length: ensure array pre-allocation size equals n and indices use i - 1 mapping.
+- Incorrect mapping for multiples of both 3 and 5: ensure combined check (i % 15 === 0) is performed before separate checks.
+- Performance/memory exhaustion on large n: switch to generator-based streaming and advise consumer to process items incrementally.
+- Non-integer acceptance: enforce Number.isInteger and explicitly test NaN and Infinity.
+
+DETAILED DIGEST
+
+Source items extracted from SOURCES.md (retrieved 2026-03-08):
+- wikipedia Fizz_buzz: canonical problem definition and typical outputs for 1..15 mapping.
+- MDN Number.isInteger: use for integer checks; semantics for NaN and Infinity.
+- MDN RangeError: use RangeError for out-of-range inputs.
+- MDN Array: recommend methods and pre-allocation patterns.
+- freeCodeCamp tutorial: practical implementations including edge-case handling and testable examples.
+- npm fizzbuzz package: export patterns and API example for module packaging.
+- StackOverflow discussion: alternative implementation patterns (mod checks ordering and micro-optimizations).
+
+Retrieved on: 2026-03-08T02:06:20.590Z
+Data obtained: 7 source URLs; approximate combined raw content size 12 KB.
+
+ATTRIBUTION
+
+Sources:
+- https://en.wikipedia.org/wiki/Fizz_buzz
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/RangeError
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
+- https://www.freecodecamp.org/news/fizz-buzz-in-javascript/
+- https://www.npmjs.com/package/fizzbuzz
+- https://stackoverflow.com/questions/4412956/what-is-the-best-way-to-implement-fizzbuzz-in-java
+
+Crawl data size: 12 KB (approx)
+
+[END OF DOCUMENT]
