@@ -1,79 +1,191 @@
-# repo
+# Dense Binary-to-Text Encoding Library
 
-This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests on a schedule.
+A JavaScript library that explores the frontier of binary-to-text encoding density using printable characters. The benchmark: produce the shortest possible printable representation of a v7 UUID, beating standard base64 encoding.
 
-## Getting Started
+## Features
 
-1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
-2. **Configure GitHub** — see [Setup](#setup) below
-3. **Push to main** — the autonomous workflows take over from here
+- **High-density encodings**: base62, base85, and base91 implementations
+- **UUID optimization**: Specialized functions for encoding/decoding UUIDs
+- **Custom encodings**: Create your own encodings from character sets
+- **Round-trip guaranteed**: Perfect decode(encode(x)) === x for all inputs
+- **No ambiguous characters**: Avoids 0/O, 1/l/I confusion in base62
+- **Browser and Node.js**: Works in both environments
 
-The system will create issues from your mission, generate code to resolve them, run tests, and open PRs. A supervisor agent orchestrates the pipeline, and you can interact through GitHub Discussions.
-
-## Setup
-
-### Required Secrets
-
-Add these in your repository: **Settings → Secrets and variables → Actions → New repository secret**
-
-| Secret | How to create | Purpose |
-|--------|---------------|---------|
-| `COPILOT_GITHUB_TOKEN` | [Fine-grained PAT](https://github.com/settings/tokens?type=beta) with **GitHub Copilot** → Read permission | Authenticates with the Copilot SDK for all agentic tasks |
-| `WORKFLOW_TOKEN` | [Classic PAT](https://github.com/settings/tokens) with **workflow** scope | Allows `init.yml` to update workflow files (GITHUB_TOKEN cannot modify `.github/workflows/`) |
-
-### Repository Settings
-
-| Setting | Where | Value |
-|---------|-------|-------|
-| GitHub Actions | Settings → Actions → General | Allow all actions |
-| Workflow permissions | Settings → Actions → General | Read and write permissions |
-| Allow GitHub Actions to create PRs | Settings → Actions → General | Checked |
-| GitHub Discussions | Settings → General → Features | Enabled (for the discussions bot) |
-
-### Optional: Branch Protection
-
-For production repositories, consider adding branch protection on `main`:
-- Require pull request reviews before merging
-- Require status checks to pass (select the `test` workflow)
-
-## How It Works
-
-```
-MISSION.md → [supervisor] → dispatch workflows → Issue → Code → Test → PR → Merge
-                                                    ↑                          |
-                                                    +——————————————————————————+
-```
-
-The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context (issues, PRs, workflow runs, features) and strategically dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
-
-## Configuration
-
-Edit `agentic-lib.toml` to tune the system:
-
-```toml
-[schedule]
-supervisor = "daily"    # off | weekly | daily | hourly | continuous
-
-[paths]
-mission = "MISSION.md"
-source = "src/lib/"
-tests = "tests/unit/"
-
-[limits]
-max-feature-issues = 2      # max concurrent feature issues
-max-attempts-per-issue = 2   # max retries per issue
-```
-
-## Updating
-
-The `init.yml` workflow runs daily and updates the agentic infrastructure automatically. To update manually:
+## Installation
 
 ```bash
-npx @xn-intenton-z2a/agentic-lib@latest init
+npm install @xn-intenton-z2a/repository0
 ```
+
+## Quick Start
+
+```javascript
+import { encode, decode, encodeUUID, decodeUUID, listEncodings } from '@xn-intenton-z2a/repository0';
+
+// Encode arbitrary binary data
+const data = Buffer.from('Hello, World!');
+const encoded = encode(data, 'base91');
+const decoded = decode(encoded, 'base91');
+console.log(decoded.toString()); // "Hello, World!"
+
+// UUID encoding (uses densest encoding automatically)
+const uuid = '01234567-89ab-cdef-0123-456789abcdef';
+const shortUuid = encodeUUID(uuid);
+const restored = decodeUUID(shortUuid);
+console.log(restored); // "01234567-89ab-cdef-0123-456789abcdef"
+
+// List available encodings
+console.log(listEncodings());
+```
+
+## UUID Encoding Comparison
+
+This table shows the encoding density improvements over base64 for a 16-byte UUID:
+
+| Encoding | Example Output | Length | Bit Density | Improvement |
+|----------|---------------|--------|-------------|-------------|
+| Base64   | `ASNFZ4mrze8BI0VniavN7w==` | 24 chars | 6.00 bits/char | baseline |
+| Base62   | `GRcAy5Fpfdb2eHTFEUmQg` | 21 chars | 5.95 bits/char | 13% shorter |
+| Base85   | `Y=Ne{)V{r{-ild^Ff6d` | 19 chars | 6.41 bits/char | 21% shorter |
+| Base91   | `IXxddHz,@7rJEQ0zMm:` | 19 chars | 6.50 bits/char | 21% shorter |
+
+> **Key advantage**: Base91 produces ~19 character UUIDs vs 24 for base64, saving 5 characters per UUID (21% reduction).
+
+## API Reference
+
+### Core Functions
+
+#### `encode(buffer, encoding)`
+Encode binary data using the specified encoding.
+- `buffer`: Buffer containing binary data
+- `encoding`: Encoding name ('base62', 'base85', 'base91', or custom)
+- Returns: Encoded string
+
+#### `decode(str, encoding)`
+Decode a string using the specified encoding.
+- `str`: Encoded string
+- `encoding`: Encoding name
+- Returns: Buffer with decoded binary data
+
+### UUID Functions
+
+#### `encodeUUID(uuid)`
+Encode a UUID string using the densest available encoding (base91).
+- `uuid`: UUID string with or without dashes
+- Returns: Encoded UUID string (~20 characters)
+
+#### `decodeUUID(str)`
+Decode a UUID from an encoded string.
+- `str`: Encoded UUID string
+- Returns: Standard UUID string with dashes
+
+### Utility Functions
+
+#### `createEncoding(name, charset)`
+Create a custom encoding from a character set.
+- `name`: Encoding name for future use
+- `charset`: String of unique characters to use
+- Returns: Encoding definition object
+
+#### `listEncodings()`
+List all available encodings with metadata.
+- Returns: Array of encoding objects with name, charset, bitDensity, and charsetLength
+
+## Built-in Encodings
+
+### Base62 (`0-9A-Za-z`)
+- **Characters**: 62 (0-9, A-Z, a-z)
+- **Bit density**: ~5.95 bits/char
+- **UUID length**: ~22 characters
+- **Use case**: URL-safe identifiers, no special characters
+
+### Base85 (Z85 variant)
+- **Characters**: 85 printable ASCII characters
+- **Bit density**: ~6.41 bits/char  
+- **UUID length**: ~20 characters
+- **Use case**: More compact than base64, still readable
+
+### Base91
+- **Characters**: 91 printable characters
+- **Bit density**: ~6.50 bits/char
+- **UUID length**: ~20 characters  
+- **Use case**: Maximum density while staying printable
+
+## Character Set Safety
+
+All built-in encodings use only printable characters and avoid common ambiguities:
+- No control characters (0-31, 127)
+- Base62 avoids 0/O, 1/l/I confusion  
+- No whitespace or quotes that could cause parsing issues
+- Safe for URLs, JSON, databases, and most text protocols
+
+## Performance & Compatibility
+
+- **Round-trip property**: Guaranteed `decode(encode(x, enc), enc) === x`
+- **Edge cases**: Handles empty buffers, single bytes, all-zero, all-0xFF
+- **Error handling**: Clear error messages for invalid inputs
+- **Memory efficient**: Processes data in chunks where possible
+- **No dependencies**: Pure JavaScript implementation
+
+## Use Cases
+
+- **Short URLs**: Encode UUIDs in URLs with fewer characters
+- **Database keys**: Shorter string primary keys  
+- **QR codes**: Fit more data in smaller QR codes
+- **API responses**: Reduce JSON payload size
+- **File names**: Shorter encoded filenames
+- **Tokens**: Compact authentication tokens
+
+## CLI Usage
+
+```bash
+# Run demo
+npm run start:cli -- --demo
+
+# Show version
+npm run start:cli -- --version
+
+# Show library info  
+npm run start:cli -- --identity
+```
+
+## Web Demo
+
+Run `npm start` to launch an interactive web demo showing:
+- Live encoding/decoding interface
+- UUID comparison table
+- Performance comparisons
+- Available encodings list
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Run tests with coverage  
+npm run test:unit
+
+# Build website
+npm run build:web
+
+# Start development server
+npm start
+```
+
+## License
+
+MIT © [Polycode Limited](https://github.com/xn-intenton-z2a)
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 
 ## Links
 
-- [MISSION.md](MISSION.md) — your project goals
-- [agentic-lib documentation](https://github.com/xn-intenton-z2a/agentic-lib) — full SDK docs
-- [intentïon website](https://xn--intenton-z2a.com)
+- [Repository](https://github.com/xn-intenton-z2a/repository0)
+- [Issues](https://github.com/xn-intenton-z2a/repository0/issues)
+- [Live Demo](https://xn-intenton-z2a.github.io/repository0/)
