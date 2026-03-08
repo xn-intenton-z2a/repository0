@@ -185,3 +185,63 @@ Created and saved a technical library document for Roman numerals containing sym
 Maintained library (0 docs, limit 8)
 
 ---
+## maintain-features at 2026-03-08T04:50:22.421Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 123153 (in: 117558, out: 5595)
+**Duration:** 70s (~1.2 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22814174497](https://github.com/xn-intenton-z2a/repository0/actions/runs/22814174497)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 7/16 | 9 remaining |  |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining |  |
+| library | 0/8 | 8 remaining | n/a |
+
+### Closing Notes
+features at capacity (2/2) — actions will be blocked.
+
+### Narrative
+Refined CLI_TOOL and STRICT_PARSER feature specs so they are actionable, include precise acceptance criteria, and ensure library and CLI behaviour are well documented for tests and README.
+
+Maintained features (2 existing, limit 2)
+
+---
+## maintain-library at 2026-03-08T04:51:08.535Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 66119 (in: 62936, out: 3183)
+**Duration:** 46s (~0.8 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22814174497](https://github.com/xn-intenton-z2a/repository0/actions/runs/22814174497)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 8/16 | 8 remaining |  |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining | n/a |
+| library | 0/8 | 8 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Extracted canonical Roman numeral definitions, conversion algorithms, and API specifications from web sources to create a precise implementation-ready library document.
+
+Maintained library (0 docs, limit 8)
+
+---

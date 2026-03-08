@@ -1,17 +1,17 @@
-TITLE: ROMAN_NUMERALS
+DOCUMENT: ROMAN_NUMERALS
 
-NORMALISED_EXTRACT
+NORMALISED EXTRACT
 
-Table of Contents
-1. Symbols and values
-2. Additive and subtractive formation rules
-3. Standard numeral forms and limits
-4. Integer-to-Roman conversion algorithm (deterministic)
-5. Roman-to-integer parsing algorithm (deterministic)
-6. Implementation edge cases and constraints
-7. Unicode Roman numerals block
+Table of contents:
+1) Basic symbols and integer values
+2) Standard composition rules
+3) Subtractive notation rules (allowed forms)
+4) Construction algorithm for conversion (decimal -> Roman)
+5) Parsing algorithm for Roman -> decimal
+6) Range and limits
+7) Variant and non-standard forms
 
-1. Symbols and values
+1) Basic symbols and integer values
 I  = 1
 V  = 5
 X  = 10
@@ -20,127 +20,138 @@ C  = 100
 D  = 500
 M  = 1000
 
-2. Additive and subtractive formation rules
-- Numerals are written highest value to lowest left-to-right and summed when symbols appear in non-decreasing order of value.
-- Subtractive notation: A smaller-value symbol placed before a larger-value symbol indicates subtraction of the smaller from the larger. Only these subtractive pairs are valid:
-  - I before V or X => IV = 4, IX = 9
-  - X before L or C => XL = 40, XC = 90
-  - C before D or M => CD = 400, CM = 900
-- No other subtractive pairs are permitted in standard forms.
-- Repetition limits: I, X, C, and M may repeat up to three times in succession (III, XXX, CCC, MMM). V, L, and D are never repeated consecutively.
+2) Standard composition rules
+- Numbers are formed by concatenating symbols from highest to lowest value.
+- Repeat a symbol at most three times in succession to add (e.g., III = 3, XXX = 30, CCC = 300, MMM = 3000).
+- Place-value gaps represented by omitted symbols (no zero placeholder).
+- For multi-digit numbers, represent thousands, hundreds, tens, then units in sequence.
 
-3. Standard numeral forms and limits
-- The customary Roman numeral system represents numbers from 1 to 3999 using standard forms (up to MMMCMXCIX = 3999).
-- Overline/multiplicative notation for numbers >= 4000 is outside standard ASCII Roman numerals and requires additional notation (vinculum or Unicode numerals in separate blocks); many implementations restrict to 1..3999 by default.
+3) Subtractive notation rules (allowed forms)
+- Only these subtractive pairs are standard and allowed:
+  I can precede V and X to make 4 and 9 (IV = 4, IX = 9).
+  X can precede L and C to make 40 and 90 (XL = 40, XC = 90).
+  C can precede D and M to make 400 and 900 (CD = 400, CM = 900).
+- Subtractive notation uses a smaller-value symbol immediately before a larger one to indicate subtraction of the smaller from the larger.
+- No other subtractive combinations are part of the modern standard form.
 
-4. Integer-to-Roman conversion algorithm (deterministic)
-- Data: ordered mapping of integer values to numeral strings (descending):
-  1000 -> "M"
-   900 -> "CM"
-   500 -> "D"
-   400 -> "CD"
-   100 -> "C"
-    90 -> "XC"
-    50 -> "L"
-    40 -> "XL"
-    10 -> "X"
-     9 -> "IX"
-     5 -> "V"
-     4 -> "IV"
-     1 -> "I"
-- Algorithm (procedural steps):
-  1. Validate input: integer n must be >= 1 and typically <= 3999 unless extended notation supported.
-  2. Initialize result = empty string.
-  3. For each pair (value, symbol) in the ordered mapping:
-     a. While n >= value:
-        i. Append symbol to result.
-        ii. Subtract value from n.
-  4. Return result.
-- Complexity: O(k + m) where k is number of mapping entries (constant 13) and m is the number of appended symbols (<= proportional to magnitude of n).
+4) Construction algorithm for conversion (decimal -> Roman)
+- Use an ordered mapping of decimal values to Roman numeral strings:
+  1000 -> M
+  900  -> CM
+  500  -> D
+  400  -> CD
+  100  -> C
+  90   -> XC
+  50   -> L
+  40   -> XL
+  10   -> X
+  9    -> IX
+  5    -> V
+  4    -> IV
+  1    -> I
+- Greedy algorithm: iterate mapping from largest to smallest; for each mapping value v with numeral s, while n >= v append s and set n = n - v.
+- Stop when n == 0. The result is the modern-standard Roman numeral.
 
-5. Roman-to-integer parsing algorithm (deterministic)
-- Steps to parse a Roman string s:
-  1. Normalize: uppercase s, trim whitespace.
-  2. Validate characters: s must contain only I, V, X, L, C, D, M and optionally Unicode Roman numeral characters if supported.
-  3. Map single-symbol values using mapping in section 1.
-  4. Iterate through s left to right using index i:
-     a. Look ahead to i+1; if value(s[i]) < value(s[i+1]) and the pair forms one of the allowed subtractive pairs (I before V/X, X before L/C, C before D/M), then add (value(s[i+1]) - value(s[i])) to total and increment i by 2.
-     b. Otherwise add value(s[i]) to total and increment i by 1.
-  5. After iteration, validate that re-encoding the computed integer back to Roman (using algorithm from section 4) equals the normalized original string; if not, treat as invalid (this prevents non-standard additive strings like IIV or VX).
-- Complexity: O(n) where n is length of string; with final re-encoding check cost same as section 4.
+5) Parsing algorithm for Roman -> decimal
+- Validate input: allow only characters I, V, X, L, C, D, M (case-insensitive if desired).
+- Scan left-to-right accumulating total. For each symbol, lookahead to next symbol:
+  - If current symbol value >= next symbol value (or no next), add current value to total.
+  - If current symbol value < next symbol value, subtract current value from total.
+- After full scan, validate that re-encoding the computed total with the construction algorithm yields the same numeral string (optional strict validation step to reject non-standard variants).
 
-6. Implementation edge cases and constraints
-- Reject empty input.
-- Reject lowercase or mixed-case input unless normalized to uppercase before validation.
-- Reject invalid subtractive pairs (e.g., IL, IC, XM) during parsing.
-- Reject repeated V, L, or D symbols consecutively.
-- When supporting larger numbers using overline/vinculum, implement separate encoding rules or Unicode numeral blocks; standard algorithms must be extended to include thousands grouping via overline multiply-by-1000.
+6) Range and limits
+- Using standard symbols without overline/multiplicative notation, largest representable conventional number is 3,999 (MMMCMXCIX).
+- Values >= 4000 require extended notations (overline to indicate multiplication by 1000) or non-standard additive/multiplicative forms not included in the standard mapping.
 
-7. Unicode Roman numerals block
-- Unicode includes separate single-character Roman numeral letters in U+2160..U+216F (Roman Numerals) and U+2170..U+217F (small roman numerals), covering I, V, X, L, C, D, M in other code points, plus numerals for numbers 1..12, etc.
-- Implementations that must accept Unicode Roman numerals should map these codepoints to their ASCII equivalents during normalization.
+7) Variant and non-standard forms
+- Additive variants: IIII instead of IV, VIIII instead of IX, XXXX for 40, CCCC for 400, DCCCC for 900; historically used and still seen (e.g., clock faces use IIII for 4).
+- Other historical subtractive forms have existed (e.g., IIX for 8, IIIXX for 17, IC for 99) but are not part of modern standard rules.
+- Excel's ROMAN function supports multiple forms controlled by a 'form' parameter which outputs different compact or classical variants; when strict canonical behavior is required, enforce the standard mapping above.
 
-SUPPLEMENTARY_DETAILS
+SUPPLEMENTARY DETAILS (specifications and implementation complements)
 
-Specifications and implementation notes
-- Input validation: prefer strict validation by re-encoding check (parse -> int -> encode -> compare) to ensure canonical Roman numeral forms.
-- Range policy: default implementations limit to 1..3999 for compatibility; to support larger values add mapping entries for 5000+ using vinculum notation or Unicode numeral characters and define encoding rules for overline notation (value x1000 per overline).
-- Performance: conversion functions are constant-time in practice due to fixed mapping table; safe for bulk conversion.
-- API contract suggestions for module design:
-  - function toRoman(n: integer) -> string
-    - Validates n is integer and within range; throws error on invalid input.
-  - function fromRoman(s: string) -> integer
-    - Validates s is canonical Roman numeral string; throws error on invalid or non-canonical forms.
-  - function isValidRoman(s: string) -> boolean
-    - Quick validity check without throwing; may skip re-encoding step and rely on pattern matching for speed.
+Symbol-to-value mapping (explicit table):
+Symbol | Value | Max consecutive repeats
+M      | 1000  | 3
+D      | 500   | 1
+C      | 100   | 3
+L      | 50    | 1
+X      | 10    | 3
+V      | 5     | 1
+I      | 1     | 3
 
-REFERENCE_DETAILS
+Canonical mapping for greedy conversion (ordered list with pairs):
+[(1000, M), (900, CM), (500, D), (400, CD), (100, C), (90, XC), (50, L), (40, XL), (10, X), (9, IX), (5, V), (4, IV), (1, I)]
 
-Concrete API specifications and method signatures (recommended)
-- toRoman(n: integer) : string
-  - Parameters:
-    - n: integer (1 <= n <= 3999) unless extended
-  - Returns: canonical Roman numeral string representing n
-  - Errors: throws RangeError for n < 1 or n > max supported value; throws TypeError for non-integer inputs
+Strict encoding rules (to enforce canonical output):
+- Never emit more than three identical symbols in a row. Use subtractive pairs where applicable.
+- Do not use subtractive notation with symbols other than the specified pairs above.
+- For input validation, forbid sequences that violate max repeats or illegal subtractive pairs.
 
-- fromRoman(s: string) : integer
-  - Parameters:
-    - s: string representing canonical Roman numeral (uppercase ASCII or mapped Unicode equivalents)
-  - Returns: integer value corresponding to s
-  - Errors: throws SyntaxError for invalid numeral strings; throws TypeError for non-string inputs
+Unicode and character considerations:
+- Use standard ASCII Latin letters I V X L C D M for data interchange.
+- Unicode contains precomposed Roman numeral code points (e.g., U+2160..U+2188) for numeral letter forms and parentheses forms; prefer ASCII letters for algorithmic processing and interchange.
 
-- isValidRoman(s: string) : boolean
-  - Parameters: s: string
-  - Returns: true if s is a canonical Roman numeral, false otherwise
+REFERENCE DETAILS (API-style specifications, method signatures, options, effects)
 
-Implementation patterns and examples (described procedurally)
-- Canonical encoding: use the descending mapping table and greedy subtraction loop (section 4). Do not permit additive-only encodings when a subtractive form exists (e.g., prefer IX instead of VIIII).
-- Parsing validation: enforce allowed subtractive pairs and repetition limits, then perform a re-encode round-trip equality check to guarantee canonical form.
-- Unicode acceptance: normalize by mapping U+2160..U+217F (and related code points) to ASCII symbols prior to parsing.
+Function: encodeRoman
+Signature: encodeRoman(n: integer, options?: {strict?: boolean}) -> string
+Parameters:
+- n: integer; precondition 1 <= n <= 3999 for strict mode; for non-strict, n >= 1 supported with application-defined extensions.
+- options.strict (boolean, default true): when true, produce canonical modern Roman numerals using the canonical mapping; when false, may emit additive variants (e.g., IIII for 4) based on options.variant.
+Return: Roman numeral string representing n.
+Errors: throw/return error if n < 1 or n > 3999 when strict true; throw error for non-integer input.
 
-Troubleshooting
-- If parsing returns unexpected values for inputs like IIV or VX, implement the re-encoding canonicality check to reject such inputs.
-- If toRoman yields non-canonical repeated symbols (e.g., IIII for 4), ensure mapping table contains 4->IV entry and that algorithm iterates through mapping in descending order.
+Implementation pattern (encodeRoman):
+1) Validate input range and integer-ness.
+2) Initialize result = ''.
+3) For each (value, numeral) in canonical mapping list: while n >= value, append numeral to result and n -= value.
+4) Return result.
 
-DETAILED_DIGEST
+Function: decodeRoman
+Signature: decodeRoman(s: string, options?: {strict?: boolean}) -> integer
+Parameters:
+- s: string of Roman numeral characters.
+- options.strict (boolean, default true): when true, reject non-standard forms (illegal repeats, illegal subtractive pairs); when false, accept common additive variants (IIII) and historical variants per documented allowance.
+Return: integer value of s.
+Errors: throw/return error for empty input, invalid characters, or illegal formation when strict is true.
 
-Source list and retrieval metadata
-- Sources consulted (SOURCES.md):
-  - https://en.wikipedia.org/wiki/Roman_numerals
-  - https://rosettacode.org/wiki/Roman_numerals
-  - https://www.npmjs.com/package/roman-numerals
-  - https://www.unicode.org/charts/PDF/U2160.pdf
-  - https://www.rapidtables.com/convert/number/roman-numerals-converter.html
+Implementation pattern (decodeRoman):
+1) Normalize input (trim, uppercase).
+2) Map characters to values and scan left-to-right.
+3) Apply lookahead subtraction rule: if current < next then total -= current else total += current.
+4) After scanning, if options.strict, re-encode total with encodeRoman and compare normalized equality to the normalized input; if mismatch, throw validation error.
+5) Return total.
+
+Configuration options and effects:
+- strict:true ensures canonical forms only, rejects historical or additive variants, and enforces 1..3999 range.
+- strict:false allows accepting and decoding additive variants and some historical subtractive variants; when decoding with strict:false, consider normalizing output to canonical form via encodeRoman(total, {strict:true}).
+
+BEST PRACTICES and IMPLEMENTATION EXAMPLES (patterns without escaped code blocks)
+- Always validate input and enforce integer bounds before encoding.
+- Use the greedy ordered mapping for encoding to guarantee canonical output.
+- For user interfaces (e.g., displaying years on plaques), prefer canonical modern representation; for clock faces or legacy displays, implement an option to emit IIII.
+- When storing Roman numerals as identifiers, normalize to uppercase ASCII and strip whitespace.
+
+TROUBLESHOOTING
+- If decoding yields unexpected value, check for lowercase or non-ASCII characters; normalize to uppercase ASCII before parsing.
+- If encoding > 3999 is required, decide on an extended notation (overline for thousands) and implement a defined mapping: overline(X) = X * 1000; represent via custom syntax (e.g., _V_ for 5000) consistently across encode/decode.
+- If users supply mixed additive and subtractive variants, use strict mode to reject and return an error explaining the allowed forms.
+
+DIGEST (source extraction summary and retrieval date)
+- Sources consulted and extracted sections: Wikipedia Roman numerals (standard symbols, rules, subtractive forms, variants); Rosetta Code Roman numerals (task definitions encode/decode); RapidTables conversion table (explicit mapping and arithmetic breakdowns by number up to 100+).
 - Retrieval date: 2026-03-08
-- Extracted content summary (technical points used above):
-  - Symbol set and basic values
-  - Subtractive notation allowed pairs and repetition constraints
-  - Conversion algorithm patterns (greedy mapping table)
-  - Validation via parse + re-encode to ensure canonical form
-  - Unicode Roman numeral block mapping guidance
+- Data obtained: Wikipedia HTML (partial), Rosetta Code HTML (partial), RapidTables HTML (conversion table).
 
-ATTRIBUTION_AND_DATA_SIZE
-- Attribution: content derived from the five source URLs listed in Sources; extracted technical rules and mappings reflect canonical Roman numeral rules described in those references.
-- Data size obtained during crawling: not measured (sources are public HTML/PDF pages; only essential technical points were extracted and condensed into this document).
+ATTRIBUTION and DATA SIZE
+- Source: https://en.wikipedia.org/wiki/Roman_numerals (retrieved 2026-03-08) — ~15,000 characters fetched
+- Source: https://rosettacode.org/wiki/Roman_numerals (retrieved 2026-03-08) — ~2,500 characters fetched
+- Source: https://www.rapidtables.com/convert/number/roman-numerals-converter.html (retrieved 2026-03-08) — ~6,500 characters fetched
+- Failed fetches: https://www.npmjs.com/package/roman-numerals (403), https://www.unicode.org/charts/PDF/U2160.pdf (404)
+- Total crawled bytes (approx): 24,000 bytes
 
-[END OF DOCUMENT]
+NOTES
+- This document encodes the canonical modern rules and provides API-style function signatures and algorithms for encoding and decoding Roman numerals.
+- Keep this document distinct from any future documents that focus specifically on historical variants or Unicode precomposed numerals.
+
+[NARRATIVE] Extracted canonical Roman numeral rules, conversion algorithms, API signatures, variants, and source metadata to create a reusable technical library document for implementation and validation.

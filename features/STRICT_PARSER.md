@@ -1,43 +1,39 @@
 # STRICT_PARSER
 
-## Summary
+# Summary
+Introduce an explicit parseRoman API that supports a strict parsing mode and expose a --strict CLI flag so consumers and tests can choose canonical-only Roman numeral acceptance. Make fromRoman behave in strict mode by default and provide parseRoman(s, {strict:false}) for permissive parsing.
 
-Add an optional strict parsing mode to fromRoman and the CLI that enforces canonical Roman numeral forms and rejects non-canonical inputs (for example IIII, VX, IIV). This feature complements the existing CLI_TOOL feature by making the library behaviour configurable and explicitly documented so tests and consumers can choose either permissive or strict behaviour.
+# Motivation
+The mission allows either rejecting or accepting non-canonical inputs; making strictness explicit avoids ambiguity, gives deterministic CLI/test behaviour, and lets callers opt into permissive parsing when needed.
 
-## Motivation
+# Specification
+- Library API (src/lib/main.js)
+  - Export a new named function parseRoman(s, options) where options is optional. parseRoman(s) defaults to permissive behaviour (strict:false) for compatibility; parseRoman(s, {strict:true}) enforces canonical Roman numerals and throws TypeError on invalid input.
+  - Make fromRoman(s) a named export that behaves as parseRoman(s, {strict:true}) (strict by default) so existing callers that expect strict validation get canonical behaviour.
+  - Keep toRoman unchanged and exported as before.
 
-The mission requires handling subtractive notation correctly and allows either rejecting or accepting non-canonical inputs for fromRoman. Offering a strict-parser option makes behaviour explicit, improves interoperability, and enables deterministic CLI/test behaviour without changing the library's default semantics unexpectedly.
+- Validation rules for strict mode
+  - Only allow subtractive pairs IV, IX, XL, XC, CD, CM.
+  - Do not allow more than three repeats of I, X, C, or M in a row.
+  - Disallow invalid subtractive combinations such as IIV, VX, IL, etc.
+  - Enforce correct ordering so that fromRoman(toRoman(n)) === n for all 1..3999.
 
-## Specification
+- CLI behaviour
+  - Add --strict flag to from-roman and no-arg auto-detection. When --strict is present the CLI uses strict parsing (same rules as fromRoman). By default the CLI calls fromRoman (strict) for explicit from-roman commands to match mission acceptance criteria; parseRoman with --permissive may be supported via --permissive if desired.
+  - Errors must begin with TypeError: and exit with code 2 when strict parsing rejects input.
 
-- Library API changes (src/lib/main.js)
-  - Export a new optional named export parseRoman(s, options).
-  - parseRoman(s, {strict: boolean}) performs the same conversion as fromRoman(s) when strict is false or omitted (preserve current behaviour). When strict is true, validate that the input is a canonical Roman numeral (no repeated more-than-allowed numerals, subtractive pairs only IV, IX, XL, XC, CD, CM, and correct ordering). If invalid in strict mode, throw TypeError.
-  - Keep fromRoman(s) as an alias to parseRoman(s, {strict: true}) or document that fromRoman uses strict parsing by default — choose one and document it clearly in README and tests. The recommended choice for clarity: make fromRoman(s) behave in strict mode by default and provide parseRoman for permissive parsing, but maintain backward compatibility by ensuring tests pass.
+# Tests
+- Unit tests must assert parseRoman accepts permissive inputs when strict:false and that parseRoman(..., {strict:true}) rejects IIII, VX, IIV with TypeError.
+- Tests must assert fromRoman("IIII") throws TypeError and that the CLI node src/lib/main.js from-roman IIII exits with code 2 and stderr starting TypeError:.
 
-- CLI behaviour (src/lib/main.js main guard)
-  - Add a --strict flag to both to-roman and from-roman commands and to automatic detection no-arg mode.
-  - When --strict is present, CLI rejects non-canonical roman inputs with a stderr message beginning with TypeError: and exit code 2.
-  - Document that CLI without --strict accepts permissive forms for backward compatibility (if implementing permissive behavior). If fromRoman is strict by default, then CLI without --strict should pass --strict implicitly to match mission acceptance criteria that from-roman IIII errors; document the choice.
+# Acceptance Criteria
+- src/lib/main.js exports parseRoman, fromRoman, and toRoman as named exports.
+- fromRoman enforces canonical rules and throws TypeError for IIII.
+- parseRoman(s, {strict:false}) accepts permissive forms and returns their integer equivalent.
+- CLI supports --strict (or defaults to strict for from-roman) and rejects IIII with stderr starting TypeError: and exit 2.
+- Unit tests validate both strict and permissive behaviour and pass under npm test.
 
-- Tests (tests/unit/)
-  - Add unit tests verifying parseRoman(s, {strict: true}) rejects IIII, VX, IIV and parseRoman(s, {strict:false}) accepts common permissive forms when appropriate.
-  - Add CLI behaviour tests asserting that node src/lib/main.js from-roman IIII with --strict triggers stderr starting with TypeError: and exit 2. Also cover from-roman IIII without --strict if permissive mode is supported.
-
-- README.md
-  - Document the new parseRoman API and the --strict CLI flag, including examples showing strict rejection of IIII and permissive acceptance if supported.
-
-## Acceptance Criteria
-
-- Library exports parseRoman and fromRoman as named exports from src/lib/main.js.
-- fromRoman(s) enforces canonical rules (strict) and throws TypeError for IIII.
-- parseRoman(s, {strict:false}) accepts permissive inputs where reasonable and returns their integer equivalent.
-- CLI supports --strict and when used rejects IIII with stderr starting TypeError: and exit 2.
-- Unit tests validate strict and permissive behaviours and pass under npm test.
-
-## Notes and Compatibility
-
-- Implementation must be contained to src/lib/main.js and tests in tests/unit/. No new files outside allowed set.
-- Choose the default behaviour (strict vs permissive) thoughtfully; the spec recommends fromRoman be strict to match the CLI acceptance criteria in the mission but parseRoman remains available for permissive needs.
-- Preserve existing named exports and ensure backward compatibility with consumers.
+# Notes
+- Implementation must be confined to src/lib/main.js and tests in tests/unit/; do not add files outside allowed set.
+- Document behaviour choices in README, including that fromRoman is strict by default and parseRoman exists for permissive parsing.
 
