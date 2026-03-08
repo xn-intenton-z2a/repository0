@@ -1,0 +1,136 @@
+NORMALISED EXTRACT
+
+Table of Contents:
+  1. Hamming distance definition and formula
+  2. Hamming weight (popcount) efficient implementations
+  3. Unicode and JavaScript string handling (code points vs code units)
+  4. JavaScript bitwise operators and behavior
+  5. NPM package hamming-distance notes
+
+1. Hamming distance definition and formula
+  - Hamming distance between two strings of equal length is the number of positions at which the corresponding symbols are different.
+  - Formula: For two equal-length binary vectors x and y, HammingDistance(x,y) = sum_i (x_i XOR y_i).
+  - For general strings: HammingDistance(s,t) = number of indices i where s[i] != t[i].
+  - Requirement: inputs must be aligned and of equal length; if lengths differ, either define behavior (truncate/pad) or return error.
+
+2. Hamming weight (popcount) efficient implementations
+  - Hamming weight (popcount) returns the number of set bits (1s) in a binary word.
+  - Common efficient algorithms for 32-bit integers:
+    * Kernighan's method: while (n != 0) { n &= (n - 1); count++; }
+    * Parallel bit count (SWAR) method (32-bit):
+      - n = n - ((n >>> 1) & 0x55555555);
+      - n = (n & 0x33333333) + ((n >>> 2) & 0x33333333);
+      - n = ((n + (n >>> 4)) & 0x0F0F0F0F);
+      - count = (n * 0x01010101) >>> 24;
+    * Builtin CPU instruction: use popcnt where available; in JS, use BigInt or native methods if provided by environment (not standard across engines).
+  - For arrays of bytes or multiword values, sum popcounts of each word.
+  - Performance considerations: minimize branching, operate on machine-word sizes, prefer table lookup for small bytes when memory allows.
+
+3. Unicode and JavaScript string handling (code points vs code units)
+  - JavaScript strings are sequences of UTF-16 code units; some characters (supplementary) are represented as surrogate pairs (two code units).
+  - Use String.prototype.codePointAt(pos) to obtain full Unicode code points rather than code units; use for correct character-wise Hamming comparisons when characters may be outside BMP.
+  - When iterating grapheme clusters, be aware that code points still differ from user-visible grapheme clusters; libraries like Intl.Segmenter or third-party grapheme splitters are required for cluster-aware operations.
+  - Implementation note: to compare by Unicode code point index, convert strings to arrays of code points via for..of iteration or Array.from(str) using the default iterator which yields code points.
+
+4. JavaScript bitwise operators and behavior
+  - Bitwise operators in JS operate on 32-bit signed integers after ToInt32 conversion; use >>> for unsigned right shift.
+  - Common operators useful for Hamming/popcount: ^ (XOR), & (AND), >>> (zero-fill right shift), | (OR), ~ (NOT).
+  - When manipulating >32-bit values, use BigInt bitwise operations in environments that support BigInt and its bitwise semantics.
+
+5. NPM package hamming-distance notes
+  - The hamming-distance package on npm provides a function to compute Hamming distance between two strings or Buffers; review its source for edge-case handling (length mismatch, encoding) before reuse.
+  - Confirm whether the package compares code units or code points and whether it accepts Buffer inputs for binary data.
+
+SUPPLEMENTARY DETAILS
+
+Technical specifications and implementation details:
+  - Input validation:
+    * Type: accept string, Buffer, Uint8Array, or Array-like of code points/bytes.
+    * Length handling: explicit modes: 'error' (throw if unequal), 'truncate' (compare up to min length), 'pad' (pad shorter with zeros or specified value).
+  - API surface (recommended minimal JS API):
+    * function hammingDistance(a, b, options)
+      - parameters: a (string|Buffer|Uint8Array|Array), b (same), options (object)
+      - options: { mode: 'error'|'truncate'|'pad', padValue: 0|'' , treatAs: 'codeUnit'|'codePoint'|'bytes' }
+      - returns: Number (non-negative integer) or throws Error on invalid input when mode is 'error'.
+    * function popcount32(n)
+      - parameters: n (Number) 32-bit integer
+      - returns: Number (0..32)
+    * function popcountBigInt(big)
+      - parameters: big (BigInt)
+      - returns: Number (count of set bits)
+
+  - Implementation patterns:
+    * For string inputs with treatAs: 'codePoint': convert both strings to arrays of code points: Array.from(a) and Array.from(b); then iterate indices and compare code points numerically or by ===.
+    * For binary inputs (Buffer/Uint8Array): iterate bytes and count differing bytes; for bit-level Hamming, XOR bytes and popcount each XOR result.
+    * For performance, when inputs are large binary buffers, process in 32-bit or 64-bit words and use word-level XOR + popcount methods.
+
+REFERENCE DETAILS
+
+API signatures and exact patterns:
+  - hammingDistance(a, b, options)
+    - a: string|Buffer|Uint8Array|Array<number>
+    - b: string|Buffer|Uint8Array|Array<number>
+    - options: {
+        mode?: 'error'|'truncate'|'pad',
+        padValue?: number|string,
+        treatAs?: 'codeUnit'|'codePoint'|'bytes'|'bits',
+        chunkSize?: 4|8|16  // process word size in bytes
+      }
+    - returns: Number
+    - errors: throws TypeError for unsupported types; throws RangeError if mode='error' and lengths differ
+
+  - popcount32(n)
+    - n: Number (converted to 32-bit unsigned)
+    - returns: Number (0..32)
+    - Implementation: use SWAR sequence shown in section 2 for constant-time behavior without loop overhead.
+
+  - popcountBigInt(big)
+    - big: BigInt
+    - returns: Number
+    - Implementation: while (big != 0n) { big &= (big - 1n); count++; }
+
+  - Byte-wise Hamming for buffers:
+    - For i in 0..minLen-1: xor = a[i] ^ b[i]; total += popcount8(xor);
+    - popcount8 can be implemented with small lookup table of size 256 or SWAR on a 32-bit word containing four bytes.
+
+  - Exact configuration options and their effects:
+    - mode='error': strict equality of lengths required; function throws RangeError if lengths differ.
+    - mode='truncate': compares up to minLen; returns count for that range.
+    - mode='pad': pads shorter input with padValue (0 for bytes, '' or code point 0 for strings) to length of longer input and compares full length.
+    - treatAs='codeUnit': index and compare UTF-16 code units directly (faster, may split surrogate pairs).
+    - treatAs='codePoint': compare Unicode code points; necessary for correct character-level comparison across full Unicode.
+
+BEST PRACTICES
+
+  - Prefer explicit treatAs option to avoid ambiguity in Unicode handling.
+  - For binary data, operate on Uint8Array or Buffer and implement XOR + popcount on words for speed.
+  - Provide both byte-level and bit-level comparison modes; document which is default.
+  - For very large inputs, stream processing with chunked comparisons and accumulating results reduces memory pressure.
+  - Provide tests covering: equal strings, differing lengths under each mode, surrogate pairs, non-BMP characters, Buffer inputs, large buffers, and performance regression tests.
+
+TROUBLESHOOTING
+
+  - If results differ from expected when comparing strings with emoji or supplementary characters, check treatAs setting; use codePoint mode.
+  - If performance is poor on large buffers, ensure processing is done in word-sized chunks and popcount uses SWAR or hardware-accelerated methods where possible.
+  - If incorrect counts for negative numbers in popcount, ensure inputs are converted to unsigned representations before bitwise operations.
+
+DIGEST
+
+  - Sources extracted: Wikipedia Hamming distance, Unicode FAQ, MDN codePointAt, MDN Bitwise Operators, Wikipedia Hamming weight, NPM hamming-distance package page.
+  - Retrieval date: 2026-03-08
+  - Extracted technical content: definitions, formulas, SWAR algorithm, Kernighan method, JS string code point guidance, JS bitwise operator semantics, API recommendations.
+
+ATTRIBUTION
+
+  - Source URLs:
+    * https://en.wikipedia.org/wiki/Hamming_distance
+    * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt
+    * https://unicode.org/faq/
+    * https://en.wikipedia.org/wiki/Hamming_weight#Efficient_implementation
+    * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
+    * https://www.npmjs.com/package/hamming-distance
+
+  - Data size obtained during crawling: approximately 6.2 KB of raw text across all listed sources.
+  - Retrieved on: 2026-03-08
+
+END OF DOCUMENT
