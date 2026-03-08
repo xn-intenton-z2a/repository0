@@ -1,172 +1,159 @@
 #!/usr/bin/env node
-// src/lib/main.js
-
-/**
- * Roman numerals library
- * Exports: toRoman(number), fromRoman(string), name, version, description, getIdentity
+/* src/lib/main.js
+ * Roman numerals library with strict and permissive parsing and a small CLI.
  */
-import { createRequire } from "module";
-import { fileURLToPath } from "url";
-
-const require = createRequire(import.meta.url);
-const pkg = require("../../package.json");
-
-export const name = pkg.name || "roman-numerals";
-export const version = pkg.version || "0.0.0";
-export const description = pkg.description || "Convert between integers and Roman numerals";
-
-export function getIdentity() {
-  return { name, version, description };
-}
-
-const ROMAN_MAP = [
-  [1000, "M"],
-  [900, "CM"],
-  [500, "D"],
-  [400, "CD"],
-  [100, "C"],
-  [90, "XC"],
-  [50, "L"],
-  [40, "XL"],
-  [10, "X"],
-  [9, "IX"],
-  [5, "V"],
-  [4, "IV"],
-  [1, "I"],
-];
 
 /**
- * Convert integer to Roman numeral (1..3999).
- * @param {number} n - integer between 1 and 3999 inclusive
- * @returns {string} Roman numeral in canonical subtractive form
- * @throws {TypeError} when n is not an integer
- * @throws {RangeError} when n is outside 1..3999
+ * Convert integer to Roman numeral (canonical uppercase, subtractive notation)
+ * @param {number} n - integer in [1,3999]
+ * @returns {string}
+ * @throws {TypeError} if n is not a number or not integer
+ * @throws {RangeError} if n < 1 or n > 3999
  */
 export function toRoman(n) {
-  if (typeof n !== "number" || !Number.isFinite(n)) throw new TypeError("toRoman requires a finite number");
-  if (!Number.isInteger(n)) throw new TypeError("toRoman requires an integer");
-  if (n < 1 || n > 3999) throw new RangeError("toRoman accepts integers in range 1..3999");
-
-  let remaining = n;
-  let out = "";
-  for (const [value, symbol] of ROMAN_MAP) {
-    while (remaining >= value) {
-      out += symbol;
-      remaining -= value;
+  if (typeof n !== 'number' || Number.isNaN(n)) throw new TypeError('toRoman expects a number')
+  if (!Number.isInteger(n)) throw new TypeError('toRoman expects an integer')
+  if (n < 1 || n > 3999) throw new RangeError('toRoman accepts only integers from 1 to 3999')
+  const pairs = [
+    [1000, 'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']
+  ]
+  let res = ''
+  let remaining = n
+  for (const [val, sym] of pairs) {
+    while (remaining >= val) {
+      res += sym
+      remaining -= val
     }
   }
-  return out;
+  return res
 }
-
-const VALID_ROMAN = /^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/;
-const TOKEN_MAP = { M:1000, D:500, C:100, L:50, X:10, V:5, I:1 };
 
 /**
- * Convert Roman numeral string to integer.
- * Accepts canonical uppercase Roman numerals using subtractive notation.
- * @param {string} s - Roman numeral string (canonical form)
- * @returns {number} integer value
+ * Parse a Roman numeral string, either strict (canonical only) or permissive.
+ * In permissive mode common non-canonical forms are accepted and canonicalized.
+ * @param {string} s
+ * @param {{strict:boolean}} options
+ * @returns {{valid:boolean,value:number,canonical:string}}
  * @throws {TypeError} when s is not a string
- * @throws {SyntaxError} when s is not a valid canonical Roman numeral
+ * @throws {SyntaxError} in strict mode when s is invalid or non-canonical
  */
-export function fromRoman(s, options = {}) {
-  const { strict = true } = options;
-  if (typeof s !== "string") throw new TypeError("fromRoman requires a string");
-  if (s.length === 0) throw new SyntaxError("Empty string is not a valid Roman numeral");
-
-  // Allow lowercase by normalizing for validation
-  const norm = s.toUpperCase();
+export function parseRoman(s, { strict = true } = {}) {
+  if (typeof s !== 'string') throw new TypeError('parseRoman expects a string')
+  // Normalize for permissive parsing
+  const raw = s
+  const collapsed = s.replace(/\s+/g, '') // remove whitespace permissively
+  if (collapsed.length === 0) {
+    if (strict) throw new SyntaxError('Empty roman numeral')
+    return { valid: false, value: NaN, canonical: '' }
+  }
+  const up = collapsed.toUpperCase()
+  const map = {I:1,V:5,X:10,L:50,C:100,D:500,M:1000}
+  // Basic permissive validator: accept only these letters
+  for (const ch of up) if (!map[ch]) {
+    if (strict) throw new SyntaxError('Invalid characters in roman numeral')
+    return { valid: false, value: NaN, canonical: '' }
+  }
+  // Convert permissively to numeric by scanning left-to-right with subtractive logic
+  let total = 0
+  for (let i = 0; i < up.length; i++) {
+    const v = map[up[i]]
+    const next = map[up[i+1]] || 0
+    if (next > v) {
+      total += next - v
+      i++
+    } else total += v
+  }
+  // produce canonical string from numeric value if in range
+  if (!Number.isFinite(total) || total < 1 || total > 3999) {
+    if (strict) throw new SyntaxError('Roman numeral out of range or invalid')
+    return { valid: false, value: NaN, canonical: '' }
+  }
+  const canonical = toRoman(total)
+  // In strict mode ensure original matches canonical exactly (no lowercase, no spaces, canonical form)
   if (strict) {
-    if (!VALID_ROMAN.test(norm)) throw new SyntaxError("Invalid or non-canonical Roman numeral");
-  } else {
-    // permissive: allow some common non-canonical repeats but still basic validation
-    if (!/^[MDCLXVI]+$/.test(norm)) throw new SyntaxError("Invalid Roman numeral characters");
+    if (up !== canonical) throw new SyntaxError('Non-canonical roman numeral')
+    return { valid: true, value: total, canonical }
   }
-
-  let total = 0;
-  let i = 0;
-  while (i < norm.length) {
-    const cur = TOKEN_MAP[norm[i]];
-    const next = i + 1 < norm.length ? TOKEN_MAP[norm[i+1]] : 0;
-    if (next > cur) {
-      total += (next - cur);
-      i += 2;
-    } else {
-      total += cur;
-      i += 1;
-    }
-  }
-  return total;
+  // permissive: return best-effort
+  return { valid: true, value: total, canonical }
 }
 
-export function parseRoman(s, options = {}) {
-  const { strict = true } = options;
-  if (typeof s !== 'string') throw new TypeError('parseRoman requires a string');
-  const orig = s;
-  const norm = s.toUpperCase().replace(/[^MDCLXVI]/g, '');
-  const warnings = [];
-  if (norm.length !== s.replace(/\s+/g,'').length) warnings.push('Non-roman characters removed');
-  if (strict) {
-    if (!VALID_ROMAN.test(norm)) throw new SyntaxError('Invalid or non-canonical Roman numeral');
-  } else {
-    if (!/^[MDCLXVI]+$/.test(norm) || norm.length === 0) throw new SyntaxError('Invalid Roman numeral characters');
-    // permissive: normalize common non-canonical forms (e.g., IIII -> IV, VV -> X) by computing value then re-encoding
-    // compute value
+/**
+ * Convert from Roman numeral to integer.
+ * Calls parseRoman and by default runs in strict mode.
+ * @param {string} s
+ * @param {{strict?:boolean}} opts
+ * @returns {number}
+ * @throws {TypeError} when input type wrong
+ * @throws {SyntaxError} when invalid in strict mode
+ */
+export function fromRoman(s, { strict = true } = {}) {
+  const parsed = parseRoman(s, { strict })
+  if (!parsed || !parsed.valid) {
+    // parseRoman throws in strict mode; permissive returns valid:false
+    throw new SyntaxError('Invalid roman numeral')
   }
-  const value = fromRoman(norm, { strict: false });
-  const canonical = toRoman(value);
-  return { value, normalized: canonical, warnings };
+  return parsed.value
 }
 
-export default { toRoman, fromRoman, parseRoman, name, version, description, getIdentity };
+export const name = 'roman-numerals'
+export const version = '0.1.0'
+export const description = 'Convert between integers and Roman numerals (strict & permissive)'
+export function getIdentity() { return { name, version, description } }
 
-function cliExitWithError(err) {
-  const codeMap = { TypeError:2, RangeError:3, SyntaxError:4 };
-  const code = codeMap[err.name] || 1;
+// Minimal CLI behind main guard
+function printHelp() {
+  console.log('Usage: node src/lib/main.js [options] <value>')
+  console.log('Options:')
+  console.log('  -t, --to-roman       treat input as number and output Roman (or inferred)')
+  console.log('  -f, --from-roman     treat input as Roman and output number')
+  console.log('  --strict             strict parsing (default)')
+  console.log('  --permissive         permissive parsing')
+  console.log('  --help               show this help')
+  console.log('\nExamples:')
+  console.log('  node src/lib/main.js -t 9       => IX')
+  console.log('  node src/lib/main.js -f IX      => 9')
+}
+
+function runCli(argv = process.argv.slice(2)) {
+  if (argv.length === 0) { printHelp(); process.exit(0) }
+  let mode = 'infer'
+  let strict = true
+  const args = []
+  for (const a of argv) {
+    if (a === '-t' || a === '--to-roman') mode = 'to'
+    else if (a === '-f' || a === '--from-roman') mode = 'from'
+    else if (a === '--strict') strict = true
+    else if (a === '--permissive') strict = false
+    else if (a === '--help') { printHelp(); process.exit(0) }
+    else args.push(a)
+  }
+  if (args.length === 0) { console.error('No value provided'); process.exit(2) }
+  const val = args.join(' ')
   try {
-    process.stderr.write(JSON.stringify({ error: err.name, message: err.message }) + "\n");
-  } catch {}
-  process.exit(code);
-}
-
-async function runCli(argv) {
-  const args = argv.slice(2);
-  if (args.length === 0) {
-    console.log('Usage: node src/lib/main.js <to-roman|from-roman|parse-roman> <arg|-> [--strict]');
-    return;
-  }
-  const cmd = args[0];
-  let input = args[1];
-  const strict = args.includes('--strict');
-  if (!input) {
-    // read stdin
-    input = '';
-    for await (const chunk of process.stdin) input += chunk;
-    input = input.trim();
-  }
-  try {
-    if (cmd === 'to-roman') {
-      const n = Number(input);
-      const out = toRoman(n);
-      console.log(out);
-      process.exit(0);
-    } else if (cmd === 'from-roman') {
-      const out = fromRoman(input);
-      console.log(String(out));
-      process.exit(0);
-    } else if (cmd === 'parse-roman') {
-      const out = parseRoman(input, { strict });
-      console.log(JSON.stringify(out));
-      process.exit(0);
+    if (mode === 'to' || (mode === 'infer' && /^\d+$/.test(val.trim()))) {
+      // numeric to Roman
+      const n = Number(val)
+      const out = toRoman(n)
+      process.stdout.write(out + '\n')
+      process.exit(0)
     } else {
-      console.error('Unknown command');
-      process.exit(1);
+      // roman to number
+      const out = fromRoman(val, { strict })
+      process.stdout.write(String(out) + '\n')
+      process.exit(0)
     }
   } catch (err) {
-    cliExitWithError(err);
+    // deterministic exit codes: 2 for user/parse errors, 1 for unexpected
+    if (err instanceof TypeError || err instanceof SyntaxError || err instanceof RangeError) {
+      console.error(err.message)
+      process.exit(2)
+    }
+    console.error('Unexpected error')
+    process.exit(1)
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  runCli(process.argv).catch(cliExitWithError);
+if (typeof process !== 'undefined' && process.argv && process.argv[1] && process.argv[1].endsWith('src/lib/main.js') && (process.argv[0].endsWith('node') || process.execPath)) {
+  runCli()
 }

@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Roman Numerals Demo</title>
-<style>body{font-family:system-ui, -apple-system, sans-serif;max-width:720px;margin:2rem auto;padding:1rem}label{display:block;margin-top:1rem}input{width:100%;padding:0.5rem}.result{background:#f6f8fa;padding:0.5rem;margin-top:0.5rem;font-family:monospace}</style>
+<style>body{font-family:system-ui, -apple-system, sans-serif;max-width:720px;margin:2rem auto;padding:1rem}label{display:block;margin-top:1rem}input{width:100%;padding:0.5rem}.result{background:#f6f8fa;padding:0.5rem;margin-top:0.5rem;font-family:monospace}.error{color:#c00}</style>
 </head>
 <body>
 <h1>Roman Numerals Demo</h1>
 <div class="identity">
   <dl>
-    <dt id="lib-name">repo</dt>
+    <dt id="lib-name">roman-numerals</dt>
     <dd id="lib-version">0.1.0</dd>
-    <dd id="lib-desc">Roman numerals demo</dd>
+    <dd id="lib-desc">Convert between integers and Roman numerals</dd>
   </dl>
 </div>
 <section>
@@ -20,27 +20,59 @@
   <label>Integer (1..3999): <input id="num-input" type="text" value="1994"></label>
   <button id="num-convert">Convert to Roman</button>
   <div id="num-output" class="result" aria-live="polite"></div>
+  <div id="num-error" class="error" role="alert" style="display:none"></div>
 </section>
 <section>
   <h2>Roman → Number</h2>
   <label>Roman numeral: <input id="roman-input" type="text" value="MCMXCIV"></label>
-  <button id="roman-convert">Convert to Number</button>
+  <label><input type="radio" name="roman-mode" id="roman-strict" checked> Strict</label>
+  <label><input type="radio" name="roman-mode" id="roman-permissive"> Permissive</label>
+  <button id="roman-convert">Convert to number</button>
   <div id="roman-output" class="result" aria-live="polite"></div>
+  <div id="roman-error" class="error" role="alert" style="display:none"></div>
+  <div id="roman-canonical" class="result" aria-live="polite" style="margin-top:0.25rem"></div>
 </section>
-<script>
-const MAP = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
-function toRoman(n){if(typeof n!=='number'||!Number.isFinite(n))throw new TypeError('number');if(!Number.isInteger(n))throw new TypeError('integer');if(n<1||n>3999)throw new RangeError('range');let r='';for(const [v,s] of MAP){while(n>=v){r+=s;n-=v}}return r}
-function fromRoman(s){const t={M:1000,D:500,C:100,L:50,X:10,V:5,I:1};const u=s.toUpperCase();let i=0,total=0;while(i<u.length){const cur=t[u[i]];const next=t[u[i+1]]||0;if(next>cur){total+=next-cur;i+=2}else{total+=cur;i+=1}}return total}
-const numInput=document.getElementById('num-input');
-const numOut=document.getElementById('num-output');
-const numBtn=document.getElementById('num-convert');
-numBtn.addEventListener('click',()=>{try{const v=Number(numInput.value);numOut.textContent=toRoman(v)}catch(e){numOut.textContent='Error: '+e.message}});
-const romanInput=document.getElementById('roman-input');
-const romanOut=document.getElementById('roman-output');
-const romanBtn=document.getElementById('roman-convert');
-romanBtn.addEventListener('click',()=>{try{romanOut.textContent=String(fromRoman(romanInput.value))}catch(e){romanOut.textContent='Error: '+e.message}});
-numOut.textContent=toRoman(Number(numInput.value));
-romanOut.textContent=String(fromRoman(romanInput.value));
+<script type="module">
+import { toRoman, fromRoman, parseRoman } from '/src/lib/main.js'
+// number -> roman
+const numInput = document.getElementById('num-input')
+const numConvert = document.getElementById('num-convert')
+const numOutput = document.getElementById('num-output')
+const numError = document.getElementById('num-error')
+numConvert.addEventListener('click', () => {
+  numError.style.display = 'none'
+  try {
+    const v = Number(numInput.value)
+    const out = toRoman(v)
+    numOutput.textContent = out
+  } catch (err) {
+    numOutput.textContent = ''
+    numError.style.display = 'block'
+    numError.textContent = err.message
+  }
+})
+// roman -> number
+const romanInput = document.getElementById('roman-input')
+const romanConvert = document.getElementById('roman-convert')
+const romanOutput = document.getElementById('roman-output')
+const romanError = document.getElementById('roman-error')
+const canonicalEl = document.getElementById('roman-canonical')
+romanConvert.addEventListener('click', () => {
+  romanError.style.display = 'none'
+  canonicalEl.textContent = ''
+  try {
+    const strict = document.getElementById('roman-strict').checked
+    const val = fromRoman(romanInput.value, { strict })
+    romanOutput.textContent = String(val)
+    const parsed = parseRoman(romanInput.value, { strict: false })
+    canonicalEl.textContent = parsed.canonical
+  } catch (err) {
+    romanOutput.textContent = ''
+    canonicalEl.textContent = ''
+    romanError.style.display = 'block'
+    romanError.textContent = err.message
+  }
+})
 </script>
 </body>
 </html>
