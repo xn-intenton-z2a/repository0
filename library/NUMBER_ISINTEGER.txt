@@ -1,0 +1,61 @@
+NORMALISED EXTRACT
+
+Table of Contents
+1. Purpose and behavior
+2. Syntax and return values
+3. Edge cases and numeric precision
+4. Implementation guidance
+
+1. Purpose and behavior
+- Number.isInteger(value) returns true only when value is of the Number type and is mathematically an integer.
+- Returns false for NaN, Infinity, -Infinity, non-number types (strings, booleans, arrays) and floating values with fractional part.
+
+2. Syntax and return values
+- Syntax: Number.isInteger(value)
+- Parameter: value (any) — the value to be tested.
+- Returns: boolean — true if value is integer (including integer-representable floats like 5.0), false otherwise.
+
+3. Edge cases and numeric precision
+- Floating point representation can make values like 5.0000000000000001 be treated as 5; Number.isInteger(5.0000000000000001) may return true due to precision loss.
+- Values around Number.MAX_SAFE_INTEGER may lose fractional precision; examples include 4500000000000000.1 which may be treated as integer.
+- Use Number.EPSILON to reason about floating point rounding thresholds when performing numeric comparisons.
+
+4. Implementation guidance
+- Validate inputs explicitly when integer semantics are required; prefer Number.isInteger over floor/ceil integer checks for type-safety.
+- For user input parsing: parse with Number(value) and then check Number.isInteger(parsed).
+- For large integer needs beyond Number.MAX_SAFE_INTEGER, use BigInt and corresponding checks (typeof value === 'bigint').
+
+SUPPLEMENTARY DETAILS
+
+Technical specifics
+- The method is part of ECMAScript spec sec-number.isinteger and uses internal numeric type checks.
+- It returns true for values where value is Number and value modulo 1 === 0 effectively.
+
+REFERENCE DETAILS
+
+Method signature and contract
+- Number.isInteger(value: any) -> boolean
+  - Parameter: value — any JavaScript value.
+  - Return: true if typeof value === 'number' and is finite and floor(value) === value; false otherwise.
+
+Best practices and implementation patterns
+- Use when you need to enforce integer-only inputs where type matters (e.g., array length, loop upper bounds).
+- Do not rely on Number.isInteger for validating user-entered numeric strings without parsing first.
+- To accept numeric strings: const n = Number(value); if (Number.isInteger(n)) { use n } else { error }
+
+TROUBLESHOOTING
+
+Common pitfalls
+- False negatives on numeric strings: "5" is not a number, Number.isInteger("5") returns false.
+- Misinterpretation due to floating point rounding: when expecting integer semantics after floating math, round and re-check (Math.round then Number.isInteger) if acceptable.
+
+DETAILED DIGEST
+
+Sources processed: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+Retrieved: 2026-03-08
+Original source extract: method behavior, examples, spec link, precision notes.
+Data size obtained: approx 3 KB
+
+ATTRIBUTION
+Source: MDN Web Docs — "Number.isInteger"; retrieved 2026-03-08; license: CC BY-SA; data size approx 3 KB
+
