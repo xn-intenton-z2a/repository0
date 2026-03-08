@@ -1,68 +1,32 @@
-# Custom Encoding Creation
+# CUSTOM_ENCODINGS
 
-Enable users to define their own encodings from custom character sets while maintaining the same encode/decode interface.
+Summary
 
-## Overview
+Allow users to define ephemeral custom encodings at runtime by supplying a unique name and a printable charset. Custom encodings integrate with the same encode/decode API and appear in listEncodings().
 
-This feature allows users to create custom encodings optimized for their specific use cases, character set constraints, or density requirements. Users can experiment with different character combinations to achieve optimal encoding density for their context.
+Motivation
 
-## Core Function
+Experimentation with bespoke charsets enables exploration of denser printable representations while allowing users to constrain characters for their application contexts (URLs, terminals, JSON, QR payloads).
 
-The main.js module must export this function:
+Scope
 
-- createEncoding(name, charset) — Register a new encoding based on a character set string
+- Implement createEncoding(name, charset) exported from src/lib/main.js. It registers an encoding for the current module instance.
+- Validate charset: all characters must be printable, no duplicates, minimum 2 characters, warn on characters likely to cause JSON/URL/terminal issues.
+- Persist custom encoding only in-memory for the module lifetime; include its metadata in listEncodings().
 
-## Custom Encoding Behavior
+Public API
 
-The createEncoding function must:
-- Accept a unique name for the encoding
-- Accept a charset string containing all characters to use for encoding
-- Validate that the charset contains only printable characters
-- Check for duplicate characters in the charset
-- Calculate and store the theoretical bit density
-- Register the encoding for use with encode() and decode() functions
-- Return encoding metadata including bit density
+- createEncoding(name, charset)
+- createEncoding returns metadata: name, charsetSize, bitsPerChar (theoretical)
 
-## Character Set Validation
+Acceptance criteria
 
-Custom character sets must be validated to ensure:
-- All characters are printable (no control characters)
-- No duplicate characters in the set
-- Minimum practical size (at least 2 characters)
-- Maximum reasonable size for performance
-- Warning about problematic characters that may cause issues in specific contexts
+- createEncoding rejects duplicate names that collide with built-in encodings and returns a clear error.
+- createEncoding validates charsets and rejects non-printable or duplicate-character sets.
+- Encodings created via createEncoding work with encode and decode and pass round-trip tests for sample inputs including UUIDs.
+- listEncodings includes custom encodings and reports correct theoretical bitsPerChar.
+- Unit tests cover failed validation paths and successful registration and round-trip behavior for a sample high-density charset.
 
-## Integration with Core Functions
+Notes
 
-Once created, custom encodings must work seamlessly with:
-- encode(buffer, customEncodingName) 
-- decode(str, customEncodingName)
-- listEncodings() — must include custom encodings in results
-
-## Advanced Character Set Support
-
-Support for exploring higher-density encodings using carefully selected printable Unicode characters beyond ASCII, while maintaining broad compatibility.
-
-Provide helper functions or guidance for selecting optimal character sets that avoid problematic characters in common contexts (JSON, URLs, terminals, etc.).
-
-## Persistence
-
-Custom encodings persist only for the current session/module instance. This feature focuses on experimentation and runtime customization rather than permanent storage.
-
-## Error Handling
-
-Clear error messages for:
-- Invalid character sets (control characters, duplicates)
-- Attempts to override built-in encoding names
-- Invalid encoding names in subsequent encode/decode calls
-
-## Acceptance Criteria
-
-- createEncoding() successfully registers new encodings with custom character sets
-- Custom encodings work with encode() and decode() functions
-- Character set validation prevents problematic configurations
-- listEncodings() includes custom encodings with accurate metadata
-- Round-trip property maintained for all custom encodings
-- Support for character sets from size 2 to reasonable upper limits
-- Clear documentation and examples of creating high-density custom encodings
-- Function exported as named export from src/lib/main.js
+Document guidance for choosing charsets that balance density and portability; encourage avoiding quotes, backslashes, and problematic whitespace by default.

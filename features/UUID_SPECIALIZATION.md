@@ -1,56 +1,33 @@
-# UUID Encoding Specialization
+# UUID_SPECIALIZATION
 
-Provide optimized functions specifically for UUID encoding and decoding with performance enhancements and convenience features.
+Summary
 
-## Overview
+Provide dedicated, optimized helpers for encoding and decoding RFC-4122 UUIDs to produce the shortest printable representations and to validate formats. These functions use the core encoders but implement UUID-specific parsing, validation, and minimal-allocation paths.
 
-While the core encoding functions handle arbitrary binary data, UUIDs are a common use case that benefits from specialized handling. This feature adds dedicated UUID functions that automatically handle formatting and provide the shortest possible representations.
+Motivation
 
-## Specialized Functions
+UUIDs are the benchmark for the project; specialized functions ensure convenience, correctness, and small representations without burdening callers with hex parsing details.
 
-The main.js module must export these UUID-specific functions:
+Scope
 
-- encodeUUID(uuid) — Encode a UUID string to its shortest printable representation
-- decodeUUID(str) — Decode a short representation back to standard UUID format
+- Implement encodeUUID(uuid) and decodeUUID(str) exported from src/lib/main.js.
+- encodeUUID accepts standard UUID formats with or without hyphens, upper or lower case, and returns the densest encoding string by default or accepts an encoding name to override.
+- decodeUUID accepts an encoded string and returns a canonical lowercase hyphenated UUID string.
+- Provide validation for malformed inputs and clear error messages.
 
-## UUID Processing
+Behavior
 
-The encodeUUID function must accept UUIDs in standard format (with or without hyphens) and automatically:
-- Strip hyphens from the input UUID
-- Convert the hexadecimal string to binary (16 bytes)
-- Apply the densest available encoding
-- Return the shortest possible printable representation
+- encodeUUID strips hyphens, parses the 32-hex-digit UUID to 16 bytes, then encodes using the densest available encoding unless an explicit encoding is provided.
+- decodeUUID decodes with the specified or inferred encoding and returns a validated canonical UUID in lowercase with hyphens.
 
-The decodeUUID function must reverse this process and return a properly formatted UUID string with hyphens in the correct positions.
+Acceptance criteria
 
-## Performance Optimizations
+- encodeUUID accepts inputs with hyphens, without hyphens, and mixed case, producing deterministic outputs.
+- decodeUUID returns canonical UUID strings with hyphens and lowercased hex.
+- Round-trip property: decodeUUID(encodeUUID(input)) equals the canonical form of the original UUID for all valid inputs.
+- Unit tests cover format variations and error cases (invalid hex length, non-hex characters, decoding to wrong length).
+- The default densest encoding produces a UUID representation shorter than base64 (fewer than 24 characters).
 
-UUID functions should be optimized for this specific 16-byte use case:
-- Direct hexadecimal to binary conversion without intermediate steps
-- Optimized encoding paths that take advantage of the fixed 128-bit length
-- Minimal memory allocation and string manipulation
-- Fast validation of UUID format
+Notes
 
-## Format Flexibility
-
-encodeUUID must accept multiple input formats:
-- Standard UUID with hyphens: 550e8400-e29b-41d4-a716-446655440000
-- UUID without hyphens: 550e8400e29b41d4a716446655440000
-- Uppercase or lowercase hexadecimal
-
-decodeUUID must always return the standard lowercase format with hyphens.
-
-## Error Handling
-
-Robust validation for malformed UUIDs with clear error messages.
-Graceful handling of encoded strings that don't decode to valid 16-byte data.
-
-## Acceptance Criteria
-
-- encodeUUID() accepts standard UUID formats with and without hyphens
-- decodeUUID() returns properly formatted UUIDs with hyphens
-- Round-trip property: decodeUUID(encodeUUID(uuid)) equals the original UUID in standard format
-- UUID encoding produces results shorter than base64 (< 24 chars)
-- Performance benchmarks show measurable improvement over generic encode/decode for UUID use case
-- Comprehensive tests covering various UUID formats and edge cases
-- Functions exported as named exports from src/lib/main.js
+Keep the UUID helpers small and explicit; prefer correctness and clarity over micro-optimizations that complicate tests.
