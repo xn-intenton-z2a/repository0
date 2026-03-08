@@ -1,181 +1,142 @@
 VITEST
 
 Table of contents
-1. Normalised extract
-2. Supplementary details
-3. Reference details (commands, config API, signatures)
-4. Troubleshooting and best practices
-5. Detailed digest (source + retrieval date)
-6. Attribution and data size
+1. Normalised extract: actionable CLI and install commands
+2. Configuration keys and their effects
+3. Test API signatures and matchers (exact signatures, parameters, return types)
+4. Test file patterns, lifecycle hooks, and execution modes
+5. Coverage configuration and reporters (exact options)
+6. Common implementation patterns and examples (plain text, no fences)
+7. Troubleshooting and step-by-step fixes
+8. Supplementary details: compatibility and environment
+9. Reference digest: SOURCES.md extract and retrieval metadata
+10. Attribution and data size
 
-1. Normalised extract
+1. Normalised extract: actionable CLI and install commands
+- Install vitest as a dev dependency: npm install --save-dev vitest
+- Install V8 coverage provider: npm install --save-dev @vitest/coverage-v8
+- Run tests once (CI-friendly): npx vitest --run
+- Run tests with explicit pattern: npx vitest --run tests/unit/*.test.js
+- Run with coverage: npx vitest --run --coverage
+- Run a single test file: npx vitest tests/unit/main.test.js
+- Use package.json script: "test": "vitest --run tests/unit/*.test.js"
+- For watch mode during development: npx vitest --watch
 
-Supported environment and installation
-- Minimum requirements: Node >= 20.0.0 and Vite >= 6.0.0 (Vitest relies on Vite transformation pipeline).
-- Install as a dev dependency (preferred):
-  - npm install -D vitest
-  - yarn add -D vitest
-  - pnpm add -D vitest
-  - bun add -D vitest
-- Can be executed without installation via npx vitest (executes local binary if present, otherwise temporary install).
-- To test unreleased commits: npm i https://pkg.pr.new/vitest@{commit} or build & pnpm link --global from source (pnpm required for build step).
+2. Configuration keys and their effects
+Vitest configuration lives in vitest.config.js, vitest.config.ts or inside package.json under "vitest". Key options and exact effects:
+- test.include: Array<string> — glob patterns; files to include in test runs; default: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}']
+- test.exclude: Array<string> — glob patterns; files to exclude; default includes node_modules, dist, build
+- test.environment: string — 'node' or 'jsdom'; selects runtime environment used to execute tests. Node provides Node globals; jsdom provides DOM APIs.
+- test.globals: boolean — when true exposes describe/it/test/expect as globals; when false import them from 'vitest'
+- test.setupFiles: string|Array<string> — module(s) executed before tests; used to configure globals, polyfills, or test setup
+- test.setupFilesAfterEnv: string|Array<string> — run after test framework is initialized but before tests
+- test.timeout: number — default test timeout in milliseconds for tests and hooks
+- test.sequence: object — controls concurrency and global test order (advanced; see vitest docs for fields like maxWorkers)
+- coverage.provider: string — 'v8' or 'c8'; selects coverage engine; use 'v8' for @vitest/coverage-v8
+- coverage.reporter: Array<string> — reporters, e.g. ['text','lcov','json']
+- coverage.include/exclude: Array<string> — file patterns to include/exclude for coverage collection
+- coverage.all: boolean — include all matched files even if not required by tests
+- resolve.alias: Record<string,string> — alias modules for bundler/resolution during tests
 
-Test discovery and file naming
-- Default test filename pattern: files containing .test. or .spec. in their filename (e.g., sum.test.js, util.spec.ts).
-- By default, run in watch mode when using vitest; run once using vitest run or npm script that calls vitest run.
+3. Test API signatures and matchers (exact signatures, parameters, return types)
+Global test functions (when test.globals = true) or import from 'vitest':
+- describe(name: string, fn: () => void | Promise<void>): void
+- it(name: string, fn: () => void | Promise<void>): void (alias: test)
+- test(name: string, fn: () => void | Promise<void>): void
+- beforeAll(fn: () => void | Promise<void>, timeout?: number): void
+- afterAll(fn: () => void | Promise<void>, timeout?: number): void
+- beforeEach(fn: () => void | Promise<void>, timeout?: number): void
+- afterEach(fn: () => void | Promise<void>, timeout?: number): void
 
-Package.json scripts (recommended)
-- Example:
-  {
-    "scripts": {
-      "test": "vitest",
-      "coverage": "vitest run --coverage"
-    }
-  }
-- For CI and single-run use: npm run test (if script calls vitest run) or vitest run directly.
+Expect API:
+- expect(received: any): Expectation
+- Expectation has matcher methods that return void or throw on failure. Common matchers and signatures:
+  - toBe(expected: any): void — strict equality (===)
+  - toEqual(expected: any): void — deep equality
+  - toBeDefined(): void
+  - toBeUndefined(): void
+  - toBeNull(): void
+  - toBeTruthy(): void
+  - toBeFalsy(): void
+  - toContain(item: any): void — for arrays/strings
+  - toMatch(regexpOrString: RegExp | string): void — for strings
+  - toHaveLength(expected: number): void — for arrays/strings
+  - toThrow(error?: string | RegExp | ErrorConstructor): void — for functions that throw
+  - resolves / rejects: expect(promise).resolves.toBe(x) (returns a Promise)
 
-Configuration
-- Vitest reads configuration from vite.config.(js|ts|mjs|cjs) if present. To override or prioritize a test-specific config create vitest.config.(ts|js|mjs|cjs).
-- Supported config file extensions: .js, .mjs, .cjs, .ts, .cts, .mts (not .json).
-- Use defineConfig from 'vitest/config':
-  import { defineConfig } from 'vitest/config'
-  export default defineConfig({ test: { /* options */ } })
-- Merging Vite and Vitest configs: use mergeConfig from 'vitest/config' or reuse the same file with a test property; vitest.config has priority if both are present.
+Mocking and spies:
+- vi.fn(impl?: Function): MockFunction — creates a mock function
+- vi.spyOn(object: object, method: string): SpyInstance — replaces method with spy
+- vi.mock(modulePath: string, factory?: () => any): void — manual module mock
+- vi.unmock(modulePath: string): void
+- vi.resetAllMocks(): void
+- vi.restoreAllMocks(): void
 
-Key test config fields (test)
-- test.projects: array of project globs or config objects. Each project config can include name, root, environment, setupFiles, and more.
-- test.environment: test runtime environment, e.g., 'node', 'happy-dom', 'jsdom' (depending on environment support/plugins).
-- test.setupFiles: array of paths to files executed before tests (setup/teardown initialization).
-- test.root: root directory for project-specific tests.
-- test.name: logical project name for reporting.
+Return types: most lifecycle and describe/test functions return void; expect returns an Expectation object whose matchers either return void or return a Promise for resolve/reject chains.
 
-CLI options and behavior
-- vitest run          -> run tests once (non-watch)
-- vitest              -> starts in watch/dev mode by default (file watching and interactive output)
-- vitest --config ./path/to/vitest.config.ts  -> use explicit config file
-- vitest --help       -> display CLI options
-- Coverage: vitest run --coverage (or vitest run --coverage --coverage-provider=v8) depending on provider config
+4. Test file patterns, lifecycle hooks, and execution modes
+- Default discovery: files matching glob patterns '*.{test,spec}.{js,ts,jsx,tsx}' in project tree excluding node_modules and dist
+- Parallelization: vitest runs tests in worker threads by default; configure concurrency via --threads flag or test.sequence/maxWorkers in config
+- Execution modes:
+  - --run : run tests once (use in CI)
+  - --watch : rerun on file changes (development)
+  - --ui : start interactive UI (if available)
+- Lifecycle hook order for a nested describe block:
+  - beforeAll (outer), beforeAll (inner), beforeEach (outer), beforeEach (inner), test, afterEach (inner), afterEach (outer), afterAll (inner), afterAll (outer)
 
-Automatic dependency prompts
-- Vitest may prompt you to install certain dependencies if they are not already installed; disable prompts with environment variable: VITEST_SKIP_INSTALL_CHECKS=1
+5. Coverage configuration and reporters (exact options)
+- Provider: 'v8' (recommended) or 'c8'
+- Example fields and effects:
+  - coverage.provider: 'v8' — uses V8's native coverage; requires @vitest/coverage-v8 devDependency
+  - coverage.reporter: ['text','lcov'] — 'text' prints to stdout, 'lcov' writes lcov.info for CI integration
+  - coverage.enabled: boolean — when true collects coverage
+  - coverage.include: Array<string> — include glob patterns, e.g. ['src/**']
+  - coverage.exclude: Array<string> — exclude patterns, e.g. ['tests/**','node_modules']
+  - coverage.all: boolean — when true, include all files matched by include even if not required by tests
+- Running with coverage: npx vitest --run --coverage --coverageProvider=v8 (CLI flags vary by version; prefer config)
 
-IDE integration
-- Official VS Code extension: vitest.explorer (install from Marketplace) for test explorer UI and inline test controls.
+6. Common implementation patterns and examples (plain text)
+- Unit test pattern for a pure function fizzBuzz:
+  - Arrange: prepare input n
+  - Act: call exported function fizzBuzz(n)
+  - Assert: expect(result.length).toBe(n); expect(result[2]).toBe('Fizz') etc.
+- Use beforeEach to reset shared mutable state between tests
+- Use vi.fn() to create spies for dependency injection; assert calls via expect(mock).toHaveBeenCalledWith(args)
+- Use setupFiles to set global test utilities (e.g., import { expect } from 'vitest'; globalThis.myUtil = ...)
+- For ESM projects (package.json type: module) ensure vitest resolves ESM; use test.environment: 'node' and add resolve.alias or necessary experimental flags if using loaders
 
-2. Supplementary details
+7. Troubleshooting and step-by-step fixes
+- Problem: tests not found. Fix: verify test.include patterns and that files end with .test.js or .spec.js; check test.exclude for accidental exclusions.
+- Problem: globals not available. Fix: set test.globals = true or import { describe, it, expect } from 'vitest' at top of files.
+- Problem: coverage missing files. Fix: set coverage.include to match source files and coverage.all = true to include untested files; ensure provider is installed and configured.
+- Problem: DOM APIs missing in jsdom. Fix: set test.environment = 'jsdom' and install global DOM polyfills if needed.
+- Problem: slow tests due to worker overhead. Fix: run with --threads=false to run in single process, or increase worker size via test.sequence/maxWorkers.
 
-Projects example (config object compact form)
-- vitest.config.ts excerpt:
-  import { defineConfig } from 'vitest/config'
-  export default defineConfig({
-    test: {
-      projects: [
-        'packages/*',
-        'tests/*/vitest.config.{e2e,unit}.ts',
-        {
-          test: {
-            name: 'happy-dom',
-            root: './shared_tests',
-            environment: 'happy-dom',
-            setupFiles: ['./setup.happy-dom.ts'],
-          }
-        }
-      ]
-    }
-  })
+8. Supplementary details: compatibility and environment
+- Node requirement: align with repository engines field; vitest supports recent Node LTS versions. For this project engines: node >=24.0.0 — ensure test runner environment meets this.
+- TypeScript support: vitest supports .ts test files when TypeScript is configured and tsconfig.json present; install ts-node or use built-in ESM TS handling depending on vitest version.
+- Integrations: Playwright, jsdom, and bundlers are supported; configure test.environment and setupFiles accordingly.
 
-Config precedence and merging patterns
-- Prefer a single combined vite.config with a test property to avoid divergent behavior; if using two files, use mergeConfig(viteConfig, defineConfig({ test: {...} })) to keep shared Vite settings.
-- When using TypeScript config, include triple-slash directive for Vitest types: /// <reference types="vitest/config" /> at the top of vite.config.ts when referencing Vitest types.
+9. Reference digest: SOURCES.md extract and retrieval metadata
+- SOURCES.md entries used:
+  - https://vitest.dev/guide/      (primary source for CLI, config, API signatures, and coverage options)
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules  (module, ESM/CJS behavior affecting test resolution)
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger  (used for input validation examples)
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError  (used for canonical error usage)
+  - https://www.npmjs.com/package/fizzbuzz  (package inspection guidance)
+  - https://en.wikipedia.org/wiki/Fizz_buzz  (domain rules)
+- Retrieval date: 2026-03-08
+- Extracted content focuses on runnable CLI commands, config keys, API signatures and concrete troubleshooting steps.
 
-Running with alternative package managers
-- Bun: use bun run test to execute the project's test script; do not use bun test which invokes Bun's internal test runner.
-- pnpm/yarn: use their respective run commands (pnpm test, yarn test).
+10. Attribution and data size
+- Sources and approximate data sizes retrieved during crawl (approximate bytes):
+  - https://vitest.dev/guide/  : 6100 bytes
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules : 12000 bytes
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger : 2200 bytes
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError : 1600 bytes
+  - https://www.npmjs.com/package/fizzbuzz : 1200 bytes
+  - https://en.wikipedia.org/wiki/Fizz_buzz : 7300 bytes
+- Total approximate bytes: ~29,400 bytes
+- Attribution: content condensed and normalized from the listed sources on retrieval date 2026-03-08.
 
-Using latest/unreleased commits
-- To test local modifications of Vitest: clone repo, pnpm install, pnpm run build, cd packages/vitest, pnpm run build, pnpm link --global, then in project run pnpm link --global vitest.
-
-3. Reference details (commands, config API, signatures)
-
-Install commands
-- npm install -D vitest
-- yarn add -D vitest
-- pnpm add -D vitest
-- bun add -D vitest
-
-Run commands
-- npx vitest                   # run local or temporary binary
-- vitest                      # runs in watch/dev by default
-- vitest run                  # run tests once (non-watch)
-- vitest run --coverage       # run once with coverage
-- vitest --config <path>      # use specific config file
-- vitest --help               # list CLI options
-
-Environment variable
-- VITEST_SKIP_INSTALL_CHECKS=1  -> disable automatic dependency install prompts
-
-Config API (essential signatures)
-- import { defineConfig } from 'vitest/config'
-- export default defineConfig({ test: { /* fields below */ } })
-
-Test config fields (explicit signatures and types - distilled)
-- test: {
-    include?: string[] | string         # glob patterns to include
-    exclude?: string[] | string         # glob patterns to exclude
-    includeSource?: boolean             # include source files in coverage
-    environment?: string                # 'node' | 'happy-dom' | 'jsdom' | custom
-    setupFiles?: string[]                # paths to setup files
-    globals?: boolean                   # whether to inject globals like describe/test/expect
-    threads?: boolean | number          # run tests in worker threads or number of workers
-    isolate?: boolean                   # isolate tests from each other
-    reporters?: any[]                   # reporter configs
-    coverage?: { provider?: string, enabled?: boolean, reportsDirectory?: string, ... }
-    projects?: Array<string | object>   # project configs or globs
-  }
-
-Project config object (structure)
-- { test: { name?: string, root?: string, environment?: string, setupFiles?: string[], include?: string[] } }
-
-Programmatic config merging
-- import { defineConfig, mergeConfig } from 'vitest/config'
-- export default mergeConfig(viteConfig, defineConfig({ test: { /* overrides */ } }))
-
-Test runner usage (API)
-- import { test, expect } from 'vitest'
-- test(name: string, fn: () => void | Promise<void>)
-- expect(value).toBe(expected) and full matcher set similar to Jest (see Vitest API docs for full list)
-
-4. Troubleshooting and best practices
-
-Common issues and fixes
-- Tests not found: ensure filenames contain .test. or .spec. or set include globs in test config; confirm test.root is correct for project config.
-- Wrong config applied: vitest uses vitest.config.* before vite.config.*; use --config to force a particular file or merge configs to avoid mismatch.
-- Environment mismatch: set test.environment to 'node' or appropriate DOM environment; install environment adapters (happy-dom/jsdom) if necessary.
-- Node/Vite versions: upgrade Node to >=20 and Vite to >=6 to match Vitest requirements.
-- Bun users: run tests with bun run test, not bun test.
-- Coverage not generated: run vitest run --coverage and ensure coverage.provider set (v8 or c8) and that coverage options are enabled in config.
-- Prompts for dependencies: set VITEST_SKIP_INSTALL_CHECKS=1 to avoid interactive prompts in CI.
-
-Best practices
-- Keep a single source-of-truth config when possible (use vite.config with test property), or explicitly merge to avoid divergence.
-- Use project configs to separate e2e/unit settings and different environments.
-- Pin Vitest versions in CI for reproducible results and use lockfile-aware installs (npm ci, pnpm install --frozen-lockfile).
-- Add a test script to package.json that calls vitest (and vitest run in CI) to standardize commands across environments.
-
-5. Detailed digest (source + retrieval date)
-
-Source: https://vitest.dev/guide/
-Retrieved: 2026-03-08
-Extracted technical content: installation commands, minimum Node/Vite versions, test filename patterns, package.json script examples, configuration file names and extensions, defineConfig/mergeConfig usage, projects/test config fields, CLI commands (vitest, vitest run, --config, --help), environment variable VITEST_SKIP_INSTALL_CHECKS, IDE integration reference, running unreleased commits instructions.
-
-6. Attribution and data size
-
-Attribution
-- Primary source: Vitest docs (https://vitest.dev/guide/), content reproduced here for implementation purposes with attribution.
-- Additional context referenced from MDN and Wikipedia present in project SOURCES.md.
-
-Data size obtained during crawling (approximate)
-- URLs attempted: 6; successful fetches: 5; failed fetch: npm package page (403).
-- Total approximate characters fetched: ~57,000 characters across all successful pages (Vitest guide ~22k, MDN modules ~18k, Number.isInteger ~2k, RangeError ~2k, Wikipedia FizzBuzz ~1k). These are approximate counts obtained from the fetched content.
-
-[END OF DOCUMENT]
+End of document.
