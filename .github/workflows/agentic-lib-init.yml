@@ -39,6 +39,10 @@ on:
         type: string
         required: false
         default: ""
+      profile:
+        type: string
+        required: false
+        default: ""
   workflow_dispatch:
     inputs:
       mode:
@@ -71,6 +75,9 @@ on:
           - cron-engine
           - owl-ontology
           - time-series-lab
+          - c64-emulator
+          - ray-tracer
+          - markdown-compiler
           - empty
       mission-text:
         description: "Freeform mission text for MISSION.md (overrides mission-seed if provided)"
@@ -99,6 +106,16 @@ on:
           - gpt-5-mini
           - claude-sonnet-4
           - gpt-4.1
+      profile:
+        description: "Tuning profile (leave empty to keep current)"
+        type: choice
+        required: false
+        default: ""
+        options:
+          - ""
+          - min
+          - recommended
+          - max
 
 permissions: write-all
 
@@ -122,6 +139,8 @@ jobs:
           echo "schedule=${SCHEDULE}" >> $GITHUB_OUTPUT
           MODEL='${{ inputs.model }}'
           echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
+          PROFILE='${{ inputs.profile }}'
+          echo "profile=${PROFILE}" >> $GITHUB_OUTPUT
     outputs:
       mode: ${{ steps.normalise.outputs.mode }}
       dry-run: ${{ steps.normalise.outputs.dry-run }}
@@ -129,6 +148,7 @@ jobs:
       mission-text: ${{ steps.normalise.outputs.mission-text }}
       schedule: ${{ steps.normalise.outputs.schedule }}
       model: ${{ steps.normalise.outputs.model }}
+      profile: ${{ steps.normalise.outputs.profile }}
 
   init:
     needs: params
@@ -199,6 +219,33 @@ jobs:
         run: cd src/actions/agentic-step && npm ci
 
       - run: npm test
+
+      - name: Update model and profile (if requested)
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true' && (needs.params.outputs.model != '' || needs.params.outputs.profile != '')
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const model = '${{ needs.params.outputs.model }}';
+            const profile = '${{ needs.params.outputs.profile }}';
+            const tomlPath = 'agentic-lib.toml';
+            if (!fs.existsSync(tomlPath)) return;
+            let toml = fs.readFileSync(tomlPath, 'utf8');
+            if (model) {
+              const modelRegex = /(\[tuning\][^\[]*?)(^\s*model\s*=\s*"[^"]*")/m;
+              if (modelRegex.test(toml)) {
+                toml = toml.replace(modelRegex, `$1model = "${model}"`);
+                core.info(`Updated [tuning].model to: ${model}`);
+              }
+            }
+            if (profile) {
+              const profileRegex = /(\[tuning\][^\[]*?)(^\s*profile\s*=\s*"[^"]*")/m;
+              if (profileRegex.test(toml)) {
+                toml = toml.replace(profileRegex, `$1profile = "${profile}"`);
+                core.info(`Updated [tuning].profile to: ${profile}`);
+              }
+            }
+            fs.writeFileSync(tomlPath, toml);
 
       - name: Update schedule (if requested)
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.schedule != '' && needs.params.outputs.dry-run != 'true'

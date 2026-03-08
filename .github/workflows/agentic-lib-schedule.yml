@@ -8,7 +8,7 @@
 # No trigger changes needed — uses workflow_call and workflow_dispatch only.
 
 name: agentic-lib-schedule
-run-name: "agentic-lib-schedule -> ${{ inputs.frequency }} (${{ inputs.model }})"
+run-name: "agentic-lib-schedule -> ${{ inputs.frequency }} (${{ inputs.model }}${{ inputs.profile && format(', profile={0}', inputs.profile) || '' }})"
 
 on:
   workflow_call:
@@ -22,6 +22,11 @@ on:
         required: false
         type: string
         default: "gpt-5-mini"
+      profile:
+        description: "Tuning profile"
+        required: false
+        type: string
+        default: ""
       dry-run:
         description: "Skip commit and push"
         required: false
@@ -48,6 +53,16 @@ on:
           - gpt-5-mini
           - claude-sonnet-4
           - gpt-4.1
+      profile:
+        description: "Tuning profile"
+        required: false
+        type: choice
+        default: ""
+        options:
+          - ""
+          - min
+          - recommended
+          - max
       dry-run:
         description: "Skip commit and push"
         type: boolean
@@ -76,6 +91,7 @@ jobs:
             const fs = require('fs');
             const frequency = '${{ inputs.frequency }}';
             const model = '${{ inputs.model || 'gpt-5-mini' }}';
+            const profile = '${{ inputs.profile }}';
             const workflowPath = '.github/workflows/agentic-lib-workflow.yml';
             const tomlPath = 'agentic-lib.toml';
 
@@ -139,8 +155,15 @@ jobs:
                 toml = toml.replace(scheduleSupervisorRegex, `$1supervisor = "${frequency}"`);
               }
 
+              if (profile) {
+                const profileRegex = /(\[tuning\][^\[]*?)(^\s*profile\s*=\s*"[^"]*")/m;
+                if (profileRegex.test(toml)) {
+                  toml = toml.replace(profileRegex, `$1profile = "${profile}"`);
+                }
+              }
+
               fs.writeFileSync(tomlPath, toml);
-              core.info(`Updated agentic-lib.toml: model=${model}, supervisor=${frequency}`);
+              core.info(`Updated agentic-lib.toml: model=${model}, supervisor=${frequency}${profile ? ', profile=' + profile : ''}`);
             } else {
               core.warning('agentic-lib.toml not found — skipping config update');
             }

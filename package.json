@@ -1,7 +1,7 @@
 {
-  "name": "@xn-intenton-z2a/repository0",
+  "name": "repo",
   "version": "0.1.0",
-  "description": "Dense binary-to-text encoding library with base62, base85, and base91 encodings",
+  "description": "",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
@@ -17,7 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.1.88"
+    "@xn-intenton-z2a/agentic-lib": "^7.1.89"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",

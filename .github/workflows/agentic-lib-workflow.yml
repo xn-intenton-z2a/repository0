@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-08T00:27:02.567Z
+# Schedule updated: 2026-03-08T00:52:10.645Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -25,6 +25,10 @@ on:
         type: string
         required: false
         default: "gpt-5-mini"
+      profile:
+        type: string
+        required: false
+        default: ""
       mode:
         type: string
         required: false
@@ -48,6 +52,16 @@ on:
           - gpt-5-mini
           - claude-sonnet-4
           - gpt-4.1
+      profile:
+        description: "Tuning profile"
+        type: choice
+        required: false
+        default: ""
+        options:
+          - ""
+          - min
+          - recommended
+          - max
       mode:
         description: "Run mode"
         type: choice
@@ -116,6 +130,8 @@ jobs:
         run: |
           MODEL='${{ inputs.model }}'
           echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
+          PROFILE='${{ inputs.profile }}'
+          echo "profile=${PROFILE}" >> $GITHUB_OUTPUT
           MODE='${{ inputs.mode }}'
           echo "mode=${MODE:-full}" >> $GITHUB_OUTPUT
           echo "message=${{ inputs.message }}" >> $GITHUB_OUTPUT
@@ -138,6 +154,7 @@ jobs:
           echo "config-path=${CONFIG:-${{ env.configPath }}}" >> $GITHUB_OUTPUT
     outputs:
       model: ${{ steps.normalise.outputs.model }}
+      profile: ${{ steps.normalise.outputs.profile }}
       mode: ${{ steps.normalise.outputs.mode }}
       message: ${{ steps.normalise.outputs.message }}
       issue-number: ${{ steps.normalise.outputs.issue-number }}
@@ -330,6 +347,23 @@ jobs:
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
         run: npm ci
+
+      - name: Apply profile and model to config
+        if: needs.params.outputs.profile != '' || needs.params.outputs.model != 'gpt-5-mini'
+        run: |
+          CONFIG="${{ needs.params.outputs.config-path }}"
+          PROFILE="${{ needs.params.outputs.profile }}"
+          MODEL="${{ needs.params.outputs.model }}"
+          if [ -f "$CONFIG" ]; then
+            if [ -n "$PROFILE" ]; then
+              sed -i "s/^profile = \"[^\"]*\"/profile = \"${PROFILE}\"/" "$CONFIG"
+              echo "Updated [tuning].profile to: ${PROFILE}"
+            fi
+            if [ -n "$MODEL" ] && [ "$MODEL" != "gpt-5-mini" ]; then
+              sed -i "s/^model = \"[^\"]*\"/model = \"${MODEL}\"/" "$CONFIG"
+              echo "Updated [tuning].model to: ${MODEL}"
+            fi
+          fi
 
       - name: Load config
         id: config
@@ -962,6 +996,7 @@ jobs:
           echo "## agentic-lib-workflow run summary" >> $GITHUB_STEP_SUMMARY
           echo "- Mode: ${{ needs.params.outputs.mode }}" >> $GITHUB_STEP_SUMMARY
           echo "- Model: ${{ needs.params.outputs.model }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Profile: ${{ needs.params.outputs.profile || '(from config)' }}" >> $GITHUB_STEP_SUMMARY
           echo "- Dry-run: ${{ needs.params.outputs.dry-run }}" >> $GITHUB_STEP_SUMMARY
           echo "- Website: [${SITE_URL}](${SITE_URL})" >> $GITHUB_STEP_SUMMARY
 
@@ -973,4 +1008,5 @@ jobs:
     with:
       frequency: ${{ needs.params.outputs.schedule }}
       model: ${{ needs.params.outputs.model }}
+      profile: ${{ needs.params.outputs.profile }}
     secrets: inherit
