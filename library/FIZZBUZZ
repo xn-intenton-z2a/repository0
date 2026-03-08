@@ -1,0 +1,166 @@
+NORMALISED EXTRACT
+
+Table of Contents:
+1. Problem specification
+2. Input validation and numeric handling
+3. Output mapping rules
+4. Edge cases and range handling
+5. Recommended function signatures and return types
+6. Implementation patterns and array construction
+7. Error types and when to throw RangeError
+8. Testing patterns and examples
+
+1. Problem specification
+Implement a function that maps integers 1..n to string outputs using the following exact mapping rules:
+- If value divisible by 3 and not 5 -> "Fizz"
+- If value divisible by 5 and not 3 -> "Buzz"
+- If value divisible by both 3 and 5 -> "FizzBuzz"
+- Otherwise -> the decimal string form of the integer
+The function returns an ordered array of strings of length n where index 0 corresponds to integer 1.
+
+2. Input validation and numeric handling
+- Accept a single numeric parameter n.
+- Coerce only explicit numeric types; reject non-numeric or NaN.
+- Use Number.isInteger(n) to verify integrality: Number.isInteger accepts only finite integer values and returns false for NaN, Infinity, and non-integers.
+- Enforce n >= 0 (or n >= 1 depending on API choice). If the API requires positive counts, throw RangeError for n < 1.
+- For non-integer inputs: either coerce via Math.floor or reject; canonical implementations reject and throw RangeError to avoid silent logic errors.
+
+3. Output mapping rules (detail)
+For each integer i in 1..n:
+- if i % 15 === 0 -> 'FizzBuzz'
+- else if i % 3 === 0 -> 'Fizz'
+- else if i % 5 === 0 -> 'Buzz'
+- else -> String(i)
+
+4. Edge cases and range handling
+- n = 0 -> return [] (empty array) if allowed by API; if API requires positive n, throw RangeError.
+- Very large n -> consider memory usage; prefer streaming/generator versions for extremely large n.
+- Negative n -> throw RangeError.
+- Non-integer numeric n (e.g., 3.7) -> standard behavior: throw RangeError; alternative behavior: floor to 3 (documented explicitly if chosen).
+
+5. Recommended function signatures and return types
+- Synchronous array version (JavaScript):
+  function fizzBuzz(n: number): string[]
+  - Parameters: n (number, integer, >= 0 or >=1 per API choice)
+  - Returns: Array of strings of length n
+  - Throws: RangeError when n is not a finite integer or is out of allowed range
+
+- Generator/streaming version:
+  function* fizzBuzzGenerator(n: number): IterableIterator<string>
+  - Yields strings for each i in 1..n; useful for large n to reduce memory.
+
+- Configurable range version:
+  function fizzBuzzRange(start: number, end: number): string[]
+  - Parameters: start (integer), end (integer; inclusive)
+  - Behavior: produce mapping for integers start..end; validate start <= end
+
+6. Implementation patterns and array construction
+- Use a single loop from 1 to n (inclusive) and push results into an array via array.push(value).
+- For concise mapping, use conditional ordering that checks for divisibility by 15 first to avoid multiple branches.
+- Avoid constructing temporary strings or arrays per iteration beyond the single output string.
+- Alternative functional style: Array.from({length: n}, (_, idx) => { const i = idx+1; ... return result; }) which returns an array directly without push; ensures predictable memory allocation.
+
+7. Error types and when to throw RangeError
+- Use RangeError when input numeric value falls outside allowed bounds or is not an integer as per API contract.
+- Pattern: if (!Number.isInteger(n) || n < minAllowed || !Number.isFinite(n)) throw new RangeError('n must be a finite integer >= X');
+- Use TypeError for wrong types (e.g., non-number) if desired, but canonical JS guidance often uses RangeError for numeric argument range violations.
+
+8. Testing patterns and examples
+- Unit test canonical outputs for n=1..15 and assert exact array equality for mapping 1..15 as the canonical sample.
+- Test invalid inputs: NaN, Infinity, negative numbers, non-integers (3.5), strings.
+- Test boundary cases: n=0, n=1, large n sample (e.g., n=10000) to check performance and memory behaviour.
+
+SUPPLEMENTARY DETAILS
+
+Technical specifications and implementation details:
+- Divisibility checks: use modulo operator (%) with integers; check i % 15 === 0 before checking i % 3 or i % 5 to produce FizzBuzz.
+- Integer verification: use Number.isInteger(value) which returns true only for finite integers (excludes NaN and Infinity).
+- Throwing errors: new RangeError(message) produces stack-trace-consistent exceptions recognizable by Node and browsers.
+- Array construction options:
+  - Imperative loop: const out = []; for (let i=1; i<=n; i++){ out.push(map(i)); } return out;
+  - Functional: return Array.from({length: n}, (_, idx) => map(idx+1));
+- Memory considerations: array of length n holding strings; each string is small, but overall memory = O(n) -- for n beyond available memory, prefer generator.
+- NPM package API patterns: export default function or module.exports = fizzBuzz; also provide named exports for generator and range versions.
+
+REFERENCE DETAILS (API SPECIFICATIONS, METHOD SIGNATURES, CONFIGS)
+
+1) Synchronous array API
+Signature:
+function fizzBuzz(n: number): string[]
+Parameters:
+- n: number — required. Must be a finite integer. Minimum allowed value: 0 (or 1 if API chooses positive-only). Behavior must be documented.
+Return:
+- string[] — array of length n where element at index k (0-based) equals mapping for integer k+1.
+Errors:
+- Throws RangeError when Number.isInteger(n) === false or n < minAllowed or !Number.isFinite(n).
+Usage pattern:
+- const result = fizzBuzz(15); // returns ['1','2','Fizz','4','Buzz',...,'FizzBuzz']
+
+2) Generator API
+Signature:
+function* fizzBuzzGenerator(n: number): IterableIterator<string>
+Parameters:
+- n: number — finite integer >= minAllowed
+Yields:
+- string per iteration in order for 1..n
+Return:
+- Iterator done when count reached
+Errors:
+- Throw RangeError on invalid n before yielding any values
+Usage pattern:
+- for (const s of fizzBuzzGenerator(1000000)) { process(s); }
+
+3) Range API
+Signature:
+function fizzBuzzRange(start: number, end: number): string[]
+Parameters:
+- start: integer
+- end: integer (inclusive)
+Validation:
+- Ensure Number.isInteger(start) && Number.isInteger(end) && start <= end
+Errors:
+- Throw RangeError if validation fails
+
+4) Configuration options (if providing object-based API)
+Signature:
+function fizzBuzzConfig(opts: { start?: number, end?: number, inclusive?: boolean }): string[]
+Options:
+- start: integer default 1
+- end: integer required or default to n when combined with count
+- count: integer alternative to end
+- inclusive: boolean default true for end inclusive
+Validation semantics must be explicit and throw RangeError for invalid numeric options.
+
+BEST PRACTICES AND IMPLEMENTATION EXAMPLES (patterns only, no code escapes)
+- Prefer explicit integer validation using Number.isInteger and throw RangeError to avoid silent behavior.
+- Check combined divisibility by using modulus of product (15) first to avoid nested branches.
+- Provide both array-returning and generator-based APIs to allow users to choose memory- or CPU-optimized paths.
+- Export defaults and named exports for compatibility with both ES module and CommonJS consumers.
+- Document behavior for n=0 and for non-integer inputs clearly in README and JSDoc.
+
+TROUBLESHOOTING
+- If tests fail for canonical mapping: verify modulo checks and order (15 before 3 or 5), and ensure loop starts at 1 not 0.
+- If RangeError unexpectedly thrown: confirm Number.isInteger used and that callers supply numeric types, not numeric strings; add explicit parseInt only if intended.
+- If memory exhausted for large n: switch to generator and process incrementally; profile memory to determine safe maximum n for array approach.
+
+DETAILED DIGEST (source extraction)
+- Extracted authoritative mapping rules and canonical example mapping entries from Wikipedia "Fizz buzz" canonical description.
+- Extracted Number.isInteger behavior and its implications from MDN Number.isInteger documentation: it returns false for non-integers, NaN, and Infinity; use for strict integer checks.
+- Extracted RangeError usage patterns from MDN RangeError documentation: use RangeError for numeric argument range violations and provide clear message.
+- Extracted Array construction and methods references from MDN Array docs: recommended constructors include Array.from and push; functional Array.from variant suggested for concise implementations.
+- Extracted practical implementation and edge-case handling patterns from FreeCodeCamp tutorial for FizzBuzz in JavaScript.
+- Extracted export and packaging patterns from npm fizzbuzz package as reference for API shape (default export and named functions).
+
+Retrieved: 2026-03-08
+Sources referenced:
+- https://en.wikipedia.org/wiki/Fizz_buzz
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/RangeError
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
+- https://www.freecodecamp.org/news/fizz-buzz-in-javascript/
+- https://www.npmjs.com/package/fizzbuzz
+- https://stackoverflow.com/questions/4412956/what-is-the-best-way-to-implement-fizzbuzz-in-java
+
+Attribution and data size
+- Attribution: content condensed and technical details extracted from the listed sources. Each source is authoritative for different aspects: algorithm (Wikipedia/FreeCodeCamp), JS runtime behavior (MDN pages), packaging patterns (npm), community patterns (StackOverflow).
+- Data obtained during crawl: 7 source URLs; approximate raw text captured ~9 KB total across sources (links and brief extracts).

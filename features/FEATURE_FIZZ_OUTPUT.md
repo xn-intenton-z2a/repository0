@@ -2,51 +2,73 @@
 
 Overview
 
-Add a well-specified, thoroughly tested FizzBuzz output feature to the library API and examples. This feature documents the library behaviour, provides precise acceptance criteria, and clarifies edge-case handling so that tests and consumers align with the mission in MISSION.md.
+Provide a precise, well-tested FizzBuzz API and documentation that fully implements the mission in MISSION.md. This feature specifies the exported library functions, validation rules, examples for README and the website, and the unit tests required to meet acceptance criteria.
 
 Goals
 
-- Ensure fizzBuzz and fizzBuzzSingle behaviour is explicit and testable.
-- Provide examples suitable for README and the site in src/web/.
-- Define exact error types and return shapes for edge cases.
+- Deliver two named exports: fizzBuzz and fizzBuzzSingle from src/lib/main.js.
+- Define validation behaviour for edge cases and error messages so tests are deterministic.
+- Provide examples usable by README and the site at src/web/.
+- Ensure complete unit test coverage for normal and edge cases.
 
 Specification
 
-- Exported functions: fizzBuzz(n) and fizzBuzzSingle(n) as named exports from src/lib/main.js.
-- Behaviour: fizzBuzz(n) returns an array of strings representing numbers from 1 to n where:
-  - Multiples of 3 are replaced with the string Fizz
-  - Multiples of 5 are replaced with the string Buzz
-  - Multiples of both 3 and 5 are replaced with the string FizzBuzz
-  - Non-multiples are the decimal string of the number (e.g., 7 -> "7")
-- Edge cases:
-  - n = 0 returns an empty array
-  - negative numbers throw a RangeError with message "n must be a non-negative integer"
-  - non-integers throw a TypeError with message "n must be an integer"
-  - fizzBuzzSingle follows the same validations for its single numeric argument and returns the single string for that number
+API
 
-Examples
+- Exported functions (named exports): fizzBuzz(n) and fizzBuzzSingle(n).
 
-- fizzBuzz(5) -> ["1","2","Fizz","4","Buzz"]
-- fizzBuzzSingle(15) -> "FizzBuzz"
+Behavior
 
-Acceptance criteria
+- fizzBuzz(n) returns an array of strings for integers from 1 to n (inclusive). Replacement rules:
+  - Multiples of 3 => Fizz
+  - Multiples of 5 => Buzz
+  - Multiples of both 3 and 5 => FizzBuzz
+  - Other numbers => decimal string of the number (e.g., 7 -> 7)
+- fizzBuzzSingle(n) returns the single string result for the provided positive integer using the same rules above.
 
-- AC1: fizzBuzz(15) returns a 15-element array ending with "FizzBuzz"
-- AC2: fizzBuzzSingle(3) returns "Fizz"
-- AC3: fizzBuzzSingle(5) returns "Buzz"
-- AC4: fizzBuzzSingle(15) returns "FizzBuzz"
-- AC5: fizzBuzzSingle(7) returns "7"
-- AC6: fizzBuzz(0) returns []
-- AC7: fizzBuzz(-1) throws RangeError with the specified message
-- AC8: fizzBuzz(1.5) throws TypeError with the specified message
+Validation and Errors
+
+- If n is not of type number or not an integer, throw TypeError with message: n must be an integer
+- If n is negative, throw RangeError with message: n must be a non-negative integer
+- If n is 0, fizzBuzz(0) returns an empty array; fizzBuzzSingle(0) treats 0 as a non-negative integer and returns "FizzBuzz" (0 is divisible by 3 and 5)
+- Inputs that are NaN, Infinity, or non-number types trigger TypeError
+
+Examples (for README and site)
+
+- fizzBuzz(5) -> [1, 2, Fizz, 4, Buzz]
+- fizzBuzz(15) -> [..., FizzBuzz] with the last element FizzBuzz (15th)
+- fizzBuzzSingle(3) -> Fizz
+- fizzBuzzSingle(7) -> 7
+
+Acceptance Criteria
+
+- AC1: fizzBuzz(15) returns an array of 15 strings and the 15th element is FizzBuzz
+- AC2: fizzBuzzSingle(3) returns Fizz
+- AC3: fizzBuzzSingle(5) returns Buzz
+- AC4: fizzBuzzSingle(15) returns FizzBuzz
+- AC5: fizzBuzzSingle(7) returns 7
+- AC6: fizzBuzz(0) returns an empty array
+- AC7: fizzBuzz(-1) throws RangeError with message n must be a non-negative integer
+- AC8: fizzBuzz(1.5) throws TypeError with message n must be an integer
 - AC9: Both functions are exported as named exports from src/lib/main.js
-- AC10: Unit tests cover all above behaviours and edge cases
+- AC10: Unit tests in tests/unit/ cover all behaviours and edge cases above
 
-Testing notes
+Testing Notes
 
-- Add or update tests in tests/unit/ to assert exact return values and thrown error types/messages.
-- Keep tests small and focused on the API contract.
+- Unit tests should assert both return values and exact thrown error types and messages.
+- Keep tests focused on API contract; small integration tests may exercise the CLI wrapper but library functions are primary.
+- Use deterministic inputs to avoid flakiness (no random values).
 
-Compatibility
+Compatibility and Constraints
 
-This feature is intentionally minimal and self-contained so it can be implemented within src/lib/main.js, with corresponding unit tests and README examples.
+- Implementation must live in src/lib/main.js and preserve the CLI behaviour specified in FEATURE_CLI if present.
+- Do not change other files outside source, tests, README, package.json, or examples.
+
+Implementation Tips
+
+- Use simple loop or map over range 1..n to build output as strings.
+- Validate inputs early and throw the specified errors to make tests precise.
+
+Notes
+
+- This file is intentionally explicit about error messages and export shapes so unit tests can assert exact strings and types.
