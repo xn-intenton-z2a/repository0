@@ -6,8 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "continuous"              # off | weekly | daily | hourly | continuous
-model = "claude-sonnet-4"
+supervisor = "off"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -134,7 +133,7 @@ library-limit = 64                     # max library entries in library/ directo
 log-file = "intentïon.md"
 
 [init]
-timestamp = "2026-03-07T22:46:31.636Z"
+timestamp = "2026-03-08T00:08:00.639Z"
 mode = "purge"
 mission = "dense-encoding"
-version = "7.1.86"
+version = "7.1.87"
