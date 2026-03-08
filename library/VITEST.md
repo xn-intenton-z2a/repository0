@@ -149,7 +149,7 @@ IDE integration
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError  (error semantics referenced by tests)
   - https://en.wikipedia.org/wiki/Fizz_buzz  (context: mission domain; problem definition)
   - https://www.npmjs.com/package/fizzbuzz  (attempted but returned 403 during crawl; not included)
-- Retrieval timestamp: 2026-03-08T16:19:06.230Z (as provided by user)
+- Retrieval timestamp: 2026-03-08T16:39:48.814Z (as provided by user)
 
 7. Attribution and crawl data size
 - Attributions:
