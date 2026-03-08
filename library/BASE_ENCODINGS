@@ -1,0 +1,187 @@
+BASE_ENCODINGS
+
+TABLE OF CONTENTS
+1. UUID (RFC 4122 / RFC 9562): format, fields, byte order, versions (1,2,3,4,5,6,7)
+2. UUID Implementation Algorithms: time-based (v1/v6), name-based (v3/v5), random (v4), timestamp-ordered (v7)
+3. UUID Bit-Level Operations: exact masks and operations for version/variant placement
+4. Base64 (RFC 4648): alphabet, grouping, padding, URL-safe variant, decoding rules
+5. Ascii85 / Adobe Ascii85: alphabet, 4-byte→5-char conversion, 'z' shortcut, delimiters and padding
+6. Base62: alphabet and value mapping
+7. base-x (cryptocoinjs): API signatures, behaviour, leading-zero handling
+8. Implementation patterns, best practices, and troubleshooting
+
+NORMALISED EXTRACT — DIRECT IMPLEMENTATION CONTENT
+
+1. UUID (RFC 4122 / RFC 9562)
+- Internal representation: 16 octets (128 bits) encoded in network byte order (most significant byte first).
+- Field layout (octet offsets):
+  time_low: unsigned 32-bit integer at octets 0..3
+  time_mid: unsigned 16-bit integer at octets 4..5
+  time_hi_and_version: unsigned 16-bit integer at octets 6..7 (high 4 bits = version)
+  clock_seq_hi_and_reserved: unsigned 8-bit at octet 8 (high bits contain variant)
+  clock_seq_low: unsigned 8-bit at octet 9
+  node: unsigned 48-bit at octets 10..15
+- Variant field: resides in the most significant bits of octet 8 (clock_seq_hi_and_reserved). For the RFC 4122 variant (variant 1) set top two bits to 10 (binary). Other patterns reserved.
+- Version field: high 4 bits of time_hi_and_version. Standard versions defined include:
+  1: time-based (timestamp + node)
+  2: DCE Security (POSIX domain-specific)
+  3: name-based MD5
+  4: randomly or pseudo-randomly generated
+  5: name-based SHA-1
+  6: reordered time-based (timestamp bits reordered to be lexicographically sortable)
+  7: timestamp + random (48-bit epoch ms + version + sub-ms/monotonic bits + variant + remainder)
+
+2. UUID Algorithms (concrete steps)
+- Version 1 (time-based) generation steps:
+  1. Obtain a 60-bit timestamp as number of 100-nanosecond intervals since 00:00:00.00, 15 October 1582 UTC.
+  2. If multiple UUIDs generated within the same timestamp, increment a clock sequence low-order mechanism; maintain or randomize a 13-14 bit clock sequence when system clock moves backwards or node id changes.
+  3. Compose fields: time_low (low 32 bits of timestamp), time_mid (next 16 bits), time_hi_and_version (high 12 bits of timestamp OR'ed with version in high 4 bits).
+  4. Node: prefer IEEE 802 MAC address (48 bits). If not available or for privacy, use random 48-bit node and set multicast bit (least-significant bit of first octet) to 1 to indicate non-MAC node.
+  5. Set variant bits in clock_seq_hi_and_reserved to RFC pattern (10x). Clock sequence occupies 14 bits across clock_seq_hi_and_reserved and clock_seq_low.
+
+- Version 3 / 5 (name-based) generation steps:
+  1. Convert namespace UUID to 16-byte network-order representation.
+  2. Convert name to UTF-8 bytes.
+  3. Concatenate namespace bytes with name bytes.
+  4. Compute hash: MD5 for v3 (128-bit digest), SHA-1 for v5 (160-bit digest).
+  5. Take first 16 bytes of digest (for v5 truncate SHA-1). Overwrite the time_hi_and_version high 4 bits with version number and set variant bits in clock_seq_hi_and_reserved to RFC pattern.
+
+- Version 4 (random) generation steps:
+  1. Generate 16 random bytes (128 bits) from a cryptographically secure RNG.
+  2. Set version: time_hi_and_version = (time_hi_and_version & 0x0FFF) | (4 << 12).
+  3. Set variant: clock_seq_hi_and_reserved = (clock_seq_hi_and_reserved & 0x3F) | 0x80 (i.e., set top two bits to 10).
+
+- Version 7 (timestamp + random/monotonic) construction (RFC 9562 / community spec):
+  1. 48-bit big-endian unsigned Unix epoch milliseconds (ms since 1970-01-01) into the most significant bits.
+  2. Set 4-bit version field to 7.
+  3. Provide 12 bits for sub-ms precision/monotonic counter or pseudorandom value.
+  4. Set variant bits to 10.
+  5. Fill remaining 62 bits with pseudorandom or monotonic data as implementation chooses.
+
+3. UUID Bit-Level Operations (exact masks and ops)
+- Set version (generic): time_hi_and_version = (time_hi_and_version & 0x0FFF) | (version << 12)
+  - Example (v4): time_hi_and_version = (time_hi_and_version & 0x0FFF) | 0x4000
+- Set variant to RFC 4122 (binary 10x in top bits of octet 8):
+  clock_seq_hi_and_reserved = (clock_seq_hi_and_reserved & 0x3F) | 0x80
+  Explanation: &0x3F clears top two bits; |0x80 sets bit pattern 10xxxxxx.
+- Clock sequence composition:
+  clock_seq = 14-bit value; clock_seq_hi_and_reserved high 6 bits store upper 6 bits of clock_seq plus variant high bits; clock_seq_low holds low 8 bits.
+- Byte ordering: when serializing string representation, print fields as zero-padded hexadecimal with network byte order applied per the field table.
+
+4. Base64 (RFC 4648)
+- Alphabet (RFC 4648 base64): index 0..63 maps to "A..Z a..z 0..9 + /" (explicit mapping per RFC).
+- Encoding grouping: take input bytes in 3-byte groups -> 24 bits -> split into four 6-bit groups -> map to 4 characters.
+- Padding: if input length mod 3 = 1 produce two output chars + '=='; if mod 3 = 2 produce three output chars + '='. Padding character '=' indicates how many bytes were padded.
+- URL-safe variant (base64url): replace '+' with '-' and '/' with '_' and optionally omit padding '=' for URL contexts.
+- Decoding: discard non-alphabet characters (some variants allow ignoring whitespace). Decoders can infer missing padding from length but behaviour varies; secure implementations should require or validate padding according to chosen profile.
+
+5. Ascii85 / Adobe Ascii85
+- Alphabet: encode 32-bit big-endian group into 5 base-85 digits mapped to ASCII by adding 33; allowed printable chars are '!' (33) through 'u' (117). Special-case 'z' encodes 0x00000000 (4 zero bytes) as a single 'z'.
+- Grouping: take 4 input bytes => 32-bit big-endian integer N; compute digits d4..d0 by repeated division by 85; output characters (d4+33)...(d0+33).
+- Padding: pad final group with 0x00 bytes to 4 bytes before encoding; after encoding, remove as many characters as padding added (Adobe truncation rule). When decoding, pad final 5-tuple with 'u' characters then strip padded output bytes.
+- Delimiters (Adobe): optional prefix '<~' and suffix '~>' around Ascii85 payload.
+- Note: some characters used have special meaning in XML/SGML; escape when embedding in these contexts.
+
+6. Base62
+- Alphabet used commonly: 0-9, A-Z, a-z (value mapping 0..61). Explicit canonical ordering: '0'..'9' => values 0..9, 'A'..'Z' => 10..35, 'a'..'z' => 36..61. Implementations vary; confirm alphabet before interoperating.
+- Encoding approach: convert binary value to big integer then repeatedly divide by 62 producing digits; leading zeros handling depends on chosen canonicalization.
+
+7. base-x (cryptocoinjs) API and behaviour
+- Constructor: basex(alphabet: string) -> encoder object.
+- Encoder object methods:
+  encode(buffer: Uint8Array | Buffer) -> string  (encodes bytes to alphabet string)
+  decode(string: string) -> Uint8Array  (decodes alphabet string to bytes)
+- Leading-zero handling: base-x preserves leading zero bytes by encoding each leading zero as the alphabet first character (bitcoin-style leading-zero compression). This means encoded length is variable but leading zeros are recoverable on decode.
+- Warning: base-x is NOT RFC 3548 compliant for base16/base32/base64; use only for arbitrary alphabets (base58, base62 etc.).
+
+SUPPLEMENTARY DETAILS — TECHNICAL SPECIFICATIONS AND IMPLEMENTATION NOTES
+
+UUID specifics and canonical string representation
+- Canonical textual form: 36-character lowercase hex with hyphens separating fields: 8-4-4-4-12, e.g. f81d4fae-7dec-11d0-a765-00a0c91e6bf6
+- When converting between binary and text forms, ensure network byte order for multi-octet fields and exact zero-padding of hex digits.
+- Nil UUID: all-zero 16 bytes: 00000000-0000-0000-0000-000000000000
+- Max/Omni UUID: all-ones 16 bytes: FFFFFFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF (useful sentinel)
+
+Name-based UUID exact hash usage
+- v3: MD5(namespace || name) -> 128-bit digest; set version=3 and set variant bits; use first 16 bytes verbatim (except version/variant).
+- v5: SHA-1(namespace || name) -> 160-bit digest; take leftmost 16 bytes, set version=5, set variant bits.
+- Namespace constants used in practice: DNS, URL, OID, X.500; when using, provide their UUID byte representations in network byte order.
+
+Randomness and security
+- For v4 and any random-based components (v7 random tail, node randomization for v1), use a cryptographically secure RNG (CSPRNG) where unpredictability matters.
+- For privacy when omitting MAC node for v1/v6, set multicast/local bit (least-significant bit of first node octet) to 1 to indicate non-MAC node per RFC.
+
+Base64/Ascii85 encoding performance notes
+- Base64: fastest in typical libraries; decoding tolerant of extra whitespace and line breaks in MIME contexts but canonical implementations validate alphabet membership.
+- Ascii85: produces ~25% overhead vs base64 ~33% for typical binary lengths; Adobe variant includes delimiters and specific padding/truncation behaviour.
+
+REFERENCE DETAILS — API SPECIFICATIONS, METHOD SIGNATURES, MASKS, AND PATTERNS
+
+UUID field masks and assignment (pseudocode-friendly):
+- Set version:
+  time_hi_and_version = (time_hi_and_version & 0x0FFF) | (version << 12)
+- Set variant (RFC 4122):
+  clock_seq_hi_and_reserved = (clock_seq_hi_and_reserved & 0x3F) | 0x80
+- Compose clock sequence into octets:
+  clock_seq_hi_and_reserved = (clock_seq >> 8) & 0x3F
+  clock_seq_low = clock_seq & 0xFF
+- Serialize to text (network byte order): print hex(time_low,8) '-' hex(time_mid,4) '-' hex(time_hi_and_version,4) '-' hex(clock_seq_hi_and_reserved,2) hex(clock_seq_low,2) '-' hex(node,12)
+
+base-x (cryptocoinjs) method signatures (JS):
+- import basex from 'base-x'
+- const encoder = basex(alphabet: string)
+- encoder.encode(source: Uint8Array | Buffer): string
+- encoder.decode(str: string): Uint8Array
+- Behaviour: leading-zero bytes in source map to repeated first-alphabet character; decoder restores leading zeros.
+
+Base64 encoding mapping (RFC 4648): index -> char mapping table:
+- 0..25 => 'A'..'Z'
+- 26..51 => 'a'..'z'
+- 52..61 => '0'..'9'
+- 62 => '+' (or '-' in URL-safe)
+- 63 => '/' (or '_' in URL-safe)
+- Padding: '=' indicates added padding bytes; decoder should strip padding and reconstruct original byte length.
+
+Ascii85 exact encode/decode operations:
+- Encode 4 bytes B0..B3 as 32-bit big-endian N = (B0<<24) | (B1<<16) | (B2<<8) | B3
+- For i from 4 downto 0: d[i] = N % 85; N = floor(N / 85)
+- Output chars: for i=4..0 emit char code (d[i] + 33)
+- Exception: if original 4 bytes all zero, output single 'z'
+- Padding final group: pad with 0x00 up to 4 bytes, encode, then drop as many output chars as padding bytes (Adobe rule)
+
+BASE62 alphabet canonical mapping recommended:
+- "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" (0..61)
+- Encoding algorithm: treat input as big-endian integer; repeatedly divide by 62 collecting remainders; reverse remainders to output string; handle leading zero bytes per chosen canonical policy.
+
+IMPLEMENTATION PATTERNS AND TROUBLESHOOTING
+- When interoperating between languages, always define canonical byte-order and confirm how multi-octet fields are serialized.
+- For UUID equality and ordering: compare fields as unsigned integers in the order time_low, time_mid, time_hi_and_version, clock_seq, node.
+- When decoding name-based UUIDs, ensure namespace bytes are provided in canonical network order; compute hash on concatenated namespace||name raw bytes (name in UTF-8).
+- If UUID collisions suspected in random-based scheme, check RNG source and ensure correct setting of reserved/version/variant bits (incorrect setting reduces effective entropy).
+- For base encodings, verify alphabet exact characters and reserved characters (e.g., '+' '/' for Base64) to avoid cross-library mismatches; prefer explicit RFC variants (base64url) for URLs.
+
+DIGEST — SOURCE SECTION CONTENT AND RETRIEVAL
+- Sources referenced and extracted from:
+  1) RFC 4122 A UUID URN Namespace (IETF) — raw text retrieved and parsed for field layout, byte order, version/variant bits, nil UUID, algorithms (retrieved 2026-03-08)
+  2) Wikipedia: Universally unique identifier — supplemental descriptions of versions (1,2,3,4,5,6,7), v7 structure details (retrieved 2026-03-08)
+  3) Wikipedia: Base64 (RFC 4648) — alphabet, padding rules, URL-safe mapping, MIME usage and line-length notes (retrieved 2026-03-08)
+  4) Wikipedia: Ascii85 — Adobe Ascii85 details (alphabet '!' to 'u', 'z' zero shortcut, delimiters <~ ~>, padding rules) (retrieved 2026-03-08)
+  5) Wikipedia: Base62 — canonical alphabet ordering and value mapping (retrieved 2026-03-08)
+  6) GitHub: cryptocoinjs/base-x README — constructor and encode/decode behaviour, leading-zero handling, alphabets list (retrieved 2026-03-08)
+- Retrieval timestamp: 2026-03-08T01:00:37Z (same as job timestamp)
+- Crawl results: 8 source URLs listed in SOURCES.md; successful fetches: RFC4122, Wikipedia pages (UUID, Base64, Ascii85, Base62), GitHub base-x; failed or not retrieved: Wikipedia Base91 (404 on fetch), GitHub zeromq/z85 (404). Two sources returned 404 and were not included in full extraction.
+- Approximate data obtained: total ~120 KB of textual content across successful sources (approximate character count). Two sources unavailable: base91 and z85.
+
+ATTRIBUTION
+- Primary normative spec: RFC 4122 "A UUID URN Namespace" (Leach, Mealling, Salz) — IETF Standards Track, July 2005. Extracted fields, byte order, variant/version masks and canonical string format.
+- Supplemental: RFC 9562 updates and community UUID version notes (as referenced within Wikipedia summaries).
+- Encodings reference: RFC 4648 (Base64 alphabet and rules) and Adobe Ascii85 documentation as represented in Ascii85 specification and Wikipedia.
+- Library reference: cryptocoinjs/base-x repository (MIT) — API signatures and behaviour notes.
+
+DATA SIZE AND CRAWL METADATA
+- Sources requested: 8
+- Successful fetches: 6
+- Failed fetches: 2 (https://en.wikipedia.org/wiki/Base91, https://github.com/zeromq/z85 returned 404)
+- Approximate bytes retrieved: 120 KB total text (aggregate approximation across successful fetches).
+
+END OF DOCUMENT
