@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-// SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
 // src/lib/main.js
 
 import { createRequire } from "module";
@@ -16,6 +14,43 @@ export const description = pkg.description;
 export function getIdentity() {
   return { name, version, description };
 }
+
+// Hamming distance implementation
+export function hamming(a, b) {
+  // Validate types: string-like or byte-like (ArrayBuffer views)
+  const isString = (x) => typeof x === 'string' || x instanceof String;
+  const isView = (x) => ArrayBuffer.isView(x);
+
+  if (isString(a) && isString(b)) {
+    const s1 = String(a);
+    const s2 = String(b);
+    if (s1.length !== s2.length) {
+      throw new TypeError('Inputs must have the same length');
+    }
+    let diff = 0;
+    for (let i = 0; i < s1.length; i++) {
+      if (s1.charCodeAt(i) !== s2.charCodeAt(i)) diff++;
+    }
+    return diff;
+  }
+
+  if (isView(a) && isView(b)) {
+    const v1 = new Uint8Array(a.buffer, a.byteOffset, a.byteLength);
+    const v2 = new Uint8Array(b.buffer, b.byteOffset, b.byteLength);
+    if (v1.length !== v2.length) {
+      throw new TypeError('Inputs must have the same length');
+    }
+    let diff = 0;
+    for (let i = 0; i < v1.length; i++) {
+      if (v1[i] !== v2[i]) diff++;
+    }
+    return diff;
+  }
+
+  throw new TypeError('Inputs must be strings or byte array views of equal length');
+}
+
+export default { hamming };
 
 export function main(args) {
   if (args?.includes("--version")) {
