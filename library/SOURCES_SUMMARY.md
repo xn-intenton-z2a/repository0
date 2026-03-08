@@ -102,7 +102,7 @@ Table of contents
 - Vitest config keys and types (textual listing): include: string | string[]; exclude: string | string[]; environment: string; globals: boolean; setupFiles: string[]; setupFilesAsync: string[]; reporters: Array<string|[string,any]>; threads: boolean
 
 9. Detailed digest (SOURCES.md content and retrieval date)
-- Retrieved sources and mapped topics (retrieval date: 2026-03-08):
+- Retrieved sources and mapped topics (retrieval date: 2026-03-08T15:09:33.284Z):
   - https://en.wikipedia.org/wiki/Fizz_buzz  -> authoritative algorithm rules and cultural background; used for canonical rule set above
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules  -> ESM/CJS patterns, import/export, .mjs/.cjs, package.json "type"
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger  -> exact Number.isInteger signature and edge-case behavior
