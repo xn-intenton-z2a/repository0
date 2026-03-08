@@ -1,2 +1,0 @@
-DEPRECATED: duplicate document. See library/NUMBER_ISINTEGER.md for the canonical Number.isInteger technical extract.
-Retrieved: 2026-03-08
