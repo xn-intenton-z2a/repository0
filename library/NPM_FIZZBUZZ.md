@@ -87,7 +87,7 @@ Table of contents
 
 6. Detailed digest (source section and retrieval date)
 - Source line extracted from local SOURCES.md: "- https://www.npmjs.com/package/fizzbuzz"
-- Retrieval date: 2026-03-08T22:01:39.334Z
+- Retrieval date: 2026-03-08T22:07:26.276Z
 - Extraction method: local SOURCES.md entry (no remote fetch performed during this operation)
 
 7. Attribution and data size
