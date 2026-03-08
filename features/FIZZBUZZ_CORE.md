@@ -96,38 +96,36 @@ Edge cases and errors
 - Creating the generator with invalid input should throw immediately and not return a generator object in a broken state. Validation should run synchronously so callers receive TypeError/RangeError on invocation.
 - If n is 0, the generator produces no yields and completes normally.
 
+TypeScript definitions (optional)
+
+Summary
+
+Provide TypeScript declaration files and clear JSDoc guidance so TypeScript consumers and IDEs enjoy accurate types without changing the canonical JavaScript implementation.
+
+Specification
+
+- Ship a type declaration file at src/lib/main.d.ts (or src/lib/main.d.ts exported via package.json "types" field) that declares the following named exports with precise types:
+  - export function fizzBuzz(n: number): string[];
+  - export function fizzBuzzSingle(n: number): string;
+  - export function fizzBuzzFormatted(n: number, formatter: (s: string) => string): string[];
+  - export function fizzBuzzSingleFormatted(n: number, formatter: (s: string) => string): string;
+  - export function fizzBuzzStats(n: number): { fizz: number; buzz: number; fizzBuzz: number; numbers: number; total: number };
+  - export function fizzBuzzGenerator(n: number): Generator<string, void, unknown>;
+  - export function fizzBuzzWithWords?(n: number, words?: { fizz?: string; buzz?: string }): string[];
+  - export function fizzBuzzSingleWithWords?(n: number, words?: { fizz?: string; buzz?: string }): string;
+- If adding the declaration file, update package.json "types" to point to src/lib/main.d.ts or document how consumers should import the types. Modifying package.json is optional but recommended for TypeScript user experience.
+- Provide JSDoc comments on the exported functions in src/lib/main.js describing parameter types, thrown errors, and return types so editors can surface correct information even without .d.ts present.
+
 Testing guidance
 
-- Unit tests should import fizzBuzz, fizzBuzzSingle, fizzBuzzFormatted, fizzBuzzSingleFormatted, fizzBuzzStats and fizzBuzzGenerator from src/lib/main.js and assert exact outputs for canonical, formatted, statistics and streaming helpers.
-- For fizzBuzzGenerator include tests that:
-  - assert Array.from(fizzBuzzGenerator(15)) equals fizzBuzz(15)
-  - assert iterating the generator with for..of yields the same sequence as the array result
-  - assert that calling fizzBuzzGenerator with invalid inputs throws the same error types and message substrings as the canonical functions
-  - assert that fizzBuzzGenerator(0) yields no values (Array.from returns [])
-- Prefer black-box assertions comparing outputs rather than inspecting internal implementation details.
+- Unit tests remain JavaScript-focused; TypeScript declarations do not change runtime behaviour. Add a lightweight type-check step in CI or as an optional npm script (for example tsc --noEmit on the declaration file and src/lib/main.js) if the project opts into type-check coverage.
+- Include one test that imports the generated declaration file in a minimal TypeScript file used only for type-checking in CI (no runtime execution) if type-check coverage is enabled.
 
 Acceptance criteria
 
-- All original acceptance criteria for fizzBuzz and fizzBuzzSingle remain true:
-  - fizzBuzz(15) returns a 15-element array ending with FizzBuzz
-  - fizzBuzzSingle(3) returns Fizz
-  - fizzBuzzSingle(5) returns Buzz
-  - fizzBuzzSingle(15) returns FizzBuzz
-  - fizzBuzzSingle(7) returns 7
-  - fizzBuzz(0) returns an empty array
-- Additional acceptance criteria for the formatter extension:
-  - fizzBuzzFormatted(5, s => `[` + s + `]`) returns ["[1]","[2]","[Fizz]","[4]","[Buzz]"]
-  - fizzBuzzSingleFormatted(3, s => s + "!") returns "Fizz!"
-  - Passing a non-function formatter throws a TypeError whose message contains "formatter".
-- Acceptance criteria for statistics helper:
-  - fizzBuzzStats(15) returns { fizz: 4, buzz: 2, fizzBuzz: 1, numbers: 8, total: 15 }
-  - fizzBuzzStats(0) returns counts all zero with total 0
-  - Invalid n values throw the same error types and messages as the canonical functions.
-- Acceptance criteria for streaming extension:
-  - Array.from(fizzBuzzGenerator(15)) returns the same 15-element array as fizzBuzz(15)
-  - fizzBuzzGenerator(0) yields no values (Array.from returns [])
-  - Calling fizzBuzzGenerator with invalid inputs throws the same TypeError/RangeError as the canonical functions and does so synchronously on invocation
-- Unit tests exist and pass for canonical, formatted, statistics and streaming helpers.
+- A declaration file exists and exports the named function signatures matching the runtime behaviour.
+- JSDoc comments are present on each exported function in src/lib/main.js describing parameter types and thrown error conditions.
+- Adding types is non-breaking: all JavaScript unit tests continue to pass unchanged.
 
 Notes
 
