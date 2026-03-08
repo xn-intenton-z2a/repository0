@@ -1,0 +1,240 @@
+# ES_MODULES
+
+## Table of Contents
+
+1. Module System Overview and Standards
+2. Enabling ECMAScript Modules  
+3. Import and Export Syntax Specifications
+4. Module Specifier Types and Resolution
+5. File Extensions and URL Handling
+6. Import Attributes and Type Declarations
+7. Built-in Module Integration
+8. CommonJS Interoperability
+
+## Normalised Extract
+
+### Module System Overview and Standards
+
+ECMAScript modules are the official standard format for packaging JavaScript code for reuse. Node.js fully supports ES modules as specified in the ECMAScript standard and provides interoperability with CommonJS modules.
+
+### Enabling ECMAScript Modules
+
+Node.js determines module type through explicit markers:
+- .mjs file extension for ES modules
+- .cjs file extension for CommonJS modules  
+- package.json "type" field set to "module" for ES modules
+- package.json "type" field set to "commonjs" for CommonJS modules
+- --input-type flag with "module" or "commonjs" values
+
+Without explicit markers, Node.js inspects source code for ES module syntax to determine module system.
+
+### Import and Export Syntax Specifications
+
+ES modules use import and export statements for module dependency management:
+
+Export syntax allows named exports and default exports:
+- Named exports: export { functionName, variableName }
+- Default exports: export default value
+- Re-exports: export { item } from './otherModule.js'
+
+Import syntax supports various import patterns:
+- Named imports: import { item1, item2 } from './module.js'
+- Default imports: import defaultItem from './module.js'  
+- Namespace imports: import * as namespace from './module.js'
+- Dynamic imports: import('./module.js').then(module => ...)
+
+### Module Specifier Types and Resolution
+
+Three types of module specifiers supported:
+
+Relative specifiers reference paths relative to importing file:
+- Must include file extension
+- Examples: './startup.js', '../config.mjs'
+
+Bare specifiers reference package names or package paths:
+- Examples: 'some-package', 'some-package/feature'
+- File extension required only for packages without exports field
+
+Absolute specifiers provide complete URL paths:  
+- Example: 'file:///opt/nodejs/config.js'
+- Direct explicit path resolution
+
+### File Extensions and URL Handling
+
+File extensions are mandatory for relative and absolute specifiers in ES modules. Directory indexes must be fully specified.
+
+URL encoding applies to ES module specifiers:
+- Special characters require percent-encoding
+- Hash (#) becomes %23
+- Question mark (?) becomes %3F
+
+### Import Attributes and Type Declarations
+
+Import attributes provide additional metadata for module loading:
+
+Syntax: import module from './file.js' with { type: 'json' }
+
+Supported attribute types:
+- type: 'json' for JSON modules (mandatory for JSON imports)
+
+### Built-in Module Integration
+
+Built-in modules provide both named exports and default exports:
+- Named exports expose public API functions
+- Default export provides CommonJS exports value
+- Node: prefix supported for explicit built-in module references
+
+### CommonJS Interoperability
+
+ES modules can import CommonJS modules with automatic compatibility:
+- CommonJS modules expose default export
+- Named exports detected and provided when possible
+- ES modules cannot be imported by CommonJS using require()
+
+## Supplementary Details
+
+ES modules operate with strict adherence to web standards, requiring explicit file extensions and supporting URL-based module resolution. The module system provides static analysis capabilities and supports tree-shaking optimizations.
+
+Dynamic import() expressions enable runtime module loading and work in both ES modules and CommonJS contexts. The import.meta object provides module metadata including URL, filename, and dirname properties.
+
+## Reference Details
+
+### Module Type Detection Configuration
+```javascript
+// package.json
+{
+  "type": "module"  // Treats .js files as ES modules
+}
+{
+  "type": "commonjs"  // Treats .js files as CommonJS  
+}
+```
+
+### Export Syntax Patterns
+```javascript
+// Named exports
+export { addTwo, multiply };
+export function addTwo(num) { return num + 2; }
+export const PI = 3.14159;
+
+// Default export  
+export default function(x) { return x * 2; }
+
+// Re-export
+export { utils } from './utilities.js';
+```
+
+### Import Syntax Patterns  
+```javascript
+// Named imports
+import { addTwo, multiply } from './math.js';
+
+// Default import
+import calculator from './calculator.js';
+
+// Namespace import
+import * as mathUtils from './math.js';
+
+// Dynamic import
+const module = await import('./feature.js');
+```
+
+### File Extension Requirements
+```javascript
+// Required - explicit extension
+import { helper } from './utils.js';
+
+// Invalid - missing extension  
+import { helper } from './utils';
+
+// Required - full path for directories
+import { handler } from './handlers/index.js';
+```
+
+### Import Attributes Syntax
+```javascript
+// JSON import with type attribute
+import config from './config.json' with { type: 'json' };
+
+// Dynamic import with attributes
+const data = await import('./data.json', { 
+  with: { type: 'json' } 
+});
+```
+
+### Built-in Module Import Patterns
+```javascript
+// Node.js built-in with node: prefix
+import { readFile } from 'node:fs';
+import EventEmitter from 'node:events';
+
+// Mixed named and default import
+import fs, { readFileSync } from 'node:fs';
+```
+
+### URL-based Module Resolution
+```javascript
+// Relative URL resolution
+import { utils } from './lib/utils.js';
+
+// Absolute URL resolution  
+import config from 'file:///app/config.js';
+
+// Percent encoding for special characters
+import data from './file%23name.js';
+```
+
+### import.meta Properties
+```javascript
+// Module URL
+console.log(import.meta.url);  // file:///path/to/module.js
+
+// Module filename (Node.js specific)  
+console.log(import.meta.filename);  // /path/to/module.js
+
+// Module dirname (Node.js specific)
+console.log(import.meta.dirname);  // /path/to
+
+// Module resolution
+const resolved = import.meta.resolve('./helper.js');
+```
+
+### CommonJS Interoperability Examples
+```javascript
+// ES module importing CommonJS
+import cjsModule from './commonjs-module.js';
+import { namedExport } from './commonjs-with-named.js';
+
+// Dynamic import for CommonJS
+const cjsModule = await import('./legacy.js');
+```
+
+### Package Exports Field Configuration
+```javascript
+// package.json exports field
+{
+  "exports": {
+    ".": "./index.js",
+    "./feature": "./lib/feature.js",
+    "./utils": "./lib/utils.js"
+  }
+}
+```
+
+## Detailed Digest
+
+Source: https://nodejs.org/api/esm.html
+Retrieved: 2026-03-08
+
+The source provided comprehensive technical documentation of Node.js ECMAScript module support including module type detection, import/export syntax, specifier resolution, and CommonJS interoperability. Technical coverage included module enabling mechanisms, syntax specifications, and URL-based resolution patterns.
+
+Key implementation details covered module type determination through file extensions and package.json configuration, mandatory file extension requirements, import attribute syntax, and built-in module integration patterns. The documentation provided detailed coverage of specifier types including relative, bare, and absolute specifiers.
+
+Advanced features covered import.meta properties, dynamic import expressions, JSON module loading, and CommonJS interoperability mechanisms. The content emphasized standards compliance and web platform compatibility requirements.
+
+## Attribution Information
+
+Original source: Node.js Documentation - ECMAScript Modules
+Content retrieved: March 8, 2026
+Data size: Approximately 4.7KB of technical content
+License: Node.js documentation under MIT license

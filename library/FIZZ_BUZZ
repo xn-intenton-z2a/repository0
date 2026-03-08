@@ -1,114 +1,128 @@
-TITLE: FIZZ_BUZZ
+# FIZZ_BUZZ
 
-TABLE_OF_CONTENTS:
-1. Problem Definition and Required Behavior
-2. Input Validation Rules
-3. Output Formatting Rules
-4. Error Conditions and Exceptions
-5. Node & ESM Export Guidance
-6. Testing Recommendations (Vitest)
-7. Supplementary Implementation Details
-8. Reference Specifications and API Signatures
-9. Digest and Retrieval Metadata
-10. Attribution and Data Size
+## Table of Contents
 
-1. Problem Definition and Required Behavior
-- For each integer n in the input range, compute a single string output per n according to rules below.
-- If n is divisible by 3, include token "Fizz" in the output.
-- If n is divisible by 5, include token "Buzz" in the output.
-- If n is divisible by both 3 and 5, output must be the concatenation "FizzBuzz" with no separator.
-- If n is not divisible by 3 or 5, output must be the decimal string representation of n.
-- Provide an API that accepts either a single integer or a sequence/range and returns an array of strings or an iterator yielding strings in order.
+1. Core Problem Definition
+2. Game Rules and Mechanics 
+3. Programming Implementation Requirements
+4. Divisibility Logic Specifications
+5. Pattern Variations and Extensions
+6. Interview Application Standards
 
-2. Input Validation Rules
-- Accept only finite integers. Use Number.isInteger(value) to validate JS numeric inputs.
-- Reject NaN, Infinity, non-integer numbers, and non-number types with a RangeError for out-of-range or invalid numeric ranges and a TypeError for wrong types.
-- For range inputs: validate start, end, and optional step are integers; if end < start and no negative step provided, throw RangeError.
-- Support optional parameters: start (integer, default 1), end (integer, required for range use), step (integer, default 1).
+## Normalised Extract
 
-3. Output Formatting Rules
-- Always return strings. Convert numbers using the global String(n) or n.toString() for decimal representation.
-- For combined tokens, ensure token order is exactly "Fizz" then "Buzz" when both conditions hold.
-- No trailing spaces or separators in the output strings; do not include newline characters in returned values.
+### Core Problem Definition
 
-4. Error Conditions and Exceptions
-- Throw TypeError when input type is not number or when range parameters are missing/invalid types.
-- Throw RangeError when numeric values are out-of-bounds, non-finite, or when step is zero or causes infinite loop.
-- When provided an empty range (start > end with positive step), return an empty array rather than throwing, unless explicitly configured to be strict.
+Fizz buzz is a group word game for children teaching division. Players count incrementally, replacing numbers with specific words based on divisibility rules.
 
-5. Node & ESM Export Guidance
-- Use ECMAScript module named exports; example export signature: export function fizzBuzz(n) { ... } and export function fizzBuzzRange(start, end, step = 1) { ... }
-- For package entry compatibility, provide named exports rather than default where consumers may import specific functions.
-- Ensure package.json has "type": "module" to allow ESM syntax consistent with Node.js ESM guide.
+### Game Rules and Mechanics
 
-6. Testing Recommendations (Vitest)
-- Write unit tests that assert:
-  a) Single-value behavior for multiples of 3, 5, both, and neither.
-  b) Range behavior including inclusive boundaries and step progression.
-  c) Validation behavior: Number.isInteger-based checks, RangeError and TypeError thrown as specified.
-  d) Edge cases: 0, negative numbers, large numbers, Infinity/NaN, and empty ranges.
-- Use vitest --run for unit test execution. Use coverage when needed: vitest --run --coverage.
+Players sit in a circle and count upwards starting from 1. Each player must follow these substitution rules:
+- Numbers divisible by 3: replace with "Fizz"
+- Numbers divisible by 5: replace with "Buzz" 
+- Numbers divisible by both 3 and 5: replace with "Fizz Buzz"
+- All other numbers: state the number as is
 
-7. Supplementary Implementation Details
-- Efficient divisibility checks: compute (n % 3 === 0) and (n % 5 === 0) using integers. Avoid floating-point modulo with non-integers by validating first.
-- For large ranges, implement a generator function using function* to yield values lazily instead of building large arrays.
-- Ensure deterministic iteration order; for parallelized implementations, preserve index order in results.
+A player who hesitates or makes a mistake is eliminated from the game.
 
-8. Reference Specifications and API Signatures
-- Number.isInteger(value): returns true iff typeof value === 'number' and is finite with zero fractional part. Use for input validation.
-- RangeError semantics: use new RangeError(message) when numerical range or value constraints are violated.
-- ESM export signatures to implement:
-  export function fizzBuzz(n: number): string
-    - Parameters: n (number, integer, finite)
-    - Returns: string — "Fizz", "Buzz", "FizzBuzz", or String(n)
-  export function fizzBuzzRange(start: number, end: number, step?: number): string[]
-    - Parameters: start (number), end (number), step (number, optional)
-    - Returns: array of strings of length floor((end - start)/step) + 1 when valid
-  export function* fizzBuzzGenerator(start: number, end: number, step?: number): IterableIterator<string>
-    - Parameters: same as fizzBuzzRange
-    - Yields: strings in sequential order
-- Implementation patterns:
-  a) Validate inputs with Number.isInteger and Number.isFinite guard checks.
-  b) Determine flags: isFizz = (n % 3 === 0); isBuzz = (n % 5 === 0).
-  c) Build result: if isFizz and isBuzz return 'FizzBuzz'; else if isFizz return 'Fizz'; else if isBuzz return 'Buzz'; else return String(n).
-  d) For ranges, loop for (let i = start; step>0 ? i<=end : i>=end; i += step) and apply the per-number rule.
-- Configuration options and their effects:
-  - start default 1: affects inclusive lower bound of generated sequence.
-  - step default 1: affects progress direction; step must not be 0.
-  - strictMode (optional boolean): when true, empty/invalid ranges throw RangeError instead of returning empty array.
+### Programming Implementation Requirements
 
-9. Digest and Retrieval Metadata
-- Source sections used: Wikipedia "Fizz Buzz" (problem definition and variants), MDN Number.isInteger, MDN RangeError, Node.js ESM docs for module export patterns, npm "fizzbuzz" package patterns for API design, Vitest docs for test recommendations, MDN String conversion patterns.
-- Retrieval date: 2026-03-08
+The programming version requires outputting the first 100 FizzBuzz numbers according to the divisibility rules. This serves as a basic programming competency test requiring:
+- A loop structure to iterate through numbers 1-100
+- Conditional statements to check divisibility
+- String output for rule matches
+- Numeric output for non-matches
 
-10. Attribution and Data Size
-- Attribution: Derived from sources listed in SOURCES.md: Wikipedia (Fizz Buzz), MDN (Number.isInteger, RangeError, String), Node.js ESM docs, npm fizzbuzz package page, Vitest documentation.
-- Data size obtained from crawl: approximately 6 source references listed in SOURCES.md (URLs only); no full-page HTML was retrieved in this document creation stage.
+### Divisibility Logic Specifications
 
-SUPPLEMENTARY DETAILS:
-- Implementation detail: prefer using strict integer validation early to avoid subtle JS coercions; call Number.isInteger(input) === true and Number.isFinite(input) when exposed to untrusted inputs.
-- Generator performance: when working with end-start > 1e6, prefer fizzBuzzGenerator to avoid large memory usage.
-- Packaging: ensure package.json "type": "module" and export named functions in src/index.js or src/lib/main.js per project structure.
+The core logic checks three conditions in sequence:
+1. If number modulo 15 equals 0: output "Fizz Buzz"
+2. Else if number modulo 3 equals 0: output "Fizz"
+3. Else if number modulo 5 equals 0: output "Buzz"
+4. Else: output the number
 
-REFERENCE DETAILS (Concrete API Signatures):
-- fizzBuzz(n: number) -> string
-  - Throws: TypeError if typeof n !== 'number' or Number.isInteger(n) === false; RangeError if !Number.isFinite(n).
-- fizzBuzzRange(start: number, end: number, step?: number) -> string[]
-  - Throws: TypeError for wrong types; RangeError for step === 0, non-finite numbers, or invalid ranges in strictMode.
-- fizzBuzzGenerator(start: number, end: number, step?: number) -> IterableIterator<string>
-  - Behavior: yields strings per index, supports lazy consumption.
+Alternative approach tests individual divisors:
+- Test divisibility by 3 AND 5 first
+- Then test individual divisors
+- Concatenate strings when multiple rules apply
 
-TROUBLESHOOTING PROCEDURES:
-- If outputs include unexpected decimals: confirm Number.isInteger guards are applied and inputs are not coerced from strings.
-- If infinite loops occur when generating ranges: verify step !== 0 and sign of step matches direction from start to end.
-- If test failures for combined token order: enforce concatenation order 'Fizz' + 'Buzz' not 'Buzz' + 'Fizz'.
+### Pattern Variations and Extensions
 
-DIGEST (source summary and retrieval date):
-- Combined material from: Wikipedia Fizz Buzz problem; MDN docs for Number.isInteger and RangeError; Node.js ESM guide for exports; npm fizzbuzz package page demonstrating API patterns; Vitest docs for test patterns; MDN String guidance for conversion.
-- Retrieved: 2026-03-08
+Extended variations include:
+- Using divisors other than 3 and 5 (such as 7)
+- Digit-based rules where numbers containing specific digits trigger rules
+- Multiple simultaneous divisor sets
+- Dynamic rule configuration during execution
 
-ATTRIBUTION:
-- Sources: https://en.wikipedia.org/wiki/Fizz_buzz; https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger; https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError; https://nodejs.org/api/esm.html; https://www.npmjs.com/package/fizzbuzz; https://vitest.dev/; https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String
-- Crawl data: URLs-only listing from SOURCES.md, 6-7 references, no full HTML dumps included in this document.
+### Interview Application Standards
 
-END_OF_DOCUMENT
+FizzBuzz serves as a programming interview screening tool because:
+- Tests basic programming constructs (loops, conditionals)
+- Requires understanding of modulo operations
+- Demonstrates ability to handle multiple conditions
+- Quick to implement and verify
+- Reveals coding style and approach to problem decomposition
+
+## Supplementary Details
+
+The problem demonstrates fundamental programming concepts including iteration, conditional logic, and output formatting. Common implementation patterns include using modulo operator for divisibility testing and string concatenation for multi-rule matches.
+
+Performance considerations are minimal for the standard 1-100 range but become relevant for large-scale implementations requiring efficient divisibility testing and string building operations.
+
+## Reference Details
+
+### Implementation Pattern
+```
+for i from 1 to 100:
+    if i % 15 == 0:
+        output "FizzBuzz"
+    else if i % 3 == 0:
+        output "Fizz"
+    else if i % 5 == 0:
+        output "Buzz"
+    else:
+        output i
+```
+
+### Standard Output Format
+```
+1, 2, Fizz, 4, Buzz, Fizz, 7, 8, Fizz, Buzz, 11, Fizz, 13, 14, Fizz Buzz, 16, 17, Fizz, 19, Buzz, Fizz, 22, 23, Fizz, Buzz, 26, Fizz, 28, 29, Fizz Buzz, 31, 32, Fizz, 34, Buzz, Fizz, 37, ...
+```
+
+### Alternative Logic Structure
+```
+for i from 1 to 100:
+    output = ""
+    if i % 3 == 0: output += "Fizz"
+    if i % 5 == 0: output += "Buzz"
+    if output == "": output = i
+    print output
+```
+
+### Divisibility Test Specifications
+- Use modulo operator (%) to test remainder after division
+- Number is divisible if remainder equals 0
+- Test compound conditions (divisible by both) first or use string concatenation
+- Handle edge cases where multiple rules apply simultaneously
+
+### Extension Configurations
+- Custom divisor pairs: (7, 11), (2, 3), etc.
+- Custom replacement words: ("Pop", "Bang"), ("Foo", "Bar")
+- Digit-based triggering: numbers containing 3 or 5
+- Range modifications: start/end points other than 1-100
+
+## Detailed Digest
+
+Source: https://en.wikipedia.org/wiki/Fizz_buzz
+Retrieved: 2026-03-08
+
+The source provided comprehensive coverage of the Fizz Buzz problem including its educational origins as a division teaching game, standard gameplay mechanics, programming interview applications, implementation requirements, and common variations. The technical content covered divisibility logic, output formatting, and algorithmic approaches suitable for implementation across multiple programming languages.
+
+Key technical specifications extracted include the core substitution rules, standard iteration range (1-100), divisibility testing methods using modulo operations, conditional logic structures, and output formatting requirements. Additional coverage included performance considerations, alternative rule sets, and extension patterns for more complex implementations.
+
+## Attribution Information
+
+Original source: Wikipedia article on Fizz Buzz
+Content retrieved: March 8, 2026
+Data size: Approximately 3.2KB of technical content
+License: Wikipedia content under Creative Commons Attribution-ShareAlike License
