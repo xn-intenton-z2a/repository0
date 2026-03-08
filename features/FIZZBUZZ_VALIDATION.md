@@ -1,41 +1,36 @@
 # FIZZBUZZ_EXAMPLES
 
-Summary
+# Summary
 
-Provide a small, focused examples and statistics feature that demonstrates canonical library usage across the public surface (fizzBuzz, fizzBuzzSingle and the additive helpers) and adds two small, testable helper exports: fizzBuzzStats and fizzBuzzGenerator. The examples are intended for reviewers and contributors to quickly verify behaviour without reading source code: concise README examples and a single runnable examples/simple-run.js script that prints deterministic JSON and basic stats. This feature is deliberately small so it can be implemented alongside existing features and tests in a single repository.
+Provide a small, focused examples feature that demonstrates canonical library usage and adds two thin, testable helper exports: fizzBuzzStats and fizzBuzzGenerator. The feature provides a minimal examples script and README examples that rely exclusively on the named exports from src/lib/main.js and are suitable for unit and behaviour tests.
 
-Specification
+# Specification
 
-- Deliverables
-  - README additions: two short usage examples in the README showing named imports from src/lib/main.js, one demonstrating fizzBuzzSingle and one demonstrating fizzBuzz with JSON output. Examples must be prose paragraphs and minimal code-like lines per repository conventions. Include a brief note describing the stats helper and the generator and how to run the examples script.
-  - examples/simple-run.js: a tiny Node script that imports the library, runs fizzBuzz(15) and fizzBuzzSingle(3), prints the JSON array for fizzBuzz(15) to stdout and prints a JSON object of stats from fizzBuzzStats(15). The script must use only the exported named functions and must not reimplement fizzBuzz logic. It must exit 0 on success.
-  - Library exports (additive): fizzBuzzStats(n) and fizzBuzzGenerator(n) exported from src/lib/main.js in addition to existing exports. fizzBuzzStats returns an object { fizz, buzz, fizzBuzz, numbers, total } counting occurrences for 1..n. fizzBuzzGenerator is a synchronous generator that yields the canonical strings for 1..n in order.
+Deliverables
 
-- Behaviour and constraints
-  - Examples must import named exports from the library path used in tests (src/lib/main.js) and must rely on the canonical exports only; do not call internal helper files or assume alternate entry points.
-  - The examples script must exit with code 0 on success and print deterministic JSON to stdout so unit tests can assert equality with programmatic outputs.
-  - The new helper exports are strictly additive and must not change existing canonical behaviour or signatures of fizzBuzz and fizzBuzzSingle; implement them as thin wrappers around the canonical functions.
-  - Validation rules for n in the new helpers must reuse the canonical validation rules (same error types and indicative message substrings for tests).
+- Named exports in src/lib/main.js: fizzBuzzStats(n) and fizzBuzzGenerator(n). fizzBuzzStats returns an object { fizz, buzz, fizzBuzz, numbers, total } counting occurrences in 1..n. fizzBuzzGenerator is a synchronous generator yielding canonical strings for 1..n in order.
+- examples/simple-run.js: a tiny Node script that imports the library named exports, runs fizzBuzz(15) and fizzBuzzSingle(3), prints the fizzBuzz array as JSON and prints fizzBuzzStats(15) as JSON, and exits with code 0 on success.
+- README additions: two short usage examples displayed as prose: one showing fizzBuzzSingle for 3 returning Fizz, and another showing fizzBuzz producing a 15-element sequence ending with FizzBuzz plus a short note about the stats helper and generator and how to run the examples script.
 
-Testing guidance
+Constraints and behaviour
 
-- Unit tests (tests/unit/):
-  - Add tests that import fizzBuzzStats and fizzBuzzGenerator from src/lib/main.js and assert exact counts for known inputs: fizzBuzzStats(15) returns { fizz: 4, buzz: 2, fizzBuzz: 1, numbers: 8, total: 15 }.
-  - Assert fizzBuzzStats(0) returns zeroed counts and total 0.
-  - Assert Array.from(fizzBuzzGenerator(5)) equals fizzBuzz(5).
-  - Validate that passing invalid n to these helpers throws the same error types and contains the same indicative substrings as the canonical validation (for example "integer" or ">= 0" as appropriate).
-  - Add a unit test that spawns node examples/simple-run.js and asserts exit code 0 and stdout contains valid JSON matching JSON.stringify(fizzBuzz(15)) and that the printed stats object matches fizzBuzzStats(15).
+- All new behaviour must be additive: never change fizzBuzz or fizzBuzzSingle canonical behaviour or signatures. The new helpers must reuse the canonical validation and logic by delegating to existent functions.
+- fizzBuzzStats(0) must return zeroed counts and total 0. fizzBuzzStats(15) must return exactly { fizz: 4, buzz: 2, fizzBuzz: 1, numbers: 8, total: 15 }.
+- Array.from(fizzBuzzGenerator(5)) must equal fizzBuzz(5).
+- examples/simple-run.js must produce deterministic JSON output that unit tests can assert against and must rely on the library's named exports only.
 
-Acceptance criteria
+# Testing guidance
 
-- README contains two clear, short usage examples: (1) fizzBuzzSingle example returning Fizz for 3, (2) fizzBuzz example producing a 15-entry array ending with FizzBuzz and JSON usage note, plus a short note about the stats helper and generator.
-- examples/simple-run.js exists and when run with node prints a JSON array equal to JSON.stringify(fizzBuzz(15)) and prints a JSON stats object equal to fizzBuzzStats(15); the script exits with code 0.
-- fizzBuzzStats(15) returns exactly { fizz: 4, buzz: 2, fizzBuzz: 1, numbers: 8, total: 15 } and fizzBuzzStats(0) returns counts zeroed with total 0.
+Unit tests must import named exports from src/lib/main.js and assert exact outputs and thrown errors for invalid inputs:
+
+- fizzBuzzStats(15) equals the expected counts and fizzBuzzStats(0) returns zeros with total 0.
 - Array.from(fizzBuzzGenerator(5)) equals fizzBuzz(5).
-- Unit tests cover the above behaviours and validations and pass.
+- Passing invalid n to helper functions must throw the same error types and substrings used by the canonical validation.
+- Spawn examples/simple-run.js in a unit test and assert it exits with code 0 and that stdout contains JSON matching JSON.stringify(fizzBuzz(15)) and the printed stats match fizzBuzzStats(15).
 
-Notes
+# Acceptance criteria
 
-- This feature is demonstrative and additive; it must not alter canonical library behaviour or existing exported function signatures.
-- Keep examples minimal and readable; the examples script is for contributor onboarding and quick verification. Implementations should use only named exports from src/lib/main.js.
-
+- The repository exports fizzBuzzStats and fizzBuzzGenerator from src/lib/main.js and both behave as specified.
+- examples/simple-run.js exists, uses only the exported library functions, prints JSON for fizzBuzz(15) and the stats object, and exits 0.
+- README contains two concise examples as prose demonstrating fizzBuzzSingle and fizzBuzz usage and references the stats helper and generator.
+- Unit tests cover the helper functions, generator equivalence, examples script output, and validation behaviour for invalid inputs.
