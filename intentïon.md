@@ -5,37 +5,6 @@
 
 ---
 
-## maintain-features at 2026-03-08T20:18:20.685Z
-
-**Outcome:** features-maintained
-**Model:** gpt-5-mini
-**Profile:** recommended
-**Token Count:** 26345 (in: 24298, out: 2047)
-**Duration:** 31s (~0.5 GitHub Actions min)
-**agentic-lib transformation cost:** 1
-**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22829026165](https://github.com/xn-intenton-z2a/repository0/actions/runs/22829026165)
-
-### Limits Status
-| Limit | Value | Capacity | Status |
-|---|---|---|---|
-| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
-| max-feature-issues | 0/2 | 2 remaining |  |
-| max-maintenance-issues | 0/1 | 1 remaining |  |
-| max-attempts-per-issue | ?/2 | ? remaining | n/a |
-| max-attempts-per-branch | ?/3 | ? remaining | n/a |
-| features | 5/4 | 0 remaining |  |
-| library | 7/32 | 25 remaining | n/a |
-
-### Closing Notes
-transformation-budget at capacity (32/32) — actions will be blocked.
-features at capacity (5/4) — actions will be blocked.
-
-### Narrative
-Added a feature spec FIZZBUZZ_LIMIT to export and enforce a MAX_N upper bound so public APIs validate and report deterministic RangeError messages for n values exceeding the repository's safe limit.
-
-Maintained features (5 existing, limit 4)
-
----
 ## maintain-library at 2026-03-08T20:18:49.919Z
 
 **Outcome:** library-maintained
@@ -947,5 +916,35 @@ features at capacity (4/4) — actions will be blocked.
 Added a focussed feature spec FIZZBUZZ_VALIDATION to centralise numeric validation and ensure all exports reuse a single helper for consistent error types and messages so tests remain stable.
 
 Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-08T21:16:15.630Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 234290 (in: 230798, out: 3492)
+**Duration:** 74s (~1.2 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22830010886](https://github.com/xn-intenton-z2a/repository0/actions/runs/22830010886)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 6/32 | 26 remaining |  |
+
+### Closing Notes
+transformation-budget at capacity (32/32) — actions will be blocked.
+
+### Narrative
+Removed deprecated library documents and committed the change so the library only contains source-aligned documents.
+
+Maintained library (10 docs, limit 32)
 
 ---
