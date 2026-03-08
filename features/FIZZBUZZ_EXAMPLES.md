@@ -1,48 +1,61 @@
 # FIZZBUZZ_TYPES
 
-Summary
+# Summary
 
-Add a minimal TypeScript declaration file for the canonical FizzBuzz library API and wire it into package.json so consumers get accurate types without introducing a TypeScript build step. The declaration file must reflect the canonical named exports defined in src/lib/main.js and be small, hand-authored, and easy to maintain.
+Add small, hand-authored TypeScript declaration file for the canonical FizzBuzz library and wire it into package.json so TypeScript-aware tooling picks up accurate types without introducing a TypeScript build step or new dependencies.
 
-Specification
+# Specification
 
-- Create a single declaration file at src/lib/main.d.ts that exports named ESM declarations for:
-  - export function fizzBuzz(n: number): string[];
-  - export function fizzBuzzSingle(n: number): string;
-  - export function fizzBuzzFormatted(n: number, formatter: (value: string, index: number) => string): string[];
-  - export function fizzBuzzSingleFormatted(n: number, formatter: (value: string, index: number) => string): string;
-  - export function fizzBuzzStats(n: number): { fizz: number; buzz: number; fizzBuzz: number; numbers: number; total: number };
-  - export function fizzBuzzGenerator(n: number): IterableIterator<string>;
-  - export function fizzBuzzWithWords(n: number, words?: { fizz?: string; buzz?: string }): string[];
-  - export function fizzBuzzSingleWithWords(n: number, words?: { fizz?: string; buzz?: string }): string;
+- Purpose: Provide lightweight, maintainable TypeScript declarations for the public API exported by src/lib/main.js so consumers get correct types from editors and bundlers.
+- Target files to create/update:
+  - src/lib/main.d.ts  (new declaration file)
+  - package.json       (add top-level "types" field pointing to src/lib/main.d.ts)
+  - README.md          (add a one-line note referencing src/lib/main.d.ts)
 
-- Update package.json to include the types field pointing at src/lib/main.d.ts so TypeScript-aware tooling picks up the declarations automatically.
+- Declaration content requirements (src/lib/main.d.ts):
+  - Must use only named exports (no default export) matching the canonical API in FIZZBUZZ_CORE:
+    - export function fizzBuzz(n: number): string[];
+    - export function fizzBuzzSingle(n: number): string;
+    - export function fizzBuzzFormatted(n: number, formatter: (value: string, index: number) => string): string[];
+    - export function fizzBuzzSingleFormatted(n: number, formatter: (value: string, index: number) => string): string;
+    - export function fizzBuzzStats(n: number): { fizz: number; buzz: number; fizzBuzz: number; numbers: number; total: number };
+    - export function fizzBuzzGenerator(n: number): IterableIterator<string>;
+    - export function fizzBuzzWithWords(n: number, words?: { fizz?: string; buzz?: string }): string[];
+    - export function fizzBuzzSingleWithWords(n: number, words?: { fizz?: string; buzz?: string }): string;
+  - Keep signatures simple and avoid advanced TypeScript features. The file is purely declarative and must not change runtime behaviour.
 
-- Update README.md to include a short one-line TypeScript note pointing to src/lib/main.d.ts when declarations are present; keep the README change minimal and machine-findable (the existing README feature already asks for this substring).
+# Files changed by this feature
 
-- Do not change runtime behaviour or introduce a TypeScript build step, new devDependencies, or transpilation. The declaration file must be purely informational for TS consumers.
+- Add: src/lib/main.d.ts (declaration file)
+- Patch: package.json (add "types": "src/lib/main.d.ts")
+- Patch: README.md (append or update a one-line note: TypeScript declarations available at src/lib/main.d.ts)
 
-Acceptance criteria
+Note: Implementation must avoid adding new dependencies or build steps.
 
-- File src/lib/main.d.ts exists in the repository root with the exported declarations listed above.
-- package.json contains a top-level "types" field whose value is the relative path "src/lib/main.d.ts".
-- README.md contains a short TypeScript note referencing src/lib/main.d.ts (for example: TypeScript declarations available at src/lib/main.d.ts).
-- The addition of the declaration file does not modify any runtime code paths or tests and does not add new dependencies.
+# Acceptance criteria
 
-Testing guidance
+- src/lib/main.d.ts exists and exports the named declarations exactly as specified above.
+- package.json contains a top-level "types" field with the value "src/lib/main.d.ts".
+- README.md contains the substring "TypeScript declarations available at src/lib/main.d.ts" or equivalent one-line note referencing that path.
+- No runtime codepaths are changed and no new dependencies are added to package.json.
+- Unit tests and behaviour tests are not modified as part of this change (type declarations only).
 
-- Unit-level verification: a CI check or local script can assert that src/lib/main.d.ts exists and that package.json includes the types field with the expected value; this is sufficient for automated validation without adding TypeScript compilation.
+# Testing guidance
 
-- Optional developer verification: running tsc --noEmit against the declaration file and a minimal consumer file should succeed if a TypeScript toolchain is present, but this is not required by the acceptance criteria.
+- Automated check: a CI job or unit script can assert that src/lib/main.d.ts exists and that package.json.types === "src/lib/main.d.ts".
+- Optional developer check: run tsc --noEmit against a minimal consumer file that imports the named exports; this is advisory and not required for acceptance.
 
-Implementation notes
+# Backwards compatibility
 
-- Keep the declaration file concise and avoid advanced TypeScript features; simple function signatures and plain object types are preferred.
-- Do not export default; only use named exports to match src/lib/main.js.
-- Ensure all exported function parameter and return types align with the canonical behaviour documented in FIZZBUZZ_CORE and MISSION.md (strings for Fizz/Buzz/FizzBuzz outputs, arrays of strings, generator yielding strings, and stats object with numeric fields).
-- Make no other changes to the codebase in this feature step; tests and examples remain unchanged.
+- Declarations are additive only and must not alter runtime exports, side effects, or existing tests.
+- No source code build or transpilation is required; the declarations are informational for TypeScript toolchains.
 
-Notes on scope
+# Implementation notes
 
-- This feature is deliberately small and additive: it improves developer ergonomics for TypeScript consumers without changing any library behaviour or CI configuration.
-- If maintainers later adopt a TypeScript toolchain, the declaration file can be promoted into source or expanded, but that is outside the scope of this feature.
+- Hand-write the declaration file to mirror the canonical API in src/lib/main.js. Avoid generating it from source.
+- Keep the file short, reviewable and placed at src/lib/main.d.ts so editors and bundlers discover it automatically.
+- When updating package.json, only add the types field; do not reorder or otherwise reformat package.json except for the minimal insertion.
+
+# Notes
+
+This feature improves developer ergonomics for TypeScript consumers while keeping the repository free of additional toolchain complexity.
