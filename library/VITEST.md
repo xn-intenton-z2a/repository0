@@ -4,174 +4,118 @@ Table of contents
 1. Normalised extract
 2. Supplementary details
 3. Reference details
-4. Detailed digest and retrieval metadata
+4. Detailed digest (SOURCES.md extract)
 5. Attribution and data size
 
 1. Normalised extract
 
-Installation and project setup
-- Add Vitest as a dev dependency: npm install --save-dev vitest@^4 (or yarn add -D vitest).
-- Optional coverage helper: install @vitest/coverage-v8 when using v8 provider: npm install --save-dev @vitest/coverage-v8.
-- Recommended CI flow: use lockfile installs (npm ci) then run the test script (npm test) which maps to vitest CLI.
-- Common package.json scripts:
-  - "test": "vitest --run --reporter=dot"
-  - "test:coverage": "vitest --run --coverage"
+Actionable installation and CI commands
+- Install as a development dependency: npm install --save-dev vitest
+- Reproducible CI installs: npm ci && npm test
+- Run tests once (CI mode): npx vitest --run
+- Run with coverage: npx vitest --run --coverage or set coverage in config and use --coverage
+- Run specific files: npx vitest --run tests/unit/*.test.js
 
-CLI invocation and common flags
-- Usage: vitest [files/globs] [--options]
-- Important flags and types:
-  - --run (boolean) : run tests once and exit (CI-friendly).
-  - --watch (boolean) : start watch mode and re-run affected tests.
-  - --config <path> (string) : use specified vitest config file (default: vitest.config.js/ts).
-  - --coverage (boolean) : enable coverage collection per config.
-  - --reporter <name|string[]> : select reporter(s) (e.g., dot, verbose, json).
-  - --environment <node|jsdom|string> : set test environment.
-  - --testNamePattern <string> : run tests whose names match the pattern.
-  - --threads / --no-threads (boolean) : enable/disable worker threads.
-  - --update / -u (boolean) : update snapshots.
+Package.json scripts (exact examples)
+- "test": "vitest --run tests/unit/*.test.js"
+- "test:unit": "vitest --run --coverage tests/unit/*.test.js"
+- "test:watch": "vitest"
 
-Configuration (vitest.config.js / vitest.config.ts) - actionable keys
-- defineConfig({ test: { ... }, coverage: { ... }, reporters: [...] }) - export the configuration at project root.
-- test.include: string[] - glob patterns included by test runner. Default examples: ["**/*.test.*", "**/*.spec.*"].
-- test.exclude: string[] - globs excluded (node_modules default).
-- test.environment: 'node' | 'jsdom' | string - runtime environment for tests.
-- test.globals: boolean - when true, provide globals (describe, test, expect) without imports.
-- test.threads: boolean - enable worker threads for parallel file execution.
-- test.isolate: boolean - isolate each file's environment instance.
-- test.setupFiles: string[] - synchronous setup modules executed before tests.
-- test.setupFilesAfterEnv: string[] - modules run after environment init (for custom matchers).
-- test.deps.inline: string[] - dependency patterns to force inline transform (Vite integration).
-- test.testTimeout: number - per-test timeout in milliseconds.
-- coverage.provider: 'v8' | 'c8' - coverage provider implementation.
-- coverage.reporter: string[] - reporters to produce (e.g., ['text','lcov']).
-- coverage.include / coverage.exclude: glob(s) to control coverage scope.
-- coverage.all: boolean - collect coverage for all files, not just those touched by tests.
+Core test API (synchronous and async signatures)
+- describe(name: string, fn: () => void | Promise<void>) -> void
+- it(name: string, fn: () => any | Promise<any>, timeout?: number) -> void
+- test(name: string, fn: () => any | Promise<any>, timeout?: number) -> void
+- beforeEach(fn: () => void | Promise<void>) -> void
+- afterEach(fn: () => void | Promise<void>) -> void
+- beforeAll(fn: () => void | Promise<void>) -> void
+- afterAll(fn: () => void | Promise<void>) -> void
 
-Runtime API and utilities
-- Test structure and lifecycle:
-  - describe(name: string, fn: () => void): void
-  - it(name: string, fn: () => void | Promise<any>, timeout?: number): void
-  - test(...) is alias of it.
-  - beforeAll(fn: () => void | Promise<any>, timeout?: number): void
-  - afterAll(fn: () => void | Promise<any>, timeout?: number): void
-  - beforeEach(fn: () => void | Promise<any>, timeout?: number): void
-  - afterEach(fn: () => void | Promise<any>, timeout?: number): void
-  - test.concurrent(name, fn): run test concurrently when appropriate
-  - describe.each(table)(name, fn) and test.each(table)(name, fn): parameterized tests
-- Assertion API (expect):
-  - expect(received).toBe(expected): void
-  - expect(received).toEqual(expected): void
-  - expect(received).toStrictEqual(expected): void
-  - expect(received).toBeNull(): void
-  - expect(received).toBeUndefined(): void
-  - expect(received).toBeTruthy(): void
-  - expect(received).toContain(item): void
-  - expect(received).toHaveLength(n: number): void
-  - expect(received).toMatch(regexpOrString: RegExp|string): void
-  - expect(fn).toThrow(error?: string|RegExp|Error): void
-  - Promise helpers: expect(promise).resolves/ rejects chaining for async assertions
-- Mocks and spies (vi namespace):
-  - vi.fn(impl?: Function): MockInstance — callable mock with mock.calls and mock.results recorded
-  - vi.spyOn(object, methodName): Spy — spies on existing method and can restore original
-  - vi.mock(moduleId, factory?, options?): void — hoisted module mocking; vi.importActual to import real module inside mock factory
-  - vi.clearAllMocks(): void, vi.resetAllMocks(): void, vi.restoreAllMocks(): void
-  - Timer utilities: vi.useFakeTimers(), vi.useRealTimers(), vi.advanceTimersByTime(ms: number)
+Expect API (primary assertions and signatures)
+- expect(actual).toBe(expected) -> void
+- expect(actual).toEqual(expected) -> void
+- expect(actual).toStrictEqual(expected) -> void
+- expect(actual).toBeDefined() -> void
+- expect(actual).toBeUndefined() -> void
+- expect(actual).toBeNull() -> void
+- expect(actual).toBeTruthy() / toBeFalsy() -> void
+- expect(fn).toThrow(error?: string | RegExp | Error) -> void
+- expect(promise).resolves / .rejects chains: expect(promise).resolves.toEqual(value)
 
-Snapshot testing
-- expect(value).toMatchSnapshot([name?]) writes or compares snapshot files stored adjacent to test file in __snapshots__ or similar.
-- Inline snapshots supported via expect(value).toMatchInlineSnapshot(optionalSnapshotString)
-- Update snapshots with CLI flag: --update or -u
-
-Test selection and file patterns
-- Test discovery obeys test.include/test.exclude or CLI file glob args.
-- Use standard glob syntax: e.g., tests/**/*.test.js or **/*.spec.ts.
-- Narrow runs via --testNamePattern or passing explicit file/glob to CLI.
-
-Integrations and environment notes
-- Vite integration: Vitest leverages Vite's transform pipeline; configure deps.inline to include specific dependencies that must be transformed.
-- When using TypeScript config files (vitest.config.ts), ensure execution environment supports TS (esbuild/ts-node via Vite toolchain).
-- For DOM-related tests, set environment: 'jsdom'; for server-only tests prefer 'node'.
-
-Best practices and performance
-- Use threads:true for parallel file execution on CI when tests are isolated; set threads:false for shared global state tests.
-- prefer isolation (test.isolate true) and explicit teardown to avoid flaky tests.
-- For coverage, provider 'v8' is faster for modern Node and recommended if available.
-- Limit expensive fixtures and I/O in unit tests; prefer mocks and lightweight factories.
+Runner and environment
+- Default CLI: npx vitest (interactive watch runner)
+- CI-friendly run mode: --run to execute once and exit
+- Environments: 'node' or 'jsdom' (configure in vitest.config.js as test: { environment: 'node' | 'jsdom' })
+- Threading: tests run in workers by default; disable workers for debugging with --threads=false or config: test: { threads: false }
 
 2. Supplementary details
 
-Config resolution and load order
-- Vitest resolves configuration from vitest.config.js, vitest.config.ts, or the "vitest" field in package.json at repository root.
-- CLI --config overrides default resolution.
-- When using TS-config, project must include necessary transform tooling via Vite/tsserver or esbuild pipeline.
+Config file (vitest.config.js / vitest.config.ts)
+- Import helper: import { defineConfig } from 'vitest/config'
+- Minimal config example fields and types (exact keys):
+  - test: { include?: string[], exclude?: string[], environment?: 'node' | 'jsdom', globals?: boolean, threads?: boolean, isolate?: boolean, setupFiles?: string[], setupFilesAfterEnv?: string[], deps?: { inline?: string[] }, timeout?: number }
+  - coverage: { provider?: 'v8' | 'c8' | 'istanbul', reporter?: string[] | string, reportsDirectory?: string, all?: boolean, include?: string[], exclude?: string[] }
+  - reporters: Array<string | [string, Record<string, unknown>]>
+- Place config at project root as vitest.config.js or pass --config ./path/to/config
 
-Watch mode and incremental runs
-- Watch mode re-runs tests matching changed files; initial run may execute only relevant tests unless --watchAll is requested.
-- File watchers respect include/exclude globs and Vite's dependency graph; changes to dependencies may trigger broader re-runs.
+Common config values and effects
+- test.include: array of glob strings for test entry files; commonly **/*.test.* and **/*.spec.*
+- test.environment: 'node' forces Node-like globals; 'jsdom' provides DOM globals
+- test.globals: when true, injects describe/it/test/expect into global scope
+- test.timeout: per-test timeout in milliseconds (default 5000)
+- test.threads: enable worker pool (true) improves parallelism; set false for single-process debugging
+- coverage.provider: 'v8' (fast native V8 coverage) or 'c8'/'istanbul' depending on requirements
+- coverage.reporter: array of reporter names (e.g., ['text','lcov'])
 
-Coverage specifics
-- v8 provider collects coverage from V8 engine exposing coverage data; lcov reporter emits lcov.info usable by CI and coverage services.
-- Ensure coverage.include covers source files; coverage.all true required to include untouched files.
+TypeScript and ESM notes
+- Vitest supports ESM and TypeScript tests; if using ts, ensure tsconfig.json exists and Vite/tsconfig paths are aligned
+- For ESM projects with "type": "module" use appropriate file extensions or transpilation as necessary
 
 3. Reference details
 
-CLI flags (parameter types)
-- --run: boolean
-- --watch: boolean
-- --config <path>: string
-- --coverage: boolean
-- --reporter <name|names>: string | string[]
-- --environment <node|jsdom>: string
-- --testNamePattern <string>: string (RegExp or substring)
-- --threads / --no-threads: boolean
-- --update / -u: boolean
+Exact CLI flags and effects (commonly used)
+- --run : boolean : run tests once and exit (CI)
+- --coverage : boolean : collect coverage per coverage config
+- --config <file> : string : use specified config file
+- --threads <true|false|number> : control worker threads; false disables workers
+- --reporter <name> : string : specify reporter (default, verbose, dot, json, etc.)
+- --testNamePattern <string> : string : run tests whose names match pattern
+- --update / -u : boolean : update snapshots
 
-Configuration schema (typed shape)
-- type VitestConfig = {
-  test?: {
-    include?: string[]
-    exclude?: string[]
-    environment?: string
-    globals?: boolean
-    threads?: boolean
-    isolate?: boolean
-    setupFiles?: string[]
-    setupFilesAfterEnv?: string[]
-    deps?: { inline?: string[] }
-    testTimeout?: number
-    hookTimeout?: number
-  }
-  coverage?: {
-    provider?: 'v8' | 'c8'
-    reporter?: string[]
-    include?: string[]
-    exclude?: string[]
-    all?: boolean
-    reportsDirectory?: string
-    statements?: number
-    branches?: number
-    functions?: number
-    lines?: number
-  }
-  reporters?: Array<string | [string, Record<string, unknown>]>
-}
+Exact vitest.config test options with types and typical defaults
+- test.include: string[] | undefined
+- test.exclude: string[] | undefined (node_modules excluded by default)
+- test.environment: 'node' | 'jsdom' (default 'node')
+- test.globals: boolean (default false)
+- test.timeout: number (default 5000)
+- test.threads: boolean (default true)
+- test.isolate: boolean (default true)
+- coverage.provider: 'v8' | 'c8' | 'istanbul'
+- coverage.reporter: string[]
+- coverage.reportsDirectory: string (default './coverage')
 
-Key API signatures (selected)
-- defineConfig(cfg: Record<string, any>): Record<string, any>
-- describe(title: string, fn: () => void): void
-- test(title: string, fn: () => void | Promise<any>, timeout?: number): void
-- beforeEach(fn: () => void | Promise<any>, timeout?: number): void
-- expect(value: any): ExpectMatchers
-- ExpectMatchers.toBe(expected: any): void
-- vi.fn(impl?: Function): MockInstance
-- vi.mock(moduleId: string, factory?: Function | Record<string, any>, options?: { virtual?: boolean }): void
-- vi.spyOn(obj: Record<string, any>, method: string): SpyInstance
+Expect/Matchers method signatures (representative)
+- expect(value: any): { toBe: (expected: any) => void, toEqual: (expected: any) => void, toStrictEqual: (expected: any) => void, toBeNull: () => void, toBeUndefined: () => void, toBeTruthy: () => void, toBeFalsy: () => void, toContain: (item: any) => void, toHaveLength: (n: number) => void, toMatch: (regexpOrString: RegExp | string) => void, toThrow: (err?: string | RegExp | Error) => void }
+- Async chains: expect(promise).resolves / expect(promise).rejects
 
-4. Detailed digest and retrieval metadata
-- Source URL: https://vitest.dev/guide/
-- Retrieval date: 2026-03-08
-- Extracted sections: Installation, CLI, Configuration, Test API, Assertions, Mocking, Snapshots, Coverage, Troubleshooting
+Recommended minimal CI configuration (steps)
+- npm ci
+- npx vitest --run --coverage --reporter=verbose
+- Collect coverage artifacts from coverage/ directory
+
+4. Detailed digest (SOURCES.md extract) and retrieval date
+
+Sources included for this extract (retrieved 2026-03-08):
+- https://vitest.dev/guide/  (Vitest official guide)
+- https://www.npmjs.com/package/fizzbuzz
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError
+
+Retrieved date: 2026-03-08
 
 5. Attribution and data size
-- Attribution: Vitest official documentation at https://vitest.dev/guide/ (Vitest project)
-- Data size obtained during crawling: approximately 48 KB (extracted text size, approximate)
+
+Attribution: Vitest official documentation (https://vitest.dev/guide/) and MDN pages listed in SOURCES.md.
+Data obtained during crawling: 5 source URLs, combined retrieved content approximately 6 KB (text only extraction).
+
+End of VITEST document
