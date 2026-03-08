@@ -2,169 +2,164 @@ VITEST
 
 Table of contents
 1. Normalised extract
-  1.1 CLI commands and usage
-  1.2 Package installation and devDependencies
-  1.3 Configuration file keys and types (vitest.config.js / .ts)
-  1.4 Test API and helper signatures (describe/it/expect/vi)
-  1.5 Coverage configuration (provider, reporters, include/exclude)
-  1.6 Common runtime/environment flags and ESM considerations
+  1.1 Installation and invocation
+  1.2 CLI commands and flags
+  1.3 Configuration schema (vitest.config.js / .ts)
+  1.4 Test lifecycle and helpers
+  1.5 Coverage configuration
 2. Supplementary details
-  2.1 Best practices and integration patterns
-  2.2 CI/lockfile commands and reproducible runs
-  2.3 Troubleshooting procedures (step-by-step)
+  2.1 Recommended CI usage
+  2.2 Performance and worker controls
+  2.3 Common troubleshooting steps
 3. Reference details
-  3.1 Exact CLI flags and effects
-  3.2 Configuration object schema with keys and types
-  3.3 API function signatures with parameter and return types
-  3.4 Coverage provider options and reporter values
+  3.1 Exact CLI flags and types
+  3.2 Config object schema with keys, types and default values
+  3.3 Coverage config keys and effects
+  3.4 Example operational commands for CI and local development
 4. Detailed digest
-  4.1 Source: https://vitest.dev/ (retrieved 2026-03-08)
+  4.1 Source: https://vitest.dev/guide/ (retrieved 2026-03-08)
 5. Attribution and crawl data size
 
 1. Normalised extract
 
-1.1 CLI commands and usage
-- Install CLI and dependencies: npm install --save-dev vitest @vitest/coverage-v8
-- Run tests (interactive/watching default): npx vitest
-- Run tests in non-watch (CI) mode: npx vitest --run
-- Run specific files or globs: npx vitest --run tests/unit/*.test.js
-- Run with coverage collection: npx vitest --run --coverage
-- Run with a specific config file: npx vitest --config=vitest.config.js
-- Run via npm scripts (package.json): npm test  (runs: vitest --run tests/unit/*.test.js)
-- Run unit tests with coverage via npm: npm run test:unit  (runs: vitest --run --coverage tests/unit/*.test.js)
-- Show test names filter: npx vitest --run --testNamePattern="pattern"
-- Produce coverage output for CI: npx vitest --run --coverage --coverage-provider=v8
+1.1 Installation and invocation
+- Install as a dev dependency: npm install --save-dev vitest
+- Run test suite once (CI mode): npx vitest run OR use npm script: vitest --run tests/unit/*.test.js
+- Run in watch/development mode: npx vitest OR npm script configured without --run
+- Use node version matching engines in package.json; ensure ESM/CommonJS alignment when using vitest with project type: module
 
-1.2 Package installation and devDependencies
-- Package names and versions: vitest (CLI/test runner), @vitest/coverage-v8 (coverage provider using V8).
-- Install as devDependencies to avoid shipping test tooling: npm install --save-dev vitest @vitest/coverage-v8
-- Use lockfile-driven install in CI: npm ci (requires package-lock.json) or yarn install --frozen-lockfile for Yarn.
+1.2 CLI commands and flags
+- vitest run -- execute tests once and exit (CI-friendly)
+- vitest --watch -- start interactive watch mode, reruns on file changes
+- Common flags and meanings:
+  --run: boolean: run once and exit
+  --watch: boolean: watch for file changes
+  --config <path>: string: use explicit config file path
+  --environment <env>: 'node' | 'jsdom' | 'happy-dom' : choose test environment
+  --coverage: boolean: enable coverage collection for the run
+  --reporter <name|path>: string | string[]: use named or custom reporter(s)
+  --threads <number|false>: number | false: control worker threads (false disables workers)
+  --testNamePattern | -t <pattern>: string: run tests matching the name pattern
+  --update: boolean: update snapshots
+  --silent: boolean: suppress console output from runner
+  --clearCache: boolean: clear vitest cache before running
 
-1.3 Configuration file keys and types (vitest.config.js / .ts)
-- Export form: export default defineConfig({ test: { ... } }) where defineConfig is imported from 'vitest/config'.
-- Primary test key and accepted subkeys (types shown):
-  - include: string[] — globs of test files to include, e.g. ['tests/unit/**/*.test.js']
-  - exclude: string[] — globs to exclude
-  - environment: string — 'node' | 'jsdom' | 'happy-dom' | 'browser'
-  - globals: boolean — enable global test APIs (describe, it, expect) when true
-  - setupFiles: string[] — files to run before tests for global setup
-  - timeout: number — default test timeout in milliseconds
-  - threads: boolean|number — enable/limit worker threads
-  - watch: boolean — default watch mode behavior
-  - reporters: string[] | string — reporter names or arrays
-  - coverage: object — coverage configuration (see 1.5)
+1.3 Configuration schema (vitest.config.js / .ts)
+- Export form: export default defineConfig({ test: { ... } }) where defineConfig is provided by 'vitest/config'.
+- Root config shape (key: type — default):
+  test.include: string[] — default: ['tests/**'] — glob patterns of files to include
+  test.exclude: string[] — default: ['node_modules'] — glob patterns to exclude
+  test.environment: 'node' | 'jsdom' | 'happy-dom' — default: 'node'
+  test.globals: boolean — default: false — enable global test APIs (describe, it, expect without import)
+  test.setupFiles: string | string[] — default: undefined — files to run before test environment is initialized
+  test.threads: boolean | number — default: true — worker threads control
+  test.isolate: boolean — default: false — run tests in isolated processes to avoid shared state
+  test.timeout: number — default: 5000 (ms) — per-test timeout
+  test.retries: number — default: 0 — number of retries for flaky tests
+  test.reporters: string[] — default: [] — reporters to use
+  test.coverage: object — nested coverage options (see section 3.3)
 
-1.4 Test API and helper signatures (describe/it/expect/vi)
-- describe(name: string, fn: () => void): void — group tests
-- it(name: string, fn: (() => void) | (() => Promise<void>), timeout?: number): void — define a test; alias: test
-- beforeEach(fn: (() => void) | (() => Promise<void>)): void
-- afterEach(fn: (() => void) | (() => Promise<void>)): void
-- beforeAll(fn: (() => void) | (() => Promise<void>)): void
-- afterAll(fn: (() => void) | (() => Promise<void>)): void
-- expect(actual: any): Expectation — core assertions with methods: toBe(expected), toEqual(expected), toStrictEqual(expected), toBeTruthy(), toBeFalsy(), toBeNull(), toBeUndefined(), toContain(item), toHaveLength(n), toMatchObject(obj), resolves / rejects utilities for Promise assertions
-- vi.fn<T extends (...args: any[]) => any>(impl?: T): MockInstance<T> — create a mock function
-- vi.mock(moduleId: string, factory?: () => any, options?: { virtual?: boolean }): void — stub module imports
-- vi.spyOn(object: object, methodName: string): SpyInstance
+1.4 Test lifecycle and helpers
+- Lifecycle hooks and when they run:
+  beforeAll(fn): runs once before all tests in the current scope
+  afterAll(fn): runs once after all tests in the current scope
+  beforeEach(fn): runs before each individual test
+  afterEach(fn): runs after each individual test
+- Global test DSL when test.globals = true: describe, test/it, expect available without import
+- Mocking utilities: vitest.mock(modulePath, factory?) and vi.spyOn(object, method) — use vi.* APIs to create spies, mocks and timers
+- Timer control: vi.useFakeTimers(), vi.advanceTimersByTime(ms), vi.runAllTimers() — use vi.restoreAllTimers() to return to real timers
 
-1.5 Coverage configuration (provider, reporters, include/exclude)
-- coverage object keys and types:
-  - provider: 'v8' | 'c8' (string) — selects the coverage engine; use 'v8' with @vitest/coverage-v8
-  - reporter: string[] — e.g., ['text', 'lcov']
-  - include: string[] — globs to include in coverage
-  - exclude: string[] — globs to exclude from coverage
-  - all: boolean — whether to include all files, not only those touched by tests
-  - reportsDirectory: string — directory to write coverage artifacts
-- Example coverage providers: provider: 'v8' together with dependency @vitest/coverage-v8; provider 'c8' uses c8 under the hood.
-
-1.6 Common runtime/environment flags and ESM considerations
-- Node/Esm:
-  - Vitest supports ESM projects. When package.json contains "type":"module", use .js as ESM or .cjs/.mjs as needed.
-  - If tests run under ESM and import syntax fails, set test.environment to 'node' and ensure transformMode and resolver handle ESM, or provide a transpilation step in the build.
-- Top-level await: supported when test environment and Node version permit; ensure Node version >= 16.8 for native top-level await and matching runner compatibility.
-- Global APIs: enable globals: true in config to use describe/it without imports.
+1.5 Coverage configuration
+- Coverage provider options: 'v8' or 'c8' (strings) — provider affects speed and output format
+- Coverage config keys (inside test.coverage):
+  provider: 'v8' | 'c8' — default: 'v8'
+  enabled: boolean — default: false
+  reporter: string[] — default: ['text'] — e.g., ['text','lcov']
+  include: string[] — default: ['src/**'] — files to include in coverage
+  exclude: string[] — default: ['tests/**','node_modules']
+  all: boolean — default: false — include all files matching include patterns even if untested
+  reportsDirectory: string — default: coverage
 
 2. Supplementary details
 
-2.1 Best practices and integration patterns
-- Keep vitest and coverage provider as devDependencies and pin minor versions in CI to avoid surprises.
-- Use explicit include globs in config to avoid accidental test pickup: include: ['tests/unit/**/*.test.js'].
-- Use globals: true to shorten tests, but prefer explicit imports in libraries that may be consumed by other tools.
-- Limit threads in CI if memory constrained: threads: 2 or threads: false to run in single-threaded mode.
-- Prefer "npx vitest --run --coverage --coverage-provider=v8" in CI to produce consistent coverage artifacts.
+2.1 Recommended CI usage
+- Use vitest --run in CI; add --coverage in CI if coverage is required
+- Ensure node version in CI matches local development; pin versions in engines or CI image
+- Use npm ci for reproducible installs, then run npx vitest run
+- Configure reporters or JUnit reporter in CI for integration with test reporting dashboards
 
-2.2 CI/lockfile commands and reproducible runs
-- For reproducible CI installs: npm ci
-- Run tests in CI: npm test or npx vitest --run
-- Cache node_modules and lockfile in CI pipeline; pin node engine to match local development (package.json engines: node >=24 in this repo).
+2.2 Performance and worker controls
+- For deterministic CI runs disable worker threads by passing --threads=false if tests share global mutable state or when debugging
+- Increase threads (number) to parallelize tests on CI agents with many cores (test.threads: number)
+- Use test.isolate: true to avoid shared in-memory state across worker threads but expect higher resource usage
+- Use coverage provider 'v8' for fast collection in Node.js environments
 
-2.3 Troubleshooting procedures (step-by-step)
-- Symptom: tests failing only on CI but passing locally
-  1. Verify Node version in CI matches local (node -v); ensure engine compliance.
-  2. Run npm ci in CI to match lockfile; ensure lockfile is committed.
-  3. Re-run tests with verbose output: npx vitest --run --reporter verbose
-- Symptom: ESM import errors in tests
-  1. Confirm package.json "type" field and test file extensions (.mjs/.cjs) match expectations.
-  2. Set test.environment: 'node' in vitest.config to reduce browser-like transforms.
-  3. Add transform step or use a compatible bundler/transpiler if using non-standard syntax.
-- Symptom: coverage incomplete or missing files
-  1. Ensure coverage.include globs match source file locations.
-  2. Set coverage.all: true to include files not required by tests.
-  3. Confirm coverage provider is installed and provider name matches (e.g., @vitest/coverage-v8 for provider 'v8').
+2.3 Common troubleshooting steps
+- Environment mismatches: set test.environment explicitly to 'jsdom' when DOM APIs are required
+- Flaky tests: increase test.timeout or set retries in config or via CLI (--retries)
+- Snapshot mismatches: run with --update to refresh snapshots when intentional changes occur
+- Clearing cache: use --clearCache or remove node_modules/.vitest cache when corrupted
+- Disabling threads: use --threads=false to run tests in the main process for easier debugging
 
 3. Reference details
 
-3.1 Exact CLI flags and effects
-- --run: Run tests without interactive watch mode; exits with non-zero code on failures.
-- --coverage: Enable coverage collection using configured coverage.provider.
-- --config <file>: Use the specified configuration file.
-- --testNamePattern <regex|string>: Run tests matching the provided pattern.
-- --reporter <name|json>: Select reporter(s) for output formatting.
-- --watch: Default for local runs; watches files and re-runs tests on change.
-- --threads <number|false>: Set number of worker threads or disable parallelism.
+3.1 Exact CLI flags and types
+- --run: boolean — run once and exit
+- --watch: boolean — watch mode
+- --config <path>: string — path to config file
+- --environment <string>: 'node'|'jsdom'|'happy-dom' — set environment
+- --coverage: boolean — enable coverage collection
+- --reporter <string|array>: reporter name(s)
+- --threads <number|false>: number or false — how many worker threads or false to disable
+- -t, --testNamePattern <string>: string — run tests with matching names
+- --update: boolean — update snapshots
+- --clearCache: boolean — clear vitest cache
+- --silent: boolean — suppress runner logs
 
-3.2 Configuration object schema with keys and types (concise)
-- Root export: defineConfig({ test: TestOptions }) where TestOptions is:
-  - include?: string[]
-  - exclude?: string[]
-  - environment?: 'node' | 'jsdom' | 'happy-dom' | 'browser'
-  - globals?: boolean
-  - setupFiles?: string[]
-  - timeout?: number
-  - threads?: boolean | number
-  - reporters?: string | string[]
-  - coverage?: CoverageOptions
-- CoverageOptions:
-  - provider?: 'v8' | 'c8'
-  - reporter?: string[]
-  - include?: string[]
-  - exclude?: string[]
-  - all?: boolean
-  - reportsDirectory?: string
+3.2 Config object schema with keys, types and default values
+- export default defineConfig({
+    test: {
+      include: string[] (default ['tests/**']),
+      exclude: string[] (default ['node_modules']),
+      environment: 'node'|'jsdom'|'happy-dom' (default 'node'),
+      globals: boolean (default false),
+      setupFiles: string | string[] (default undefined),
+      threads: boolean | number (default true),
+      isolate: boolean (default false),
+      timeout: number (ms, default 5000),
+      retries: number (default 0),
+      reporters: string[] (default []),
+      coverage: {
+        provider: 'v8'|'c8' (default 'v8'),
+        enabled: boolean (default false),
+        reporter: string[] (default ['text']),
+        include: string[] (default ['src/**']),
+        exclude: string[] (default ['tests/**','node_modules']),
+        all: boolean (default false),
+        reportsDirectory: string (default 'coverage')
+      }
+    }
+  })
 
-3.3 API function signatures with parameter and return types
-- describe(name: string, fn: () => void): void
-- it(name: string, fn: (() => void) | (() => Promise<void>), timeout?: number): void
-- test alias of it
-- beforeEach(fn: (() => void) | (() => Promise<void>)): void
-- afterEach(fn: (() => void) | (() => Promise<void>)): void
-- beforeAll(fn: (() => void) | (() => Promise<void>)): void
-- afterAll(fn: (() => void) | (() => Promise<void>)): void
-- expect(actual: any): Expectation where Expectation includes assertion methods: toBe(expected: any): void; toEqual(expected: any): void; resolves: { toBe(value: any): Promise<void> } ; rejects: { toThrow(): Promise<void> }
-- vi.fn<T extends (...args: any[]) => any>(impl?: T): MockInstance<T>
-- vi.mock(moduleId: string, factory?: () => any, options?: { virtual?: boolean }): void
-- vi.spyOn<T>(obj: T, method: keyof T): SpyInstance
+3.3 Coverage config keys and effects
+- provider: 'v8' uses V8 native coverage, faster in Node.js; 'c8' uses c8/istanbul for different output formats
+- enabled: toggles coverage collection; enabling will add runtime overhead
+- reporter: controls report outputs; include 'lcov' for CI integration with coverage services
+- include/exclude: control which files are instrumented and reported
+- all: when true, include files without tests to show zero coverage for missing tests
 
-3.4 Coverage provider options and reporter values
-- provider: 'v8' — requires @vitest/coverage-v8; produces V8-native coverage; faster and compatible with Node versions shipping V8 coverage hooks
-- reporter values: 'text', 'lcov', 'json', 'html', 'clover' — include multiple reporters as array
-- reportsDirectory effect: sets output path for lcov and html artifacts
+3.4 Example operational commands for CI and local development
+- CI (run once, collect coverage): npm ci && npx vitest run --coverage
+- Local quick run: npx vitest --watch
+- Run specific tests by name: npx vitest -t "should return fizz"
+- Disable workers for debugging: npx vitest --run --threads=false
 
 4. Detailed digest
-4.1 Source section extracted from SOURCES.md and vitest.dev (retrieved 2026-03-08)
-- Extracted actionable CLI commands, config keys, API signatures and CI patterns from vitest documentation and the project's package.json scripts which use: "test": "vitest --run tests/unit/*.test.js" and "test:unit": "vitest --run --coverage tests/unit/*.test.js". Retrieval date: 2026-03-08.
+4.1 Source: https://vitest.dev/guide/ (retrieved 2026-03-08)
+- Extracted sections used: installation, CLI reference, configuration guide, test API (vi global), coverage provider guidance, best practices and troubleshooting notes
+- Data size obtained: approximately 24 KB (HTML and main guide content)
 
 5. Attribution and crawl data size
-- Source URL: https://vitest.dev/ (primary)
-- Additional context: package.json scripts in repository root referencing vitest
-- Data size obtained during crawl: approximately 4 KB of extracted text
-- Attribution: content retrieved and condensed from vitest.dev documentation (Vitest project) on 2026-03-08
+- Source: vitest.dev/guide/
+- Retrieved: 2026-03-08
+- Estimated bytes extracted: 24,576 bytes
