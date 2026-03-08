@@ -5,67 +5,6 @@
 
 ---
 
-## maintain-library at 2026-03-08T14:36:48.267Z
-
-**Outcome:** library-maintained
-**Model:** gpt-5-mini
-**Profile:** recommended
-**Token Count:** 84733 (in: 77287, out: 7446)
-**Duration:** 142s (~2.4 GitHub Actions min)
-**agentic-lib transformation cost:** 1
-**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22823122822](https://github.com/xn-intenton-z2a/repository0/actions/runs/22823122822)
-
-### Limits Status
-| Limit | Value | Capacity | Status |
-|---|---|---|---|
-| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
-| max-feature-issues | 0/2 | 2 remaining |  |
-| max-maintenance-issues | 0/1 | 1 remaining |  |
-| max-attempts-per-issue | ?/2 | ? remaining | n/a |
-| max-attempts-per-branch | ?/3 | ? remaining | n/a |
-| features | 4/4 | 0 remaining | n/a |
-| library | 12/32 | 20 remaining |  |
-
-### Closing Notes
-transformation-budget at capacity (32/32) — actions will be blocked.
-
-### Narrative
-Created and updated the VITEST library document to provide actionable Vitest CLI/config/API details for implementing and testing in this repository.
-
-Maintained library (10 docs, limit 32)
-
----
-## maintain-features at 2026-03-08T14:39:38.879Z
-
-**Outcome:** features-maintained
-**Model:** gpt-5-mini
-**Profile:** recommended
-**Token Count:** 26660 (in: 24297, out: 2363)
-**Duration:** 42s (~0.7 GitHub Actions min)
-**agentic-lib transformation cost:** 1
-**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22823216687](https://github.com/xn-intenton-z2a/repository0/actions/runs/22823216687)
-
-### Limits Status
-| Limit | Value | Capacity | Status |
-|---|---|---|---|
-| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
-| max-feature-issues | 0/2 | 2 remaining |  |
-| max-maintenance-issues | 0/1 | 1 remaining |  |
-| max-attempts-per-issue | ?/2 | ? remaining | n/a |
-| max-attempts-per-branch | ?/3 | ? remaining | n/a |
-| features | 4/4 | 0 remaining |  |
-| library | 12/32 | 20 remaining | n/a |
-
-### Closing Notes
-transformation-budget at capacity (32/32) — actions will be blocked.
-features at capacity (4/4) — actions will be blocked.
-
-### Narrative
-Added a concise FIZZBUZZ_STATS feature spec describing an additive fizzBuzzStats helper that computes exact counts from fizzBuzz output so the library can expose deterministic analytics for demos and tests.
-
-Maintained features (4 existing, limit 4)
-
----
 ## maintain-library at 2026-03-08T14:43:30.203Z
 
 **Outcome:** library-maintained
@@ -946,6 +885,67 @@ transformation-budget at capacity (32/32) — actions will be blocked.
 
 ### Narrative
 Created a consolidated SOURCES_DOC.md to provide a single, actionable reference for implementing the FizzBuzz mission and related JS runtime rules.
+
+Maintained library (10 docs, limit 32)
+
+---
+## maintain-features at 2026-03-08T15:57:27.468Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 26380 (in: 23495, out: 2885)
+**Duration:** 47s (~0.8 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22824548973](https://github.com/xn-intenton-z2a/repository0/actions/runs/22824548973)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 15/32 | 17 remaining | n/a |
+
+### Closing Notes
+transformation-budget at capacity (32/32) — actions will be blocked.
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Added ZERO_SUPPORT feature spec to require fizzBuzz(0) return [] and to clarify and standardise error types/messages and behaviour for fizzBuzz and fizzBuzzSingle so tests, docs and web demo remain consistent with mission.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-08T15:58:47.568Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 38367 (in: 34105, out: 4262)
+**Duration:** 80s (~1.3 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22824548973](https://github.com/xn-intenton-z2a/repository0/actions/runs/22824548973)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 15/32 | 17 remaining |  |
+
+### Closing Notes
+transformation-budget at capacity (32/32) — actions will be blocked.
+
+### Narrative
+Created a VITEST library document (attempted) summarising vitest.dev guide into actionable install, config, API signatures, and troubleshooting for the mission.
 
 Maintained library (10 docs, limit 32)
 
