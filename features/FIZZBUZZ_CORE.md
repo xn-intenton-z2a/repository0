@@ -69,14 +69,42 @@ Examples
 - fizzBuzzStats(15) => { fizz: 4, buzz: 2, fizzBuzz: 1, numbers: 8, total: 15 }
 - fizzBuzzStats(0) => { fizz: 0, buzz: 0, fizzBuzz: 0, numbers: 0, total: 0 }
 
+Streaming extension (optional)
+
+Summary
+
+Provide a synchronous generator-based API to produce the FizzBuzz sequence on demand. This is intended for memory-efficient consumption of large ranges and for streaming-style processing in consumers. The extension must be an additive, opt-in export and must reuse the canonical validation behaviour.
+
+Specification
+
+- Add one new named export from src/lib/main.js: fizzBuzzGenerator.
+- fizzBuzzGenerator(n): a synchronous generator function that yields the Fizz/Buzz/FizzBuzz/number strings for 1..n in order, one value per yield.
+- The generator must perform the same validation as the canonical functions:
+  - If n is not a number or not an integer, throw TypeError with a message containing the word "integer" or "number".
+  - If n is a negative integer, throw RangeError with a message containing the word "non-negative" or "positive".
+  - If n is 0, the generator yields nothing (i.e., completes immediately).
+- The generator must not reimplement the core fizz/buzz logic in a different way; it should reuse the same internal helpers used by fizzBuzz/fizzBuzzSingle where feasible.
+- Consumers should be able to use Array.from(fizzBuzzGenerator(n)) or for..of to obtain the full sequence; the array produced must exactly match fizzBuzz(n).
+
+Examples
+
+- Array.from(fizzBuzzGenerator(5)) => ["1", "2", "Fizz", "4", "Buzz"]
+- for (const item of fizzBuzzGenerator(3)) { /* item yields "1", "2", "Fizz" */ }
+
+Edge cases and errors
+
+- Creating the generator with invalid input should throw immediately and not return a generator object in a broken state. Validation should run synchronously so callers receive TypeError/RangeError on invocation.
+- If n is 0, the generator produces no yields and completes normally.
+
 Testing guidance
 
-- Unit tests should import fizzBuzz, fizzBuzzSingle, fizzBuzzFormatted, fizzBuzzSingleFormatted and fizzBuzzStats from src/lib/main.js and assert exact outputs for canonical, formatted and stats helpers.
-- For fizzBuzzStats include tests that assert exact counts for known inputs such as:
-  - fizzBuzzStats(15) returns an object exactly matching { fizz: 4, buzz: 2, fizzBuzz: 1, numbers: 8, total: 15 }
-  - fizzBuzzStats(0) returns zeros with total 0
-- Validation tests: ensure that invalid n values cause the same error types and messages as the canonical functions.
-- Tests should verify that fizzBuzzStats is implemented by mapping fizzBuzz output (for example by spying or by asserting behaviour) rather than duplicating logic; however prefer black-box assertions on outputs and counts.
+- Unit tests should import fizzBuzz, fizzBuzzSingle, fizzBuzzFormatted, fizzBuzzSingleFormatted, fizzBuzzStats and fizzBuzzGenerator from src/lib/main.js and assert exact outputs for canonical, formatted, statistics and streaming helpers.
+- For fizzBuzzGenerator include tests that:
+  - assert Array.from(fizzBuzzGenerator(15)) equals fizzBuzz(15)
+  - assert iterating the generator with for..of yields the same sequence as the array result
+  - assert that calling fizzBuzzGenerator with invalid inputs throws the same error types and message substrings as the canonical functions
+  - assert that fizzBuzzGenerator(0) yields no values (Array.from returns [])
+- Prefer black-box assertions comparing outputs rather than inspecting internal implementation details.
 
 Acceptance criteria
 
@@ -95,10 +123,14 @@ Acceptance criteria
   - fizzBuzzStats(15) returns { fizz: 4, buzz: 2, fizzBuzz: 1, numbers: 8, total: 15 }
   - fizzBuzzStats(0) returns counts all zero with total 0
   - Invalid n values throw the same error types and messages as the canonical functions.
-- Unit tests exist and pass for canonical, formatted and statistics helpers.
+- Acceptance criteria for streaming extension:
+  - Array.from(fizzBuzzGenerator(15)) returns the same 15-element array as fizzBuzz(15)
+  - fizzBuzzGenerator(0) yields no values (Array.from returns [])
+  - Calling fizzBuzzGenerator with invalid inputs throws the same TypeError/RangeError as the canonical functions and does so synchronously on invocation
+- Unit tests exist and pass for canonical, formatted, statistics and streaming helpers.
 
 Notes
 
-- Keep the implementation minimal: implement formatted helpers and fizzBuzzStats as thin wrappers that call the canonical functions and then map or analyse the result; do not duplicate the core fizz/fizzbuzz logic.
-- This extension keeps the original API stable for downstream consumers and adds small, testable conveniences for presentation-level transformations and basic analytics.
-- Demonstrate the new stats helper in README examples and optionally in the web demo where appropriate; ensure the demo imports the helper from src/lib/main.js and displays the returned counts.
+- Keep the implementation minimal: implement formatted helpers, fizzBuzzStats and fizzBuzzGenerator as thin wrappers that call or reuse the canonical functions and then map or analyse the result; do not duplicate the core fizz/fizzbuzz logic in divergent ways.
+- The streaming generator is synchronous and intended for memory-efficient consumption; do not introduce async behaviour unless separately specified.
+- Demonstrate the new streaming helper in README examples and optionally in the web demo where appropriate; ensure the demo imports the helper from src/lib/main.js and uses Array.from or for..of to display results.

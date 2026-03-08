@@ -1,0 +1,27 @@
+TITLE: NPM_FIZZBUZZ
+
+TABLE OF CONTENTS:
+1. Package identity and retrieval
+2. Installation and inspection commands
+3. Usage notes and caveats
+4. Source digest and retrieval status
+
+1. Package identity and retrieval
+- Package name: fizzbuzz
+- Registry URL: https://www.npmjs.com/package/fizzbuzz
+- Note: HTTP fetch attempt returned 403 from crawler; registry access via npm CLI remains available.
+
+2. Installation and inspection commands
+- Install locally: npm install fizzbuzz --save or npm i fizzbuzz
+- Inspect package metadata: npm view fizzbuzz --json
+- Install and run: npm explore fizzbuzz -- npm run <script> (if package provides scripts)
+
+3. Usage notes and caveats
+- Do not assume API shape; inspect package exports after installing (require/import and typeof checks).
+- If package lacks types, create minimal ambient typings or use runtime validation.
+
+4. Source digest and retrieval status
+- Source URL: https://www.npmjs.com/package/fizzbuzz
+- Retrieval attempted: 2026-03-08T12:22:38.561Z
+- HTTP status: 403 Forbidden returned by web fetch; use npm CLI for programmatic metadata or manual browser access.
+- Attribution: npm registry page.
