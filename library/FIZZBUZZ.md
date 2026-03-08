@@ -122,7 +122,7 @@ Table of contents
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError  (MDN RangeError)
   - https://www.npmjs.com/package/fizzbuzz  (npm package metadata)
   - https://vitest.dev/guide/  (Vitest testing guide)
-- Retrieval date: 2026-03-08T20:03:30.775Z
+- Retrieval date: 2026-03-08T20:07:23.112Z
 
 7. Attribution and crawl data size
 - Attribution: condensed from Wikipedia Fizz Buzz, MDN Web Docs (Modules, Number.isInteger, RangeError), npm package page for fizzbuzz, and Vitest guide as listed in project SOURCES.md.
