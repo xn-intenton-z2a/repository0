@@ -16,11 +16,11 @@ Table of contents
 
 1. Normalised extract: core algorithm and contract
 For each integer i in the inclusive integer range 1..n produce a value at index (i-1) in the returned sequence. The mapping is strictly prioritized and exact-string sensitive:
-- If i % 15 === 0 -> "FizzBuzz"
-- Else if i % 3 === 0 -> "Fizz"
-- Else if i % 5 === 0 -> "Buzz"
+- If i % 15 === 0 -> FizzBuzz
+- Else if i % 3 === 0 -> Fizz
+- Else if i % 5 === 0 -> Buzz
 - Else -> numeric value i (Number)
-Deterministic contract: returned array length MUST equal n; element order MUST map to integers 1..n; non-Fizz/Buzz elements MUST be numbers when API is typed to Array<string | number>.
+Deterministic contract: returned array length MUST equal n; element order MUST map to integers 1..n; non-Fizz/Buzz elements MUST be JavaScript Number values when API is typed to Array<string | number>.
 
 2. Focused table of contents (topics covered)
 - Rule set and output mapping
@@ -58,7 +58,7 @@ Deterministic contract: returned array length MUST equal n; element order MUST m
 - Time complexity: O(n) for single-pass generation.
 - Space complexity: O(n) allocated result array of length n.
 - Micro-optimizations: avoid repeated string allocations in loop by using constants for 'Fizz', 'Buzz', 'FizzBuzz'; compute combined condition as i % 15 === 0 instead of nested conditionals for speed and clarity.
-- Safety bound: choose MAX_N = 10_000_000 to avoid uncontrolled memory usage; enforce via RangeError as above.
+- Safety bound: choose MAX_N = 10000000 to avoid uncontrolled memory usage; enforce via RangeError as above.
 
 4. Supplementary details: specifications and implementation knobs
 - MAX_N: recommended constant value 10000000 (10 million). Enforced with message 'n must be <= ' + MAX_N.
@@ -96,11 +96,11 @@ Deterministic contract: returned array length MUST equal n; element order MUST m
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError (RangeError constructor and usage guidance)
   - https://www.npmjs.com/package/fizzbuzz (npm package metadata and installation patterns)
   - https://vitest.dev/guide/ (Vitest CLI usage and common test patterns)
-- Retrieval date: 2026-03-08
+- Retrieval datetime: 2026-03-08T15:40:14.761Z
 - Extracted technical material: algorithm rules, exact validation logic and messages, API signature, module type effects, test and package commands, MAX_N recommendation.
 
 8. Attribution and data size
-- Attribution: content extracted from the URLs listed above as referenced in SOURCES.md; see SOURCES.md in repository root for original links.
+- Attribution: content directly extracted from the URLs listed above as referenced in SOURCES.md; see SOURCES.md in repository root for original links.
 - Data size obtained during extraction: approximately 9 KB of technical content consolidated into this document (derived from repository SOURCES.md and local library extracts).
 
 END OF DOCUMENT
