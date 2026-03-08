@@ -77,3 +77,15 @@ npx @xn-intenton-z2a/agentic-lib@latest init
 - [MISSION.md](MISSION.md) — your project goals
 - [agentic-lib documentation](https://github.com/xn-intenton-z2a/agentic-lib) — full SDK docs
 - [intentïon website](https://xn--intenton-z2a.com)
+
+## Examples
+
+Library exports fizzValue(n) and fizzBuzz(start, end):
+
+```js
+import { fizzValue, fizzBuzz } from './src/index.js';
+console.log(fizzValue(3)); // 'fizz'
+console.log(fizzBuzz(1,5)); // ['1','2','fizz','4','buzz']
+```
+
+A browser demo is available at docs/index.html (used by Playwright tests).

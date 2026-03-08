@@ -1,49 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>repository0</title>
-  <meta property="og:title" content="repository0">
-  <meta property="og:description" content="An autonomous repository powered by agentic-lib">
-  <meta property="og:type" content="website">
-  <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
-    h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
-    a { color: #0366d6; }
-    .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
-    .identity dt { font-weight: bold; color: #666; }
-    .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-    #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>FizzBuzz demo</title>
+  <style>body{font-family:system-ui, -apple-system, sans-serif;padding:2rem}</style>
 </head>
 <body>
-  <h1 id="lib-name">repository0</h1>
-  <div class="identity">
-    <dl>
-      <dt>Version</dt>
-      <dd id="lib-version">loading...</dd>
-      <dt>Description</dt>
-      <dd id="lib-description">loading...</dd>
-    </dl>
-  </div>
-  <h2>Output</h2>
-  <div id="demo-output">Loading library...</div>
-  <h2>About</h2>
-  <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
-  <script type="module">
-    try {
-      const { name, version, description } = await import('./lib-meta.js');
-      document.getElementById('lib-name').textContent = name;
-      document.getElementById('lib-version').textContent = version;
-      document.getElementById('lib-description').textContent = description || '(no description)';
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
-      document.title = name + ' v' + version;
-    } catch (e) {
-      document.getElementById('lib-version').textContent = '(build required)';
-      document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
-      document.getElementById('demo-output').textContent = 'Library not yet built. Run: npm run build:web';
+  <h1>FizzBuzz Demo</h1>
+
+  <section>
+    <h2>Single</h2>
+    <input id="single-input" type="number" value="15" />
+    <button id="single-button">Check</button>
+    <div id="single-output"></div>
+  </section>
+
+  <section>
+    <h2>Range</h2>
+    <label>Start <input id="range-start" type="number" value="1" /></label>
+    <label>End <input id="range-end" type="number" value="5" /></label>
+    <button id="range-button">Run</button>
+    <ul id="range-output"></ul>
+  </section>
+
+  <script>
+    function fizzValue(n){
+      const num = Number(n);
+      if (Number.isNaN(num)) return String(n);
+      if (num % 15 === 0) return 'fizzbuzz';
+      if (num % 3 === 0) return 'fizz';
+      if (num % 5 === 0) return 'buzz';
+      return String(num);
     }
+    function fizzBuzz(start,end){
+      const s = Number(start); const e = Number(end);
+      const from = Math.min(s,e); const to = Math.max(s,e);
+      const out = [];
+      for(let i=from;i<=to;i++) out.push(fizzValue(i));
+      return out;
+    }
+
+    document.getElementById('single-button').addEventListener('click', ()=>{
+      const v = document.getElementById('single-input').value;
+      document.getElementById('single-output').textContent = fizzValue(v);
+    });
+
+    document.getElementById('range-button').addEventListener('click', ()=>{
+      const s = document.getElementById('range-start').value;
+      const e = document.getElementById('range-end').value;
+      const out = fizzBuzz(s,e);
+      const ul = document.getElementById('range-output');
+      ul.innerHTML = '';
+      out.forEach(x=>{ const li = document.createElement('li'); li.textContent = x; ul.appendChild(li); });
+    });
+
+    // initialize
+    document.getElementById('range-button').click();
   </script>
 </body>
 </html>
