@@ -83,7 +83,7 @@ Table of contents
 
 12. Digest and retrieval metadata
 - Source extracted: developer.mozilla.org: JavaScript Guide — Modules
-- Retrieval date: 2026-03-08 (crawl time: 2026-03-08T22:50:02.857Z)
+- Retrieval date: 2026-03-08T23:09:41.750Z
 - Extraction scope: module parsing semantics, syntax patterns, resolution mechanics, package.json fields, interop rules, and best practices needed to implement and publish ESM-compatible packages.
 
 13. Attribution and data size

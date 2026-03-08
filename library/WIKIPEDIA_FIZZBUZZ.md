@@ -93,7 +93,7 @@ Table of contents
 
 4. Detailed digest (SOURCES.md extract)
 - Extracted line: - https://en.wikipedia.org/wiki/Fizz_buzz
-- Retrieval date: 2026-03-08T22:50:02.857Z
+- Retrieval date: 2026-03-08T23:09:41.750Z
 
 5. Attribution and crawl data size
 - Attribution: content derived from the Fizz Buzz entry on Wikipedia (URL above) as cited in SOURCES.md; adapted into a concise implementation-focused extract for the mission.
