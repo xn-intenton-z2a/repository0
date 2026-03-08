@@ -1,87 +1,99 @@
 # FIZZBUZZ_CORE
 
-## Summary
+# Summary
 
-Canonical, comprehensive specification for the FizzBuzz library export surface and behaviour. This feature defines the required named exports, strict validation semantics, and a set of optional, additive helpers (formatters, statistics, synchronous generator, and localisation). Validation rules align with the mission: fizzBuzz accepts n = 0 and returns an empty array; invalid types and non-integers throw TypeError; out-of-range numeric values throw RangeError where appropriate.
+A precise, testable feature specification for the canonical FizzBuzz library API and a set of small, additive helpers. The feature defines named ESM exports, centralised validation semantics, and acceptance criteria used by unit and behaviour tests. Implementations must keep canonical functions minimal and provide helpers as thin wrappers that do not change canonical outputs.
 
-## Specification
+# Specification
 
-# Exports (named)
+## Public named exports (src/lib/main.js)
 
 - fizzBuzz(n)
-  - Description: Return an array representing the sequence 1..n where multiples of 3 are replaced with "Fizz", multiples of 5 are replaced with "Buzz", and multiples of both are replaced with "FizzBuzz". Non-replaced values are decimal strings (no leading zeros).
-  - Parameters: n (number)
-  - Validation and errors:
+  - Description: Return an array of length n for the sequence 1..n where:
+    - If i % 15 === 0 -> "FizzBuzz"
+    - Else if i % 3 === 0 -> "Fizz"
+    - Else if i % 5 === 0 -> "Buzz"
+    - Else -> decimal string of i (no leading zeros)
+  - Parameter: n (number)
+  - Validation and errors (apply in implementation):
     - If typeof n !== 'number' -> throw TypeError('n must be a number')
-    - If !Number.isFinite(n) or Number.isNaN(n) -> throw TypeError('n must be a finite number')
+    - If !Number.isFinite(n) -> throw TypeError('n must be a finite number')
     - If !Number.isInteger(n) -> throw TypeError('n must be an integer')
     - If n < 0 -> throw RangeError('n must be >= 0')
-    - If a project-wide MAX_N is enforced and n > MAX_N -> throw RangeError('n must be <= ' + MAX_N)
+    - Optional: if MAX_N is chosen and n > MAX_N -> throw RangeError('n must be <= ' + MAX_N)
   - Behaviour:
-    - If n === 0: return [] (an empty array) without throwing.
-    - For n >= 1: return an array of length n with deterministic ordering: element at index i-1 corresponds to integer i and is exactly one of the strings "Fizz", "Buzz", "FizzBuzz" or the decimal string of i.
+    - n === 0 -> return [] (no throw)
+    - n >= 1 -> return array of strings where element index i-1 is the canonical string for integer i
 
 - fizzBuzzSingle(n)
-  - Description: Return the single string result for integer n following the same replacement rules.
-  - Validation and error behaviour:
+  - Description: Return the canonical string for a single positive integer n using the same replacement rules.
+  - Validation and errors:
     - If typeof n !== 'number' -> throw TypeError('n must be a number')
-    - If !Number.isFinite(n) or Number.isNaN(n) -> throw TypeError('n must be a finite number')
+    - If !Number.isFinite(n) -> throw TypeError('n must be a finite number')
     - If !Number.isInteger(n) -> throw TypeError('n must be an integer')
     - If n < 1 -> throw RangeError('n must be >= 1')
-  - Behaviour: Returns the canonical string for the given positive integer n (no special-case for n === 0; callers should use fizzBuzz(0) for the empty sequence).
+  - Behaviour: return one canonical string for n; callers should use fizzBuzz(0) for the empty sequence case.
 
-## Optional, additive helpers (must not change canonical functions)
+## Additive helpers (must not alter canonical functions)
+
+Implement as thin wrappers that call the canonical functions and transform or analyse the results.
 
 - fizzBuzzFormatted(n, formatter)
-  - Returns fizzBuzz(n) with each entry transformed by formatter(value, index) before being returned.
-  - Validate n as above; if formatter is not a function throw TypeError('formatter must be a function').
+  - Returns fizzBuzz(n).map((v,i) => formatter(v,i)).
+  - Validation: n validated as above; if typeof formatter !== 'function' -> throw TypeError('formatter must be a function').
 
 - fizzBuzzSingleFormatted(n, formatter)
-  - Returns formatter(fizzBuzzSingle(n), 0) with same validations.
+  - Returns formatter(fizzBuzzSingle(n), 0) with the same validations as above.
 
 - fizzBuzzStats(n)
-  - Returns an object { fizz, buzz, fizzBuzz, numbers, total } counting occurrences. For n === 0 return zeroed counts and total 0.
+  - Returns { fizz, buzz, fizzBuzz, numbers, total } where counts sum to total.
+  - For n === 0 return zeros and total 0.
+  - Validation: reuse canonical validation for n.
 
 - fizzBuzzGenerator(n)
-  - A synchronous generator yielding the exact strings for 1..n in order. Array.from(fizzBuzzGenerator(n)) must equal fizzBuzz(n).
+  - Synchronous generator yielding the canonical strings for 1..n in order.
+  - Array.from(fizzBuzzGenerator(n)) must equal fizzBuzz(n).
 
 - fizzBuzzWithWords(n, words)
-  - Use words.fizz and words.buzz as replacements instead of canonical strings. Missing keys fall back to canonical words. If words is provided but not an object, throw TypeError('words must be an object').
+  - words may be an object with optional keys fizz and buzz (strings). Missing keys fall back to canonical words.
+  - If words is provided but not an object -> throw TypeError('words must be an object').
+  - Validation: reuse canonical n validation.
 
 - fizzBuzzSingleWithWords(n, words)
-  - Single-value variant using provided words object with the same fallback and validation rules.
+  - Single-value variant using words with the same fallback and validation semantics.
 
-## Validation and Error Semantics
+# Validation and error semantics
 
-- Centralised validation ensures all helpers reuse the same checks and error messages.
-- Use TypeError for wrong types and non-integer or non-finite numeric inputs (messages include the term 'number', 'finite' or 'integer' to aid tests).
-- Use RangeError for numeric domain violations (for example n < 0 or n > MAX_N), with messages containing ">=" or "<=" constraints to aid assertions.
-- Tests should assert error type and an indicative substring of the message (for example "integer", "number", ">= 0").
+- Centralise validation so all public exports reuse identical checks and error message substrings; this keeps unit tests stable.
+- Use TypeError for wrong types and for non-finite or non-integer numeric inputs (messages must contain the words number, finite or integer as indicated above).
+- Use RangeError for domain violations (n < 0 or n > MAX_N). Messages should include ">=" or "<=" constraints to aid assertions.
 
-## Testing guidance
+# Testing guidance
 
-- Unit tests in tests/unit/ must import named exports directly from src/lib/main.js and assert exact array/string outputs and thrown errors for invalid inputs.
-- Add unit tests for each helper: formatted helpers reject invalid formatter; stats return exact counts for sample n (including 15); generator yields identical sequence; localisation helpers accept missing/partial words and reject non-object words.
-- Include unit tests asserting fizzBuzz(0) returns [] and fizzBuzzStats(0) returns zeroed counts.
-- Keep tests deterministic and assert on substrings of error messages when appropriate to avoid brittleness.
+- Unit tests must import named exports from src/lib/main.js and assert exact outputs and thrown error types/substrings.
+- Mandatory unit tests to cover:
+  - fizzBuzz(15) returns 15 items with final element "FizzBuzz".
+  - fizzBuzzSingle(3) -> "Fizz", (5) -> "Buzz", (15) -> "FizzBuzz", (7) -> "7".
+  - fizzBuzz(0) -> [] and fizzBuzzStats(0) -> all counts zero.
+  - Passing invalid types or non-integers -> TypeError with indicative substring.
+  - Passing negative integers -> RangeError with message containing '>= 0'.
+  - fizzBuzzFormatted and fizzBuzzSingleFormatted behaviour and formatter validation.
+  - fizzBuzzStats(15) equals { fizz: 4, buzz: 2, fizzBuzz: 1, numbers: 8, total: 15 }.
+  - Array.from(fizzBuzzGenerator(5)) equals fizzBuzz(5).
+  - Localisation helpers place alternate words at the same positions and do not alter canonical outputs.
 
-## Acceptance criteria
+# Acceptance criteria
 
-- fizzBuzz(15) returns an array of 15 strings where the 15th element is "FizzBuzz".
+- fizzBuzz(15) returns the correct 15-element array ending with "FizzBuzz".
+- fizzBuzzSingle(3) == "Fizz", fizzBuzzSingle(5) == "Buzz", fizzBuzzSingle(15) == "FizzBuzz", fizzBuzzSingle(7) == "7".
 - fizzBuzz(0) returns [] and does not throw.
-- fizzBuzzSingle(3) === "Fizz"; fizzBuzzSingle(5) === "Buzz"; fizzBuzzSingle(15) === "FizzBuzz"; fizzBuzzSingle(7) === "7".
-- Passing a negative integer to fizzBuzz (e.g., -1) throws RangeError and the message contains '>= 0'.
-- Passing a non-integer number (e.g., 3.5) or NaN or Infinity throws TypeError and message contains 'integer' or 'finite' as appropriate.
-- Passing a non-number type (e.g., '5', null) throws TypeError and message contains 'number'.
-- fizzBuzzFormatted delegates to fizzBuzz and returns a mapped array of the same length and ordering; passing a non-function formatter throws TypeError containing the word 'formatter'.
-- fizzBuzzStats(15) returns { fizz: 4, buzz: 2, fizzBuzz: 1, numbers: 8, total: 15 }.
-- Array.from(fizzBuzzGenerator(5)) equals fizzBuzz(5).
-- Localisation helpers place alternate words in the same positions as canonical replacements and do not change canonical outputs.
+- Non-integer or non-finite inputs throw TypeError; negative integers throw RangeError with messages containing expected substrings.
+- fizzBuzzFormatted and fizzBuzzSingleFormatted delegate to canonical functions and validate formatter.
+- fizzBuzzStats and fizzBuzzGenerator produce exact, testable outputs for sample inputs.
 
-## Implementation notes
+# Implementation notes
 
-- Keep canonical fizzBuzz and fizzBuzzSingle minimal and authoritative; implement helpers as thin wrappers calling the canonical functions and mapping/analysing results.
-- Perform validation centrally so helper functions reuse the same checks and error messages.
-- Use Number.isInteger and Number.isFinite for validation; use TypeError for type/non-integer issues and RangeError for domain violations.
-- Avoid introducing external dependencies; helpers are small synchronous utilities.
+- Keep canonical exports minimal and authoritative; helpers call into them.
+- Prefer simple, dependency-free implementations using Number.isInteger and Number.isFinite.
+- Do not change existing public function names or their canonical behaviour; the feature is additive for helpers.
 
