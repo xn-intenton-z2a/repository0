@@ -87,7 +87,7 @@ Table of contents
 - Vitest CLI flags: run (single-run) -> vitest run; watch -> vitest; coverage flag -> --coverage
 
 4. Detailed digest
-- Sources fetched and technical content extracted on 2026-03-08T21:39:57.271Z:
+- Sources fetched and technical content extracted on 2026-03-08T21:43:27.281Z:
   - https://en.wikipedia.org/wiki/Fizz_buzz  (FizzBuzz canonical mapping, use as interview task; retrieved 2026-03-08)
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules  (module types, export/import, import maps, .mjs vs .js, Content-Type requirements; retrieved 2026-03-08)
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger  (exact semantics of Number.isInteger; retrieved 2026-03-08)
