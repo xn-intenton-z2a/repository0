@@ -5,67 +5,6 @@
 
 ---
 
-## maintain-library at 2026-03-08T21:48:04.538Z
-
-**Outcome:** library-maintained
-**Model:** gpt-5-mini
-**Profile:** recommended
-**Token Count:** 58442 (in: 55860, out: 2582)
-**Duration:** 60s (~1.0 GitHub Actions min)
-**agentic-lib transformation cost:** 1
-**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22830577274](https://github.com/xn-intenton-z2a/repository0/actions/runs/22830577274)
-
-### Limits Status
-| Limit | Value | Capacity | Status |
-|---|---|---|---|
-| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
-| max-feature-issues | 0/2 | 2 remaining |  |
-| max-maintenance-issues | 0/1 | 1 remaining |  |
-| max-attempts-per-issue | ?/2 | ? remaining | n/a |
-| max-attempts-per-branch | ?/3 | ? remaining | n/a |
-| features | 5/4 | 0 remaining | n/a |
-| library | 8/32 | 24 remaining |  |
-
-### Closing Notes
-transformation-budget at capacity (32/32) — actions will be blocked.
-
-### Narrative
-Updated the SOURCES_DIGEST.md retrieval timestamp to reflect the current crawl time so the library digest matches the supplied sources and date.
-
-Maintained library (8 docs, limit 32)
-
----
-## maintain-features at 2026-03-08T21:49:59.309Z
-
-**Outcome:** features-maintained
-**Model:** gpt-5-mini
-**Profile:** recommended
-**Token Count:** 58755 (in: 52487, out: 6268)
-**Duration:** 82s (~1.4 GitHub Actions min)
-**agentic-lib transformation cost:** 1
-**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22830616327](https://github.com/xn-intenton-z2a/repository0/actions/runs/22830616327)
-
-### Limits Status
-| Limit | Value | Capacity | Status |
-|---|---|---|---|
-| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
-| max-feature-issues | 0/2 | 2 remaining |  |
-| max-maintenance-issues | 0/1 | 1 remaining |  |
-| max-attempts-per-issue | ?/2 | ? remaining | n/a |
-| max-attempts-per-branch | ?/3 | ? remaining | n/a |
-| features | 4/4 | 0 remaining |  |
-| library | 8/32 | 24 remaining | n/a |
-
-### Closing Notes
-transformation-budget at capacity (32/32) — actions will be blocked.
-features at capacity (4/4) — actions will be blocked.
-
-### Narrative
-Removed an extra feature file to meet the max-files constraint and replaced the examples feature with a clear TypeScript declarations feature spec to improve tooling ergonomics without changing runtime code.
-
-Maintained features (5 existing, limit 4)
-
----
 ## maintain-library at 2026-03-08T21:50:57.891Z
 
 **Outcome:** library-maintained
@@ -946,6 +885,67 @@ transformation-budget at capacity (32/32) — actions will be blocked.
 
 ### Narrative
 Verified existing library documents map to all SOURCES.md entries and made no file changes because each source is already represented.
+
+Maintained library (8 docs, limit 32)
+
+---
+## maintain-features at 2026-03-08T22:46:05.936Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 136244 (in: 131468, out: 4776)
+**Duration:** 73s (~1.2 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22831606835](https://github.com/xn-intenton-z2a/repository0/actions/runs/22831606835)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 8/32 | 24 remaining | n/a |
+
+### Closing Notes
+transformation-budget at capacity (32/32) — actions will be blocked.
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Updated the examples feature to include statistics and generator demonstrations so examples fully exercise library helpers for unit and behaviour tests.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-08T22:46:45.803Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 48465 (in: 45731, out: 2734)
+**Duration:** 39s (~0.7 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22831606835](https://github.com/xn-intenton-z2a/repository0/actions/runs/22831606835)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 8/32 | 24 remaining |  |
+
+### Closing Notes
+transformation-budget at capacity (32/32) — actions will be blocked.
+
+### Narrative
+Read and validated existing library documents against SOURCES.md to ensure each source has a corresponding, distinct extract and no removals or additions were required.
 
 Maintained library (8 docs, limit 32)
 
