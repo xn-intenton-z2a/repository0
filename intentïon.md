@@ -5,66 +5,6 @@
 
 ---
 
-## maintain-library at 2026-03-08T10:29:47.865Z
-
-**Outcome:** library-maintained
-**Model:** gpt-5-mini
-**Profile:** recommended
-**Token Count:** 46160 (in: 38820, out: 7340)
-**Duration:** 123s (~2.1 GitHub Actions min)
-**agentic-lib transformation cost:** 1
-**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22819171025](https://github.com/xn-intenton-z2a/repository0/actions/runs/22819171025)
-
-### Limits Status
-| Limit | Value | Capacity | Status |
-|---|---|---|---|
-| transformation-budget | 14/32 | 18 remaining |  |
-| max-feature-issues | 0/2 | 2 remaining |  |
-| max-maintenance-issues | 0/1 | 1 remaining |  |
-| max-attempts-per-issue | ?/2 | ? remaining | n/a |
-| max-attempts-per-branch | ?/3 | ? remaining | n/a |
-| features | 4/4 | 0 remaining | n/a |
-| library | 0/32 | 32 remaining |  |
-
-### Closing Notes
-All limits within normal range.
-
-### Narrative
-Created five condensed technical reference documents from the fetched SOURCES.md URLs to populate the project's library for direct implementation use.
-
-Maintained library (0 docs, limit 32)
-
----
-## maintain-features at 2026-03-08T11:18:28.491Z
-
-**Outcome:** features-maintained
-**Model:** gpt-5-mini
-**Profile:** recommended
-**Token Count:** 32027 (in: 28113, out: 3914)
-**Duration:** 60s (~1.0 GitHub Actions min)
-**agentic-lib transformation cost:** 1
-**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22819981578](https://github.com/xn-intenton-z2a/repository0/actions/runs/22819981578)
-
-### Limits Status
-| Limit | Value | Capacity | Status |
-|---|---|---|---|
-| transformation-budget | 15/32 | 17 remaining |  |
-| max-feature-issues | 0/2 | 2 remaining |  |
-| max-maintenance-issues | 0/1 | 1 remaining |  |
-| max-attempts-per-issue | ?/2 | ? remaining | n/a |
-| max-attempts-per-branch | ?/3 | ? remaining | n/a |
-| features | 4/4 | 0 remaining |  |
-| library | 0/32 | 32 remaining | n/a |
-
-### Closing Notes
-features at capacity (4/4) — actions will be blocked.
-
-### Narrative
-Added a FIZZBUZZ_FORMATTER feature spec describing two new formatted helper exports, their validation, tests, README examples, and a web demo integration so formatting can be demonstrated without changing the canonical API.
-
-Maintained features (4 existing, limit 4)
-
----
 ## maintain-library at 2026-03-08T11:20:26.211Z
 
 **Outcome:** library-maintained
@@ -940,6 +880,67 @@ transformation-budget at capacity (32/32) — actions will be blocked.
 
 ### Narrative
 Created a Vitest library document draft and attempted to write it into library/VITEST.md to add actionable test and CI specifications.
+
+Maintained library (10 docs, limit 32)
+
+---
+## maintain-features at 2026-03-08T14:29:32.029Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 27766 (in: 24916, out: 2850)
+**Duration:** 49s (~0.8 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22823047531](https://github.com/xn-intenton-z2a/repository0/actions/runs/22823047531)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 11/32 | 21 remaining | n/a |
+
+### Closing Notes
+transformation-budget at capacity (32/32) — actions will be blocked.
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Added a comprehensive FIZZBUZZ_TESTS feature spec to define precise unit, CLI and behaviour tests that verify the canonical API, validation, localisation, generator, formatter and stats helpers so the repository meets mission acceptance criteria.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-08T14:31:04.223Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 84414 (in: 79733, out: 4681)
+**Duration:** 92s (~1.5 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22823047531](https://github.com/xn-intenton-z2a/repository0/actions/runs/22823047531)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 12/32 | 20 remaining |  |
+
+### Closing Notes
+transformation-budget at capacity (32/32) — actions will be blocked.
+
+### Narrative
+Created a focused implementation document for FizzBuzz with precise API and error semantics so it can be used directly by implementers and tests.
 
 Maintained library (10 docs, limit 32)
 
