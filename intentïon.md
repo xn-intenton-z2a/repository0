@@ -125,3 +125,63 @@ Created a consolidated ROMAN_NUMERALS library document by fetching SOURCES.md an
 Maintained library (0 docs, limit 8)
 
 ---
+## maintain-features at 2026-03-08T04:46:11.040Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 51846 (in: 50386, out: 1460)
+**Duration:** 24s (~0.4 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22814126841](https://github.com/xn-intenton-z2a/repository0/actions/runs/22814126841)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 5/16 | 11 remaining |  |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining |  |
+| library | 0/8 | 8 remaining | n/a |
+
+### Closing Notes
+features at capacity (2/2) — actions will be blocked.
+
+### Narrative
+Added a STRICT_PARSER feature spec to provide configurable strict parsing for Roman numerals and CLI flag support so strict canonical validation is explicit and testable.
+
+Maintained features (1 existing, limit 2)
+
+---
+## maintain-library at 2026-03-08T04:47:10.340Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 73137 (in: 68248, out: 4889)
+**Duration:** 59s (~1.0 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22814126841](https://github.com/xn-intenton-z2a/repository0/actions/runs/22814126841)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 6/16 | 10 remaining |  |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining | n/a |
+| library | 0/8 | 8 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Created and saved a technical library document for Roman numerals containing symbol tables, deterministic conversion and parsing algorithms, validation rules, Unicode mapping guidance, API signatures, and source attribution to enable direct implementation.
+
+Maintained library (0 docs, limit 8)
+
+---
