@@ -27,4 +27,9 @@ Features must be achievable in a single software repository not part of a corpor
 The feature spec should be a multiline markdown with a few level 1 headings.
 The feature must be compatible with the mission statement in MISSION.md and ideally realise part of the value in the mission.
 The feature must be something that can be realised in a single source file (as below), ideally just as a library, CLI tool or possibly an HTTP API in combination with infrastructure as code deployment.
-The repository also has a website in `src/web/` that uses the JS library. When proposing features, consider both the library API and how the feature could be shown on the website.
+The repository also has a website in `src/web/` that uses the JS library. When proposing features, consider:
+- The library API (`src/lib/main.js`) and its exports
+- How the feature could be demonstrated on the website — features should be visible and interactive
+- Unit tests (`tests/unit/`) that verify exact behaviour at the API level
+- Behaviour tests (`tests/behaviour/`) that verify features work at a high navigational level through the website
+- All layers (library, tests, website, web tests, behaviour tests) must change together in a single transform

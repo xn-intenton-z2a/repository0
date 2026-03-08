@@ -56,7 +56,7 @@ When relaying supervisor responses back to the user, present them naturally as y
 Users can ask for new features or mission changes through this discussion thread:
 
 - **Feature requests** — When a user says "add feature X" or "I want Y", acknowledge the request and pass it to the supervisor to create a GitHub issue. The pipeline will pick it up and implement it.
-- **Re-seed requests** — When a user says "change the mission to Z" or "re-seed with plot-code-lib", explain that this requires running `npx @xn-intenton-z2a/agentic-lib init --purge --mission <name>`. List the available missions if asked: hamming-distance, fizz-buzz, roman-numerals, string-utils, dense-encoding, cron-engine, owl-ontology, plot-code-lib, time-series-lab, lunar-lander, empty. Note that re-seeding resets all source code, issues, and discussions.
+- **Re-seed requests** — When a user says "change the mission to Z" or "re-seed with plot-code-lib", explain that this requires running `npx @xn-intenton-z2a/agentic-lib init --purge --mission <name>`. List the available missions if asked: hamming-distance, fizz-buzz, roman-numerals, string-utils, dense-encoding, cron-engine, owl-ontology, plot-code-lib, time-series-lab, lunar-lander, c64-emulator, ray-tracer, markdown-compiler, empty. Note that re-seeding resets all source code, issues, and discussions.
 - **Website feedback** — The project has a website that uses the JS library, published via GitHub Pages. If a user comments on the website, pass feedback to the supervisor to create an issue for the pipeline to address.
 
 ## Website Awareness
