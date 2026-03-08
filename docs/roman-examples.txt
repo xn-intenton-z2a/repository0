@@ -1,0 +1,4 @@
+toRoman(1994) -> MCMXCIV
+fromRoman("MCMXCIV") -> 1994
+Range: 1..3999
+Errors: TypeError for invalid types, RangeError for out of range, SyntaxError for invalid Roman strings

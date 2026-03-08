@@ -73,16 +73,15 @@ export function fromRoman(s) {
   if (typeof s !== "string") throw new TypeError("fromRoman requires a string");
   if (s.length === 0) throw new SyntaxError("Empty string is not a valid Roman numeral");
 
-  // Use uppercase for validation but reject lowercase as non-canonical
-  if (s !== s.toUpperCase()) throw new SyntaxError("Roman numerals must be uppercase canonical form");
-
-  if (!VALID_ROMAN.test(s)) throw new SyntaxError("Invalid or non-canonical Roman numeral");
+  // Allow lowercase by normalizing for validation
+  const norm = s.toUpperCase();
+  if (!VALID_ROMAN.test(norm)) throw new SyntaxError("Invalid or non-canonical Roman numeral");
 
   let total = 0;
   let i = 0;
-  while (i < s.length) {
-    const cur = TOKEN_MAP[s[i]];
-    const next = i + 1 < s.length ? TOKEN_MAP[s[i+1]] : 0;
+  while (i < norm.length) {
+    const cur = TOKEN_MAP[norm[i]];
+    const next = i + 1 < norm.length ? TOKEN_MAP[norm[i+1]] : 0;
     if (next > cur) {
       total += (next - cur);
       i += 2;
@@ -96,19 +95,50 @@ export function fromRoman(s) {
 
 export default { toRoman, fromRoman, name, version, description, getIdentity };
 
-export function main(args) {
-  if (args?.includes("--version")) {
-    console.log(version);
+function cliExitWithError(err) {
+  const codeMap = { TypeError:2, RangeError:3, SyntaxError:4 };
+  const code = codeMap[err.name] || 1;
+  try {
+    process.stderr.write(JSON.stringify({ error: err.name, message: err.message }) + "\n");
+  } catch {}
+  process.exit(code);
+}
+
+async function runCli(argv) {
+  const args = argv.slice(2);
+  if (args.length === 0) {
+    console.log('Usage: node src/lib/main.js <to-roman|from-roman> <arg|->');
     return;
   }
-  if (args?.includes("--identity")) {
-    console.log(JSON.stringify(getIdentity(), null, 2));
-    return;
+  const cmd = args[0];
+  let input = args[1];
+  if (!input) {
+    // read stdin
+    input = '';
+    for await (const chunk of process.stdin) input += chunk;
+    input = input.trim();
   }
-  console.log(`${name}@${version}`);
+  try {
+    if (cmd === 'to-roman') {
+      if (input === '-') input = (await (async () => { let s=''; for await (const c of process.stdin) s+=c; return s; })()).trim();
+      const n = Number(input);
+      const out = toRoman(n);
+      console.log(out);
+      process.exit(0);
+    } else if (cmd === 'from-roman') {
+      if (input === '-') input = (await (async () => { let s=''; for await (const c of process.stdin) s+=c; return s; })()).trim();
+      const out = fromRoman(input);
+      console.log(String(out));
+      process.exit(0);
+    } else {
+      console.error('Unknown command');
+      process.exit(1);
+    }
+  } catch (err) {
+    cliExitWithError(err);
+  }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2);
-  main(args);
+  runCli(process.argv).catch(cliExitWithError);
 }
