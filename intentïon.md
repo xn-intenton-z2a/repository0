@@ -426,3 +426,64 @@ Created a consolidated technical reference for Roman numeral conversion to suppo
 Maintained library (0 docs, limit 8)
 
 ---
+## maintain-features at 2026-03-08T07:23:28.934Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 72705 (in: 68509, out: 4196)
+**Duration:** 66s (~1.1 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22816387801](https://github.com/xn-intenton-z2a/repository0/actions/runs/22816387801)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 15/16 | 1 remaining |  |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining |  |
+| library | 0/8 | 8 remaining | n/a |
+
+### Closing Notes
+transformation-budget approaching capacity (15/16).
+features at capacity (2/2) — actions will be blocked.
+
+### Narrative
+Refined the STRICT_PARSER feature spec to add explicit --strict/--permissive CLI flags, clarify parseRoman behavior, and ensure tests and README updates are specified for deterministic behavior.
+
+Maintained features (2 existing, limit 2)
+
+---
+## maintain-library at 2026-03-08T07:24:55.548Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 90804 (in: 84722, out: 6082)
+**Duration:** 86s (~1.4 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22816387801](https://github.com/xn-intenton-z2a/repository0/actions/runs/22816387801)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 16/16 | 0 remaining | EXHAUSTED |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining | n/a |
+| library | 0/8 | 8 remaining |  |
+
+### Closing Notes
+transformation-budget at capacity (16/16) — actions will be blocked.
+
+### Narrative
+Extracted technical Roman numeral rules, mappings, algorithms, Unicode code points, API signatures, validation regex, and troubleshooting from the SOURCES.md list to create a directly usable reference document.
+
+Maintained library (0 docs, limit 8)
+
+---

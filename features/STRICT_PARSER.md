@@ -1,7 +1,7 @@
 # STRICT_PARSER
 
 # Summary
-Add an explicit parseRoman API with an opt-in strict parsing mode and make fromRoman strict by default. Expose a --strict CLI flag so consumers and deterministic tests can require canonical Roman numeral validation while allowing permissive parsing via parseRoman when needed.
+Add an explicit parseRoman API with an opt-in strict parsing mode and make fromRoman strict by default. Expose --strict and --permissive CLI flags so consumers and deterministic tests can require canonical Roman numeral validation or opt into permissive parsing when needed.
 
 # Motivation
 The mission permits either rejecting or accepting non-canonical inputs. Making strictness explicit removes ambiguity, ensures deterministic CLI and test behaviour, and gives library consumers a clear opt-in path for permissive parsing when necessary.
@@ -20,9 +20,10 @@ The mission permits either rejecting or accepting non-canonical inputs. Making s
   - Enforce overall ordering so that fromRoman(toRoman(n)) === n for all n in 1..3999.
 
 - CLI behaviour (inside src/lib/main.js guarded by ESM main check)
-  - Arguments: to-roman <number>, from-roman <roman>, and --strict flag for from-roman and no-arg auto-detection.
+  - Commands: to-roman <number>, from-roman <roman>
+  - Flags: --strict (explicit strict parsing for from-roman and no-arg auto-detection), --permissive (use parseRoman with strict:false)
   - to-roman: uses toRoman; on success prints exact Roman string with a single trailing newline and exits 0; for invalid input prints a single-line error starting with RangeError: and exits with code 2.
-  - from-roman: by default uses strict parsing (same as fromRoman); when --strict is provided it is explicit; a --permissive flag may be accepted to call parseRoman(..., {strict:false}). On success prints integer with single trailing newline and exits 0; on invalid input prints a single-line error starting with TypeError: and exits 2.
+  - from-roman: by default uses strict parsing (same as fromRoman); when --permissive is provided call parseRoman(..., {strict:false}). On success prints integer with single trailing newline and exits 0; on invalid input prints a single-line error starting with TypeError: and exits 2.
   - No-arg mode: read one trimmed line synchronously from stdin; auto-detect digits-only versus letters; apply strict parsing for from-roman by default unless --permissive is passed.
   - I/O stability: successful stdout must be exactly the conversion result plus a single newline and no extra logging; error lines must be single-line and deterministic beginning with TypeError: or RangeError: as appropriate.
 
@@ -44,4 +45,3 @@ The mission permits either rejecting or accepting non-canonical inputs. Making s
 # Notes
 - Keep all implementation inside src/lib/main.js and tests in tests/unit/. Do not add new files outside the allowed sets.
 - Update README.md to document parseRoman and the strictness choices, and to show CLI examples that demonstrate strict rejection of IIII and permissive acceptance via parseRoman when requested.
-
