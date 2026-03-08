@@ -245,3 +245,63 @@ Extracted canonical Roman numeral definitions, conversion algorithms, and API sp
 Maintained library (0 docs, limit 8)
 
 ---
+## maintain-features at 2026-03-08T05:31:41.121Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 40392 (in: 36628, out: 3764)
+**Duration:** 51s (~0.8 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22814776214](https://github.com/xn-intenton-z2a/repository0/actions/runs/22814776214)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 9/16 | 7 remaining |  |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining |  |
+| library | 0/8 | 8 remaining | n/a |
+
+### Closing Notes
+features at capacity (2/2) — actions will be blocked.
+
+### Narrative
+Added a single refined feature specification called STRICT_PARSER_V2 that formalizes strict and permissive Roman parsing, CLI flags, tests, and README documentation to remove ambiguity about non-canonical inputs and enable deterministic testing.
+
+Maintained features (2 existing, limit 2)
+
+---
+## maintain-library at 2026-03-08T05:32:32.069Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 75729 (in: 72473, out: 3256)
+**Duration:** 50s (~0.8 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22814776214](https://github.com/xn-intenton-z2a/repository0/actions/runs/22814776214)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 10/16 | 6 remaining |  |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining | n/a |
+| library | 0/8 | 8 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Extracted Roman numerals technical rules and created a normalized library document with implementation APIs, validation rules, and sources for use in the mission.
+
+Maintained library (0 docs, limit 8)
+
+---
