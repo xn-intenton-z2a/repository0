@@ -81,7 +81,7 @@ Table of contents
 
 10. Detailed digest and retrieval metadata
 - Sources used (from repository SOURCES.md):
-  - https://en.wikipedia.org/wiki/Fizz_buzz  (algorithm mapping and canonical rules) - retrieved 2026-03-08; full content obtained
+  - https://en.wikipedia.org/wiki/Fizz_buzz  (algorithm mapping and canonical rules) - retrieved 2026-03-08T22:50:02.857Z; full content obtained
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules  (module export/import, import maps, .mjs vs .js guidance) - retrieved 2026-03-08; content truncated at 20000 characters by crawl
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger  (Number.isInteger semantics and edge cases) - retrieved 2026-03-08; full content obtained
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError  (RangeError usage, constructor and messages) - retrieved 2026-03-08; full content obtained

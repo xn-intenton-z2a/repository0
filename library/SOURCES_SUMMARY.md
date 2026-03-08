@@ -104,7 +104,7 @@ Table of contents
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError  (RangeError constructor, messages, detection)
   - https://www.npmjs.com/package/fizzbuzz  (package metadata and inspection patterns)
   - https://vitest.dev/guide/  (Vitest test runner discovery, CLI, config, CI usage)
-- Retrieval date: 2026-03-08T22:33:23.616Z
+- Retrieval date: 2026-03-08T22:50:02.857Z
 
 5. Attribution and crawl data size
 - Attribution: extracts derived from Wikipedia (Fizz Buzz), MDN Web Docs (Modules, Number.isInteger, RangeError), npm registry reference, and Vitest documentation as listed in project SOURCES.md.

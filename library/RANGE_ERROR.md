@@ -71,7 +71,7 @@ Table of contents
 
 7. Digest and retrieval metadata
 - Source references used to construct this document: MDN RangeError page (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError) and related JavaScript language references listed in SOURCES.md.
-- Retrieval date: 2026-03-08T22:19:29.958Z
+- Retrieval date: 2026-03-08T22:50:02.857Z
 
 8. Attribution and data size
 - Attribution: content collected and condensed from MDN Web Docs (RangeError) and repository SOURCES.md links: Wikipedia FizzBuzz, MDN JavaScript modules, MDN Number.isInteger, NPM fizzbuzz, Vitest guide.
