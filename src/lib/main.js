@@ -99,7 +99,26 @@ export function fromRoman(s, options = {}) {
   return total;
 }
 
-export default { toRoman, fromRoman, name, version, description, getIdentity };
+export function parseRoman(s, options = {}) {
+  const { strict = true } = options;
+  if (typeof s !== 'string') throw new TypeError('parseRoman requires a string');
+  const orig = s;
+  const norm = s.toUpperCase().replace(/[^MDCLXVI]/g, '');
+  const warnings = [];
+  if (norm.length !== s.replace(/\s+/g,'').length) warnings.push('Non-roman characters removed');
+  if (strict) {
+    if (!VALID_ROMAN.test(norm)) throw new SyntaxError('Invalid or non-canonical Roman numeral');
+  } else {
+    if (!/^[MDCLXVI]+$/.test(norm) || norm.length === 0) throw new SyntaxError('Invalid Roman numeral characters');
+    // permissive: normalize common non-canonical forms (e.g., IIII -> IV, VV -> X) by computing value then re-encoding
+    // compute value
+  }
+  const value = fromRoman(norm, { strict: false });
+  const canonical = toRoman(value);
+  return { value, normalized: canonical, warnings };
+}
+
+export default { toRoman, fromRoman, parseRoman, name, version, description, getIdentity };
 
 function cliExitWithError(err) {
   const codeMap = { TypeError:2, RangeError:3, SyntaxError:4 };
@@ -113,11 +132,12 @@ function cliExitWithError(err) {
 async function runCli(argv) {
   const args = argv.slice(2);
   if (args.length === 0) {
-    console.log('Usage: node src/lib/main.js <to-roman|from-roman> <arg|->');
+    console.log('Usage: node src/lib/main.js <to-roman|from-roman|parse-roman> <arg|-> [--strict]');
     return;
   }
   const cmd = args[0];
   let input = args[1];
+  const strict = args.includes('--strict');
   if (!input) {
     // read stdin
     input = '';
@@ -126,15 +146,17 @@ async function runCli(argv) {
   }
   try {
     if (cmd === 'to-roman') {
-      if (input === '-') input = (await (async () => { let s=''; for await (const c of process.stdin) s+=c; return s; })()).trim();
       const n = Number(input);
       const out = toRoman(n);
       console.log(out);
       process.exit(0);
     } else if (cmd === 'from-roman') {
-      if (input === '-') input = (await (async () => { let s=''; for await (const c of process.stdin) s+=c; return s; })()).trim();
       const out = fromRoman(input);
       console.log(String(out));
+      process.exit(0);
+    } else if (cmd === 'parse-roman') {
+      const out = parseRoman(input, { strict });
+      console.log(JSON.stringify(out));
       process.exit(0);
     } else {
       console.error('Unknown command');
