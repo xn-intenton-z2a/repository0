@@ -1,29 +1,37 @@
-# Roman Numerals Library
+# Roman Numerals
 
-This repository implements a small library for converting between integers and Roman numerals.
+A small library to convert between integers (1..3999) and Roman numerals with strict and permissive parsing.
 
-Usage (API):
+Exports (src/lib/main.js):
+- toRoman(number)
+- fromRoman(string, {strict?:boolean})
+- parseRoman(string, {strict:boolean}) -> { valid, value, canonical }
 
-import { toRoman, fromRoman } from './src/lib/main.js'
+Examples
 
-- toRoman(n): converts integer n (1..3999) to canonical Roman numeral string; throws TypeError for non-integers and RangeError for values outside 1..3999.
-- fromRoman(s): converts canonical uppercase Roman numeral string s to integer; throws TypeError for non-string inputs and SyntaxError for invalid/non-canonical numerals.
+Convert number to Roman:
 
-Website demo available at src/web/roman.html. Build with npm run build:web and serve docs/ to open the demo.
+const { toRoman } = require('./src/lib/main.js')
+// toRoman(9) => 'IX'
 
-CLI examples:
+Convert Roman to number (strict by default):
 
-- npm run start:cli then: node src/lib/main.js to-roman 1994
-- npm run start:cli then: node src/lib/main.js from-roman MCMXCIV
+fromRoman('IX') // => 9
+fromRoman('ix') // throws SyntaxError (strict)
+fromRoman('ix', { strict: false }) // => 9
 
-Docs/examples: docs/examples/roman-examples.txt
+CLI Examples
 
-Strict vs permissive parsing:
-- fromRoman(s, {strict: true}) will reject non-canonical forms such as "IIII", "VX", "IIV" by throwing SyntaxError.
-- fromRoman(s, {strict: false}) (default) accepts canonical forms only; non-canonical inputs are rejected to encourage round-trip safety.
+node src/lib/main.js -t 9
+# Outputs:
+# IX
 
-CLI:
-- npm run start:cli then: node src/lib/main.js to-roman 1994
-- npm run start:cli then: node src/lib/main.js from-roman MCMXCIV
+node src/lib/main.js -f IX
+# Outputs:
+# 9
 
-Mission: Implements Roman numeral conversion with canonical subtractive notation (IV, IX, XL, XC, CD, CM).
+node src/lib/main.js -f ix
+# Without --permissive prints an error and exits with code 2
+# With --permissive prints '9' and exits 0
+
+Range: numbers must be integers from 1 to 3999.
