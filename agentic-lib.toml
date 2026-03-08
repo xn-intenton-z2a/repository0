@@ -37,7 +37,7 @@ test = "npm ci && npm test"
 [tuning]
 # Profile sets defaults for all tuning and limit knobs: min | recommended | max
 # Profile definitions live in [profiles.*] sections below.
-profile = "recommended"
+profile = "min"
 #
 # Model selection — each has different strengths:
 #   gpt-5-mini      — Fast, cheap, supports reasoning-effort. Best for CI and iteration.
