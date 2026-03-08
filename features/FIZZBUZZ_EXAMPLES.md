@@ -1,65 +1,49 @@
-# VALIDATION_HELPERS
+# DOCS_EXAMPLES
 
 # Summary
 
-Provide a single, well-specified validation surface for the canonical FizzBuzz library so all runtime modes (library, CLI, HTTP server, web demo, and tests) reuse identical numeric validation semantics and machine-friendly error messages. This feature centralises parsing and validation helpers as named ESM exports in src/lib/main.js and supplies clear acceptance criteria and test guidance.
+Add a compact, testable documentation and examples feature that provides executable usage examples for the canonical FizzBuzz library and centralises example scripts for README and tests. The feature includes: short README usage examples, a small examples/ demo script that exercises named exports (fizzBuzz, fizzBuzzSingle, fizzBuzzWithWords, fizzBuzzFormatted, fizzBuzzStats), and acceptance criteria and test guidance so behaviour tests and reviewers can validate library outputs without changing core library behaviour.
 
 # Specification
 
-- Purpose: Expose small, pure validation functions that enforce the canonical numeric rules required by FIZZBUZZ_CORE and produce stable error types and message substrings so tests and endpoints can reliably assert validation failures.
-- Constraints: Implementation must be dependency-free and added only as named exports from src/lib/main.js. It must not alter existing canonical fizzBuzz/fizzBuzzSingle behaviour.
+- Purpose: Provide authoritative, dependency-free examples and README snippets demonstrating canonical usage patterns: programmatic import, CLI invocation, HTTP handler usage (handler factories), and web demo integration points. Examples must call the library exports rather than reimplement logic.
+- Files touched: README.md (add usage examples section), examples/demo.js (executable examples that import src/lib/main.js), and features/FIZZBUZZ_EXAMPLES.md (this spec).
+- Constraints: Implementation must be pure JS (no new dependencies), use named ESM imports from src/lib/main.js, and produce deterministic outputs that unit tests can assert exactly. Example scripts must not start servers or long-running processes; they should be small functions that return values or print to stdout and exit quickly.
 
-# Public exports
+# Example behaviours to demonstrate
 
-Export the following named ESM functions from src/lib/main.js:
-
-- validateCount(n)
-  - Validates values intended for fizzBuzz (n >= 0 allowed).
-  - On failure: throws TypeError or RangeError with messages that include the canonical substrings number, finite, integer, or ">= 0" as appropriate.
-  - On success: returns the validated numeric value (the same numeric value passed through, not coerced from strings).
-
-- validateSingle(n)
-  - Validates values intended for fizzBuzzSingle (n >= 1 required).
-  - On failure: throws TypeError or RangeError with messages that include canonical substrings number, finite, integer, or ">= 1".
-  - On success: returns the validated numeric value.
-
-- parseAndValidate(query, opts?)
-  - Parses a query-like object (e.g., { n: '15' }) into a numeric value and applies validateCount or validateSingle depending on opts.mode which is 'count' by default or 'single'.
-  - If query.n is missing or cannot be parsed as a finite integer string, throws TypeError with a message containing the substring number.
-  - On success: returns the validated numeric value (number type).
-
-# Error message semantics
-
-- Use TypeError for type/coercion and finiteness/integer failures where appropriate. Messages must include the words number, finite or integer so tests can match substrings.
-- Use RangeError for numeric domain violations. Messages must include comparator text such as ">= 0" or ">= 1" so tests can assert on substrings.
-- Messages should be short and machine-friendly, for example: "n must be a number", "n must be finite", "n must be an integer", "n must be >= 0".
-
-# Testing guidance
-
-- Unit tests must import validateCount, validateSingle and parseAndValidate from src/lib/main.js and assert exact thrown error types and that messages contain required substrings for invalid inputs: string '10', NaN, Infinity, 1.5, -1, and missing n.
-- Tests must assert that valid inputs return the numeric value for both direct numeric inputs and parseable string inputs via parseAndValidate (for example parseAndValidate({ n: '15' }, { mode: 'count' }) returns 15).
-- Add small unit tests that pass pre-parsed query objects to any exported handler factories (HTTP/CLI demo helpers) to prove those handlers call the validation helpers rather than reimplementing checks.
+- Import and call fizzBuzz(15) and log the returned array; show JSON.stringify usage for JSON output.
+- Import and call fizzBuzzSingle(3) and show console.log output.
+- Demonstrate fizzBuzzWithWords(15, { fizz: 'Foo', buzz: 'Bar' }) and show positions of Foo, Bar and FooBar.
+- Demonstrate fizzBuzzFormatted(5, (v,i) => `[${i+1}]:${v}`) and show formatted output.
+- Demonstrate fizzBuzzStats(15) returning counts matching canonical values.
 
 # Acceptance criteria
 
-- validateCount, validateSingle and parseAndValidate are exported as named ESM exports from src/lib/main.js.
-- Validation functions throw TypeError or RangeError with messages containing canonical substrings as required by FIZZBUZZ_CORE: number, finite, integer, >= 0, >= 1.
-- parseAndValidate accepts string inputs for n (typical of query string parsing), validates correctly, and returns a numeric value on success.
-- Unit tests cover successful validation and all invalid categories and pass under the repository test scripts.
-- CLI and HTTP handlers (existing feature specs) can import these helpers and the test suite will be able to assert that handlers map TypeError/RangeError to HTTP 400 with messages containing canonical substrings.
+- README.md contains a Usage section with at least three short examples: importing the library in code, using the CLI mode invocation, and showing JSON output from fizzBuzz(15).
+- examples/demo.js exists (or is updated) with named exports or a main function that returns an object containing results for fizzBuzz(15), fizzBuzzSingle(3), fizzBuzzWithWords(15, {fizz:'Foo',buzz:'Bar'}) and fizzBuzzStats(15). The file must be executable with node examples/demo.js and must exit with code 0 after printing a short summary.
+- Unit tests may import examples/demo.js and assert exact values programmatically; the examples must expose functions or exports amenable to imports (avoid running side-effects on import).
+- Example outputs use the canonical strings Fizz, Buzz, FizzBuzz in the canonical positions and do not alter core library behaviour.
+
+# Testing guidance
+
+- Add or update unit tests to import examples/demo.js and assert example results equal the outputs from direct calls to the named exports from src/lib/main.js (for example: demo.fizzbuzz === fizzBuzz(15)). Tests must not rely on console output; they should call exported functions from the example script.
+- Behaviour tests (optional) may run node examples/demo.js in a subprocess to assert exit code 0 and that stdout contains JSON snippets for the demonstrated values, but primary verification must be achieved by importing example functions directly.
+- Keep example code synchronous and fast; avoid network or file system dependencies beyond reading README or printing to stdout.
 
 # Implementation notes
 
-- Implement as small pure functions in src/lib/main.js so they are tree-shakeable and easy to unit-test.
-- Use only standard Number APIs: typeof, Number.isFinite, Number.isInteger and minimal string-to-number parsing for parseAndValidate (e.g., parseInt with radix 10 followed by canonical checks).
-- Keep messages short and exact to meet substring checks in tests.
-- Do not change behaviour of fizzBuzz or fizzBuzzSingle; these helpers are additive and used by other runtime modes.
+- examples/demo.js should export a single function runExamples() that returns an object with keys: fizzbuzz, single, withWords, stats, formatted. This allows tests to import and assert exact values without side-effects.
+- README snippets should be short, copy-pastable, and reference the library entrypoint import path used in this repository (src/lib/main.js). Provide examples for both ESM import and CLI usage (node src/lib/main.js 15 --format=json).
+- Do not change existing library exports or validation behaviour; examples must call into the library and reuse validation helpers where parsing is required.
 
 # Backwards compatibility
 
-- Additive: adding these named exports must not change any behaviour of existing functions when imported normally.
-- Existing code that does not import the new helpers remains unaffected.
+- This feature is purely documentary and additive. It must not change runtime behaviour of the library when imported; it only adds example scripts and README content.
 
-# Notes
+# Acceptance test checklist (for reviewers)
 
-Centralising validation increases testability and ensures consistent error mapping across all runtime modes without duplicating logic. This feature is intentionally scoped to a single source file and unit-testable in isolation.
+- README contains Usage examples for programmatic import, CLI and JSON output.
+- examples/demo.js exports runExamples and calling it returns the same values as calling the library exports directly for the demonstrated inputs.
+- Unit tests import examples/demo.js and assert equality against direct library calls.
+
