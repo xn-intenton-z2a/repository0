@@ -1,0 +1,114 @@
+TITLE: FIZZ_BUZZ
+
+TABLE_OF_CONTENTS:
+1. Problem Definition and Required Behavior
+2. Input Validation Rules
+3. Output Formatting Rules
+4. Error Conditions and Exceptions
+5. Node & ESM Export Guidance
+6. Testing Recommendations (Vitest)
+7. Supplementary Implementation Details
+8. Reference Specifications and API Signatures
+9. Digest and Retrieval Metadata
+10. Attribution and Data Size
+
+1. Problem Definition and Required Behavior
+- For each integer n in the input range, compute a single string output per n according to rules below.
+- If n is divisible by 3, include token "Fizz" in the output.
+- If n is divisible by 5, include token "Buzz" in the output.
+- If n is divisible by both 3 and 5, output must be the concatenation "FizzBuzz" with no separator.
+- If n is not divisible by 3 or 5, output must be the decimal string representation of n.
+- Provide an API that accepts either a single integer or a sequence/range and returns an array of strings or an iterator yielding strings in order.
+
+2. Input Validation Rules
+- Accept only finite integers. Use Number.isInteger(value) to validate JS numeric inputs.
+- Reject NaN, Infinity, non-integer numbers, and non-number types with a RangeError for out-of-range or invalid numeric ranges and a TypeError for wrong types.
+- For range inputs: validate start, end, and optional step are integers; if end < start and no negative step provided, throw RangeError.
+- Support optional parameters: start (integer, default 1), end (integer, required for range use), step (integer, default 1).
+
+3. Output Formatting Rules
+- Always return strings. Convert numbers using the global String(n) or n.toString() for decimal representation.
+- For combined tokens, ensure token order is exactly "Fizz" then "Buzz" when both conditions hold.
+- No trailing spaces or separators in the output strings; do not include newline characters in returned values.
+
+4. Error Conditions and Exceptions
+- Throw TypeError when input type is not number or when range parameters are missing/invalid types.
+- Throw RangeError when numeric values are out-of-bounds, non-finite, or when step is zero or causes infinite loop.
+- When provided an empty range (start > end with positive step), return an empty array rather than throwing, unless explicitly configured to be strict.
+
+5. Node & ESM Export Guidance
+- Use ECMAScript module named exports; example export signature: export function fizzBuzz(n) { ... } and export function fizzBuzzRange(start, end, step = 1) { ... }
+- For package entry compatibility, provide named exports rather than default where consumers may import specific functions.
+- Ensure package.json has "type": "module" to allow ESM syntax consistent with Node.js ESM guide.
+
+6. Testing Recommendations (Vitest)
+- Write unit tests that assert:
+  a) Single-value behavior for multiples of 3, 5, both, and neither.
+  b) Range behavior including inclusive boundaries and step progression.
+  c) Validation behavior: Number.isInteger-based checks, RangeError and TypeError thrown as specified.
+  d) Edge cases: 0, negative numbers, large numbers, Infinity/NaN, and empty ranges.
+- Use vitest --run for unit test execution. Use coverage when needed: vitest --run --coverage.
+
+7. Supplementary Implementation Details
+- Efficient divisibility checks: compute (n % 3 === 0) and (n % 5 === 0) using integers. Avoid floating-point modulo with non-integers by validating first.
+- For large ranges, implement a generator function using function* to yield values lazily instead of building large arrays.
+- Ensure deterministic iteration order; for parallelized implementations, preserve index order in results.
+
+8. Reference Specifications and API Signatures
+- Number.isInteger(value): returns true iff typeof value === 'number' and is finite with zero fractional part. Use for input validation.
+- RangeError semantics: use new RangeError(message) when numerical range or value constraints are violated.
+- ESM export signatures to implement:
+  export function fizzBuzz(n: number): string
+    - Parameters: n (number, integer, finite)
+    - Returns: string — "Fizz", "Buzz", "FizzBuzz", or String(n)
+  export function fizzBuzzRange(start: number, end: number, step?: number): string[]
+    - Parameters: start (number), end (number), step (number, optional)
+    - Returns: array of strings of length floor((end - start)/step) + 1 when valid
+  export function* fizzBuzzGenerator(start: number, end: number, step?: number): IterableIterator<string>
+    - Parameters: same as fizzBuzzRange
+    - Yields: strings in sequential order
+- Implementation patterns:
+  a) Validate inputs with Number.isInteger and Number.isFinite guard checks.
+  b) Determine flags: isFizz = (n % 3 === 0); isBuzz = (n % 5 === 0).
+  c) Build result: if isFizz and isBuzz return 'FizzBuzz'; else if isFizz return 'Fizz'; else if isBuzz return 'Buzz'; else return String(n).
+  d) For ranges, loop for (let i = start; step>0 ? i<=end : i>=end; i += step) and apply the per-number rule.
+- Configuration options and their effects:
+  - start default 1: affects inclusive lower bound of generated sequence.
+  - step default 1: affects progress direction; step must not be 0.
+  - strictMode (optional boolean): when true, empty/invalid ranges throw RangeError instead of returning empty array.
+
+9. Digest and Retrieval Metadata
+- Source sections used: Wikipedia "Fizz Buzz" (problem definition and variants), MDN Number.isInteger, MDN RangeError, Node.js ESM docs for module export patterns, npm "fizzbuzz" package patterns for API design, Vitest docs for test recommendations, MDN String conversion patterns.
+- Retrieval date: 2026-03-08
+
+10. Attribution and Data Size
+- Attribution: Derived from sources listed in SOURCES.md: Wikipedia (Fizz Buzz), MDN (Number.isInteger, RangeError, String), Node.js ESM docs, npm fizzbuzz package page, Vitest documentation.
+- Data size obtained from crawl: approximately 6 source references listed in SOURCES.md (URLs only); no full-page HTML was retrieved in this document creation stage.
+
+SUPPLEMENTARY DETAILS:
+- Implementation detail: prefer using strict integer validation early to avoid subtle JS coercions; call Number.isInteger(input) === true and Number.isFinite(input) when exposed to untrusted inputs.
+- Generator performance: when working with end-start > 1e6, prefer fizzBuzzGenerator to avoid large memory usage.
+- Packaging: ensure package.json "type": "module" and export named functions in src/index.js or src/lib/main.js per project structure.
+
+REFERENCE DETAILS (Concrete API Signatures):
+- fizzBuzz(n: number) -> string
+  - Throws: TypeError if typeof n !== 'number' or Number.isInteger(n) === false; RangeError if !Number.isFinite(n).
+- fizzBuzzRange(start: number, end: number, step?: number) -> string[]
+  - Throws: TypeError for wrong types; RangeError for step === 0, non-finite numbers, or invalid ranges in strictMode.
+- fizzBuzzGenerator(start: number, end: number, step?: number) -> IterableIterator<string>
+  - Behavior: yields strings per index, supports lazy consumption.
+
+TROUBLESHOOTING PROCEDURES:
+- If outputs include unexpected decimals: confirm Number.isInteger guards are applied and inputs are not coerced from strings.
+- If infinite loops occur when generating ranges: verify step !== 0 and sign of step matches direction from start to end.
+- If test failures for combined token order: enforce concatenation order 'Fizz' + 'Buzz' not 'Buzz' + 'Fizz'.
+
+DIGEST (source summary and retrieval date):
+- Combined material from: Wikipedia Fizz Buzz problem; MDN docs for Number.isInteger and RangeError; Node.js ESM guide for exports; npm fizzbuzz package page demonstrating API patterns; Vitest docs for test patterns; MDN String guidance for conversion.
+- Retrieved: 2026-03-08
+
+ATTRIBUTION:
+- Sources: https://en.wikipedia.org/wiki/Fizz_buzz; https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger; https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError; https://nodejs.org/api/esm.html; https://www.npmjs.com/package/fizzbuzz; https://vitest.dev/; https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String
+- Crawl data: URLs-only listing from SOURCES.md, 6-7 references, no full HTML dumps included in this document.
+
+END_OF_DOCUMENT
