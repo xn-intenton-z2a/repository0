@@ -3,42 +3,80 @@ FIZZBUZZ
 Table of contents
 1. Normalised extract
   1.1 FizzBuzz algorithm and deterministic contract
-  1.2 Input validation and canonical error semantics
-  1.3 API signatures and return types
+  1.2 Input validation and canonical error semantics (exact checks and messages)
+  1.3 API signature and return types
   1.4 Module export/import patterns (ESM & CommonJS)
   1.5 Implementation patterns and complexity
 2. Supplementary details and implementation knobs
-3. Reference details (exact API signatures, messages, configs)
+3. Reference details (exact API signatures, messages, configs, method signatures)
 4. Detailed digest (SOURCES.md excerpt and retrieval metadata)
 5. Attribution and crawl data size
 
 1. Normalised extract
 
 1.1 FizzBuzz algorithm and deterministic contract
-- For each integer i in the inclusive integer range 1..n produce result at index (i-1).
-- Output mapping (priority order):
-  - If i % 15 === 0 then output the exact string: FizzBuzz
-  - Else if i % 3 === 0 then output the exact string: Fizz
-  - Else if i % 5 === 0 then output the exact string: Buzz
-  - Else output the integer i (JavaScript Number when API is typed as Array<string | number>)
-- Deterministic contract:
+- For each integer i in the inclusive integer range 1..n produce an element at result index (i-1).
+- Mapping (apply in this exact priority order):
+  - If i % 15 === 0 then element = the exact string FizzBuzz
+  - Else if i % 3 === 0 then element = the exact string Fizz
+  - Else if i % 5 === 0 then element = the exact string Buzz
+  - Else element = the integer i (JavaScript Number when API declares Array<string | number>)
+- Contract rules that implementations MUST satisfy:
   - Returned array length MUST equal n.
-  - Element order MUST map to integers 1..n.
-  - Elements that are not Fizz/Buzz/FizzBuzz MUST be Number typed values when API declares Array<string | number>.
+  - Element ordering MUST correspond to integers 1..n.
+  - Elements that are not Fizz/Buzz/FizzBuzz MUST be Number typed values (not strings).
 
-1.2 Input validation and canonical error semantics
-- Validation checks and exact throw messages (apply in this order):
+1.2 Input validation and canonical error semantics (exact checks and messages)
+- Perform checks in the following order and throw RangeError with the exact message shown when a check fails:
   1. If Number.isFinite(n) === false then throw new RangeError('n must be finite')
   2. If Number.isInteger(n) === false then throw new RangeError('n must be an integer')
   3. If n < 1 then throw new RangeError('n must be >= 1')
-  4. If n > MAX_N then throw new RangeError('n must be <= ' + MAX_N) where MAX_N is an implementation-chosen safe upper bound
-- Recommended MAX_N: 10000000 (10,000,000). Use RangeError for numeric domain violations only.
+  4. If n > MAX_N then throw new RangeError('n must be <= ' + MAX_N)
+- Use RangeError exclusively for numeric domain/type violations; do not use TypeError for these numeric range checks.
 
-1.3 API signatures and return types
-- Primary function (array-return):
+1.3 API signature and return types
+- Primary export: fizzBuzz
   - Signature: export function fizzBuzz(n: number): Array<string | number>
-  - Parameters: n (required) - integer upper bound; sequence is 1..n inclusive.
-  - Returns: array length n where index (i-1) holds either 'Fizz', 'Buzz', 'FizzBuzz' or the Number i.
+  - Parameter: n (required) — integer upper bound; generate sequence 1..n inclusive
+  - Return: Array of length n containing strings 'Fizz','Buzz','FizzBuzz' or Numbers for non-divisible positions
+  - Behaviour: deterministic mapping as specified in 1.1 and validation as specified in 1.2
+
+1.4 Module export/import patterns (ESM & CommonJS)
+- package.json "type" affects .js interpretation: "module" => .js treated as ESM; otherwise .js treated as CommonJS. Use .mjs for forced ESM and .cjs for forced CommonJS.
+- Recommended export patterns for broad consumption:
+  - ESM named export: export function fizzBuzz(n) { ... }
+  - CommonJS export: module.exports = { fizzBuzz }
+  - Provide both builds or a dual-entry configuration in package.json ("main" for CJS, "module" for ESM) when publishing.
+
+1.5 Implementation patterns and complexity
+- Time complexity: O(n) single pass from 1 to n.
+- Memory: O(n) for returned array; consider streaming/generator alternative for very large n.
+- Use integer arithmetic (modulo operations) and avoid repeated string concatenation inside hot loop; prefer direct conditional branches as specified.
+
+2. Supplementary details
+- Recommended MAX_N value: 10000000 (10 million) as a safe upper bound for public APIs; implementations may choose lower values depending on environment constraints.
+- Validation order must be preserved to ensure exact RangeError messages for callers and tests.
+- For very large n consider emitting results via generator function signature: export function* fizzBuzzStream(max) { for (let i=1;i<=max;i++){ yield ... } }
+
+3. Reference details (exact API signatures, messages, configs, method signatures)
+- Primary function signature (ESM): export function fizzBuzz(n: number): Array<string | number>
+- Primary function signature (CommonJS): function fizzBuzz(n) { /* returns Array<string|number> */ } module.exports = { fizzBuzz }
+- Exact validation messages (must match verbatim):
+  - 'n must be finite'
+  - 'n must be an integer'
+  - 'n must be >= 1'
+  - 'n must be <= ' + MAX_N
+- MAX_N recommendation: const MAX_N = 10000000
+- Error types: throw new RangeError(message)
+
+4. Detailed digest (SOURCES.md excerpt and retrieval metadata)
+- Source URLs included in project SOURCES.md: https://en.wikipedia.org/wiki/Fizz_buzz, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError, https://www.npmjs.com/package/fizzbuzz, https://vitest.dev/guide/
+- Content retrieved and condensed from repository crawl artifacts on 2026-03-08
+
+5. Attribution and crawl data size
+- Attribution: Content consolidated from SOURCES.md crawl references (MDN, Wikipedia, NPM, Vitest) and internal repo digest files.
+- Crawl artifact size (approx): 12 KB extracted technical content
+urns: array length n where index (i-1) holds either 'Fizz', 'Buzz', 'FizzBuzz' or the Number i.
 - String-return variant:
   - Signature: export function fizzBuzzAsString(n: number): Array<string>
   - Returns: numbers coerced to decimal string form.
