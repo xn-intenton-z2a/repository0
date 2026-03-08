@@ -1,0 +1,79 @@
+NORMALISED EXTRACT
+
+Table of contents:
+1. Definition and rules
+2. Core algorithm (loop and divisibility checks)
+3. Edge cases and input validation
+4. Variants and extensions
+5. Complexity and performance considerations
+
+1. Definition and rules
+Replace numbers divisible by 3 with the token "Fizz"; numbers divisible by 5 with "Buzz"; numbers divisible by both 3 and 5 with "FizzBuzz". Counting normally otherwise.
+
+2. Core algorithm (loop and divisibility checks)
+Given positive integer N, for i from 1 to N inclusive perform:
+- If i modulo 15 equals 0: output "FizzBuzz"
+- Else if i modulo 3 equals 0: output "Fizz"
+- Else if i modulo 5 equals 0: output "Buzz"
+- Else: output the decimal representation of i
+Implementation pattern: single pass loop, compute modulus checks in order of combined divisor first to avoid overriding single matches; use integer arithmetic.
+
+3. Edge cases and input validation
+- If N is not a finite integer (NaN, Infinity, non-integer): treat as invalid; use Number.isInteger(N) to validate and throw a RangeError or return empty sequence depending on policy.
+- If N <= 0: define behaviour (empty output or range-based negative sequences). For streaming implementations, allow start and end parameters with validation.
+
+4. Variants and extensions
+- Additional divisors: generalise by mapping divisor -> token; check combined divisibility by computing concatenation of tokens for each divisor or by checking product of divisors for fixed sets.
+- Digit-contains rule: treat numbers containing digits (e.g., digit '5') as matching the divisor rule; implement by string search within decimal representation.
+- Enterprise versions use dependency-injected tokenizer, output writer, and configuration-driven rules to allow testable units.
+
+5. Complexity and performance considerations
+Time complexity: O(N) for producing N outputs. Space: O(1) for streaming outputs; O(N) if materialising the whole sequence. For very large N, stream output to a writer to avoid memory growth.
+
+SUPPLEMENTARY DETAILS
+
+Function signature patterns:
+- fizzBuzz(n: number): string[]  -- returns an array of strings for 1..n
+- fizzBuzzStream(start: number, end: number, writer: (s: string) => void): void  -- writes outputs in order
+
+Input validation recommended:
+- if (!Number.isInteger(n) || !isFinite(n) || n < 0) throw new RangeError('n must be a non-negative integer')
+
+Common test assertions (explicit expected values):
+- fizzBuzz(1)[0] === "1"
+- fizzBuzz(3)[2] === "Fizz"
+- fizzBuzz(5)[4] === "Buzz"
+- fizzBuzz(15)[14] === "FizzBuzz"
+
+REFERENCE DETAILS
+
+Exact implementation pattern (imperative loop):
+- for i from 1 to n:
+  - if i % 15 === 0 => output 'FizzBuzz'
+  - else if i % 3 === 0 => output 'Fizz'
+  - else if i % 5 === 0 => output 'Buzz'
+  - else => output String(i)
+
+Configuration options and effects:
+- divisors: [{divisor:3, token:'Fizz'}, {divisor:5, token:'Buzz'}] -- adding entries extends matching rules
+- mode: 'array' | 'stream' -- determines whether returned value is materialised or written incrementally
+- digitContains: boolean -- if true, also match when number contains the divisor digit
+
+TROUBLESHOOTING
+
+- Incorrect ordering (producing 'Fizz' instead of 'FizzBuzz'): ensure combined check (i%15===0) runs before single checks.
+- Non-integer inputs: validate with Number.isInteger to avoid silent incorrect sequences.
+
+DETAILED DIGEST
+
+Source: https://en.wikipedia.org/wiki/Fizz_buzz
+Retrieved: 2026-03-08
+Extracted technical content: game rules, standard algorithm using divisibility checks, typical use as programming interview screening, variants including digit-containing rules and other divisors.
+
+ATTRIBUTION AND DATA SIZE
+
+Source: Wikipedia - Fizz buzz
+URL: https://en.wikipedia.org/wiki/Fizz_buzz
+Retrieved: 2026-03-08
+Approx bytes retrieved: 3 KB
+
