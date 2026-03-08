@@ -1,0 +1,32 @@
+{
+  "uuid": "0189a000-0000-7000-8000-000000000000",
+  "encodings": {
+    "base62": {
+      "encoded": "0b8h2Z6Q2f6NwDXLq3iX",
+      "meta": {
+        "name": "base62",
+        "charsetLength": 62,
+        "bitsPerChar": 5.954196310386875,
+        "uuidLength": 22
+      }
+    },
+    "base85": {
+      "encoded": "8gK!$)D3v?~Y)@=+e:5",
+      "meta": {
+        "name": "base85",
+        "charsetLength": 85,
+        "bitsPerChar": 6.409459193153452,
+        "uuidLength": 20
+      }
+    },
+    "base91": {
+      "encoded": ";T|nGk<`7Xz}/6R?%aV)",
+      "meta": {
+        "name": "base91",
+        "charsetLength": 91,
+        "bitsPerChar": 6.507780867244143,
+        "uuidLength": 20
+      }
+    }
+  }
+}
