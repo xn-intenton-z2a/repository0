@@ -1,30 +1,26 @@
 # Mission
 
-A JavaScript library for converting between integers and Roman numeral strings.
+A JavaScript library exporting FizzBuzz functions. This is the simplest possible mission — if the pipeline can't complete this and stop, something is fundamentally broken.
 
 ## Core Functions
 
-- `toRoman(n)` — convert an integer (1–3999) to its Roman numeral representation using subtractive notation (IV, IX, XL, XC, CD, CM).
-- `fromRoman(s)` — convert a Roman numeral string back to an integer.
+- `fizzBuzz(n)` — return an array of strings from 1 to n, replacing multiples of 3 with "Fizz", multiples of 5 with "Buzz", and multiples of both with "FizzBuzz".
+- `fizzBuzzSingle(n)` — return the FizzBuzz string for a single positive integer.
 
 ## Requirements
 
-- Throw `RangeError` for numbers outside 1–3999.
-- Throw `TypeError` for invalid Roman numeral strings.
-- Handle subtractive notation correctly (e.g. IV = 4, not IIII).
-- The round-trip property must hold: `fromRoman(toRoman(n)) === n` for all valid n.
+- Handle edge cases: `n = 0` returns an empty array, negative numbers throw `RangeError`, non-integers throw `TypeError`.
 - Export both functions as named exports from `src/lib/main.js`.
-- Comprehensive unit tests including boundary values (1, 3999), subtractive cases, and invalid inputs.
-- README with usage examples and conversion table.
+- Comprehensive unit tests covering normal operation and all edge cases.
+- README with usage examples.
 
 ## Acceptance Criteria
 
-- [ ] `toRoman(1994)` returns `"MCMXCIV"`
-- [ ] `fromRoman("MCMXCIV")` returns `1994`
-- [ ] `toRoman(4)` returns `"IV"`
-- [ ] `fromRoman(toRoman(n)) === n` for all n in 1–3999
-- [ ] `toRoman(0)` throws `RangeError`
-- [ ] `toRoman(4000)` throws `RangeError`
-- [ ] `fromRoman("IIII")` throws or returns `4` (accept either; document the choice)
+- [ ] `fizzBuzz(15)` returns the correct 15-element array ending with "FizzBuzz"
+- [ ] `fizzBuzzSingle(3)` returns "Fizz"
+- [ ] `fizzBuzzSingle(5)` returns "Buzz"
+- [ ] `fizzBuzzSingle(15)` returns "FizzBuzz"
+- [ ] `fizzBuzzSingle(7)` returns "7"
+- [ ] `fizzBuzz(0)` returns `[]`
 - [ ] All unit tests pass
 - [ ] README documents usage with examples
