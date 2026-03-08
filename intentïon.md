@@ -365,3 +365,64 @@ Maintained library (0 docs, limit 8)
 Maintained library (0 docs, limit 8)
 
 ---
+## maintain-features at 2026-03-08T06:25:58.019Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 104139 (in: 100870, out: 3269)
+**Duration:** 55s (~0.9 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22815553788](https://github.com/xn-intenton-z2a/repository0/actions/runs/22815553788)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 13/16 | 3 remaining |  |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining |  |
+| library | 0/8 | 8 remaining | n/a |
+
+### Closing Notes
+transformation-budget approaching capacity (13/16).
+features at capacity (2/2) — actions will be blocked.
+
+### Narrative
+Updated the STRICT_PARSER feature spec to clearly document parseRoman, strict default behaviour, CLI flags, tests, and acceptance criteria so implementation and tests can be added consistently.
+
+Maintained features (2 existing, limit 2)
+
+---
+## maintain-library at 2026-03-08T06:26:32.420Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 50885 (in: 48240, out: 2645)
+**Duration:** 34s (~0.6 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22815553788](https://github.com/xn-intenton-z2a/repository0/actions/runs/22815553788)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 14/16 | 2 remaining |  |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining | n/a |
+| library | 0/8 | 8 remaining |  |
+
+### Closing Notes
+transformation-budget approaching capacity (14/16).
+
+### Narrative
+Created a consolidated technical reference for Roman numeral conversion to support implementation and testing, based on the SOURCES.md links.
+
+Maintained library (0 docs, limit 8)
+
+---
