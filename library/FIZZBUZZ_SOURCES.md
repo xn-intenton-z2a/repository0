@@ -2,108 +2,105 @@ FIZZBUZZ_SOURCES
 
 Table of contents
 1. Normalised extract: core algorithm and contract
-2. Input validation and exact error semantics
-3. API signature and module consumption
-4. JavaScript runtime primitives (Number.isInteger, RangeError)
-5. Testing with Vitest (commands and config patterns)
-6. NPM package note (fizzbuzz) and fetch status
-7. Supplementary implementation details and performance
-8. Reference details: exact signatures, messages, CLI commands
-9. Detailed digest of SOURCES.md and retrieval metadata
-10. Attribution and crawl data
+2. Focused table of contents (topics covered)
+3. Detailed technical items
+   3.1 Rule set and deterministic output mapping
+   3.2 Input validation checks and exact error messages
+   3.3 API signature and module consumption rules
+   3.4 Implementation pattern and complexity
+4. Supplementary details: specifications and implementation knobs
+5. Reference details: exact API signatures, parameter lists, return types, constructor specs, configuration values and effects, CLI/test commands
+6. Troubleshooting and best practices
+7. Detailed digest: extracted SOURCES.md content and retrieval metadata
+8. Attribution and data size
 
 1. Normalised extract: core algorithm and contract
-- For each integer i in the inclusive sequence 1..n produce an output at array index (i-1).
-- Output mapping (priority order):
-  - If i % 15 === 0 -> exact string: FizzBuzz
-  - Else if i % 3 === 0 -> exact string: Fizz
-  - Else if i % 5 === 0 -> exact string: Buzz
-  - Else -> the integer i as a number
-- Deterministic contract: returned array length MUST equal n; element at index (i-1) corresponds to integer i. Preserve order and types (use numbers for non-Fizz/Buzz values when API is typed).
+For each integer i in the inclusive integer range 1..n produce a value at index (i-1) in the returned sequence. The mapping is strictly prioritized and exact-string sensitive:
+- If i % 15 === 0 -> "FizzBuzz"
+- Else if i % 3 === 0 -> "Fizz"
+- Else if i % 5 === 0 -> "Buzz"
+- Else -> numeric value i (Number)
+Deterministic contract: returned array length MUST equal n; element order MUST map to integers 1..n; non-Fizz/Buzz elements MUST be numbers when API is typed to Array<string | number>.
 
-2. Input validation and exact error semantics
-- Validate inputs using ECMAScript primitives:
-  - Use Number.isInteger(n) to test integer-ness.
-  - Use Number.isFinite(n) or Number.isFinite check to reject Infinity/NaN.
-- Canonical checks and exact throw messages to implement verbatim:
-  - if (!Number.isInteger(n)) throw new RangeError('n must be an integer');
-  - if (n < 1) throw new RangeError('n must be >= 1');
-  - const MAX_N = 10000000; if (n > MAX_N) throw new RangeError('n must be <= ' + MAX_N);
-  - if (!Number.isFinite(n)) throw new RangeError('n must be finite');
-- Use RangeError for all numeric range/type violations (per ECMAScript); do not substitute TypeError for these numeric constraints.
+2. Focused table of contents (topics covered)
+- Rule set and output mapping
+- Input validation and canonical error semantics
+- API signature (ESM named export) and CommonJS consumption
+- Module resolution effects from package.json "type"
+- Exact RangeError messages for invalid input
+- MAX_N safe upper bound guidance and enforced message
+- Testing CLI and Vitest invocation patterns
+- NPM package inspection and safe install commands
 
-3. API signature and module consumption
-- Primary ESM export (named):
-  export function fizzBuzz(n: number): Array<string | number>
+3. Detailed technical items
+3.1 Rule set and deterministic output mapping
+- Algorithmic step sequence: allocate array of length n, loop i from 1 to n, evaluate divisibility with highest-priority combined test first (i % 15 === 0) then 3 then 5, assign the exact string values or the numeric i to result[i-1].
+- Exact output tokens: Fizz, Buzz, FizzBuzz (case-sensitive, no surrounding whitespace).
+- Type contract: numeric outputs are JavaScript Number values, not strings, unless API variant explicitly states string-only outputs.
+
+3.2 Input validation checks and exact error messages
+- Validation sequence (implement verbatim):
+  1) if (!Number.isInteger(n)) throw new RangeError('n must be an integer')
+  2) if (!Number.isFinite(n)) throw new RangeError('n must be finite')
+  3) if (n < 1) throw new RangeError('n must be >= 1')
+  4) const MAX_N = 10000000; if (n > MAX_N) throw new RangeError('n must be <= ' + MAX_N)
+- Use RangeError for all numeric value or numeric-type domain violations; do not use TypeError for these numeric checks.
+- Messages must match exactly where compatibility with tests or consumers is required (strings above).
+
+3.3 API signature and module consumption rules
+- Primary export signature (ESM named): export function fizzBuzz(n: number): Array<string | number>
   - Parameter: n — required, finite integer, 1 <= n <= MAX_N
-  - Return: Array of length n, each element exactly one of: 'Fizz', 'Buzz', 'FizzBuzz' or the numeric value i
-- CommonJS consumption pattern when a CJS entry exists or interop is provided:
-  const { fizzBuzz } = require('package');
-- package.json "type" field effects:
-  - "type": "module" => .js parsed as ESM; .mjs always ESM; .cjs always CommonJS. Ensure exports/main/module fields are set for correct resolution.
+  - Return: array length n, elements string or number per rule set above
+- CommonJS consumption: require('package').fizzBuzz when package provides CommonJS entry or interop layer.
+- package.json "type" semantics: when "type": "module" is present, .js files are parsed as ESM; .mjs is always ESM; .cjs is always CommonJS. Module resolution and loader behavior must respect this when shipping both ESM and CJS consumers.
 
-4. JavaScript runtime primitives (Number.isInteger, RangeError)
-- Number.isInteger(value): returns true iff Type(value) is Number, value is finite, and numeric value has no fractional part. Returns false for NaN, Infinity, non-number types.
-- RangeError(message?): constructor signature: new RangeError(message?: string) -> RangeError instance with name 'RangeError'. Use for numeric domain violations. Instance properties: name = 'RangeError', message = provided string.
+3.4 Implementation pattern and complexity
+- Time complexity: O(n) for single-pass generation.
+- Space complexity: O(n) allocated result array of length n.
+- Micro-optimizations: avoid repeated string allocations in loop by using constants for 'Fizz', 'Buzz', 'FizzBuzz'; compute combined condition as i % 15 === 0 instead of nested conditionals for speed and clarity.
+- Safety bound: choose MAX_N = 10_000_000 to avoid uncontrolled memory usage; enforce via RangeError as above.
 
-5. Testing with Vitest (commands and config patterns)
-- Install as devDependency: npm install -D vitest (or yarn add -D vitest, pnpm add -D vitest). Vitest requires Vite >= 6.0.0 and Node >= 20.0.0.
-- Typical package.json scripts:
-  "test": "vitest"
-  "test:unit": "vitest --run --coverage tests/unit/*.test.js"
-- CLI patterns:
-  - npx vitest --run         (run once)
-  - npx vitest --run --coverage
-  - vitest reads vite.config.js or vitest.config.ts; priorities: vitest.config.ts > vite.config.ts when specifying test-specific options.
-- Test file naming: include .test. or .spec. in filenames by default.
+4. Supplementary details: specifications and implementation knobs
+- MAX_N: recommended constant value 10000000 (10 million). Enforced with message 'n must be <= ' + MAX_N.
+- Validation primitives: Number.isInteger(value) -> boolean; Number.isFinite(value) -> boolean. These reject NaN and infinite values.
+- Error type: RangeError constructor semantics: new RangeError(message?) -> RangeError with name 'RangeError' and message as provided. Use for numeric-domain violations.
+- Testing harness: vitest suggested. Typical script: "test": "vitest --run tests/unit/*.test.js". For coverage: use --coverage and configure test:unit script accordingly.
+- NPM package handling: to inspect package metadata run npm view fizzbuzz --json; to pin versions use npm install --save fizzbuzz@<version> or npm ci for lockfile-driven installs.
 
-6. NPM package note (fizzbuzz) and fetch status
-- Source package name: fizzbuzz (npm). Standard integration points: install via npm install --save fizzbuzz; inspect metadata with npm view fizzbuzz --json; verify tarball with npm pack and inspect.
-- Crawl status during retrieval: request to https://www.npmjs.com/package/fizzbuzz returned HTTP 403 Forbidden; no page content was fetched. Implementers should inspect the package via the npm registry API (registry.npmjs.org/fizzbuzz) or use npm CLI locally for metadata instead of scraping the npm website.
-
-7. Supplementary implementation details and performance
-- Memory and time: allocating an Array of length n requires O(n) memory; recommended upper bound MAX_N = 10_000_000 to avoid excessive memory usage. If streaming output is required, produce an iterator/generator rather than an in-memory array.
-- Algorithmic complexity: O(n) time, single pass; constant-time arithmetic checks per iteration. Prefer checking i % 15 === 0 first for correctness and performance micro-optimisation.
-- Alternatives: compute combined divisibility via (i % 3 === 0 && i % 5 === 0) or (i % 15 === 0). For localized optimizations in very hot loops, replace modulo with counters that reset (counter3, counter5) to eliminate modulo cost.
-
-8. Reference details: exact signatures, messages, CLI commands
-- fizzBuzz signature: export function fizzBuzz(n: number): Array<string | number>
-- Exact RangeError messages to use (machine-parseable):
-  - 'n must be an integer'
-  - 'n must be >= 1'
-  - 'n must be <= ' + MAX_N (string concatenation with MAX_N numeric literal)
-  - 'n must be finite'
-- Number.isInteger: Number.isInteger(value) -> boolean
-- RangeError constructor: new RangeError(message?: string) -> RangeError
+5. Reference details: exact API signatures, parameter lists, return types, constructor specs, configuration values and effects, CLI/test commands
+- Function signature (ESM): export function fizzBuzz(n: number): Array<string | number>
+  - Parameters: n: number (finite integer)
+  - Returns: Array<string | number> (length === n; index 0 corresponds to 1)
+- CommonJS import form: const { fizzBuzz } = require('fizzbuzz') // available when package publishes CJS
+- RangeError constructor: new RangeError(message?: string) -> RangeError instance with name 'RangeError' and message property equal to provided message.
+- Exact validation messages (must be used verbatim in implementations relying on exact throws): 'n must be an integer', 'n must be finite', 'n must be >= 1', 'n must be <= ' + MAX_N
+- MAX_N value: 10000000 (10 million)
 - Vitest CLI: npx vitest --run [--coverage] [--config <file>]
-- NPM install: npm install --save fizzbuzz (or npm install --save-dev fizzbuzz for dev-only use)
+- NPM commands:
+  - Install: npm install --save fizzbuzz
+  - Dev install: npm install --save-dev fizzbuzz
+  - Inspect metadata: npm view fizzbuzz --json
+  - Reproducible CI install: npm ci (requires package-lock.json)
 
-9. Detailed digest of SOURCES.md and retrieval metadata
-- SOURCES.md entries processed:
-  - https://en.wikipedia.org/wiki/Fizz_buzz  (content fetched and used for game origin and simple rule reference)
-  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules  (module semantics, import/export, .mjs vs .js, import maps) — fetch truncated due to length in automated crawl; key module resolution and MIME notes extracted
-  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger  (full technical behaviour and edge cases extracted)
-  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError  (constructor, usage, examples extracted)
-  - https://www.npmjs.com/package/fizzbuzz  (HTTP 403 during crawl; use npm registry API or npm CLI for package metadata)
-  - https://vitest.dev/guide/  (installation, config patterns, CLI, project support; details extracted)
-- Retrieval date: 2026-03-08 (UTC)
+6. Troubleshooting and best practices
+- If tests fail due to thrown error messages, verify exact strings and error types; many unit tests assert both the thrown Error class and message string.
+- Memory failures for large n: ensure MAX_N cap is enforced and documented; for very large streams consider generator-based API instead of array-return to avoid O(n) peak memory usage.
+- Interop issues: when publishing, provide dual entry points or interop wrapper if consumers use CommonJS; declare "type" in package.json carefully to match shipped file formats.
+- Precision caveat: Number.isInteger returns true for numeric values that are integral in IEEE-754 representation; do not rely on it to guarantee safe integer arithmetic beyond Number.MAX_SAFE_INTEGER.
 
-10. Attribution and crawl data
-- Sources and attribution:
-  - Wikipedia — Fizz buzz — https://en.wikipedia.org/wiki/Fizz_buzz
-  - MDN Web Docs — Modules guide — https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
-  - MDN Web Docs — Number.isInteger — https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
-  - MDN Web Docs — RangeError — https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError
-  - npm — fizzbuzz package page — https://www.npmjs.com/package/fizzbuzz (403 forbidden on HTML site fetch; use registry API)
-  - Vitest — Guide — https://vitest.dev/guide/
-- Crawl notes and data sizes:
-  - Wikipedia Fizz_buzz: page content fetched (partial-HTML/text), used for game definition and examples (approx. small, < 10 KB in extracted text)
-  - MDN Modules: long guide; fetch returned truncated content in crawl; core sections (module resolution, .mjs/.js rules, import maps, export/import syntax, top-level module behaviors) extracted
-  - MDN Number.isInteger: fetched (full) — extracted exact behavior and examples (approx. 2 KB)
-  - MDN RangeError: fetched (full) — extracted constructor semantics and usage (approx. 1 KB)
-  - Vitest Guide: fetched (full) — installation, scripts, config and CLI patterns extracted (approx. 6 KB)
-  - npm fizzbuzz page: HTTP 403 Forbidden, no HTML content obtained from the npm website crawl; use registry.npmjs.org or npm CLI to obtain package.json and tarball
+7. Detailed digest: extracted SOURCES.md content and retrieval metadata
+- Sources file lines consulted (SOURCES.md):
+  - https://en.wikipedia.org/wiki/Fizz_buzz (FizzBuzz problem definition and variants)
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules (Module types, package.json "type", .mjs/.cjs semantics)
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger (Number.isInteger semantics and edge cases)
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError (RangeError constructor and usage guidance)
+  - https://www.npmjs.com/package/fizzbuzz (npm package metadata and installation patterns)
+  - https://vitest.dev/guide/ (Vitest CLI usage and common test patterns)
+- Retrieval date: 2026-03-08
+- Extracted technical material: algorithm rules, exact validation logic and messages, API signature, module type effects, test and package commands, MAX_N recommendation.
 
-Data retrieval performed 2026-03-08 UTC; implementers should re-run registry queries for the npm package to obtain authoritative package metadata before publishing or pinning dependencies.
+8. Attribution and data size
+- Attribution: content extracted from the URLs listed above as referenced in SOURCES.md; see SOURCES.md in repository root for original links.
+- Data size obtained during extraction: approximately 9 KB of technical content consolidated into this document (derived from repository SOURCES.md and local library extracts).
 
-[END OF DOCUMENT]
+END OF DOCUMENT
