@@ -5,3 +5,4 @@ toRoman(40) => XL
 toRoman(1994) => MCMXCIV
 toRoman(3999) => MMMCMXCIX
 fromRoman('MCMXCIV') => 1994
+Round trip example: fromRoman(toRoman(2014)) => 2014

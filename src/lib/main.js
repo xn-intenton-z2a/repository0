@@ -69,13 +69,19 @@ const TOKEN_MAP = { M:1000, D:500, C:100, L:50, X:10, V:5, I:1 };
  * @throws {TypeError} when s is not a string
  * @throws {SyntaxError} when s is not a valid canonical Roman numeral
  */
-export function fromRoman(s) {
+export function fromRoman(s, options = {}) {
+  const { strict = true } = options;
   if (typeof s !== "string") throw new TypeError("fromRoman requires a string");
   if (s.length === 0) throw new SyntaxError("Empty string is not a valid Roman numeral");
 
   // Allow lowercase by normalizing for validation
   const norm = s.toUpperCase();
-  if (!VALID_ROMAN.test(norm)) throw new SyntaxError("Invalid or non-canonical Roman numeral");
+  if (strict) {
+    if (!VALID_ROMAN.test(norm)) throw new SyntaxError("Invalid or non-canonical Roman numeral");
+  } else {
+    // permissive: allow some common non-canonical repeats but still basic validation
+    if (!/^[MDCLXVI]+$/.test(norm)) throw new SyntaxError("Invalid Roman numeral characters");
+  }
 
   let total = 0;
   let i = 0;
