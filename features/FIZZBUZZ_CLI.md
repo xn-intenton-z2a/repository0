@@ -32,3 +32,41 @@ Acceptance criteria
 Notes
 
 This feature adds a small, well-scoped extension to the CLI to make automated checks and demos easier. Implementation should be a short runtime branch in src/lib/main.js that parses process.argv and calls the library exports. The JSON output must be produced by serialising the array returned by fizzBuzz and localisation must be achieved by calling the additive helpers; do not duplicate core logic or modify canonical functions.
+
+# FIZZBUZZ_WEB
+
+Summary
+
+Add a small interactive web demo that uses the canonical library exports to demonstrate fizzBuzz, fizzBuzzSingle, formatting and label overrides in the browser. The demo should be a single self-contained page under src/web/ that can be copied to docs/ by the existing build:web script and exercised by behaviour tests. The page is purely demonstrative and must not alter the library runtime behaviour.
+
+Specification
+
+- Create a single demo page file in src/web/ (for example src/web/fizzbuzz-demo.html) that loads the library from src/lib/main.js or a small browser-facing bundle and provides a minimal UI:
+  - An input for n (positive integer), with client-side validation and helpful error text.
+  - Controls for output format: one-per-line text and JSON (mirror CLI --format behaviour).
+  - Optional inputs for label overrides fizz and buzz (comma or two separate fields) that call the library's fizzBuzzWithWords / fizzBuzzSingleWithWords helpers for display.
+  - A Render button that displays the resulting sequence in a scrollable area and a copy-to-clipboard affordance for JSON output.
+  - The UI must always use the library helpers rather than reimplementing logic.
+- The demo page must be static and dependency-free (vanilla ES modules and DOM APIs only) so build:web can copy it into docs/ without a bundler change.
+- Provide a short accessibility-minded layout: labelled inputs, accessible buttons, and results in a pre element for predictable formatting.
+- When the demo is opened after running npm run build:web, the page must function in browsers targeted by Playwright used in tests and must not require a server beyond the static docs/ serve step used in start and test:behaviour workflows.
+
+Testing guidance
+
+- Add behaviour tests (Playwright) that run npm run build:web then open the demo page and assert interactive behaviour:
+  - Enter 15, choose one-per-line, click Render, and assert the page shows 15 lines with the last line FizzBuzz.
+  - Enter 15, choose JSON, click Render, parse the resulting JSON and assert it matches the programmatic output of fizzBuzz(15) imported into the test harness.
+  - Enter labels fizz=Foo and buzz=Bar and assert Foo/Bar/FooBar appear at expected positions in the output.
+  - Assert the demo shows a user-facing validation message and prevents rendering when n is invalid (empty, non-integer, negative).
+- Unit tests should verify that the demo imports and calls the library helpers where possible (for example a small DOM-binding helper exported from the demo can be unit-tested), but primary assertions are end-to-end via Playwright.
+
+Acceptance criteria
+
+- A static demo page exists in src/web/ and is copied into docs/ by the build:web script.
+- The page uses only the library exports to generate fizzBuzz output; no duplicate fizzBuzz logic in the page.
+- Behaviour tests verify that the page renders correct outputs for n=15 in both line and JSON modes and correctly applies label overrides.
+- The demo validates input and shows user errors for invalid n without crashing.
+
+Notes
+
+- Keep the demo small and dependency-free to avoid changing package.json or adding bundlers; use native ES modules and small compatibility shims if necessary. The demo is a pedagogical aid for reviewers and can be extended later to show formatters and other helpers but must remain readable and single-file initially.
