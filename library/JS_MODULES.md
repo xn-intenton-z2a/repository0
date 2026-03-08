@@ -90,7 +90,7 @@ Table of contents
 
 12. Digest and retrieval metadata
 - Source section extracted: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules as listed in project SOURCES.md
-- Retrieval date: 2026-03-08T20:32:35.565Z
+- Retrieval date: 2026-03-08T20:37:15.199Z
 - Extracted content focuses on implementation-level rules and examples of module syntax, resolution, package.json keys, interop behaviors, and loader semantics.
 
 13. Attribution and data size
