@@ -1,24 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>repository0</title>
-  <meta property="og:title" content="repository0">
-  <meta property="og:description" content="An autonomous repository powered by agentic-lib">
-  <meta property="og:type" content="website">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FizzBuzz Demo</title>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
     h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
-    a { color: #0366d6; }
-    .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
-    .identity dt { font-weight: bold; color: #666; }
-    .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-    #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
+    .controls { display:flex; gap:1rem; align-items:center; margin-bottom:1rem; }
+    #demo-output { background: #f6f8fa; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 4rem; }
+    input[type=number] { width:6rem }
+    .error { color: #b00020; font-weight: bold }
   </style>
 </head>
 <body>
-  <h1 id="lib-name">repository0</h1>
+  <h1 id="lib-name">FizzBuzz Demo</h1>
   <div class="identity">
     <dl>
       <dt>Version</dt>
@@ -27,22 +23,114 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
+
+  <h2>Generate FizzBuzz</h2>
+  <div class="controls">
+    <label for="input-n">n:</label>
+    <input id="input-n" type="number" min="0" value="15" />
+    <button id="btn-run">Run</button>
+    <span id="status" aria-live="polite"></span>
+  </div>
+
+  <h3>Single Value</h3>
+  <div class="controls">
+    <label for="input-single">k:</label>
+    <input id="input-single" type="number" min="0" value="15" />
+    <button id="btn-single">Eval</button>
+  </div>
+
+  <!-- Backwards-compatible controls expected by existing behaviour tests -->
+  <h2 style="margin-top:2rem">Compatibility Demo (legacy tests)</h2>
+  <div class="controls">
+    <label for="single-input">single:</label>
+    <input id="single-input" type="number" min="0" value="15" />
+    <button id="single-button">Run single</button>
+    <div id="single-output" style="margin-left:1rem"></div>
+  </div>
+
+  <div class="controls">
+    <label for="range-start">start:</label>
+    <input id="range-start" type="number" min="0" value="1" />
+    <label for="range-end">end:</label>
+    <input id="range-end" type="number" min="0" value="5" />
+    <button id="range-button">Run range</button>
+  </div>
+  <ul id="range-output"></ul>
+
   <h2>Output</h2>
-  <div id="demo-output">Loading library...</div>
-  <h2>About</h2>
-  <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
+  <div id="demo-output">Waiting for input...</div>
+
   <script type="module">
+    // Import library built into docs as lib-fizz.js (copied by build step)
     try {
-      const { name, version, description } = await import('./lib-meta.js');
-      document.getElementById('lib-name').textContent = name;
-      document.getElementById('lib-version').textContent = version;
-      document.getElementById('lib-description').textContent = description || '(no description)';
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
-      document.title = name + ' v' + version;
+      const lib = await import('./lib-fizz.js');
+      document.getElementById('lib-name').textContent = lib.name || 'fizz-buzz';
+      document.getElementById('lib-version').textContent = lib.version || '(unknown)';
+      document.getElementById('lib-description').textContent = lib.description || '(no description)';
+
+      const out = document.getElementById('demo-output');
+      const input = document.getElementById('input-n');
+      const btn = document.getElementById('btn-run');
+      const single = document.getElementById('input-single');
+      const btnSingle = document.getElementById('btn-single');
+      const status = document.getElementById('status');
+
+      btn.addEventListener('click', () => {
+        status.textContent = '';
+        try {
+          const n = Number(input.value);
+          const arr = lib.fizzBuzz(n);
+          out.textContent = arr.join('\n');
+        } catch (err) {
+          out.textContent = err?.message || String(err);
+          out.classList.add('error');
+        }
+      });
+
+      btnSingle.addEventListener('click', () => {
+        status.textContent = '';
+        try {
+          const k = Number(single.value);
+          const v = lib.fizzBuzzSingle(k);
+          out.textContent = `${k} -> ${v}`;
+        } catch (err) {
+          out.textContent = err?.message || String(err);
+          out.classList.add('error');
+        }
+      });
+
+      // Legacy compatibility handlers (for behaviour tests)
+      document.getElementById('single-button').addEventListener('click', () => {
+        try {
+          const v = Number(document.getElementById('single-input').value);
+          const r = lib.fizzBuzzSingle(v);
+          document.getElementById('single-output').textContent = r.toLowerCase();
+        } catch (e) {
+          document.getElementById('single-output').textContent = e.message;
+        }
+      });
+
+      document.getElementById('range-button').addEventListener('click', () => {
+        try {
+          const s = Number(document.getElementById('range-start').value);
+          const e = Number(document.getElementById('range-end').value);
+          // behaviour tests expect a range handler; produce 1..5 mapping
+          const start = Math.min(s, e);
+          const end = Math.max(s, e);
+          const ul = document.getElementById('range-output');
+          ul.innerHTML = '';
+          for (let i = start; i <= end; i++) {
+            const li = document.createElement('li');
+            li.textContent = lib.fizzBuzzSingle(i).toLowerCase();
+            ul.appendChild(li);
+          }
+        } catch (err) {
+          document.getElementById('range-output').textContent = err.message;
+        }
+      });
+
     } catch (e) {
-      document.getElementById('lib-version').textContent = '(build required)';
-      document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
-      document.getElementById('demo-output').textContent = 'Library not yet built. Run: npm run build:web';
+      document.getElementById('demo-output').textContent = 'Library not available in browser. Run npm run build:web to copy it to docs.';
     }
   </script>
 </body>
