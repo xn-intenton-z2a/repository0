@@ -2,20 +2,20 @@
 
 # Summary
 
-Provide a compact, dependency-free examples module and README usage snippets that demonstrate the canonical FizzBuzz library and its additive helpers. The examples must call the named ESM exports from src/lib/main.js (fizzBuzz, fizzBuzzSingle, fizzBuzzWithWords, fizzBuzzFormatted, fizzBuzzStats, fizzBuzzGenerator) and expose a single programmatic entry point for unit tests and optional CLI execution.
+Provide a compact, dependency-free examples module and README usage snippets that demonstrate the canonical FizzBuzz library and its additive helpers. The examples must call the named ESM exports from src/lib/main.js and expose a single programmatic entry point for unit tests and optional CLI execution.
 
 # Specification
 
 - Purpose: Offer authoritative, deterministic examples and short README snippets that show programmatic import, CLI invocation, label overrides, formatted output, statistics, and generator parity, using only the library exports.
-- Files to provide or update: README.md (add or extend Usage and Examples snippets) and examples/demo.js (export runExamples and support CLI invocation when executed directly). Do not modify other files.
-- Constraints: Examples must be plain ES modules, dependency-free, synchronous, fast, and must not start servers or long-running processes. Import-time side-effects are forbidden; any execution must occur only when runExamples is called or when executed as a script.
+- Files to provide or update: README.md (extend Usage and Examples sections) and examples/demo.js (export runExamples and support CLI invocation when executed directly). Do not modify other files.
+- Constraints: Examples must be plain ES modules, dependency-free, synchronous, fast, and must not start servers or long-running processes. Import-time side-effects are forbidden; execution must occur only when runExamples is called or when executed as a script.
 
 # Behavior to demonstrate
 
 - Programmatic import: calling fizzBuzz(15) returns an array whose last element is exactly the string FizzBuzz.
 - Single value: calling fizzBuzzSingle(3) returns the string Fizz.
-- Custom words: fizzBuzzWithWords(15, { fizz: 'Foo', buzz: 'Bar' }) produces Foo, Bar and FooBar at canonical positions while leaving canonical functions unchanged.
-- Formatting: fizzBuzzFormatted(5, formatter) maps each value using the provided formatter and validates formatter must be a function.
+- Custom words: calling fizzBuzzWithWords(15, { fizz: 'Foo', buzz: 'Bar' }) produces Foo, Bar and FooBar at canonical positions and does not change canonical functions.
+- Formatting: fizzBuzzFormatted(5, formatter) maps each value using the provided formatter and validates that formatter must be a function.
 - Statistics: fizzBuzzStats(15) returns counts matching a scan of fizzBuzz(15), for example { fizz:4, buzz:2, fizzBuzz:1, numbers:8, total:15 }.
 - Generator parity: Array.from(fizzBuzzGenerator(5)) strictly equals fizzBuzz(5).
 
@@ -37,7 +37,7 @@ Provide a compact, dependency-free examples module and README usage snippets tha
 
 - Write unit tests that import runExamples and call runExamples({ n: 15, words: { fizz: 'Foo', buzz: 'Bar' } }) and assert outputs exactly match the results of calling the library exports directly with the same inputs.
 - Add unit tests that assert fizzBuzzStats(15) equals the expected counts object and that Array.from(fizzBuzzGenerator(5)) equals fizzBuzz(5).
-- Behaviour tests may execute node examples/demo.js as a subprocess to assert exit code 0 and parse stdout JSON, but primary verification should be import-based.
+- Behaviour tests may execute node examples/demo.js as a subprocess to assert exit code 0 and parse stdout JSON, but primary verification should be import-based to avoid flakiness.
 
 # Implementation notes
 
