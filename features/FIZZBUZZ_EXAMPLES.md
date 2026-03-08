@@ -1,61 +1,66 @@
-# FIZZBUZZ_TYPES
+# FIZZBUZZ_WEB
 
 # Summary
 
-Add small, hand-authored TypeScript declaration file for the canonical FizzBuzz library and wire it into package.json so TypeScript-aware tooling picks up accurate types without introducing a TypeScript build step or new dependencies.
+Provide a small, dependency-free static web demo for the canonical FizzBuzz library and retain the existing TypeScript declaration guidance. The demo will be an accessible single-file page under src/web/ that imports the library helpers for rendering and supports interactive validation, formatting, and label overrides. This update preserves the TypeScript declarations feature and folds the web demo into the same feature file to stay within the repository feature limit.
 
 # Specification
 
-- Purpose: Provide lightweight, maintainable TypeScript declarations for the public API exported by src/lib/main.js so consumers get correct types from editors and bundlers.
-- Target files to create/update:
-  - src/lib/main.d.ts  (new declaration file)
-  - package.json       (add top-level "types" field pointing to src/lib/main.d.ts)
-  - README.md          (add a one-line note referencing src/lib/main.d.ts)
+- Purpose: ship a static, browser-friendly demonstration of the canonical API so reviewers and behaviour tests can exercise interactive UI flows without adding build tooling or runtime dependencies.
 
-- Declaration content requirements (src/lib/main.d.ts):
-  - Must use only named exports (no default export) matching the canonical API in FIZZBUZZ_CORE:
-    - export function fizzBuzz(n: number): string[];
-    - export function fizzBuzzSingle(n: number): string;
-    - export function fizzBuzzFormatted(n: number, formatter: (value: string, index: number) => string): string[];
-    - export function fizzBuzzSingleFormatted(n: number, formatter: (value: string, index: number) => string): string;
-    - export function fizzBuzzStats(n: number): { fizz: number; buzz: number; fizzBuzz: number; numbers: number; total: number };
-    - export function fizzBuzzGenerator(n: number): IterableIterator<string>;
-    - export function fizzBuzzWithWords(n: number, words?: { fizz?: string; buzz?: string }): string[];
-    - export function fizzBuzzSingleWithWords(n: number, words?: { fizz?: string; buzz?: string }): string;
-  - Keep signatures simple and avoid advanced TypeScript features. The file is purely declarative and must not change runtime behaviour.
+- Primary deliverables:
+  - Add: src/web/fizzbuzz-demo.html  (static ES module demo, dependency-free)
+  - Update: package.json build:web script already copies src/web into docs/; ensure the demo is picked up by npm run build:web and by start/test:behaviour flows.
+  - Preserve: TypeScript declaration guidance from the previous examples feature (src/lib/main.d.ts and package.json.types) — do not remove this requirement.
 
-# Files changed by this feature
+- Demo requirements:
+  - Input for n (positive integer) with client-side validation and explicit user-facing error messages.
+  - Controls for output format: one-per-line and JSON, mirroring CLI --format behaviour.
+  - Optional inputs for label overrides fizz and buzz (two separate text fields) that call fizzBuzzWithWords and fizzBuzzSingleWithWords for display without altering canonical outputs.
+  - Render button that displays results in a scrollable pre element for text mode and a formatted JSON block for JSON mode.
+  - Copy-to-clipboard button for JSON output.
+  - Accessible semantics: labelled inputs, buttons with aria-labels, and results placed in a pre element with role="status" for screen readers.
+  - The demo must only call exported library functions; no duplicate FizzBuzz logic in the page.
+  - The page must be purely static and dependency-free; use native ES modules and DOM APIs only.
 
-- Add: src/lib/main.d.ts (declaration file)
-- Patch: package.json (add "types": "src/lib/main.d.ts")
-- Patch: README.md (append or update a one-line note: TypeScript declarations available at src/lib/main.d.ts)
+# TypeScript declarations (preserved)
 
-Note: Implementation must avoid adding new dependencies or build steps.
-
-# Acceptance criteria
-
-- src/lib/main.d.ts exists and exports the named declarations exactly as specified above.
-- package.json contains a top-level "types" field with the value "src/lib/main.d.ts".
-- README.md contains the substring "TypeScript declarations available at src/lib/main.d.ts" or equivalent one-line note referencing that path.
-- No runtime codepaths are changed and no new dependencies are added to package.json.
-- Unit tests and behaviour tests are not modified as part of this change (type declarations only).
+- Keep the earlier TypeScript declaration deliverables and acceptance criteria:
+  - Add: src/lib/main.d.ts with named exports matching FIZZBUZZ_CORE signatures.
+  - Patch: package.json to include "types": "src/lib/main.d.ts" and add a one-line note to README.md referencing the declarations path.
+  - Do not introduce new devDependencies or a TypeScript build step.
 
 # Testing guidance
 
-- Automated check: a CI job or unit script can assert that src/lib/main.d.ts exists and that package.json.types === "src/lib/main.d.ts".
-- Optional developer check: run tsc --noEmit against a minimal consumer file that imports the named exports; this is advisory and not required for acceptance.
+- Behaviour tests (Playwright) should run npm run build:web then open docs/fizzbuzz-demo.html and assert interactive behaviour:
+  - Enter 15, choose one-per-line, click Render, assert 15 lines are displayed and the last line equals FizzBuzz.
+  - Enter 15, choose JSON, click Render, parse JSON and assert it matches the programmatic output of fizzBuzz(15) imported by the page.
+  - Enter fizz=Foo and buzz=Bar in the label fields and assert Foo, Bar and FooBar appear at the canonical positions in output.
+  - Assert the demo prevents rendering and shows validation message when n is invalid (empty, non-integer, negative).
 
-# Backwards compatibility
+- Unit tests may export a small DOM-binding helper from the demo (for example a function that renders given inputs into a string) and assert it uses library helpers; primary assertions remain end-to-end via Playwright.
 
-- Declarations are additive only and must not alter runtime exports, side effects, or existing tests.
-- No source code build or transpilation is required; the declarations are informational for TypeScript toolchains.
+# Acceptance criteria
+
+- src/web/fizzbuzz-demo.html exists, is static, and dependency-free.
+- build:web copies the demo into docs/ so npm run build:web and start produce the static demo in docs/fizzbuzz-demo.html.
+- The demo uses only the library exports for computation; no FizzBuzz logic duplicated in the demo page.
+- Playwright behaviour tests can interact with the demo on localhost and assert the exact JSON shapes and line outputs required by FIZZBUZZ_CORE and FIZZBUZZ_API specifications.
+- TypeScript declaration guidance remains present: src/lib/main.d.ts is specified and package.json contains the types field pointing to it.
+- No new runtime or dev dependencies are added to package.json.
 
 # Implementation notes
 
-- Hand-write the declaration file to mirror the canonical API in src/lib/main.js. Avoid generating it from source.
-- Keep the file short, reviewable and placed at src/lib/main.d.ts so editors and bundlers discover it automatically.
-- When updating package.json, only add the types field; do not reorder or otherwise reformat package.json except for the minimal insertion.
+- Implement the demo as a single-file ES module using type="module" and dynamic import of the library entry where necessary; fall back to using a lightweight browser-friendly build if the library entry cannot be imported directly but avoid adding build steps by preferring an ESM-compatible runtime import path.
+- Keep UI logic minimal: parse inputs with Number APIs, validate using the same rules as the canonical functions, then call fizzBuzz, fizzBuzzWithWords, or fizzBuzzSingleWithWords to render results.
+- Do not change library exports or behaviour; the demo must import and call them only.
+- For testability, export a small pure rendering helper from the demo file as a named export (for unit tests run in Node via jsdom or a small harness) that accepts parsed inputs and returns serialisable output; unit tests can import this helper without spinning a browser.
+
+# Backwards compatibility
+
+- This feature is additive: it only adds a static demo and TypeScript declaration guidance and does not alter existing library behaviour or tests.
+- No new dependencies or build steps are required; existing npm scripts (build:web) will copy the demo into docs/ as-is.
 
 # Notes
 
-This feature improves developer ergonomics for TypeScript consumers while keeping the repository free of additional toolchain complexity.
+Combining the web demo and TypeScript declaration guidance into one updated feature file preserves the repository feature limit while delivering a visible, interactive demonstration that exercises the canonical API and enables robust behaviour tests.
