@@ -1,70 +1,55 @@
-# FIZZBUZZ_TYPES
+# FIZZBUZZ_STATS
 
 # Summary
 
-Add a small, focused feature that provides TypeScript type declarations and authoritative JSDoc comments for the library's public API (the named exports in src/lib/main.js). This improves editor UX, enables type-aware consumers, and fulfils the guidance already present in FIZZBUZZ_CORE while remaining a single-repository, achievable task.
+Introduce a focused, testable stats helper that analyses canonical fizzBuzz output and returns precise occurrence counts for Fizz, Buzz, FizzBuzz and numeric entries. This additive feature provides a small library helper, unit tests and README documentation so consumers can inspect distribution of results without reimplementing replacement logic.
 
 # Specification
 
-- New file: src/lib/main.d.ts exporting accurate TypeScript declarations for all public, named exports (fizzBuzz, fizzBuzzSingle and the optional helpers: fizzBuzzFormatted, fizzBuzzSingleFormatted, fizzBuzzStats, fizzBuzzGenerator, fizzBuzzWithWords, fizzBuzzSingleWithWords).
-- JSDoc: Add or refine JSDoc comments to the runtime implementation in src/lib/main.js so editors without .d.ts still show useful signatures and error documentation. JSDoc must document parameters, return types, thrown errors and behaviour for edge cases.
-- package.json types field (optional): If package.json does not already provide a types/type declaration, add "types": "src/lib/main.d.ts" so tooling can discover the declaration automatically; keep the change minimal and compatible with existing ESM setting.
-- Tests and README: Update README.md examples to show the intended TypeScript-friendly usage and a short note about the declaration file (no code examples that quote or escape). Add a unit test that imports the runtime and asserts that the declaration file exists on disk (file presence test) and that the exported runtime functions match the signatures documented (lightweight reflection tests are acceptable). Do not add heavy TypeScript compilation as a requirement; keep tests runnable in current JS-only test environment.
+- New named export: fizzBuzzStats(n)
+  - Signature: fizzBuzzStats(n)
+  - Returns: an object with numeric properties: fizz, buzz, fizzBuzz, numbers, total
+  - Behaviour: counts reflect the canonical fizzBuzz output for the sequence 1..n. total equals n. numbers counts entries that are not Fizz, Buzz or FizzBuzz.
 
-# Type declarations (required shapes)
+- Validation: reuse the library's canonical validation for n. If n is invalid the same error type and message substrings used across the project must be thrown (for example, non-integers or NaN cause TypeError or RangeError per the repository contract; negative values cause RangeError with message including >= 1). For n = 0 the helper returns all counts zero and total 0.
 
-- fizzBuzz(n: number): string[]
-  - Returns an array of strings for 1..n following Fizz/Buzz rules.
-  - Throws RangeError/TypeError per validation rules.
+- Implementation constraints:
+  - Implement fizzBuzzStats as a thin wrapper that calls fizzBuzz(n) and iterates the returned sequence to compute counts; do not reimplement the divisibility logic separately to avoid drift from the canonical outputs.
+  - Keep the runtime implementation synchronous and free of external dependencies.
+  - Export fizzBuzzStats as a named export from src/lib/main.js alongside existing named exports.
 
-- fizzBuzzSingle(n: number): string
-  - Returns single string for integer n using canonical replacements.
+# Examples (plain text)
 
-- fizzBuzzFormatted(n: number, formatter: (s: string) => string): string[]
-
-- fizzBuzzSingleFormatted(n: number, formatter: (s: string) => string): string
-
-- fizzBuzzStats(n: number): { fizz: number; buzz: number; fizzBuzz: number; numbers: number; total: number }
-
-- fizzBuzzGenerator(n: number): IterableIterator<string>
-
-- fizzBuzzWithWords(n: number, words?: { fizz?: string; buzz?: string }): string[]
-
-- fizzBuzzSingleWithWords(n: number, words?: { fizz?: string; buzz?: string }): string
-
-# JSDoc requirements
-
-- Each exported function in src/lib/main.js must have a JSDoc block describing:
-  - Parameter names and types
-  - Return type
-  - Thrown errors and the substring expected in the message (e.g., 'integer', '>= 1')
-  - Behavioural notes for edge cases (n = 0, omitted words object, empty string words)
-- JSDoc should be concise and consistent with messages used in the validation feature documents so tests can match message substrings.
-
-# Testing guidance
-
-- Unit test additions (tests/unit/):
-  - File presence test: assert that src/lib/main.d.ts exists.
-  - Signature sanity test: require the runtime exports from src/lib/main.js and assert typeof fizzBuzz === 'function' and that calling fizzBuzz(5) returns an array of strings (no need to run tsc).
-  - JSDoc message parity test: when possible assert that error messages thrown by runtime match documented substrings described in JSDoc (for example, calling fizzBuzz with -1 throws RangeError and message includes '>= 1').
-- Avoid adding a full TypeScript build step; the goal is to ship declarations and verify their presence and runtime compatibility in current test environment.
+- fizzBuzzStats(15) => { fizz: 4, buzz: 2, fizzBuzz: 1, numbers: 8, total: 15 }
+- fizzBuzzStats(0) => { fizz: 0, buzz: 0, fizzBuzz: 0, numbers: 0, total: 0 }
 
 # Acceptance criteria
 
-- A file src/lib/main.d.ts exists and exports the named declarations listed above.
-- src/lib/main.js contains JSDoc comments for each exported function consistent with the .d.ts signatures and the documented validation messages.
-- README.md contains a short note describing the presence of TypeScript declarations and a minimal example of importing the library in TypeScript-friendly form.
-- tests/unit includes a test that asserts the declaration file is present and that the runtime exports are functions returning the expected runtime types (string or string[]), and validation errors at runtime include the documented substrings.
-- No changes to canonical runtime behaviour of fizzBuzz and fizzBuzzSingle.
+- fizzBuzzStats(15) returns an object with values fizz: 4, buzz: 2, fizzBuzz: 1, numbers: 8, total: 15.
+- fizzBuzzStats(0) returns all zeros and total 0.
+- Calling fizzBuzzStats with invalid n follows the canonical validation behaviour and throws the same error types and contains the same diagnostic substrings as other fizzBuzz helpers (for example use assertions that check error type and message substrings like integer or >= 1 rather than matching whole messages).
+- fizzBuzzStats is exported as a named export in src/lib/main.js and is imported in tests and README examples where appropriate.
+
+# Testing guidance
+
+- Unit tests (tests/unit/):
+  - Add a test that imports fizzBuzzStats from src/lib/main.js and asserts the exact object returned for n = 15 matches the expected counts.
+  - Add tests for edge cases: n = 0 returns zeros; n = 1 returns fizz:0,buzz:0,fizzBuzz:0,numbers:1,total:1.
+  - Add validation tests using the same invalid inputs used elsewhere: non-number, non-integer, NaN, Infinity, and negative integers, asserting the same error type and substring behaviour required by FIZZBUZZ_VALIDATION.
+
+- README update:
+  - Add a brief plain-text example showing fizzBuzzStats(15) and the expected return object. Keep the example inline and non-escaped so it is easy for readers and for tests that may copy examples verbatim.
+
+- Behaviour tests / web demo:
+  - Optionally show the counts in the web demo results area when a user renders fizzBuzz(15); the demo should call fizzBuzzStats to compute and display counts rather than duplicating logic.
 
 # Implementation notes
 
-- Keep declarations minimal and precise; prefer string[] and string return types (the project uses string outputs per FIZZBUZZ_CORE contract).
-- Do not alter existing runtime signatures; implement declarations to match runtime exactly.
-- If package.json already has a "types" or "types"-like field, do not duplicate; only add if absent.
-- Keep edits limited to src/lib/main.js (JSDoc), src/lib/main.d.ts (new file), README.md (short note), and tests/unit (small presence and runtime sanity tests).
+- Centralise validation by reusing the existing validation helper or the canonical fizzBuzz entry point so message texts remain consistent with other functions and tests.
+- Use a simple loop over the array returned by fizzBuzz(n) to compute counts; this keeps the stats helper trivially correct and cheap to implement.
+- Keep the helper code small and well-commented with a JSDoc block describing parameters, return shape and thrown errors so tests can rely on documented substrings.
 
 # Backwards compatibility
 
-- This feature is purely additive and documentation-only at runtime; it must not change function behaviour, error types or messages. Adding a types field to package.json is optional and only to improve tooling; it does not affect runtime.
+- Adding fizzBuzzStats is strictly additive and must not change the behaviour, exports or error messages of existing functions.
 
