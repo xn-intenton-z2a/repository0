@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-08T00:08:23.079Z
+# Schedule updated: 2026-03-08T00:13:36.707Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -17,6 +17,8 @@ run-name: "agentic-lib-workflow [${{ github.ref_name }}]"
 #  cancel-in-progress: false
 
 on:
+  schedule:
+    - cron: "5,15,25,35,45,55 * * * *"
   workflow_call:
     inputs:
       model:
@@ -297,7 +299,7 @@ jobs:
   maintain:
     needs: [params]
     if: |
-      always() &&
+      !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'maintain-only') &&
       needs.params.result == 'success'
     runs-on: ubuntu-latest
@@ -385,7 +387,7 @@ jobs:
   supervisor:
     needs: [params, pr-cleanup, telemetry, maintain]
     if: |
-      always() &&
+      !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
       needs.params.result == 'success'
     runs-on: ubuntu-latest
@@ -421,7 +423,7 @@ jobs:
   fix-stuck:
     needs: [params, supervisor]
     if: |
-      always() &&
+      !cancelled() &&
       needs.params.outputs.mode == 'full' &&
       needs.params.result == 'success'
     runs-on: ubuntu-latest
@@ -665,7 +667,7 @@ jobs:
   review-features:
     needs: [params, supervisor]
     if: |
-      always() &&
+      !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'review-only') &&
       needs.params.result == 'success'
     runs-on: ubuntu-latest
@@ -710,7 +712,7 @@ jobs:
   dev:
     needs: [params, review-features]
     if: |
-      always() &&
+      !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
       needs.params.result == 'success'
     runs-on: ubuntu-latest
@@ -944,7 +946,7 @@ jobs:
   # ─── Post-merge: stats, schedule, mission check ────────────────────
   post-merge:
     needs: [params, dev, pr-cleanup]
-    if: always() && needs.params.result == 'success'
+    if: ${{ !cancelled() && needs.params.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -966,7 +968,7 @@ jobs:
   # ─── Schedule change (if requested) ────────────────────────────────
   update-schedule:
     needs: [params, dev]
-    if: always() && needs.params.outputs.dry-run != 'true' && needs.params.outputs.schedule != '' && needs.params.result == 'success'
+    if: ${{ !cancelled() && needs.params.outputs.dry-run != 'true' && needs.params.outputs.schedule != '' && needs.params.result == 'success' }}
     uses: ./.github/workflows/agentic-lib-schedule.yml
     with:
       frequency: ${{ needs.params.outputs.schedule }}

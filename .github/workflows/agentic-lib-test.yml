@@ -68,7 +68,7 @@ jobs:
           HOME: /root
 
       - name: Upload screenshot
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: screenshot
@@ -101,7 +101,7 @@ jobs:
   dispatch-fix:
     needs: [test, behaviour]
     if: >-
-      always()
+      !cancelled()
       && github.ref == 'refs/heads/main'
       && github.event_name != 'pull_request'
       && github.repository != 'xn-intenton-z2a/agentic-lib'
