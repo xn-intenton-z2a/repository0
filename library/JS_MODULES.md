@@ -1,4 +1,4 @@
-JS_MODULES
+MDN_MODULES
 
 Table of contents
 1. Module types and package.json type field
@@ -16,85 +16,78 @@ Table of contents
 13. Attribution and data size
 
 1. Module types and package.json type field
-- package.json field: "type" accepts exactly two meaningful values: "module" or "commonjs". When "type": "module" is present in package.json (at or above the package root), files with the .js extension are interpreted as ECMAScript Modules (ESM). When "type" is absent or set to "commonjs", .js files are interpreted as CommonJS modules. File extensions can override type: .mjs is always ESM, .cjs is always CommonJS.
-- Effect on resolution: Node/host module resolver uses the effective module type to apply ESM parsing semantics, import/export validation, and to enforce module-specific runtime behaviors (strict-mode by default for ESM).
+- package.json field: "type" accepts exactly two meaningful values: "module" or "commonjs". When "type":"module" is present at or above the package root, files with the .js extension are parsed as ECMAScript Modules (ESM). When absent or set to "commonjs", .js files are CommonJS. File extensions override this: .mjs = ESM, .cjs = CJS.
+- Effect: the host resolver applies ESM parsing semantics, strict-mode by default for ESM, and validates import/export forms accordingly.
 
 2. File extensions and resolution rules
-- Recognized extensions and treatment: .mjs -> ESM; .cjs -> CJS; .js -> determined by package.json type; .json and .node follow host loader rules (JSON parse, native addon loader).
-- Resolution algorithm: specifier resolution distinguishes between relative/absolute specifiers (./, ../, /) which resolve to file paths with extension rules, and bare specifiers ("lodash") which trigger package resolution via node_modules, package.json "exports" and "main" fields, and package boundaries.
-- Bare specifiers require package exports mapping or package entry points; unresolved bare specifiers must be provided by a bundler, import map, or a modular loader.
+- Extension behaviors: .mjs -> ESM; .cjs -> CJS; .js -> determined by package.json "type"; .json and .node follow host loader rules.
+- Resolution rules: Relative specifiers (./, ../, /) resolve to file paths; bare specifiers (e.g., "lodash") use package resolution via node_modules, package.json "exports" or "main".
+- When using browser ESM, prefer explicit file extensions in imports to avoid server-side inference issues.
 
 3. Export forms (named, default, re-exports)
-- Named export patterns: export const name = value; export function fname(params) { ... }; export { localName as exportedName }.
-- Default export pattern: export default expression; the exporting module exposes a special default binding accessible as the module's default property when imported.
-- Re-export forms: export { name } from 'module-specifier'; export * from 'module-specifier' (re-exports all named exports except default); export { default as alias } from 'module-specifier' to re-export default under a named export.
-- Bindings semantics: exported bindings are live; mutating the exported binding in the exporting module is observable by importers.
+- Named export forms: export const name = value; export function fname(...) { ... }; export { local as exported }.
+- Default export: export default expression; importer accesses as the module's default binding.
+- Re-export: export { name } from 'module'; export * from 'module' (re-exports named exports except default); export { default as alias } from 'module'.
+- Live binding rule: exported bindings are live and reflect updates performed by the exporter.
 
 4. Import forms (static, namespace, dynamic)
-- Static import syntaxes: import defaultExport from 'module-specifier'; import { name as alias } from 'module-specifier'; import * as ns from 'module-specifier'; import 'module-specifier' for side effects only.
-- Dynamic import signature and behavior: import(specifier: string) -> Promise<ModuleNamespace>; the returned ModuleNamespace contains live bindings and a default property when present. Dynamic import performs asynchronous resolution and evaluation.
-- Namespace module objects: namespace objects provide read-only, live views of exported bindings; mutating the namespace object is disallowed.
+- Static imports: import defaultExport from './mod.js'; import { name } from './mod.js'; import * as ns from './mod.js'; import './side-effect.js'.
+- Dynamic import: import(specifier: string) -> Promise<ModuleNamespace>; resolves and evaluates asynchronously; ModuleNamespace exposes live bindings and a default property when present.
+- Namespace objects are read-only views of exported bindings; cannot be reassigned by importers.
 
 5. Live bindings and circular dependency behavior
-- Live binding guarantee: imports are references to exported bindings, not snapshots; reading an imported binding yields the current value after initialization and subsequent updates by the exporter.
-- Circular dependency semantics: module execution order follows static import graph; when cycles exist, modules execute until they reach initialization points; exported bindings may be observed as uninitialized (temporal dead zone for const/let) if accessed before assignment. Use function wrappers or defer access to runtime call time to avoid TDZ issues.
+- Live bindings: imports reference exported bindings, not copies; consumers see updates after exporter assignment.
+- Circular import handling: modules execute following static dependency graph; if a binding is accessed before assignment, it may be observed as uninitialized (TDZ for const/let). Mitigate by deferring access to runtime calls or using factory functions.
 
 6. Top-level await and execution timing
-- Top-level await is permitted in ESM; await expressions at module top-level suspend module evaluation asynchronously until awaited promise settles. Consumers that import a module with top-level await will observe delayed evaluation of that module and any downstream dependent modules until resolution.
-- Use top-level await only when the initialization is intentionally asynchronous and when consumers are prepared to handle delayed module readiness.
+- Top-level await suspends module evaluation until the awaited promise settles; consumers importing that module will wait for resolution before dependent modules continue evaluation.
+- Use only for intentional asynchronous initialization and ensure callers tolerate delayed readiness.
 
 7. CommonJS interop rules
-- Importing CommonJS from ESM: default import receives the CommonJS module.exports object as the default binding; named imports from CJS are not guaranteed to map to properties on module.exports unless the exporter sets properties explicitly. Example pattern: import cjsDefault from './mod.cjs'; cjsDefault is module.exports.
-- Requiring ESM from CommonJS: synchronous require cannot load ESM; use dynamic loader or bridge helpers (create a wrapper CJS file that dynamic-imports ESM) or use Node's experimental bridging features. Bundlers may provide compatibility layers.
-- Export shape differences: CJS supports mutation of module.exports; ESM enforces immutable namespace object properties from the module spec perspective but exported bindings in the exporter remain live.
+- ESM importing CJS: default import receives module.exports as the default binding; named imports are not mapped unless properties exist on module.exports.
+- CJS requiring ESM: require cannot synchronously load ESM; use dynamic import bridges or wrapper CJS files that perform import().
+- Shape differences: CJS allows mutation of module.exports; ESM provides live bindings from the exporter but an immutable namespace view to importers.
 
 8. Loader, resolution and package exports
-- package.json keys affecting resolution: "main" (legacy entry for CJS consumers), "module" (convention for ESM entry for bundlers), "exports" (definitive subpath exports mapping), "type" (module detection).
-- Exports field syntax: "exports": { ".": "./lib/index.js", "./feature": "./lib/feature.js" } maps import specifiers of package root and package subpaths to specific files; subpath imports must match exactly one of the exported keys or throw resolution error.
-- MIME and HTTP serving: when serving ESM to browsers, Content-Type must be text/javascript and server must support CORS where required; script type=module in HTML enforces module fetching semantics and strict mode.
+- package.json keys: "main" (legacy CJS entry), "module" (convention for ESM entry used by bundlers), "exports" (restricts and maps public subpaths), "type" (module detection).
+- Exports mapping: "exports": { ".": "./lib/index.js", "./feature": "./lib/feature.js" } — importers can only resolve to declared export subpaths; unmatched subpaths throw a resolution error.
+- Browser serving: serve ESM files with Content-Type: text/javascript; use <script type="module"> to enable module fetching semantics and strict mode.
 
 9. Best practices and implementation patterns
-- Prefer named exports for utilities to enable tree-shaking; use default export only for single-primary-export modules.
-- Use explicit file extensions in import specifiers for browser ESM and strict resolvers: import './module.js' (include extension) to avoid resolution ambiguity in environments that do not perform extension inference.
-- Avoid mixing ESM and CJS in the same file. Keep interoperability at package boundary with dedicated bridge modules (.cjs or .mjs as appropriate).
-- Use package.json "exports" to declare supported public entry points and prevent accidental deep imports.
-- Design modules to avoid circular initialization dependencies; if unavoidable, access values via functions called at runtime rather than during module evaluation.
+- Prefer named exports to enable tree-shaking; reserve default exports for single-primary-export modules.
+- Use explicit file extensions in import specifiers for browser compatibility: import './module.js'.
+- Keep ESM/CJS mixing at package boundaries; provide dedicated bridge modules (.cjs/.mjs) rather than mixing formats in one file.
+- Define public API via package.json "exports" to avoid accidental deep imports.
+- Avoid circular initialization; if unavoidable, access via runtime functions rather than top-level reads.
 
 10. Supplementary details (configuration keys and values)
-- package.json type: "module" | "commonjs" affects .js interpretation.
-- package.json exports: object mapping allowed import specifiers to file paths; keys may include ".", "./subpath". When present, exports restrict which internal files can be imported by consumers.
-- module field: often used by bundlers to locate an ESM build; not used by Node's resolver for runtime module interpretation.
-- main field: legacy CJS entrypoint used when neither exports nor ESM entry is present for CJS consumers.
+- "type": "module" | "commonjs"
+- "exports": object mapping allowed import subpaths to file paths or conditional objects
+- "module": string (bundler ESM entry, convention only)
+- "main": string (legacy CJS entry)
 
 11. Reference details (exact syntax patterns and signatures)
-- Static import patterns:
+- Imports:
   - import defaultExport from 'module-specifier'
-  - import { name } from 'module-specifier'
   - import { name as alias } from 'module-specifier'
   - import * as ns from 'module-specifier'
   - import 'module-specifier'  // side-effect only
-- Dynamic import signature:
+- Dynamic import:
   - import(specifier: string) -> Promise<ModuleNamespace>
-  - ModuleNamespace has read-only properties for each exported binding and a default property when present.
-- Export patterns:
-  - export const name = value
-  - export function fname(params)
-  - export default expression
-  - export { local as exported } from 'module-specifier'
-  - export * from 'module-specifier'  // re-export all named exports excluding default
-- package.json keys and exact accepted values:
+  - ModuleNamespace: read-only live properties for each exported binding, plus default property if present
+- Exports/public entry keys:
   - "type": "module" | "commonjs"
-  - "exports": Object where keys are specifier subpaths and values are relative file paths (string) or conditional export objects.
-  - "main": string (legacy entry path)
-  - "module": string (convention for bundlers to point to ESM entry)
+  - "exports": { ".": "./path", "./sub": "./subpath.js" }
+  - "main": "./path.js"
+  - "module": "./esm.js"
 
 12. Digest and retrieval metadata
-- Source section extracted: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules as listed in project SOURCES.md
-- Retrieval date: 2026-03-08T22:50:02.857Z
-- Extracted content focuses on implementation-level rules and examples of module syntax, resolution, package.json keys, interop behaviors, and loader semantics.
+- Source extracted: developer.mozilla.org: JavaScript Guide — Modules
+- Retrieval date: 2026-03-08 (crawl time: 2026-03-08T22:50:02.857Z)
+- Extraction scope: module parsing semantics, syntax patterns, resolution mechanics, package.json fields, interop rules, and best practices needed to implement and publish ESM-compatible packages.
 
 13. Attribution and data size
-- Attribution: content distilled from MDN Web Docs: JavaScript Guide — Modules (developer.mozilla.org), listed in project SOURCES.md.
-- Crawl data size: source referenced as a single URL entry in SOURCES.md; no full HTML crawl was performed in this run, therefore stored extraction size is approximately the length of the distilled technical extract (estimated 12 KB).
+- Attribution: MDN Web Docs — JavaScript Guide: Modules (developer.mozilla.org)
+- Extract size: ~12 KB of distilled technical content from the fetched page
 
-End of JS_MODULES
+End of MDN_MODULES
