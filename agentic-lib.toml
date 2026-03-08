@@ -37,7 +37,7 @@ test = "npm ci && npm test"
 [tuning]
 # Profile sets defaults for all tuning and limit knobs: min | recommended | max
 # Profile definitions live in [profiles.*] sections below.
-profile = "min"
+profile = "recommended"
 #
 # Model selection — each has different strengths:
 #   gpt-5-mini      — Fast, cheap, supports reasoning-effort. Best for CI and iteration.
@@ -133,7 +133,7 @@ library-limit = 64                     # max library entries in library/ directo
 log-file = "intentïon.md"
 
 [init]
-timestamp = "2026-03-08T01:32:33.232Z"
+timestamp = "2026-03-08T01:59:59.648Z"
 mode = "purge"
 mission = "fizz-buzz"
-version = "7.1.90"
+version = "7.1.91"

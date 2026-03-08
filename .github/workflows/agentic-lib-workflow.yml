@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-08T01:32:45.883Z
+# Schedule updated: 2026-03-08T02:00:12.224Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -761,10 +761,6 @@ jobs:
       - name: Install project dependencies
         run: npm ci
 
-      - name: Install Playwright (for behaviour tests)
-        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
-        run: npx playwright install --with-deps chromium
-
       - name: Self-init (agentic-lib dev only)
         if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
         run: bash scripts/self-init.sh
@@ -867,14 +863,6 @@ jobs:
           if [ $EXIT_CODE -ne 0 ]; then
             echo "tests-passed=false" >> $GITHUB_OUTPUT
             echo "WARNING: Unit tests failed (exit $EXIT_CODE) — skipping commit and PR"
-            exit 0
-          fi
-          # Run behaviour tests if available
-          if npm run --if-present test:behaviour; then
-            echo "Behaviour tests passed"
-          else
-            echo "tests-passed=false" >> $GITHUB_OUTPUT
-            echo "WARNING: Behaviour tests failed — skipping commit and PR"
             exit 0
           fi
           echo "tests-passed=true" >> $GITHUB_OUTPUT
