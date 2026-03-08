@@ -30,6 +30,8 @@ Table of contents
 - Run specific files or globs: npx vitest --run tests/unit/*.test.js
 - Run with coverage collection: npx vitest --run --coverage
 - Run with a specific config file: npx vitest --config=vitest.config.js
+- Run via npm scripts (package.json): npm test  (runs: vitest --run tests/unit/*.test.js)
+- Run unit tests with coverage via npm: npm run test:unit  (runs: vitest --run --coverage tests/unit/*.test.js)
 - Show test names filter: npx vitest --run --testNamePattern="pattern"
 - Produce coverage output for CI: npx vitest --run --coverage --coverage-provider=v8
 
