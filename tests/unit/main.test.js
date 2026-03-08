@@ -1,26 +1,44 @@
-// SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
-import { describe, test, expect } from "vitest";
-import { main, getIdentity, name, version, description } from "../../src/lib/main.js";
+import { describe, it, expect } from 'vitest';
+import { toRoman, fromRoman } from '../src/lib/main.js';
 
-describe("Main Output", () => {
-  test("should terminate without error", () => {
-    process.argv = ["node", "src/lib/main.js"];
-    main();
-  });
-});
-
-describe("Library Identity", () => {
-  test("exports name, version, and description", () => {
-    expect(typeof name).toBe("string");
-    expect(typeof version).toBe("string");
-    expect(typeof description).toBe("string");
-    expect(name.length).toBeGreaterThan(0);
-    expect(version).toMatch(/^\d+\.\d+\.\d+/);
+describe('Roman conversion', ()=>{
+  it('toRoman canonical examples', ()=>{
+    expect(toRoman(1)).toBe('I');
+    expect(toRoman(4)).toBe('IV');
+    expect(toRoman(9)).toBe('IX');
+    expect(toRoman(40)).toBe('XL');
+    expect(toRoman(3999)).toBe('MMMCMXCIX');
+    expect(toRoman(1994)).toBe('MCMXCIV');
   });
 
-  test("getIdentity returns correct structure", () => {
-    const identity = getIdentity();
-    expect(identity).toEqual({ name, version, description });
+  it('toRoman throws for non-integers and out of range', ()=>{
+    expect(()=>toRoman(0)).toThrowError(RangeError);
+    expect(()=>toRoman(4000)).toThrowError(RangeError);
+    expect(()=>toRoman(1.5)).toThrowError(TypeError);
+    expect(()=>toRoman('10')).toThrowError(TypeError);
+  });
+
+  it('fromRoman canonical examples', ()=>{
+    expect(fromRoman('I')).toBe(1);
+    expect(fromRoman('IV')).toBe(4);
+    expect(fromRoman('MMMCMXCIX')).toBe(3999);
+    expect(fromRoman('MCMXCIV')).toBe(1994);
+  });
+
+  it('fromRoman rejects invalid input and non-canonical forms', ()=>{
+    expect(()=>fromRoman('')).toThrowError(SyntaxError);
+    expect(()=>fromRoman('iiii')).toThrowError(SyntaxError);
+    expect(()=>fromRoman('IIII')).toThrowError(SyntaxError);
+    expect(()=>fromRoman('ABC')).toThrowError(SyntaxError);
+    expect(()=>fromRoman(123)).toThrowError(TypeError);
+  });
+
+  it('round-trip for representative values', ()=>{
+    const reps = [1,2,3,4,5,9,40,90,400,900,1987,1994,3999];
+    for(const n of reps){
+      const r = toRoman(n);
+      expect(fromRoman(r)).toBe(n);
+      expect(toRoman(fromRoman(r))).toBe(r);
+    }
   });
 });

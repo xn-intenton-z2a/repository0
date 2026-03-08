@@ -1,49 +1,57 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>repository0</title>
-  <meta property="og:title" content="repository0">
-  <meta property="og:description" content="An autonomous repository powered by agentic-lib">
-  <meta property="og:type" content="website">
-  <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
-    h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
-    a { color: #0366d6; }
-    .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
-    .identity dt { font-weight: bold; color: #666; }
-    .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-    #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Roman Numerals Demo</title>
+<style>
+body{font-family:system-ui, -apple-system, sans-serif;max-width:760px;margin:2rem auto;color:#222}
+label{display:block;margin-top:1rem}
+input,button{font-size:1rem;padding:.5rem;margin-top:.25rem}
+#result{background:#f6f8fa;padding:1rem;margin-top:1rem;border-radius:6px;font-family:monospace}
+.error{color:#b00020}
+</style>
 </head>
 <body>
-  <h1 id="lib-name">repository0</h1>
-  <div class="identity">
-    <dl>
-      <dt>Version</dt>
-      <dd id="lib-version">loading...</dd>
-      <dt>Description</dt>
-      <dd id="lib-description">loading...</dd>
-    </dl>
-  </div>
-  <h2>Output</h2>
-  <div id="demo-output">Loading library...</div>
-  <h2>About</h2>
-  <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
-  <script type="module">
-    try {
-      const { name, version, description } = await import('./lib-meta.js');
-      document.getElementById('lib-name').textContent = name;
-      document.getElementById('lib-version').textContent = version;
-      document.getElementById('lib-description').textContent = description || '(no description)';
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
-      document.title = name + ' v' + version;
-    } catch (e) {
-      document.getElementById('lib-version').textContent = '(build required)';
-      document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
-      document.getElementById('demo-output').textContent = 'Library not yet built. Run: npm run build:web';
-    }
-  </script>
+<h1>Roman Numerals — Demo</h1>
+<div>
+  <label>Number (1..3999)
+    <input id="num-input" type="number" min="1" max="3999" value="1994" />
+  </label>
+  <button id="to-roman">Convert to Roman</button>
+</div>
+<div>
+  <label>Roman (uppercase canonical)
+    <input id="roman-input" type="text" value="MCMXCIV" />
+  </label>
+  <button id="from-roman">Convert to Number</button>
+</div>
+<div id="result" aria-live="polite">Ready</div>
+<script type="module">
+import * as meta from '../docs/lib-meta.js';
+import { toRoman, fromRoman } from './lib-browser.js';
+const result = document.getElementById('result');
+const numIn = document.getElementById('num-input');
+const romanIn = document.getElementById('roman-input');
+document.getElementById('to-roman').addEventListener('click', ()=>{
+  try{
+    const n = Number(numIn.value);
+    const r = toRoman(n);
+    result.classList.remove('error');
+    result.textContent = `${n} → ${r}`;
+  }catch(e){ result.classList.add('error'); result.textContent = e.name+': '+e.message }
+});
+document.getElementById('from-roman').addEventListener('click', ()=>{
+  try{
+    const s = romanIn.value.trim();
+    const n = fromRoman(s);
+    result.classList.remove('error');
+    result.textContent = `${s} → ${n}`;
+  }catch(e){ result.classList.add('error'); result.textContent = e.name+': '+e.message }
+});
+// show identity
+const id = document.createElement('div'); id.style.marginTop='1rem'; id.style.fontSize='0.9rem'; id.textContent = `${meta.name}@${meta.version} — ${meta.description}`;
+document.body.appendChild(id);
+</script>
 </body>
 </html>
