@@ -54,3 +54,47 @@ README additions
 - All new behaviour must be additive and must not change existing canonical exports or their behaviour.
 - Implement helpers by delegating to the canonical functions to ensure consistent validation and output.
 - Keep the examples script minimal and deterministic to ease CI assertions.
+
+
+FIZZBUZZ_README
+
+# Summary
+
+Ensure README.md documents the canonical API, usage examples, CLI and web demo pointers, and how to run tests and examples. The README must be precise, minimal, and suitable for automated checks that assert the presence of key usage strings and commands.
+
+# Specification
+
+- Update README.md to include the following sections, written as plain prose paragraphs (no fenced code blocks):
+  - API summary listing exported functions: fizzBuzz(n), fizzBuzzSingle(n), fizzBuzzFormatted(n, formatter), fizzBuzzSingleFormatted(n, formatter), fizzBuzzStats(n) and fizzBuzzGenerator(n). Briefly state their purpose in one sentence each.
+  - Usage examples as prose showing how to call fizzBuzzSingle(3) and what it returns, and describing that fizzBuzz(15) returns a 15-element sequence ending with FizzBuzz. Include a one-line instruction mentioning examples/simple-run.js and node src/lib/main.js 15 for the CLI demo.
+  - How to run tests: mention npm test and npm run test:unit and that test suite asserts validation and edge cases.
+  - Web demo note: mention that a static demo exists under src/web/ and is copied into docs/ by npm run build:web; suggest opening docs/fizzbuzz-demo.html after npm run build:web or using npm run start.
+  - Contribution note: short line directing readers to CONTRIBUTING.md for contribution guidelines.
+
+- Text requirements for automation checks:
+  - README.md must contain the substring fizzBuzz(15).
+  - README.md must contain the substring fizzBuzzSingle(3).
+  - README.md must mention examples/simple-run.js or node src/lib/main.js 15.
+  - README.md must mention npm test.
+
+- Style constraints:
+  - Keep prose concise, one or two sentences per bullet point.
+  - Do not include fenced code blocks; examples must be inline prose to keep README small and parseable.
+  - Do not change other files; this feature only requires editing README.md content.
+
+# Testing guidance
+
+- Automated checks will assert README.md contains the required substrings and that the prose describes the functions listed in the API summary.
+- No unit tests are required for README changes, but the examples/simple-run.js integration test will reference README for human guidance.
+
+# Acceptance criteria
+
+- README.md contains a concise API summary listing the named exports and one-line descriptions.
+- README.md contains the usage prose including fizzBuzzSingle(3) and fizzBuzz(15) statements and references to examples/simple-run.js or node src/lib/main.js 15.
+- README.md mentions how to run tests (npm test) and how to build/view the web demo (npm run build:web and docs/).
+- README.md satisfies the automation substring checks listed above.
+
+# Notes
+
+- This feature only modifies README.md and does not change library behaviour or tests.
+- Keep the README changes minimal and focused to avoid altering unrelated project documentation.
