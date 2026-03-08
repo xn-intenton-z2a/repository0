@@ -3,47 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>repository0</title>
-  <meta property="og:title" content="repository0">
-  <meta property="og:description" content="An autonomous repository powered by agentic-lib">
-  <meta property="og:type" content="website">
+  <title>Hamming Distance Demo</title>
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
-    h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
-    a { color: #0366d6; }
-    .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
-    .identity dt { font-weight: bold; color: #666; }
-    .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-    #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
+    body{font-family:system-ui, -apple-system, sans-serif;max-width:800px;margin:2rem auto;padding:1rem;color:#111}
+    textarea{width:100%;height:6rem;font-family:monospace}
+    .diff { background: #ffe6e6; }
+    .highlight { background: #ffcccc; font-weight:700 }
+    #result { margin-top:1rem; padding:0.5rem; border-radius:6px; background:#f6f8fa }
   </style>
 </head>
 <body>
-  <h1 id="lib-name">repository0</h1>
-  <div class="identity">
-    <dl>
-      <dt>Version</dt>
-      <dd id="lib-version">loading...</dd>
-      <dt>Description</dt>
-      <dd id="lib-description">loading...</dd>
-    </dl>
-  </div>
-  <h2>Output</h2>
-  <div id="demo-output">Loading library...</div>
-  <h2>About</h2>
-  <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
+  <h1>Hamming Distance Demo</h1>
+  <p>Enter two equal-length strings or paste byte arrays in hex form for byte comparison.</p>
+
+  <label for="input-a">Input A</label>
+  <textarea id="input-a">abc</textarea>
+
+  <label for="input-b">Input B</label>
+  <textarea id="input-b">abd</textarea>
+
+  <button id="compute-btn">Compute</button>
+
+  <div id="result" aria-live="polite"></div>
+
   <script type="module">
-    try {
-      const { name, version, description } = await import('./lib-meta.js');
-      document.getElementById('lib-name').textContent = name;
-      document.getElementById('lib-version').textContent = version;
-      document.getElementById('lib-description').textContent = description || '(no description)';
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
-      document.title = name + ' v' + version;
-    } catch (e) {
-      document.getElementById('lib-version').textContent = '(build required)';
-      document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
-      document.getElementById('demo-output').textContent = 'Library not yet built. Run: npm run build:web';
+    import lib from '/docs/lib-meta.js';
+    // Load library from src for live demo (falls back to src/lib/main.js)
+    import { hamming } from '../../src/lib/main.js';
+
+    const aEl = document.getElementById('input-a');
+    const bEl = document.getElementById('input-b');
+    const btn = document.getElementById('compute-btn');
+    const result = document.getElementById('result');
+
+    function highlightDifferences(sa, sb) {
+      if (sa.length !== sb.length) return null;
+      let out = '';
+      for (let i = 0; i < sa.length; i++) {
+        if (sa.charCodeAt(i) !== sb.charCodeAt(i)) {
+          out += `<span class="highlight">${escapeHtml(sa[i]||' ')}</span>`;
+        } else {
+          out += escapeHtml(sa[i]||' ');
+        }
+      }
+      return out;
     }
+
+    function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    btn.addEventListener('click', () => {
+      const sa = aEl.value;
+      const sb = bEl.value;
+      try {
+        const d = hamming(sa, sb);
+        const highlighted = highlightDifferences(sa, sb);
+        result.innerHTML = `<div><strong>Distance:</strong> ${d}</div>` + (highlighted ? `<div><strong>Differences:</strong><pre>${highlighted}</pre></div>` : '<div>Inputs must be same length to highlight differences.</div>');
+      } catch (err) {
+        result.textContent = err.message;
+      }
+    });
+
+    // expose for tests
+    window.__hammingDemo = { compute: () => { btn.click(); return result.innerHTML; } };
   </script>
 </body>
 </html>
