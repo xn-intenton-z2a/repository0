@@ -487,3 +487,64 @@ Extracted technical Roman numeral rules, mappings, algorithms, Unicode code poin
 Maintained library (0 docs, limit 8)
 
 ---
+## maintain-features at 2026-03-08T08:19:12.723Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 59252 (in: 56052, out: 3200)
+**Duration:** 49s (~0.8 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22817230313](https://github.com/xn-intenton-z2a/repository0/actions/runs/22817230313)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 17/16 | 0 remaining | EXHAUSTED |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining |  |
+| library | 0/8 | 8 remaining | n/a |
+
+### Closing Notes
+transformation-budget at capacity (17/16) — actions will be blocked.
+features at capacity (2/2) — actions will be blocked.
+
+### Narrative
+Updated the STRICT_PARSER feature spec to clarify API, CLI flags, strict vs permissive parsing behaviour, tests, and acceptance criteria so implementation and tests can be produced consistently.
+
+Maintained features (2 existing, limit 2)
+
+---
+## maintain-library at 2026-03-08T08:19:44.384Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 111365 (in: 109712, out: 1653)
+**Duration:** 31s (~0.5 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22817230313](https://github.com/xn-intenton-z2a/repository0/actions/runs/22817230313)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 18/16 | 0 remaining | EXHAUSTED |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining | n/a |
+| library | 0/8 | 8 remaining |  |
+
+### Closing Notes
+transformation-budget at capacity (18/16) — actions will be blocked.
+
+### Narrative
+Created a condensed, implementation-focused ROMAN_NUMERALS library document from the SOURCES.md links to enable direct use in code and docs.
+
+Maintained library (0 docs, limit 8)
+
+---
