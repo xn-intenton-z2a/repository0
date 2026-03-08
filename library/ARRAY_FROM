@@ -1,0 +1,53 @@
+TABLE OF CONTENTS
+1. Syntax
+2. Parameters and semantics
+3. Return value and behavior
+4. Examples and common patterns
+5. Implementation notes
+
+NORMALISED EXTRACT
+Syntax:
+- Array.from(items)
+- Array.from(items, mapFn)
+- Array.from(items, mapFn, thisArg)
+
+Parameters and semantics:
+- items: an iterable or array-like object (must have length property and indexed elements) to convert into a new Array instance.
+- mapFn (optional): function(element, index) invoked for each produced element; mapFn is called with thisArg as this when provided.
+- thisArg (optional): value used as this when executing mapFn.
+- The method is generic: the this value can be a constructor function; Array.from called on a subclass constructor returns instances of that subclass.
+- When items is iterable, the constructor is called with no arguments; when array-like, constructor is called with normalized length.
+- Array.from never produces a sparse array: missing indices become undefined.
+
+Return value and behavior:
+- Returns a new Array (or subclass instance) containing the mapped values. If mapFn provided, values are mapped during construction without creating an intermediate array.
+- For typed arrays, Array.from has same signature as TypedArray.from to avoid intermediate truncation.
+
+Examples and common patterns:
+- Convert string to array of characters: Array.from("foo") -> ["f","o","o"].
+- Map during creation: Array.from([1,2,3], x=>x*2) -> [2,4,6].
+- Sequence generator: Array.from({length: N}, (_, i) => i) -> [0..N-1].
+- Range generator: Array.from({length: Math.ceil((stop-start)/step)}, (_, i) => start + i*step)
+
+Implementation notes:
+- Use when converting NodeList, Set, Map.values(), or arguments to arrays.
+- Prefer Array.from(obj, mapFn) to Array.from(obj).map(mapFn) to avoid intermediate allocation and to guarantee typed-array safety.
+
+SUPPLEMENTARY DETAILS
+- Constructor behavior: If this is a constructor, new instances of that constructor are returned (important when subclassing Array).
+- Normalized length: uses ECMAScript ToLength operation; non-integer lengths are normalized to integers.
+
+REFERENCE DETAILS
+- Signature: Array.from(items[, mapFn[, thisArg]]) -> Array
+- MapFn signature: function(element, index) -> any
+- To create range: Array.from({ length: N }, (_, i) => start + i)
+- Non-sparse guarantee: missing indexes produce undefined slots in result.
+
+DETAILED DIGEST
+Source: MDN - Array.from
+Retrieved: 2026-03-08
+Extracted content length: ~7500 bytes
+
+ATTRIBUTION
+MDN Web Docs contributors, "Array.from", MDN, retrieved 2026-03-08.
+Data size: 7500 bytes

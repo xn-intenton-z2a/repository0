@@ -1,0 +1,48 @@
+TABLE OF CONTENTS
+1. Installation and requirements
+2. Writing tests
+3. Configuration options
+4. CLI usage
+5. Projects and multi-config setups
+
+NORMALISED EXTRACT
+Installation and requirements:
+- Install: npm install -D vitest (or yarn/pnpm/bun equivalents).
+- Requires Vite >= 6.0.0 and Node >= 20.0.0.
+
+Writing tests:
+- Test files must include .test. or .spec. in filename by default.
+- Example test: import { expect, test } from 'vitest' ; test('adds', () => { expect(sum(1,2)).toBe(3) })
+
+Configuration options:
+- Vitest reads vite.config.* by default; create vitest.config.ts or use defineConfig from 'vitest/config' for test-specific options.
+- test property shape includes projects, environment, setupFiles, name, root, etc.
+- Config file extensions supported: .js, .mjs, .cjs, .ts, .cts, .mts (not .json).
+- mergeConfig( viteConfig, defineConfig({ test: {...}})) to extend Vite config.
+
+CLI usage:
+- npm script examples: "test": "vitest" ; run once: vitest run ; run watch: vitest
+- Use npx vitest if not installed locally.
+- vitest run --coverage to run once with coverage.
+
+Projects and multi-config setups:
+- define multiple projects in test.projects array (glob patterns or config objects) to run different environments or setups in single process.
+- Example: projects: ['packages/*', { test: { name: 'node', environment: 'node' } }, ...]
+
+SUPPLEMENTARY DETAILS
+- Automatic dependency installation: vitest may prompt to install missing deps; disable with VITEST_SKIP_INSTALL_CHECKS=1.
+- IDE: VSCode extension available (vitest explorer).
+
+REFERENCE DETAILS
+- Recommended package.json scripts: "test": "vitest" , "coverage": "vitest run --coverage"
+- Config API: import { defineConfig } from 'vitest/config' ; export default defineConfig({ test: { /* options */ } })
+- CLI commands: vitest, vitest run, vitest --help
+
+DETAILED DIGEST
+Source: vitest.dev/guide
+Retrieved: 2026-03-08
+Extracted content length: ~12000 bytes
+
+ATTRIBUTION
+Vitest maintainers, "Vitest Guide", vitest.dev, retrieved 2026-03-08.
+Data size: 12000 bytes

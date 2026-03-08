@@ -1,0 +1,45 @@
+TABLE OF CONTENTS
+1. Syntax
+2. Semantics and return conditions
+3. Examples
+4. Precision caveats
+5. Implementation guidance
+
+NORMALISED EXTRACT
+Syntax:
+- Number.isInteger(value)
+
+Semantics and return conditions:
+- Returns true if typeof value === 'number' and value is an integer representable in IEEE-754 double precision.
+- Returns false for NaN, Infinity, -Infinity, non-number types.
+- Values that are floating point but equal to an integer (e.g., 5.0) return true due to representation.
+
+Examples:
+- Number.isInteger(0) -> true
+- Number.isInteger(0.1) -> false
+- Number.isInteger(5.0000000000000001) -> true (loss of precision)
+- Number.isInteger('10') -> false
+
+Precision caveats:
+- Due to IEEE-754 double precision, some non-integers may be represented as integers at high magnitudes (e.g., 4500000000000000.1 -> true). Use Number.isSafeInteger to test for integerness within safe integer range.
+
+Implementation guidance:
+- Use Number.isInteger when validation requires type-safe integer detection (rejects strings, arrays, booleans).
+- For integer range safety, combine with Number.isSafeInteger(value).
+
+SUPPLEMENTARY DETAILS
+- Specification: ECMAScript # sec-number.isinteger
+- Behavior: equivalent to (typeof value === 'number' && isFinite(value) && Math.floor(value) === value) modulo representation caveats.
+
+REFERENCE DETAILS
+- Signature: Number.isInteger(value) -> boolean
+- Recommended check for safe integer: Number.isInteger(value) && Number.isSafeInteger(value)
+
+DETAILED DIGEST
+Source: MDN - Number.isInteger
+Retrieved: 2026-03-08
+Extracted content length: ~2600 bytes
+
+ATTRIBUTION
+MDN Web Docs contributors, "Number.isInteger", MDN, retrieved 2026-03-08.
+Data size: 2600 bytes
