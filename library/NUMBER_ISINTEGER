@@ -1,0 +1,51 @@
+NORMALISED EXTRACT
+
+Table of Contents:
+1. Function Signature
+2. Return Semantics
+3. Edge Cases and Precision Caveats
+4. Examples
+
+1. Function Signature
+- Number.isInteger(value)
+- Parameter: value — the value to be tested for being an integer (any JavaScript value).
+- Return: boolean true if value is an integer number, otherwise false.
+
+2. Return Semantics
+- Returns true for numeric values that are mathematically integers and are representable in IEEE-754 double precision as integers.
+- Returns false for NaN, Infinity, -Infinity, non-number types (strings, booleans, objects, arrays), and for non-integer finite numbers.
+- For floating point numbers that are mathematically integer due to representation (e.g., 5.0000000000000001 represented as 5), the function returns true when representation equals integer.
+
+3. Edge Cases and Precision Caveats
+- JavaScript numbers are IEEE-754 doubles; very large values near Number.MAX_SAFE_INTEGER may lose integer fidelity, causing Number.isInteger to return true for apparent fractional inputs due to representation loss.
+- Examples: Number.isInteger(5.0000000000000001) -> true because value is represented as 5. Number.isInteger(4500000000000000.1) -> true because of precision loss.
+- Non-number values: Number.isInteger("10") -> false; Number.isInteger([1]) -> false.
+
+4. Examples
+- Number.isInteger(0) -> true; Number.isInteger(-100000) -> true; Number.isInteger(0.1) -> false; Number.isInteger(Math.PI) -> false; Number.isInteger(NaN) -> false; Number.isInteger(Infinity) -> false.
+
+SUPPLEMENTARY DETAILS
+
+Technical specifications and implementation details:
+- Spec reference: ECMAScript Number.isInteger (sec-number.isinteger). The function uses type-checking and mathematical integer test: typeof value === 'number' && isFinite(value) && Math.floor(value) === value (conceptual equivalent).
+- Polyfills and shims: core-js and es-shims provide polyfills for environments lacking Number.isInteger; typical polyfill pattern uses Number.isFinite and floor === value test.
+
+REFERENCE DETAILS
+
+Exact API signature and behavior:
+- Number.isInteger(value: any) -> boolean
+- Implementation pattern (conceptual):
+  If typeof value !== 'number' return false; If !isFinite(value) return false; Return Math.floor(value) === value.
+
+DETAILED DIGEST
+
+Source: MDN Web Docs, "Number.isInteger" (developer.mozilla.org)
+Date retrieved: 2026-03-08T09:47:48.289Z
+Extracted content: Syntax, description, return values, precision caveats, examples and link to ECMAScript specification.
+Data size (approx): 3 KB
+
+ATTRIBUTION
+
+Source: MDN Web Docs (Mozilla). Retrieved 2026-03-08.
+
+END OF DOCUMENT
