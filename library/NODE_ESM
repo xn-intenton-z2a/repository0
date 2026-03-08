@@ -1,0 +1,57 @@
+TABLE OF CONTENTS
+1. Enabling ESM in Node.js
+2. Import specifiers and resolution rules
+3. import.meta features
+4. CommonJS interop
+5. File extension and URL rules
+
+NORMALISED EXTRACT
+Enabling ESM in Node.js
+- Methods to mark module as ES module:
+  - Use .mjs file extension.
+  - Set package.json "type" field to "module" for .js files.
+  - Use --input-type=module CLI flag for one-off scripts.
+
+Import specifiers and resolution
+- Specifier types: relative (./file.js), bare (package-name), absolute (file:///path).
+- Relative and absolute specifiers require explicit file extensions; directory indexes must be fully specified with file name and extension.
+- Bare specifiers are resolved via Node.js package resolution algorithm; packages with "exports" restrict internal file access to declared export paths.
+- file:, node:, data: URL schemes supported; file URL imports must have percent-encoding for special characters.
+
+import.meta features
+- import.meta.url: absolute file: URL of current module.
+- import.meta.filename: full absolute path with symlinks resolved (file: modules only).
+- import.meta.dirname: directory name of current module (same as path.dirname(import.meta.filename)).
+- import.meta.main: boolean true if module is entry point of process; analogous to require.main === module.
+- import.meta.resolve(specifier) -> returns resolved absolute URL string synchronously; caveats: may perform sync filesystem ops and not available in custom loaders without experimental flag.
+
+CommonJS interoperability
+- Importing CJS from ESM: module.exports is provided as default export; static analysis attempts to surface named exports on the namespace object.
+- Default import forms: import cjs from './cjs.cjs' yields cjs === module.exports.
+- createRequire(module.createRequire()) can be used within ESM to construct require when necessary.
+- Named export detection is heuristic and not guaranteed to reflect dynamic changes to module.exports at runtime.
+
+File extension and URL rules
+- Mandatory file extensions for import statements resolving relative/absolute specifiers.
+- Data URL imports supported for specific MIME types: text/javascript (ESM), application/json (JSON), application/wasm (Wasm). JSON imports require import with { type: 'json' } attribute.
+
+SUPPLEMENTARY DETAILS
+Best practices
+- Prefer explicit file extensions in import statements for portability between Node and browser environments.
+- Use import.meta.url with URL/file utilities to load relative assets: new URL('./data.proto', import.meta.url).
+- When mixing CJS and ESM, prefer default import and avoid relying on heuristic named exports.
+
+REFERENCE DETAILS
+APIs and signatures
+- import.meta.resolve(specifier: string) -> string (absolute URL) ; non-standard parentURL parameter behind experimental flag.
+- module.createRequire(filename?: string) -> require function for ESM contexts.
+- import expression: import(specifier) returns Promise<ModuleNamespace>.
+
+DETAILED DIGEST
+Source: Node.js — Modules: ECMAScript modules (https://nodejs.org/api/esm.html)
+Retrieved: 2026-03-08
+Extracted content: enabling ESM, specifier rules, import.meta properties, data and file URL handling, CJS interop behaviors.
+
+ATTRIBUTION
+Source: Node.js documentation — Modules: ECMAScript modules
+Data size fetched: ~18 KB (truncated in fetch)

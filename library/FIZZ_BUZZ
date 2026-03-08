@@ -1,0 +1,54 @@
+TABLE OF CONTENTS
+1. Rules and variants
+2. Implementation patterns
+3. Edge cases and alternatives
+
+NORMALISED EXTRACT
+Rules and variants
+- Replace numbers divisible by 3 with "fizz".
+- Replace numbers divisible by 5 with "buzz".
+- Replace numbers divisible by both 3 and 5 with "fizzbuzz" (i.e., divisible by 15).
+- Variations: add other divisibility rules (e.g., 7) or trigger on digit containment (e.g., a number containing digit 5 triggers the 5 rule).
+
+Implementation patterns
+- Basic loop pattern: for n from 1 to N, test divisibility and print the appropriate token or the number.
+  - Check divisibility by 15 first: if (n % 15 === 0) output "fizzbuzz".
+  - Else if (n % 3 === 0) output "fizz".
+  - Else if (n % 5 === 0) output "buzz".
+- Alternative pattern: build result string by concatenation: let out = ''; if (n % 3 === 0) out += 'fizz'; if (n % 5 === 0) out += 'buzz'; if (out === '') out = String(n); output out.
+- Functional pattern: map over a generated range and produce array of tokens using modular tests.
+
+Edge cases and alternatives
+- Zero: 0 is divisible by any non-zero integer; pattern yields "fizzbuzz" for 0.
+- Negative numbers: divisibility rules apply; use absolute value or define domain to positive integers.
+- Large N: use streaming/output buffering rather than building huge in-memory arrays.
+- Interview use: simple problem used to screen for basic coding ability; consider adding constraints (no modulo operator, single-pass, O(1) memory) for increased difficulty.
+
+SUPPLEMENTARY DETAILS
+Technical specifications
+- Divisibility: integer n divisible by k iff n % k === 0 in languages with modulo operator.
+- Combined divisibility: check for least common multiple (LCM) of divisors (LCM(3,5)=15) to detect "fizzbuzz".
+
+Implementation tips
+- Order checks from most specific (LCM) to least specific to avoid incorrect outputs.
+- Concatenation approach generalises to arbitrary rule sets without needing LCM checks.
+- For digit-containment rules: convert to string and check includes() or implement digit scanning for performance.
+
+REFERENCE DETAILS
+API / Patterns
+- Loop pseudo-signature: for (let n = start; n <= end; n++) { ... }
+- Divisibility check signature: isDivisible(n: integer, k: integer) -> boolean where isDivisible returns (n % k === 0).
+- Concatenate pattern: let out = ''; if (isDivisible(n,3)) out += 'fizz'; if (isDivisible(n,5)) out += 'buzz'; output out || String(n).
+
+TROUBLESHOOTING
+- Unexpected blank outputs: ensure output fallback uses string conversion of number.
+- Performance issues for very large ranges: avoid creating arrays of size N; stream results or process in chunks.
+
+DETAILED DIGEST
+Source: https://en.wikipedia.org/wiki/Fizz_buzz
+Retrieved: 2026-03-08
+Extracted content: rules for replacing numbers divisible by 3 and 5, examples, variants including digit-containment, historical and interview context.
+
+ATTRIBUTION
+Source: Wikipedia — Fizz buzz (https://en.wikipedia.org/wiki/Fizz_buzz)
+Data size fetched: ~1.5 KB
