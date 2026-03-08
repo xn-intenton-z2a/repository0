@@ -1,0 +1,70 @@
+NORMALISED_EXTRACT
+
+Table of contents:
+1. Installation and engine requirements
+2. Test file conventions and CLI usage
+3. Configuration options and priorities
+4. Projects and multi-config testing
+5. Automatic dependency installation and environment variables
+
+1. Installation and engine requirements
+- Install: npm install -D vitest (or yarn add -D vitest, pnpm add -D vitest, bun add -D vitest).
+- Requirements: Vite >= 6.0.0 and Node >= 20.0.0. Vitest uses Vite's transform pipeline; ensure compatible Vite if present.
+
+2. Test file conventions and CLI usage
+- Test file naming: file names must contain .test. or .spec. to be discovered by default.
+- Basic test structure:
+  - import { expect, test } from 'vitest'
+  - import { sum } from './sum.js'
+  - test('adds 1 + 2 to equal 3', () => { expect(sum(1,2)).toBe(3) })
+- CLI commands:
+  - npm run test -> runs vitest in watch by default; use vitest --run for single-run mode.
+  - vitest run --coverage for coverage collection.
+- Use npx vitest when not installed locally, or reference local binary in npm scripts.
+
+3. Configuration options and priorities
+- Vitest reads test configuration from vite.config.(js|ts) test property or a dedicated vitest.config.(js|ts); vitest.config has higher priority.
+- Supported config file extensions: .js, .mjs, .cjs, .ts, .cts, .mts (not .json).
+- Overriding strategies:
+  - Pass --config CLI option to point to a config file.
+  - Use defineConfig from 'vitest/config' and mergeConfig to combine Vite and Vitest configs.
+- Example vitest config snippet: defineConfig({ test: { /* options */ } })
+
+4. Projects and multi-config testing
+- Projects feature: define multiple project configs in test.projects array to run different environments or roots within same Vitest process.
+- Each project entry may be a glob pattern to locate config files or an inline object that names the project and sets root, environment, and setupFiles.
+- Useful to run node and browser-like environments together (environment: 'node' or 'happy-dom').
+
+5. Automatic dependency installation and environment variables
+- Vitest may prompt to install missing dependencies; disable prompt by setting environment variable VITEST_SKIP_INSTALL_CHECKS=1.
+- IDE integrations: VS Code extension available to surface tests and results.
+
+SUPPLEMENTARY DETAILS
+
+Implementation notes and best practices:
+- Prefer installing vitest as a devDependency in package.json for CI reproducibility.
+- When using Vite in the project, centralize configuration in vite.config and configure test property there; use vitest.config only when you need different test-time behavior.
+- Use projects to separate unit and integration/e2e style tests and to run with different environments in a single command.
+
+REFERENCE DETAILS
+
+Exact commands and config examples to copy:
+- Installation: npm install -D vitest
+- package.json scripts:
+  "scripts": { "test": "vitest", "coverage": "vitest run --coverage" }
+- Basic test file pattern (literal):
+  import { expect, test } from 'vitest'
+  import { sum } from './sum.js'
+  test('adds 1 + 2 to equal 3', () => { expect(sum(1,2)).toBe(3) })
+- Disable install prompts: VITEST_SKIP_INSTALL_CHECKS=1
+
+DETAILED DIGEST
+
+Source: https://vitest.dev/guide/
+Retrieved: 2026-03-08T10:02:26.900Z
+Extracted: installation commands, Node/Vite requirements, test discovery rules, configuration priorities, projects support, CLI commands. Data bytes fetched: approx 10,000 bytes
+
+ATTRIBUTION
+
+Vitest Guide — https://vitest.dev/guide/
+Data size obtained during crawling: approx 10.0 KB
