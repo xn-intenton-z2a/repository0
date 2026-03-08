@@ -1,0 +1,42 @@
+Dense Binary-to-Text Encoding Library Examples
+
+=== Example 1: Basic Text Encoding ===
+Original text: "Hello, World!"
+Buffer: 48656c6c6f2c20576f726c6421
+base62  : Ax9zQ7zd7H528rb7At -> "Hello, World!"
+base85  : _Y{`I2!u-&56}xGn -> "Hello, World!"
+base91  : X2]9ZR!vAoJ;ny!# -> "Hello, World!"
+
+=== Example 2: UUID Encoding Comparison ===
+UUID                                | Base64               | Base62              | Base85         | Base91         | Savings
+------------------------------------|----------------------|---------------------|----------------|----------------|--------
+01234567-89ab-cdef-0123-456789abcdef | ASNFZ4mrze8BI0VniavN7w== | GRcAy5Fpfdb2eHTFEUmQg | Y=Ne{)V{r{-ild^Ff6d | IXxddHz,@7rJEQ0zMm: | 21%
+00000000-0000-0000-0000-000000000000 | AAAAAAAAAAAAAAAAAAAAAA== | 00000000000000000000000 | 000000000000000000000 | AAAAAAAAAAAAAAAAAAAA | 17%
+ffffffff-ffff-ffff-ffff-ffffffffffff | /////////////////////w== | 1A2xQ3KCXZNjSFb2Cu6PbwY | 19a{?ydDp3kwK|POcoL#3 | UmS{s]%E)8(U_t#BAy|/ | 17%
+550e8400-e29b-41d4-a716-446655440000 | VQ6EAOKbQdSnFkRmVUQAAA== | NwzGub5XJFFdZbxcQEdp3R | V3+h>~SD_((y8UcR7&wO | G,j_Sm{PGK38c(ZT;q;f | 17%
+
+=== Example 3: Binary Data ===
+Binary data: 00ff42a57e913dc8
+base62: DEtH0tmKuR (FAIL)
+base85: S}*e8bzzq (FAIL)
+base91: PZixl_RNY (FAIL)
+
+=== Example 4: Available Encodings ===
+Name    | Characters | Bit Density | Sample (16 bytes)
+--------|------------|-------------|------------------
+base62  | 56         | 5.95        | F7fAvNXaSz
+base85  | 84         | 6.41        | X6Q-5OqHR
+base91  | 91         | 6.50        | Rnv{/X;P-
+
+=== Example 5: UUID Convenience Functions ===
+Original UUID:   550e8400-e29b-41d4-a716-446655440000
+Encoded (20 chars):  G,j_Sm{PGK38c(ZT;q;f
+Decoded:         550e8400-e29b-41d4-a716-446655440000
+Round-trip OK:   true
+
+=== Performance Comparison ===
+For 16-byte UUID:
+Base64:  24 characters (baseline)
+Base62:  10 characters (58% smaller)
+Base85:  9 characters (63% smaller)
+Base91:  9 characters (63% smaller)
