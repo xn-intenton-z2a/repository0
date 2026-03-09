@@ -657,7 +657,7 @@ jobs:
             echo "mission-complete=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Find and fix stuck PRs or broken main build
+      - name: Find stuck PRs or broken main build
         if: steps.fix-mission-check.outputs.mission-complete != 'true'
         uses: actions/github-script@v8
         env:
@@ -673,10 +673,11 @@ jobs:
             if (prNumber) {
               core.info(`Specific PR requested: #${prNumber}`);
               core.exportVariable('FIX_PR_NUMBER', prNumber);
+              core.exportVariable('FIX_REASON', 'requested');
               return;
             }
 
-            // Find PRs with failing checks or merge conflicts on agentic branches
+            // Find automerge PRs on agentic branches — always attempt to sync with main
             const { data: openPRs } = await github.rest.pulls.list({
               owner, repo, state: 'open', per_page: 10,
             });
@@ -687,45 +688,20 @@ jobs:
               if (!hasAutomerge) continue;
               if (!pr.head.ref.startsWith('agentic-lib-') && !pr.head.ref.startsWith('copilot/')) continue;
 
-              // Check for merge conflicts (retry once if GitHub hasn't computed mergeable yet)
-              let fullPr;
-              for (let attempt = 0; attempt < 2; attempt++) {
-                const { data: prData } = await github.rest.pulls.get({
-                  owner, repo, pull_number: pr.number,
-                });
-                fullPr = prData;
-                if (fullPr.mergeable !== null) break;
-                if (attempt === 0) {
-                  core.info(`PR #${pr.number} mergeable=null, retrying in 3s...`);
-                  await new Promise(r => setTimeout(r, 3000));
-                }
-              }
-              const hasConflicts = fullPr.mergeable_state === 'dirty' || fullPr.mergeable === false;
-
-              // Check if checks are failing
-              const { data: checkRuns } = await github.rest.checks.listForRef({
-                owner, repo, ref: pr.head.sha,
-              });
-              const hasFailing = checkRuns.check_runs.some(c => c.conclusion === 'failure');
-
-              core.info(`PR #${pr.number}: mergeable=${fullPr.mergeable}, state=${fullPr.mergeable_state}, conflicts=${hasConflicts}, failing=${hasFailing}`);
-              if (!hasFailing && !hasConflicts) continue;
-
               // Check fix attempt count via PR comments with marker
               const { data: comments } = await github.rest.issues.listComments({
                 owner, repo, issue_number: pr.number, per_page: 100,
               });
               const fixAttempts = comments.filter(c => c.body && c.body.includes('<!-- fix-stuck-attempt -->')).length;
               if (fixAttempts >= maxFixAttempts) {
-                core.info(`PR #${pr.number} exceeded ${maxFixAttempts} fix attempts (found ${fixAttempts} markers). Removing automerge.`);
+                core.info(`PR #${pr.number} exceeded ${maxFixAttempts} fix attempts (${fixAttempts} markers). Removing automerge.`);
                 try { await github.rest.issues.removeLabel({ owner, repo, issue_number: pr.number, name: 'automerge' }); } catch (e) {}
                 continue;
               }
 
-              const reason = hasConflicts ? 'merge conflicts' : 'failing checks';
-              core.info(`Will attempt to fix PR #${pr.number} (${reason})`);
+              core.info(`Will sync PR #${pr.number} with main (attempt ${fixAttempts + 1}/${maxFixAttempts})`);
               core.exportVariable('FIX_PR_NUMBER', String(pr.number));
-              core.exportVariable('FIX_REASON', reason);
+              core.exportVariable('FIX_REASON', 'sync');
               foundPR = true;
               break;
             }
@@ -742,7 +718,6 @@ jobs:
                 if (testRuns.workflow_runs.length > 0) {
                   const latestTest = testRuns.workflow_runs[0];
                   if (latestTest.conclusion === 'failure') {
-                    // Check we haven't already opened a fix branch for this
                     const { data: existingPRs } = await github.rest.pulls.list({
                       owner, repo, state: 'open', head: `${owner}:agentic-lib-fix-main-build`, per_page: 1,
                     });
@@ -782,8 +757,8 @@ jobs:
         run: |
           git checkout -b agentic-lib-fix-main-build
 
-      - name: "Tier 1: Auto-resolve merge conflicts (prefer main for conflicts)"
-        if: env.FIX_PR_NUMBER != '' && env.FIX_REASON == 'merge conflicts' && steps.fix-mission-check.outputs.mission-complete != 'true'
+      - name: "Tier 1: Sync PR branch with main (prefer main for conflicts)"
+        if: env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
         id: trivial-resolve
         run: |
           git config user.email 'action@github.com'
