@@ -2,5 +2,8 @@
 
 Reference material and documentation sources for this project.
 
-Add URLs, papers, API docs, or other reference material here.
-The maintain-library workflow will process these into `library/` documents.
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
+- https://nodejs.org/api/modules.html#modules_exports
+- https://www.npmjs.com/package/fizzbuzz
+- https://en.wikipedia.org/wiki/Fizz_buzz
