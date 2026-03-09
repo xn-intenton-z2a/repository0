@@ -1,98 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>repository0</title>
-  <meta property="og:title" content="repository0">
-  <meta property="og:description" content="An autonomous repository powered by agentic-lib">
-  <meta property="og:type" content="website">
-  <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
-    h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
-    a { color: #0366d6; }
-    .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
-    .identity dt { font-weight: bold; color: #666; }
-    .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-    #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>FizzBuzz Demo</title>
+  <style>body{font-family:system-ui, -apple-system, sans-serif;max-width:780px;margin:2rem auto;padding:1rem}label{display:inline-block;width:120px}</style>
 </head>
 <body>
-  <h1 id="lib-name">repository0</h1>
-  <div class="identity">
-    <dl>
-      <dt>Version</dt>
-      <dd id="lib-version">loading...</dd>
-      <dt>Description</dt>
-      <dd id="lib-description">loading...</dd>
-    </dl>
-  </div>
-  <h2>FizzBuzz Demo</h2>
-  <label for="start">Start: </label>
-  <input id="start" type="number" value="-5" />
-  <label for="end">End: </label>
-  <input id="end" type="number" value="5" />
-  <button id="generate">Generate</button>
-  <ul id="results" aria-live="polite"></ul>
+  <h1>FizzBuzz Demo</h1>
+  <section>
+    <h2>Single value</h2>
+    <label for="fizz-input">Number</label>
+    <input id="fizz-input" type="number" value="15" />
+    <button id="fizz-submit">Submit</button>
+    <div>Result: <span id="fizz-output" aria-live="polite"></span></div>
+  </section>
 
-  <h2>About</h2>
-  <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
-  <script type="module">
-    let fizzBuzzSequence;
-    // try importing library; if unavailable (e.g., JSDOM), fall back to local implementation
-    (async ()=>{
-      try{
-        const mod = await import('../lib/main.js');
-        fizzBuzzSequence = mod.fizzBuzzSequence;
-      }catch(_){
-        // fallback implementation
-        const single = (i)=>{
-          if (!Number.isFinite(i) || !Number.isInteger(i)) throw new TypeError('n must be a finite integer');
-          const by3 = i % 3 === 0;
-          const by5 = i % 5 === 0;
-          if (by3 && by5) return 'FizzBuzz';
-          if (by3) return 'Fizz';
-          if (by5) return 'Buzz';
-          return String(i);
-        };
-        fizzBuzzSequence = (start,end)=>{
-          if (!Number.isFinite(start) || !Number.isInteger(start) || !Number.isFinite(end) || !Number.isInteger(end)) throw new TypeError('start and end must be integers');
-          if (start > end) throw new RangeError('start must be <= end');
-          const out=[];
-          for(let i=start;i<=end;i++) out.push(single(i));
-          return out;
-        };
-      }
+  <section>
+    <h2>Range</h2>
+    <label for="fizz-range">Count (n)</label>
+    <input id="fizz-range" type="number" value="0" />
+    <button id="fizz-range-submit">Generate</button>
+    <div>Result: <span id="fizz-range-output" aria-live="polite"></span></div>
+  </section>
 
-      const startInput = document.getElementById('start');
-      const endInput = document.getElementById('end');
-      const btn = document.getElementById('generate');
-      const results = document.getElementById('results');
+  <div role="status" id="fizz-error" style="color:crimson;margin-top:1rem"></div>
 
-      function render(arr){
-        results.innerHTML = '';
-        arr.forEach((v,i)=>{
-          const li = document.createElement('li');
-          li.textContent = v;
-          li.dataset.index = String(i+1);
-          results.appendChild(li);
-        });
-      }
-
-      btn.addEventListener('click', ()=>{
-        const start = Number(startInput.value);
-        const end = Number(endInput.value);
-        try{
-          const out = fizzBuzzSequence(start,end);
-          render(out);
-        }catch(e){
-          results.innerHTML = `<li class="error">${e.message}</li>`;
-        }
-      });
-
-      // initial render
-      btn.click();
-    })();
-  </script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>

@@ -1,18 +1,28 @@
-# repository0 — FizzBuzz library
+# repository0 — FizzBuzz Feature
 
-This project provides a small JavaScript library exporting FizzBuzz utilities that correctly handle negative and positive integers, zero, and ranges.
+This repository demonstrates a small FizzBuzz library and web demo used by the agentic workflows.
 
-Usage example:
+Usage examples:
 
-import { fizzBuzz, fizzBuzzSingle, fizzBuzzSequence } from './src/lib/main.js';
+- Library
 
-// single value
-console.log(fizzBuzzSingle(-3)); // "Fizz"
+  import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js'
 
-// sequence from 1..n
-console.log(fizzBuzz(5)); // ["1","2","Fizz","4","Buzz"]
+  fizzBuzz(5) -> ["1","2","Fizz","4","Buzz"]
+  fizzBuzzSingle(15) -> "FizzBuzz"
 
-// sequence for arbitrary start..end
-console.log(fizzBuzzSequence(-5,-1)); // ["Buzz","-4","Fizz","-2","-1"]
+- CLI
 
-See docs/ for examples and evidence.
+  node src/lib/main.js 15
+  # prints: FizzBuzz
+
+- Web demo
+
+  Open `src/web/index.html` (or run `npm run start` after `npm run build:web`) and use the interactive demo.
+
+Web demo element IDs used by testers:
+- fizz-input, fizz-submit, fizz-output
+- fizz-range, fizz-range-submit, fizz-range-output
+- fizz-error
+
+See docs/fizz-buzz.md for API contract and examples.

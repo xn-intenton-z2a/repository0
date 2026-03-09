@@ -1,31 +1,48 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import fs from 'fs';
-import jsdom from 'jsdom';
-const { JSDOM } = jsdom;
+import path from 'path';
+import { JSDOM } from 'jsdom';
 
-describe('web demo', ()=>{
-  let dom;
-  beforeEach(()=>{
-    const html = fs.readFileSync('src/web/index.html','utf8');
-    dom = new JSDOM(html, { runScripts: 'dangerously', resources: 'usable' });
-  });
+describe('Web demo wiring', ()=>{
+  it('DOM contains required IDs and wiring produces outputs', async ()=>{
+    const html = fs.readFileSync(path.resolve('src/web/index.html'), 'utf8');
+    const dom = new JSDOM(html, { runScripts: 'dangerously', resources: 'usable' });
+    // wait for module to load
+    await new Promise((res)=> setTimeout(res, 50));
+    const doc = dom.window.document;
+    const ids = ['fizz-input','fizz-submit','fizz-output','fizz-range','fizz-range-submit','fizz-range-output','fizz-error'];
+    ids.forEach(id=> expect(doc.getElementById(id)).toBeTruthy());
 
-  it('has start/end inputs and results list', async ()=>{
-    const window = dom.window;
-    await new Promise(r=>setTimeout(r,300));
-    const start = window.document.getElementById('start');
-    const end = window.document.getElementById('end');
-    const results = window.document.getElementById('results');
-    expect(start).toBeTruthy();
-    expect(end).toBeTruthy();
-    expect(results).toBeTruthy();
-    // trigger generate to ensure rendering (may be no-op in JSDOM); presence of elements is sufficient here
-    const btn = window.document.getElementById('generate');
+    // Simulate clicking handlers by importing app module and triggering events
+    // Load the app module script
+    const scriptUrl = path.resolve('src/web/app.js');
+    // evaluate the module in the JSDOM window context
+    const moduleCode = fs.readFileSync(scriptUrl, 'utf8');
+    const module = new dom.window.Function('exports', 'require', 'module', '__filename', '__dirname', moduleCode);
+    // A simple require shim to allow importing from '../lib/main.js'
+    const requireShim = (p)=>{
+      // only allow local lib import
+      if (p.endsWith('../lib/main.js') || p === '../lib/main.js'){
+        return require('../../src/lib/main.js');
+      }
+      throw new Error('unexpected require: '+p);
+    };
+    // execute module to wire handlers
+    module({}, requireShim, {exports:{}}, scriptUrl, path.dirname(scriptUrl));
+
+    const input = doc.getElementById('fizz-input');
+    const btn = doc.getElementById('fizz-submit');
+    input.value = '15';
     btn.click();
-    await new Promise(r=>setTimeout(r,50));
-    // we assert elements exist; end-to-end browser behaviour is covered by Playwright behaviour tests
-    expect(start.tagName.toLowerCase()).toBe('input');
-    expect(end.tagName.toLowerCase()).toBe('input');
-    expect(results.tagName.toLowerCase()).toBe('ul');
+    // allow handlers
+    await new Promise(res=>setTimeout(res,20));
+    expect(doc.getElementById('fizz-output').textContent).toBe('FizzBuzz');
+
+    const rangeInput = doc.getElementById('fizz-range');
+    const rangeBtn = doc.getElementById('fizz-range-submit');
+    rangeInput.value = '0';
+    rangeBtn.click();
+    await new Promise(res=>setTimeout(res,20));
+    expect(doc.getElementById('fizz-range-output').textContent).toBe('');
   });
 });
