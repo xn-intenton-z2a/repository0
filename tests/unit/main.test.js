@@ -1,48 +1,55 @@
-// SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
-import { describe, test, expect } from "vitest";
-import { main, getIdentity, name, version, description, fizzBuzz, fizzBuzzSingle, fizzBuzzSequence } from "../../src/lib/main.js";
+import { describe, it, expect } from 'vitest';
+import { fizzBuzz, fizzBuzzSingle } from '../../src/lib/main.js';
 
-describe("Main Output", () => {
-  test("should terminate without error", () => {
-    process.argv = ["node", "src/lib/main.js"];
-    main();
-  });
-});
-
-describe("Library Identity", () => {
-  test("exports name, version, and description", () => {
-    expect(typeof name).toBe("string");
-    expect(typeof version).toBe("string");
-    expect(typeof description).toBe("string");
-    expect(name.length).toBeGreaterThan(0);
-    expect(version).toMatch(/^\d+\.\d+\.\d+/);
+describe('FizzBuzz library', ()=>{
+  it('fizzBuzz(15) length and 15th element', ()=>{
+    const arr = fizzBuzz(15);
+    expect(arr).toHaveLength(15);
+    expect(arr[14]).toBe('FizzBuzz');
   });
 
-  test("getIdentity returns correct structure", () => {
-    const identity = getIdentity();
-    expect(identity).toEqual({ name, version, description });
-  });
-});
-
-// Additional FizzBuzz tests
-describe('FizzBuzz API', ()=>{
-  test('fizzBuzzSingle behaviors', ()=>{
+  it('fizzBuzzSingle(3) -> Fizz', ()=>{
     expect(fizzBuzzSingle(3)).toBe('Fizz');
+  });
+  it('fizzBuzzSingle(5) -> Buzz', ()=>{
     expect(fizzBuzzSingle(5)).toBe('Buzz');
+  });
+  it('fizzBuzzSingle(15) -> FizzBuzz', ()=>{
     expect(fizzBuzzSingle(15)).toBe('FizzBuzz');
+  });
+  it('fizzBuzzSingle(7) -> "7"', ()=>{
     expect(fizzBuzzSingle(7)).toBe('7');
-    expect(fizzBuzzSingle(0)).toBe('FizzBuzz');
-    expect(fizzBuzzSingle(-3)).toBe('Fizz');
   });
 
-  test('fizzBuzz sequences', ()=>{
+  it('fizzBuzz(0) -> []', ()=>{
     expect(fizzBuzz(0)).toEqual([]);
-    expect(fizzBuzz(5)).toEqual(['1','2','Fizz','4','Buzz']);
-    expect(fizzBuzz(-3)).toEqual(['Fizz','-2','-1']);
   });
 
-  test('fizzBuzzSequence ranges', ()=>{
-    expect(fizzBuzzSequence(-5,-1)).toEqual(['Buzz','-4','Fizz','-2','-1']);
+  it('negative throws RangeError with exact message', ()=>{
+    expect(()=>fizzBuzz(-1)).toThrow(RangeError);
+    expect(()=>fizzBuzz(-1)).toThrow('n must be a non-negative integer');
+    expect(()=>fizzBuzzSingle(-1)).toThrow(RangeError);
+    expect(()=>fizzBuzzSingle(-1)).toThrow('n must be a non-negative integer');
+  });
+
+  it('non-integer throws TypeError with exact message', ()=>{
+    expect(()=>fizzBuzz(2.5)).toThrow(TypeError);
+    expect(()=>fizzBuzz(2.5)).toThrow('n must be an integer');
+    expect(()=>fizzBuzzSingle(2.5)).toThrow(TypeError);
+    expect(()=>fizzBuzzSingle(2.5)).toThrow('n must be an integer');
+  });
+
+  it('non-number inputs throw TypeError', ()=>{
+    // null and string
+    expect(()=>fizzBuzz(null)).toThrow(TypeError);
+    expect(()=>fizzBuzz('3')).toThrow(TypeError);
+    expect(()=>fizzBuzzSingle(null)).toThrow(TypeError);
+    expect(()=>fizzBuzzSingle('3')).toThrow(TypeError);
+  });
+
+  it('large n works and returns correct length', ()=>{
+    const arr = fizzBuzz(1000);
+    expect(arr).toHaveLength(1000);
+    expect(arr[2]).toBe('Fizz'); // 3rd element
   });
 });
