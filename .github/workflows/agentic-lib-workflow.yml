@@ -687,10 +687,19 @@ jobs:
               if (!hasAutomerge) continue;
               if (!pr.head.ref.startsWith('agentic-lib-') && !pr.head.ref.startsWith('copilot/')) continue;
 
-              // Check for merge conflicts
-              const { data: fullPr } = await github.rest.pulls.get({
-                owner, repo, pull_number: pr.number,
-              });
+              // Check for merge conflicts (retry once if GitHub hasn't computed mergeable yet)
+              let fullPr;
+              for (let attempt = 0; attempt < 2; attempt++) {
+                const { data: prData } = await github.rest.pulls.get({
+                  owner, repo, pull_number: pr.number,
+                });
+                fullPr = prData;
+                if (fullPr.mergeable !== null) break;
+                if (attempt === 0) {
+                  core.info(`PR #${pr.number} mergeable=null, retrying in 3s...`);
+                  await new Promise(r => setTimeout(r, 3000));
+                }
+              }
               const hasConflicts = fullPr.mergeable_state === 'dirty' || fullPr.mergeable === false;
 
               // Check if checks are failing
@@ -699,6 +708,7 @@ jobs:
               });
               const hasFailing = checkRuns.check_runs.some(c => c.conclusion === 'failure');
 
+              core.info(`PR #${pr.number}: mergeable=${fullPr.mergeable}, state=${fullPr.mergeable_state}, conflicts=${hasConflicts}, failing=${hasFailing}`);
               if (!hasFailing && !hasConflicts) continue;
 
               // Check fix attempt count via PR comments with marker
