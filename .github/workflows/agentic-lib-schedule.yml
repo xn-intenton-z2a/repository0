@@ -107,6 +107,18 @@ jobs:
             let content = fs.readFileSync(workflowPath, 'utf8');
             const cron = SCHEDULE_MAP[frequency];
 
+            // Check if the frequency is already set — skip if no-op
+            const supervisorRegex2 = /^\s*supervisor\s*=\s*"([^"]*)"/m;
+            if (fs.existsSync(tomlPath)) {
+              const currentToml = fs.readFileSync(tomlPath, 'utf8');
+              const currentMatch = currentToml.match(supervisorRegex2);
+              const currentFreq = currentMatch ? currentMatch[1] : '';
+              if (currentFreq === frequency) {
+                core.info(`Schedule already set to ${frequency} — no change needed`);
+                return;
+              }
+            }
+
             // Remove any existing schedule block
             content = content.replace(/\n  schedule:\n    - cron: "[^"]*"\n/g, '\n');
 

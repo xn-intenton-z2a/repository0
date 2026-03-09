@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-09T01:09:42.480Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -17,6 +16,8 @@ concurrency:
   cancel-in-progress: false
 
 on:
+  schedule:
+    - cron: "0 6 * * 1"
   workflow_call:
     inputs:
       model:
@@ -122,13 +123,25 @@ jobs:
   params:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: ${{ env.configPath }}
+          sparse-checkout-cone-mode: false
       - name: Normalise params
         id: normalise
         shell: bash
         run: |
           MODEL='${{ inputs.model }}'
+          if [ -z "$MODEL" ] && [ -f "${{ env.configPath }}" ]; then
+            TOML_MODEL=$(grep '^\s*model' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/')
+            MODEL="${TOML_MODEL}"
+          fi
           echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
           PROFILE='${{ inputs.profile }}'
+          if [ -z "$PROFILE" ] && [ -f "${{ env.configPath }}" ]; then
+            TOML_PROFILE=$(grep '^\s*profile' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/')
+            PROFILE="${TOML_PROFILE}"
+          fi
           echo "profile=${PROFILE}" >> $GITHUB_OUTPUT
           MODE='${{ inputs.mode }}'
           echo "mode=${MODE:-full}" >> $GITHUB_OUTPUT
@@ -241,6 +254,52 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Install dependencies (non-blocking)
+        id: install-deps
+        run: npm ci 2>/dev/null || echo "npm ci failed (non-blocking)"
+
+      - name: Run unit tests (non-blocking)
+        id: unit-tests
+        run: |
+          set +e
+          TEST_CMD=""
+          if [ -f agentic-lib.toml ]; then
+            TEST_CMD=$(grep '^\s*test\s*=' agentic-lib.toml 2>/dev/null | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/')
+          fi
+          TEST_CMD="${TEST_CMD:-npm test}"
+          OUTPUT=$(eval "$TEST_CMD" 2>&1)
+          EXIT_CODE=$?
+          echo "exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          PASS_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ pass' | head -1 | grep -oP '\d+' || echo "0")
+          FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ fail' | head -1 | grep -oP '\d+' || echo "0")
+          echo "pass-count=$PASS_COUNT" >> $GITHUB_OUTPUT
+          echo "fail-count=$FAIL_COUNT" >> $GITHUB_OUTPUT
+          echo "$OUTPUT" | tail -100 > /tmp/unit-test-output.txt
+          exit 0
+
+      - name: Run behaviour tests (non-blocking)
+        id: behaviour-tests
+        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
+        run: |
+          set +e
+          npx playwright install --with-deps chromium 2>/dev/null || true
+          npm run build:web 2>/dev/null || true
+          OUTPUT=$(npm run --if-present test:behaviour 2>&1)
+          EXIT_CODE=$?
+          echo "exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          PASS_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ passed' | head -1 | grep -oP '\d+' || echo "0")
+          FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ failed' | head -1 | grep -oP '\d+' || echo "0")
+          echo "pass-count=$PASS_COUNT" >> $GITHUB_OUTPUT
+          echo "fail-count=$FAIL_COUNT" >> $GITHUB_OUTPUT
+          echo "$OUTPUT" | tail -50 > /tmp/behaviour-test-output.txt
+          exit 0
+
       - name: Gather telemetry
         id: gather
         uses: actions/github-script@v8
@@ -292,6 +351,72 @@ jobs:
             // Message from bot/human
             const message = '${{ needs.params.outputs.message }}';
 
+            // Latest external test workflow run
+            let externalTestResults = null;
+            try {
+              const testRuns = await github.rest.actions.listWorkflowRuns({
+                owner, repo,
+                workflow_id: 'agentic-lib-test.yml',
+                branch: 'main',
+                per_page: 1,
+              });
+              const latestTest = testRuns.data.workflow_runs[0];
+              if (latestTest) {
+                const jobs = await github.rest.actions.listJobsForWorkflowRun({
+                  owner, repo,
+                  run_id: latestTest.id,
+                });
+                externalTestResults = {
+                  runId: latestTest.id,
+                  conclusion: latestTest.conclusion,
+                  created: latestTest.created_at,
+                  jobs: jobs.data.jobs.map(j => ({
+                    name: j.name, conclusion: j.conclusion,
+                  })),
+                };
+              }
+            } catch (e) { /* ignore */ }
+
+            // Source file stats
+            let sourceStats = null;
+            try {
+              const sourcePath = 'src/lib/';
+              if (fs.existsSync(sourcePath)) {
+                const files = fs.readdirSync(sourcePath).filter(f => f.endsWith('.js') || f.endsWith('.ts'));
+                sourceStats = files.map(f => {
+                  const content = fs.readFileSync(`${sourcePath}${f}`, 'utf8');
+                  const lines = content.split('\n').length;
+                  const exports = [...content.matchAll(/export\s+(?:async\s+)?(?:function|const|class)\s+(\w+)/g)].map(m => m[1]);
+                  return { file: f, lines, exports };
+                });
+              }
+            } catch (e) {}
+
+            // Mission complete/failed signals
+            const missionComplete = fs.existsSync('MISSION_COMPLETE.md');
+            const missionFailed = fs.existsSync('MISSION_FAILED.md');
+
+            // Activity log stats
+            let activityStats = null;
+            try {
+              const logPath = fs.existsSync('intenti\u00F6n.md') ? 'intenti\u00F6n.md' : (fs.existsSync('intention.md') ? 'intention.md' : null);
+              if (logPath) {
+                const log = fs.readFileSync(logPath, 'utf8');
+                const entries = log.split('\n## ').length - 1;
+                const costMatches = [...log.matchAll(/\*\*agentic-lib transformation cost:\*\* (\d+)/g)];
+                const totalCost = costMatches.reduce((sum, m) => sum + parseInt(m[1], 10), 0);
+                activityStats = { entries, totalTransformCost: totalCost };
+              }
+            } catch (e) {}
+
+            // Live test results from earlier steps
+            const unitOutput = fs.existsSync('/tmp/unit-test-output.txt')
+              ? fs.readFileSync('/tmp/unit-test-output.txt', 'utf8').slice(0, 5000)
+              : '';
+            const behaviourOutput = fs.existsSync('/tmp/behaviour-test-output.txt')
+              ? fs.readFileSync('/tmp/behaviour-test-output.txt', 'utf8').slice(0, 2500)
+              : '';
+
             const telemetry = {
               issues: issuesSummary,
               prs: prsSummary,
@@ -299,13 +424,42 @@ jobs:
               mission: mission.slice(0, 500),
               featureFiles: features,
               message: message || null,
+              liveTests: {
+                unit: {
+                  exitCode: parseInt('${{ steps.unit-tests.outputs.exit-code }}' || '0'),
+                  passCount: parseInt('${{ steps.unit-tests.outputs.pass-count }}' || '0'),
+                  failCount: parseInt('${{ steps.unit-tests.outputs.fail-count }}' || '0'),
+                  output: unitOutput,
+                },
+                behaviour: {
+                  exitCode: parseInt('${{ steps.behaviour-tests.outputs.exit-code }}' || '-1'),
+                  passCount: parseInt('${{ steps.behaviour-tests.outputs.pass-count }}' || '0'),
+                  failCount: parseInt('${{ steps.behaviour-tests.outputs.fail-count }}' || '0'),
+                  output: behaviourOutput,
+                },
+              },
+              externalTestResults,
+              sourceStats,
+              activityStats,
+              missionComplete,
+              missionFailed,
             };
 
             // Write to file for downstream jobs
             fs.writeFileSync('/tmp/telemetry.json', JSON.stringify(telemetry, null, 2));
-            // Set as output (truncated for GitHub output limits)
+            // Set as output (clipped by tuning profile)
+            let maxTelemetryChars = 30000;
+            try {
+              if (fs.existsSync('agentic-lib.toml')) {
+                const toml = fs.readFileSync('agentic-lib.toml', 'utf8');
+                const profileMatch = toml.match(/^\s*profile\s*=\s*"(\w+)"/m);
+                const profile = profileMatch ? profileMatch[1] : 'recommended';
+                const PROFILE_LIMITS = { min: 10000, recommended: 30000, max: 60000 };
+                maxTelemetryChars = PROFILE_LIMITS[profile] || 30000;
+              }
+            } catch (e) {}
             const summary = JSON.stringify(telemetry);
-            core.setOutput('telemetry', summary.slice(0, 60000));
+            core.setOutput('telemetry', summary.slice(0, maxTelemetryChars));
     outputs:
       telemetry: ${{ steps.gather.outputs.telemetry }}
 
@@ -687,6 +841,8 @@ jobs:
             echo "No changes to commit"
             exit 0
           fi
+          git config --local user.email 'action@github.com'
+          git config --local user.name 'GitHub Actions[bot]'
           git add -A
           git commit -m "agentic-step: fix broken main build (run ${{ env.FIX_RUN_ID }})"
           git push -u origin agentic-lib-fix-main-build
@@ -985,6 +1141,16 @@ jobs:
           echo "- Profile: ${{ needs.params.outputs.profile || '(from config)' }}" >> $GITHUB_STEP_SUMMARY
           echo "- Dry-run: ${{ needs.params.outputs.dry-run }}" >> $GITHUB_STEP_SUMMARY
           echo "- Website: [${SITE_URL}](${SITE_URL})" >> $GITHUB_STEP_SUMMARY
+
+  # ─── Post-commit validation: call test workflow to verify branch health ───
+  post-commit-test:
+    needs: [params, dev, fix-stuck, post-merge]
+    if: >-
+      !cancelled()
+      && needs.params.outputs.dry-run != 'true'
+      && needs.params.result == 'success'
+    uses: ./.github/workflows/agentic-lib-test.yml
+    secrets: inherit
 
   # ─── Schedule change (if requested) ────────────────────────────────
   update-schedule:

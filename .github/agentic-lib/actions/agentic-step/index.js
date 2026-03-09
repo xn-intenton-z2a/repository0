@@ -34,6 +34,65 @@ const TASKS = {
   "supervise": supervise,
 };
 
+/**
+ * Build mission-complete metrics array for the intentïon.md dashboard.
+ */
+function buildMissionMetrics(config, result, limitsStatus, cumulativeCost, featureIssueCount, maintenanceIssueCount) {
+  const openIssues = featureIssueCount + maintenanceIssueCount;
+  const budgetCap = config.transformationBudget || 0;
+  const resolvedCount = result.resolvedCount || 0;
+  const missionComplete = existsSync("MISSION_COMPLETE.md");
+  const missionFailed = existsSync("MISSION_FAILED.md");
+
+  // Count open PRs from result if available
+  const openPrs = result.openPrCount || 0;
+
+  const metrics = [
+    { metric: "Open issues", value: String(openIssues), target: "0", status: openIssues === 0 ? "MET" : "NOT MET" },
+    { metric: "Open PRs", value: String(openPrs), target: "0", status: openPrs === 0 ? "MET" : "NOT MET" },
+    { metric: "Issues closed by review (RESOLVED)", value: String(resolvedCount), target: ">= 1", status: resolvedCount >= 1 ? "MET" : "NOT MET" },
+    { metric: "Transformation budget used", value: `${cumulativeCost}/${budgetCap}`, target: budgetCap > 0 ? `< ${budgetCap}` : "unlimited", status: budgetCap > 0 && cumulativeCost >= budgetCap ? "EXHAUSTED" : "OK" },
+    { metric: "Cumulative transforms", value: String(cumulativeCost), target: ">= 1", status: cumulativeCost >= 1 ? "MET" : "NOT MET" },
+    { metric: "Mission complete declared", value: missionComplete ? "YES" : "NO", target: "—", status: "—" },
+    { metric: "Mission failed declared", value: missionFailed ? "YES" : "NO", target: "—", status: "—" },
+  ];
+
+  return metrics;
+}
+
+/**
+ * Build mission-complete readiness narrative from metrics.
+ */
+function buildMissionReadiness(metrics) {
+  const openIssues = parseInt(metrics.find((m) => m.metric === "Open issues")?.value || "0", 10);
+  const openPrs = parseInt(metrics.find((m) => m.metric === "Open PRs")?.value || "0", 10);
+  const resolved = parseInt(metrics.find((m) => m.metric === "Issues closed by review (RESOLVED)")?.value || "0", 10);
+  const missionComplete = metrics.find((m) => m.metric === "Mission complete declared")?.value === "YES";
+  const missionFailed = metrics.find((m) => m.metric === "Mission failed declared")?.value === "YES";
+
+  if (missionComplete) {
+    return "Mission has been declared complete.";
+  }
+  if (missionFailed) {
+    return "Mission has been declared failed.";
+  }
+
+  const conditionsMet = openIssues === 0 && openPrs === 0 && resolved >= 1;
+  const parts = [];
+
+  if (conditionsMet) {
+    parts.push("Mission complete conditions ARE met.");
+    parts.push(`0 open issues, 0 open PRs, ${resolved} issue(s) closed by review as RESOLVED.`);
+  } else {
+    parts.push("Mission complete conditions are NOT met.");
+    if (openIssues > 0) parts.push(`${openIssues} open issue(s) remain.`);
+    if (openPrs > 0) parts.push(`${openPrs} open PR(s) remain.`);
+    if (resolved < 1) parts.push("No issues have been closed by review as RESOLVED yet.");
+  }
+
+  return parts.join(" ");
+}
+
 async function run() {
   try {
     // Parse inputs
@@ -173,6 +232,10 @@ async function run() {
 
     const closingNotes = result.closingNotes || generateClosingNotes(limitsStatus);
 
+    // Build mission-complete metrics and readiness narrative
+    const missionMetrics = buildMissionMetrics(config, result, limitsStatus, cumulativeCost, featureIssueCount, maintenanceIssueCount);
+    const missionReadiness = buildMissionReadiness(missionMetrics);
+
     // Log to intentïon.md (commit-if-changed excludes this on non-default branches)
     if (intentionFilepath) {
       logActivity({
@@ -195,6 +258,8 @@ async function run() {
         contextNotes: result.contextNotes,
         limitsStatus,
         promptBudget: result.promptBudget,
+        missionReadiness,
+        missionMetrics,
         closingNotes,
         transformationCost,
         narrative: result.narrative,

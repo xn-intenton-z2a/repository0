@@ -30,6 +30,10 @@ the website code that uses it, the web tests that check for its output, and any 
 that depend on it. A partial change that updates the library but not the tests will fail — and there will
 be a full test run after your changes regardless, consuming budget on each failure.
 
+**IMPORTANT**: The project uses `"type": "module"` in package.json. All files must use ESM syntax:
+- `import { test, expect } from "@playwright/test"` (NOT `const { test, expect } = require(...)`)
+- `import { execSync } from "child_process"` (NOT `const { execSync } = require(...)`)
+
 ## Tests Must Pass
 
 Your changes MUST leave all existing tests passing. If you change function signatures, return values, or

@@ -35,6 +35,8 @@ import * as core from "@actions/core";
  * @param {string} [options.closingNotes] - Auto-generated limit concern notes
  * @param {number} [options.transformationCost] - Transformation cost for this entry (0 or 1)
  * @param {string} [options.narrative] - LLM-generated narrative description of the change
+ * @param {string} [options.missionReadiness] - Mission-complete readiness narrative
+ * @param {Array} [options.missionMetrics] - Mission metrics entries { metric, value, target, status }
  */
 export function logActivity({
   filepath,
@@ -56,6 +58,8 @@ export function logActivity({
   contextNotes,
   limitsStatus,
   promptBudget,
+  missionReadiness,
+  missionMetrics,
   closingNotes,
   transformationCost,
   narrative,
@@ -106,6 +110,18 @@ export function logActivity({
     parts.push("|---|---|---|---|");
     for (const pb of promptBudget) {
       parts.push(`| ${pb.section} | ${pb.size} chars | ${pb.files || "—"} | ${pb.notes || ""} |`);
+    }
+  }
+  if (missionReadiness) {
+    parts.push("", "### Mission-Complete Readiness");
+    parts.push(missionReadiness);
+  }
+  if (missionMetrics && missionMetrics.length > 0) {
+    parts.push("", "### Mission Metrics");
+    parts.push("| Metric | Value | Target | Status |");
+    parts.push("|--------|-------|--------|--------|");
+    for (const m of missionMetrics) {
+      parts.push(`| ${m.metric} | ${m.value} | ${m.target} | ${m.status} |`);
     }
   }
   if (closingNotes) {

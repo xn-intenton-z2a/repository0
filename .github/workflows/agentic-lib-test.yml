@@ -11,6 +11,10 @@
 name: agentic-lib-test
 run-name: "agentic-lib-test [${{ github.ref_name }}]"
 
+concurrency:
+  group: agentic-lib-test-${{ github.ref_name }}
+  cancel-in-progress: true
+
 on:
   schedule:
     - cron: "10 * * * *"
@@ -115,12 +119,33 @@ jobs:
     if: >-
       !cancelled()
       && github.ref == 'refs/heads/main'
-      && github.event_name != 'pull_request'
+      && (github.event_name == 'push' || github.event_name == 'schedule')
       && github.repository != 'xn-intenton-z2a/agentic-lib'
       && (needs.test.result == 'failure' || needs.behaviour.result == 'failure')
     runs-on: ubuntu-latest
     steps:
+      - name: Check circuit breaker
+        id: breaker
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Count agentic-lib-workflow dispatches in last 30 minutes
+          SINCE=$(date -u -d '30 minutes ago' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -v-30M +%Y-%m-%dT%H:%M:%SZ)
+          COUNT=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow agentic-lib-workflow.yml \
+            --json createdAt \
+            --jq "[.[] | select(.createdAt >= \"$SINCE\")] | length")
+          echo "recent-dispatches=$COUNT"
+          if [ "$COUNT" -ge 3 ]; then
+            echo "Circuit breaker tripped: $COUNT dispatches in last 30 min"
+            echo "tripped=true" >> $GITHUB_OUTPUT
+          else
+            echo "tripped=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Dispatch agentic-lib-workflow to fix broken build
+        if: steps.breaker.outputs.tripped != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

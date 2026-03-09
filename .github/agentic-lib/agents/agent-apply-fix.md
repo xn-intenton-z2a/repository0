@@ -31,6 +31,10 @@ regardless — each failed attempt consumes transformation budget, so get it rig
 **Both unit tests AND behaviour tests must pass.** The project runs `npm test` (unit tests) and
 `npm run test:behaviour` (Playwright). Both are gated — your fix must pass both.
 
+**IMPORTANT**: The project uses `"type": "module"` in package.json. All files must use ESM syntax:
+- `import { test, expect } from "@playwright/test"` (NOT `const { test, expect } = require(...)`)
+- `import { execSync } from "child_process"` (NOT `const { execSync } = require(...)`)
+
 ## Merge Conflict Resolution
 
 When resolving merge conflicts (files containing <<<<<<< / ======= / >>>>>>> markers):

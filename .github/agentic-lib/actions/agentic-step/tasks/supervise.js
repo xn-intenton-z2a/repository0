@@ -520,11 +520,12 @@ async function executeDispatch(octokit, repo, actionName, params, ctx) {
   return `dispatched:${workflowFile}`;
 }
 
-async function executeCreateIssue(octokit, repo, params) {
+async function executeCreateIssue(octokit, repo, params, ctx) {
   const title = params.title || "Untitled issue";
   const labels = params.labels ? params.labels.split(",").map((l) => l.trim()) : ["automated"];
 
   // Dedup guard: skip if a similarly-titled issue was closed in the last hour
+  // Exclude issues closed before the init timestamp (cross-scenario protection)
   try {
     const { data: recent } = await octokit.rest.issues.listForRepo({
       ...repo,
@@ -533,12 +534,14 @@ async function executeCreateIssue(octokit, repo, params) {
       direction: "desc",
       per_page: 5,
     });
+    const initTimestamp = ctx?.initTimestamp;
     const titlePrefix = title.toLowerCase().substring(0, 30);
     const duplicate = recent.find(
       (i) =>
         !i.pull_request &&
         i.title.toLowerCase().includes(titlePrefix) &&
-        Date.now() - new Date(i.closed_at).getTime() < 3600000,
+        Date.now() - new Date(i.closed_at).getTime() < 3600000 &&
+        (!initTimestamp || new Date(i.closed_at) > new Date(initTimestamp)),
     );
     if (duplicate) {
       core.info(`Skipping duplicate issue (similar to recently closed #${duplicate.number})`);
