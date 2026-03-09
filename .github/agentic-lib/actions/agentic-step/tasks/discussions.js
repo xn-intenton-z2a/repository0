@@ -337,23 +337,10 @@ export async function discussions(context) {
   // Guard: never dispatch workflows from the SDK repo itself (agentic-lib)
   const isSdkRepo = process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib";
 
-  // Request supervisor evaluation
+  // Request supervisor evaluation — dispatch is handled by the bot workflow's
+  // dispatch-supervisor job, so we just log the action here to avoid double dispatch.
   if (action === "request-supervisor") {
-    if (isSdkRepo) {
-      core.info("Skipping supervisor dispatch — running in SDK repo");
-    } else {
-      try {
-        await octokit.rest.actions.createWorkflowDispatch({
-          ...context.repo,
-          workflow_id: "agentic-lib-workflow.yml",
-          ref: "main",
-          inputs: { message: actionArg || "Discussion bot referral" },
-        });
-        core.info(`Dispatched supervisor with message: ${actionArg}`);
-      } catch (err) {
-        core.warning(`Failed to dispatch supervisor: ${err.message}`);
-      }
-    }
+    core.info(`Supervisor requested with message: ${actionArg || "Discussion bot referral"} (dispatch handled by bot workflow)`);
   }
 
   // Stop automation
