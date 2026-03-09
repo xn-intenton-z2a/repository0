@@ -1,58 +1,94 @@
 #!/usr/bin/env node
 // src/lib/main.js
-
-// A small, self-contained fizz-buzz library with CLI support.
-// Exports: generate(n) and format(n)
+// FizzBuzz library matching MISSION.md
 
 export const name = 'repo';
 export const version = '0.1.0';
 export const description = 'FizzBuzz demo library';
 
-function validatePositiveInteger(n) {
-  if (typeof n !== 'number' || Number.isNaN(n) || !Number.isInteger(n) || n < 1) {
-    throw new TypeError('n must be a positive integer');
+function assertNumberInteger(n) {
+  if (typeof n !== 'number' || Number.isNaN(n) || !Number.isInteger(n)) {
+    throw new TypeError('n must be an integer');
   }
 }
 
-export function generate(n) {
-  validatePositiveInteger(n);
+function assertNonNegative(n) {
+  if (n < 0) throw new RangeError('n must not be negative');
+}
+
+// fizzBuzzSingle: returns Fizz/Buzz/FizzBuzz or the number as string
+export function fizzBuzzSingle(n) {
+  assertNumberInteger(n);
+  if (n === 0) throw new RangeError('n must be positive and non-zero');
+  assertNonNegative(n);
+  if (n % 15 === 0) return 'FizzBuzz';
+  if (n % 3 === 0) return 'Fizz';
+  if (n % 5 === 0) return 'Buzz';
+  return String(n);
+}
+
+// fizzBuzz: returns array for 1..n; n === 0 -> []
+export function fizzBuzz(n) {
+  assertNumberInteger(n);
+  assertNonNegative(n);
+  if (n === 0) return [];
   const out = [];
   for (let i = 1; i <= n; i++) {
-    if (i % 15 === 0) out.push('fizzbuzz');
-    else if (i % 3 === 0) out.push('fizz');
-    else if (i % 5 === 0) out.push('buzz');
-    else out.push(i);
+    out.push(fizzBuzzSingle(i));
   }
   return out;
-}
-
-export function format(n) {
-  return generate(n).map((v) => String(v)).join('\n');
 }
 
 export function getIdentity() {
   return { name, version, description };
 }
 
-// Minimal CLI: when invoked directly print formatted fizz-buzz for provided n (default 100)
-let _isNode = typeof process !== 'undefined' && process?.versions?.node;
-if (_isNode) {
+// Lightweight CLI supporting commands: fizz, fizz-single and options --json, --help
+if (typeof process !== 'undefined' && process?.versions?.node) {
   try {
-    // Use file detection to allow `node src/lib/main.js` to print
-    // Avoid importing node-only modules at top-level in case of other environments.
     const { fileURLToPath } = await import('url');
     if (process.argv[1] === fileURLToPath(import.meta.url)) {
-      const arg = process.argv[2] || '100';
-      const n = Number(arg);
-      try {
-        console.log(format(n));
+      const argv = process.argv.slice(2);
+      const usage = `Usage: node src/lib/main.js <command> <n> [--json]\n\nCommands:\n  fizz         produce array 1..n (use --json for JSON)\n  fizz-single  produce single value for n\n  --help       show this message`;
+
+      if (argv.length === 0 || argv.includes('--help') || argv.includes('-h')) {
+        console.log(usage);
         process.exit(0);
+      }
+
+      const json = argv.includes('--json');
+      const cmd = argv[0];
+      const nArg = argv[1];
+      const n = nArg !== undefined ? Number(nArg) : NaN;
+
+      try {
+        let out;
+        if (cmd === 'fizz') {
+          out = fizzBuzz(n);
+          if (json) console.log(JSON.stringify(out));
+          else console.log(out.join('\n'));
+          process.exit(0);
+        } else if (cmd === 'fizz-single') {
+          out = fizzBuzzSingle(n);
+          if (json) console.log(JSON.stringify(out));
+          else console.log(out);
+          process.exit(0);
+        } else {
+          console.error('Unknown command');
+          console.log(usage);
+          process.exit(1);
+        }
       } catch (err) {
+        // Map validation errors to specific exit codes per requirements
+        if (err instanceof TypeError) process.exitCode = 2;
+        else if (err instanceof RangeError) process.exitCode = 3;
+        else process.exitCode = 1;
         console.error(err && err.message ? err.message : String(err));
-        process.exit(1);
+        // ensure process exits with code
+        process.exit(process.exitCode);
       }
     }
   } catch (e) {
-    // If fileURLToPath or import fails, skip CLI behaviour silently.
+    // ignore
   }
 }

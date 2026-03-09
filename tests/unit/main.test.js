@@ -1,39 +1,35 @@
 import { describe, it, expect } from 'vitest';
-import { generate } from '../..//src/lib/main.js';
+import { fizzBuzz, fizzBuzzSingle } from '../../src/lib/main.js';
 
-describe('generate(n) fizz-buzz', () => {
-  it('generate(1) -> [1]', () => {
-    expect(generate(1)).toEqual([1]);
+describe('fizzBuzz library', () => {
+  it('fizzBuzz(15) returns canonical sequence ending with FizzBuzz', () => {
+    const expected = [
+      '1','2','Fizz','4','Buzz','Fizz','7','8','Fizz','Buzz','11','Fizz','13','14','FizzBuzz'
+    ];
+    expect(fizzBuzz(15)).toEqual(expected);
   });
 
-  it('generate(3) -> [1, 2, "fizz"]', () => {
-    expect(generate(3)).toEqual([1, 2, 'fizz']);
+  it('fizzBuzzSingle(3) -> Fizz, 5 -> Buzz, 15 -> FizzBuzz, 7 -> "7"', () => {
+    expect(fizzBuzzSingle(3)).toBe('Fizz');
+    expect(fizzBuzzSingle(5)).toBe('Buzz');
+    expect(fizzBuzzSingle(15)).toBe('FizzBuzz');
+    expect(fizzBuzzSingle(7)).toBe('7');
   });
 
-  it('generate(5) -> [1,2,"fizz",4,"buzz"]', () => {
-    expect(generate(5)).toEqual([1, 2, 'fizz', 4, 'buzz']);
+  it('fizzBuzz(0) returns empty array and fizzBuzzSingle(0) throws RangeError', () => {
+    expect(fizzBuzz(0)).toEqual([]);
+    expect(() => fizzBuzzSingle(0)).toThrow(RangeError);
   });
 
-  it('generate(15)[14] -> "fizzbuzz"', () => {
-    const g15 = generate(15);
-    expect(g15[14]).toBe('fizzbuzz');
+  it('negative integers throw RangeError', () => {
+    expect(() => fizzBuzz(-1)).toThrow(RangeError);
+    expect(() => fizzBuzzSingle(-5)).toThrow(RangeError);
   });
 
-  it('generate(100) length and spot checks', () => {
-    const g = generate(100);
-    expect(g.length).toBe(100);
-    expect(g[2]).toBe('fizz'); // 3
-    expect(g[4]).toBe('buzz'); // 5
-    expect(g[14]).toBe('fizzbuzz'); // 15
-    expect(g[97]).toBe(98); // 98
-  });
-
-  it('errors for invalid inputs', () => {
-    expect(() => generate(0)).toThrow(TypeError);
-    expect(() => generate(0)).toThrow('n must be a positive integer');
-    expect(() => generate(-1)).toThrow('n must be a positive integer');
-    expect(() => generate(3.5)).toThrow('n must be a positive integer');
-    expect(() => generate(NaN)).toThrow('n must be a positive integer');
-    expect(() => generate('5')).toThrow('n must be a positive integer');
+  it('non-number types and non-integers throw TypeError', () => {
+    expect(() => fizzBuzz('10')).toThrow(TypeError);
+    expect(() => fizzBuzz(1.5)).toThrow(TypeError);
+    expect(() => fizzBuzzSingle('3')).toThrow(TypeError);
+    expect(() => fizzBuzzSingle(2.2)).toThrow(TypeError);
   });
 });
