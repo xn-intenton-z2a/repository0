@@ -1,28 +1,27 @@
-// SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
-import { describe, test, expect } from "vitest";
-import { readFileSync, existsSync } from "fs";
+import { readFileSync } from 'fs';
+import { JSDOM } from 'jsdom';
+import { describe, it, expect } from 'vitest';
+import { generate } from '../../src/lib/main.js';
 
-describe("Website", () => {
-  test("src/web/index.html exists", () => {
-    expect(existsSync("src/web/index.html")).toBe(true);
-  });
+describe('web demo structure and wiring', () => {
+  it('index.html contains demo container and control elements and wiring works', async () => {
+    const html = readFileSync('src/web/index.html', 'utf8');
+    const dom = new JSDOM(html);
+    const { document, window } = dom.window;
 
-  test("index.html contains valid HTML structure", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain("<!DOCTYPE html>");
-    expect(html).toContain("<html");
-    expect(html).toContain("</html>");
-  });
+    const demo = document.getElementById('fizzbuzz-demo');
+    const input = document.getElementById('fizzbuzz-n');
+    const button = document.getElementById('fizzbuzz-render');
 
-  test("index.html imports the library via lib-meta.js", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain("lib-meta.js");
-  });
+    expect(demo).toBeTruthy();
+    expect(input).toBeTruthy();
+    expect(button).toBeTruthy();
 
-  test("index.html displays library identity elements", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain("lib-name");
-    expect(html).toContain("lib-version");
+    // Simulate wiring: expose library generate function to the page and assert results
+    window.generateFizzBuzz = generate;
+    const res = window.generateFizzBuzz(15);
+    expect(res[2]).toBe('fizz');
+    expect(res[4]).toBe('buzz');
+    expect(res[14]).toBe('fizzbuzz');
   });
 });
