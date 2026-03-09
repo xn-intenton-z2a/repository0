@@ -771,11 +771,11 @@ jobs:
           git diff --cached --quiet || git commit --amend --no-edit
           echo "resolved=auto" >> $GITHUB_OUTPUT
 
-      - name: "Tier 2: LLM fix (failing checks only — conflicts handled by Tier 1)"
+      - name: "Tier 2: LLM fix (only for explicitly requested PRs with failing checks)"
         if: |
           env.FIX_PR_NUMBER != '' &&
           steps.fix-mission-check.outputs.mission-complete != 'true' &&
-          env.FIX_REASON != 'merge conflicts'
+          env.FIX_REASON == 'requested'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
