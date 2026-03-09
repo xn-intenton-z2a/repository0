@@ -1,75 +1,80 @@
-Title: FIZZBUZZ
+FIZZBUZZ
 
-Table of Contents:
-1. Definition and Rules
-2. Algorithm and Complexity
-3. Function Signature and Validation
-4. Edge Cases and Variations
-5. Testing Cases
+TABLE OF CONTENTS
+1. Definition
+2. Rules (precise conditions)
+3. Core algorithm (step-by-step)
+4. Parameterized variant (rules map)
+5. Edge cases, test vectors
+6. Supplementary details (performance, streaming)
+7. Reference details (signatures, types)
+8. Digest (source + retrieval)
+9. Attribution & data size
 
-1. Definition and Rules
-- Replace any integer divisible by 3 with the token "Fizz".
-- Replace any integer divisible by 5 with the token "Buzz".
-- Replace any integer divisible by both 3 and 5 (i.e., divisible by 15) with the token "FizzBuzz".
-- All other integers are represented as their decimal string representation.
+1. Definition
+FizzBuzz is a deterministic sequence generator: for each integer n in a range, produce either the integer or a substitution token when divisibility conditions match.
 
-2. Algorithm and Complexity
-- For each integer n in the inclusive range [start, end]:
-  - If n % 15 === 0 => output "FizzBuzz".
-  - Else if n % 3 === 0 => output "Fizz".
-  - Else if n % 5 === 0 => output "Buzz".
-  - Else => output String(n).
-- Time complexity: O(N) where N = end - start + 1.
-- Space complexity: O(N) for returning or storing N outputs; O(1) extra if streaming.
+2. Rules (precise conditions)
+- If n divisible by 3 and 5 (i.e., n % 3 == 0 AND n % 5 == 0) the output is the token "FizzBuzz".
+- Else if n divisible by 3 (n % 3 == 0) the output is the token "Fizz".
+- Else if n divisible by 5 (n % 5 == 0) the output is the token "Buzz".
+- Otherwise output the integer n unchanged.
+- Standard domain: positive integers starting at 1. Behavior for 0: 0 % k == 0 so it matches FizzBuzz unless domain excludes 0.
 
-3. Function Signature and Validation
-- JavaScript canonical signature (specification):
-  - function fizzBuzz(start: number, end: number): string[]
-  - Parameters:
-    - start: integer, inclusive lower bound.
-    - end: integer, inclusive upper bound.
-  - Return: array of strings ordered from start to end.
-  - Validation rules:
-    - Both start and end must be numbers where Number.isInteger(value) === true.
-    - start <= end; otherwise throw RangeError("start must be <= end").
-    - Range checking for excessively large ranges is caller's responsibility; implementations may throw RangeError for ranges exceeding safe limits to avoid OOM.
+3. Core algorithm (step-by-step)
+- Input: N (non-negative integer) and optional start S (default 1).
+- For i from S to N inclusive:
+  - If i % 15 == 0 then emit "FizzBuzz" (preferred micro-optimization: check combined divisor 15 first).
+  - Else if i % 3 == 0 then emit "Fizz".
+  - Else if i % 5 == 0 then emit "Buzz".
+  - Else emit the integer i.
+- Complexity: Time O(N). Memory O(1) if streaming outputs; O(N) if collecting into an array.
 
-4. Edge Cases and Variations
-- Negative integers: apply same divisibility rules (use modulo semantics consistent with language: in JavaScript, use ((n % d) + d) % d or rely on n % d when n is integer).
-- Zero: 0 is divisible by 3 and 5 => output "FizzBuzz" (0 % 15 === 0).
-- Non-integer inputs: treat as invalid; throw TypeError or return error according to API design (spec above uses Number.isInteger check and throws RangeError for invalid ranges, TypeError for non-number inputs).
-- Streaming variant: provide an iterator/generator yielding values to avoid storing entire output for large N.
-- Digit-contains variant: additional rule: if number contains digit 3 then treat as divisible-by-3, etc. This is a variation and must be implemented with string inspection.
+4. Parameterized variant (rules map)
+- Accept rules: ordered list of (divisor:int, token:string).
+- For each i: initialize outToken = empty string; for each rule in rules: if i % rule.divisor == 0 then concatenate rule.token to outToken; after evaluating rules: if outToken non-empty emit outToken else emit i.
+- This generalization supports arbitrary divisors and token concatenation (e.g., (3,"Fizz"),(5,"Buzz")) and supports extensible compositions.
 
-5. Testing Cases
-- Deterministic unit tests (examples):
-  - Input: start=1, end=16 => outputs: ["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz","16"].
-  - Boundary: start=end=15 => ["FizzBuzz"].
-  - Negative: start=-2, end=2 => ["-2","-1","Fizz","1","2"] (verify modulo semantics).
-  - Zero included: start=0, end=0 => ["FizzBuzz"].
-  - Invalid: start=5.5 => expect TypeError or validation failure.
+5. Edge cases, test vectors
+- Input validation: N must be an integer; reject or coerce non-integers explicitly.
+- Negative ranges: define semantics (commonly treat as empty sequence or iterate descending).
+- Zero: if included, zero is divisible by any non-zero divisor and will produce concatenated tokens; explicitly define whether sequence starts at 1 to avoid unexpected zero output.
+- Expected outputs for 1..15:
+  1
+  2
+  Fizz
+  4
+  Buzz
+  Fizz
+  7
+  8
+  Fizz
+  Buzz
+  11
+  Fizz
+  13
+  14
+  FizzBuzz
 
-Supplementary Details:
-- Use Number.isInteger(value) to validate integer inputs reliably across NaN and Infinity (returns false for NaN and Infinity).
-- Prefer modulo checks using composite order to avoid repeated divisibility testing (check 15 first).
-- For large ranges, provide a generator interface: function* fizzBuzzGenerator(start, end) { for (let n = start; n <= end; n++) yield compute(n); }
-- When implementing in typed languages, annotate with integer types and document overflow behavior.
+6. Supplementary details
+- Use combined divisor (LCM) check (e.g., 15 for 3 and 5) to avoid checking two conditions twice; for parameterized rules compute product or LCM as needed when optimization is required.
+- For very large N, stream outputs to avoid O(N) memory.
+- For parallel or partitioned generation, ensure each partition knows offset S and applies identical rule set deterministically.
 
-Reference Details (JS-specific):
-- Signature: export function fizzBuzz(start: number, end: number): string[]
-- Throws:
-  - TypeError if start or end are not numbers.
-  - RangeError if !Number.isInteger(start) || !Number.isInteger(end) or start > end.
-- Implementation pattern:
-  - const out = []; for (let n = start; n <= end; n++) { if (n % 15 === 0) out.push('FizzBuzz'); else if (n % 3 === 0) out.push('Fizz'); else if (n % 5 === 0) out.push('Buzz'); else out.push(String(n)); }
-  - return out;
-- Streaming pattern: export function* fizzBuzzGen(start, end): IterableIterator<string>
+7. Reference details (signatures, types)
+- generateFizzBuzz(N: integer, S?: integer) -> Array<string|integer>
+  - N: inclusive upper bound; S: optional start (default 1)
+  - Returns: array where each element is either integer or substitution token (string).
+- streamFizzBuzz(N: integer, write: function(string|integer):void, S?: integer) -> void
+  - write: synchronous callback invoked per output; use for constant-memory streaming.
+- parameterizedFizzBuzz(N: integer, rules: Array<{divisor:int, token:string}>, S?: integer) -> Array<string|integer>
 
-Detailed Digest:
+8. Digest
 - Source: https://en.wikipedia.org/wiki/Fizz_buzz
 - Retrieved: 2026-03-09
-- Extract: Fizz buzz defined as replacing multiples of 3 with 'fizz', multiples of 5 with 'buzz', and multiples of both with 'fizzbuzz'. Commonly used as an interview screening task; trivial loop-based implementation sufficient for first 100 numbers; variations include digit-contains rules and other divisibility rules.
-- Data size obtained during crawling: approx 2,500 bytes.
+- Extracted technical content: rule set for divisibility, algorithmic flow, complexity, parameterization, test vector for 1..15.
+- Data size (source link text lines extracted): ~1.2 KB (document metadata and primary rule description).
 
-Attribution:
-- Source: Wikipedia — "Fizz buzz" page; retrieved 2026-03-09; license: CC BY-SA. Data size: approx 2.5KB.
+9. Attribution & data size
+- Attribution: content extracted from Wikipedia (Fizz buzz). Retrieved 2026-03-09.
+- Approximate extracted payload: 1.2 KB.

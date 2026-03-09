@@ -1,42 +1,52 @@
-Title: RANGEERROR
+RANGEERROR
 
-Table of Contents:
-1. Description and When to Throw
-2. Constructor and Instance Properties
-3. Common Use Cases
-4. Example Handling Patterns
-5. Specification Link
+TABLE OF CONTENTS
+1. Constructor and signature
+2. When RangeError is thrown (common built-ins)
+3. Properties and prototype chain
+4. Handling patterns (detection, recovery)
+5. Supplementary implementation notes
+6. Reference details (exact signatures and property types)
+7. Digest
+8. Attribution & data size
 
-1. Description and When to Throw
-- RangeError is a built-in Error subtype thrown when a numeric value is outside an allowed range or an argument is not an allowed value for a function's parameter space.
-- Common triggers:
-  - Creating an array with illegal length (new Array(-1))
-  - Passing out-of-range inputs to Number.prototype.toExponential/toFixed/toPrecision
-  - Explicit validation: argument must be between min and max
+1. Constructor and signature
+- Constructor: new RangeError([message: string]) -> RangeError instance
+- RangeError is a built-in error type representing an argument outside the allowed range.
 
-2. Constructor and Instance Properties
-- Constructor: RangeError(message?: string)
-- Instance properties inherited from Error: name ("RangeError"), message, stack (engine-dependent).
+2. When RangeError is thrown (common built-ins)
+- Examples of host-generated RangeError conditions:
+  - Number.prototype.toFixed called with fractionDigits outside allowed range.
+  - Array length set to a value outside allowed range.
+  - Calling Web APIs or host APIs with numeric arguments exceeding allowed bounds.
+- Implementations may throw RangeError when parsing or converting values where the numeric range is violated.
 
-3. Common Use Cases
-- API validation: if (!(n >= min && n <= max)) throw new RangeError("The argument must be between min and max.");
-- Non-numeric allowed values for specific APIs: throw RangeError when an option string is not among allowed enumerated values (example: String.prototype.normalize allowed forms).
-- Serializable: RangeError is serializable and can be structuredCloned or posted between workers.
+3. Properties and prototype chain
+- instance.name: "RangeError"
+- instance.message: string (optional)
+- instance.stack: string (engine-dependent)
+- RangeError.prototype is an Error instance: RangeError extends Error.
 
-4. Example Handling Patterns
-- Throwing:
-  - if (!Number.isInteger(value) || value < 0 || value > MAX) throw new RangeError('...');
-- Catching and filtering:
-  - try { fn(); } catch (err) { if (err instanceof RangeError) handleRangeError(err); else throw err; }
+4. Handling patterns (detection, recovery)
+- Detection: catch (e) { if (e instanceof RangeError) { /* handle */ } }
+- Recovery: validate inputs before calling APIs that may throw RangeError; convert or clamp values to allowed ranges; provide user-friendly error messages.
 
-5. Specification Link
-- ECMAScript 2026 Language Specification section: native error types RangeError.
+5. Supplementary implementation notes
+- Create custom range checks in library code and throw new RangeError('detail') to match host error semantics when argument ranges are invalid.
+- Preserve message strings that include exact allowed ranges for diagnostics (e.g., "fractionDigits must be between 0 and 20").
 
-Detailed Digest:
+6. Reference details (exact signatures and property types)
+- new RangeError([message?: string]) -> RangeError
+- RangeError.prototype.name: string ("RangeError")
+- RangeError.prototype.message: string
+- RangeError instanceof Error -> true
+
+7. Digest
 - Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError
 - Retrieved: 2026-03-09
-- Extract: RangeError semantics, constructor, instance properties, examples of where it occurs and typical validation patterns.
-- Data size obtained during crawling: approx 2,200 bytes.
+- Extracted technical content: constructor signature, typical throw sites, prototype properties, handling patterns and best practices.
+- Data size: ~1.2 KB extracted.
 
-Attribution:
-- Source: MDN Web Docs — "RangeError"; retrieved 2026-03-09; license: CC BY-SA. Data size: approx 2.2KB.
+8. Attribution & data size
+- Attribution: MDN Web Docs (RangeError). Retrieved 2026-03-09.
+- Approximate extracted payload: 1.2 KB.

@@ -1,66 +1,59 @@
-Title: EXPORTS
+EXPORTS
 
-Table of Contents:
-1. Syntax Summary
-2. Named vs Default Exports
-3. Re-exporting and Aggregation
-4. Temporal and Hoisting Rules
-5. Errors and Conflicts
-6. Implementation Patterns
+TABLE OF CONTENTS
+1. Named export syntax
+2. Default export syntax
+3. Re-exporting and export-from
+4. Live bindings and evaluation semantics
+5. Export grammar forms and effects
+6. Supplementary details (best practices)
+7. Reference details (exact syntaxes)
+8. Digest
+9. Attribution & data size
 
-1. Syntax Summary
-- Export declarations supported:
-  - export let name1, name2;
-  - export const name = value;
-  - export function functionName() { }
-  - export class ClassName { }
-  - export { name1, name2 as alias };
-  - export default expression;
-  - export * from "module";
-  - export { name } from "module";
-  - export * as ns from "module";
+1. Named export syntax
+- Exact form: export { name1, name2 as alias } ;
+- Named export binds the referenced local binding to the module's exported namespace. The exported binding is a live read-only view: importing modules observe updates to the original binding's value.
 
-2. Named vs Default Exports
-- Named exports: multiple per module; imported with exact name: import { name } from './mod.js'; can be aliased using as.
-- Default export: single per module; can be imported with any local name: import anyName from './mod.js'; exported via export default expression or export default function/class.
-- Only one default export allowed; duplicate names or multiple defaults cause SyntaxError at module parse/evaluation.
+2. Default export syntax
+- Exact form: export default <expression> ; or export default function f() { } or export default class C { } ;
+- Default export provides a single unnamed/default binding per module; importers can import it with any local name.
 
-3. Re-exporting and Aggregation
-- Re-exporting syntax allows module to relay exports without binding them locally.
-- export { x } from 'mod'; re-exports named export x from mod.
-- export * from 'mod'; re-exports all named exports (not default) from mod; duplicate re-exports for same name cause runtime/module resolution error when imported.
-- export { default as Name } from 'mod'; re-exports default from mod as Name.
-- Aggregator pattern: use a barrel module to consolidate exports from multiple modules.
+3. Re-exporting and export-from
+- Re-export select bindings from another module: export { name1, name2 as alias } from 'module';
+- Re-export all public bindings: export * from 'module';
+- Re-export default explicitly: export { default as alias } from 'module';
+- Re-export does not create a local binding in the current module by default; it forwards bindings from the source module.
 
-4. Temporal and Hoisting Rules
-- Export declarations are declarations only; they are not subject to TDZ for the export statement itself: export { x }; const x = 1; is syntactically allowed (export doesn't access the value at module parse time).
-- Function and class declarations exported are hoisted appropriately as per JS semantics (function declarations hoisted within module scope).
+4. Live bindings and evaluation semantics
+- Exports are live bindings: if exported local binding changes after module initialization, importers reading the binding will observe the new value.
+- Module evaluation order: imports are resolved and modules are linked before executing module bodies; circular dependencies expose partially-initialized bindings but live bindings allow updates to propagate.
 
-5. Errors and Conflicts
-- Duplicate exported names across multiple export * statements result in a SyntaxError at import time: "conflicting star exports for name 'a'".
-- Using export default more than once or duplicate named exports with same identifier cause SyntaxError.
+5. Export grammar forms and effects
+- Named list: export {name1, name2 as alias}; effect: named exports added to module namespace.
+- Declaration export: export function f() {} or export const x = 1; effect: declares local binding and exports it.
+- Default: export default expr; effect: sets module's default export slot.
+- Re-export: export {x} from 'mod'; effect: re-exports binding from mod without creating a local binding unless explicitly imported locally.
 
-6. Implementation Patterns
-- Barrel module:
-  - export { a } from './a.js';
-  - export { b } from './b.js';
-- Re-export default:
-  - export { default as DefaultExport } from './mod.js';
-- Use of import attributes with export from syntax for JSON modules: export { default } from './data.json' with { type: 'json' }.
+6. Supplementary details (best practices)
+- Prefer named exports for libraries (clear ABI, tree-shaking friendly).
+- Use default export for single-primary-value modules (but be aware of refactoring friction).
+- Avoid circular re-export chains that complicate initialization order.
 
-Supplementary Details:
-- When creating bundles or transpiled output maintain distinct named and default semantics. Tools that convert CommonJS to ESM must map module.exports to default export and may attempt static analysis to provide named exports for compatibility.
+7. Reference details (exact syntaxes)
+- export { name1, name2 as alias } ;
+- export var x = 1 ;
+- export function f() { } ;
+- export default expression ;
+- export { name } from 'module' ;
+- export * from 'module' ;
 
-Reference Details (spec-level):
-- ECMAScript export grammar covers: ExportDeclaration, ExportNamedDeclaration, ExportDefaultDeclaration, ExportAllDeclaration.
-- Parser must enforce: only one ExportDefaultDeclaration per module; export lists must contain valid identifiers or string-literal alias names.
-- Error conditions: duplicate export names across export * collections trigger a module resolution failure during import-time evaluation.
-
-Detailed Digest:
+8. Digest
 - Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
 - Retrieved: 2026-03-09
-- Extract: Full syntax forms listed; named versus default semantics; re-exporting semantics and caveats about conflicting star exports; export with import attributes for JSON.
-- Data size obtained during crawling: approx 6,500 bytes.
+- Extracted technical content: exact export syntaxes, behavior of live bindings, re-export semantics and evaluation ordering notes.
+- Data size: ~3.0 KB extracted (MDN reference section lines).
 
-Attribution:
-- Source: MDN Web Docs — "export" reference; retrieved 2026-03-09; license: CC BY-SA. Data size: approx 6.5KB.
+9. Attribution & data size
+- Attribution: MDN Web Docs (export statement). Retrieved 2026-03-09.
+- Approximate extracted payload: 3.0 KB.

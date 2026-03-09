@@ -1,47 +1,53 @@
-Title: NUMBER_ISINTEGER
+NUMBER_ISINTEGER
 
-Table of Contents:
-1. Syntax and Signature
-2. Behavior and Return Rules
-3. Examples and Edge Cases
-4. Specification Reference
-5. Usage Notes in Validation
+TABLE OF CONTENTS
+1. Method signature
+2. Exact behaviour and algorithm
+3. Edge cases and examples
+4. Polyfill specification
+5. Supplementary details (type/coercion differences)
+6. Reference details (precise conditional expression)
+7. Digest
+8. Attribution & data size
 
-1. Syntax and Signature
-- JavaScript runtime API: Number.isInteger(value) => boolean
-- Parameter: value (any type)
-- Return: boolean true if the given value is an integer number value; otherwise false.
+1. Method signature
+- Number.isInteger(value: any) -> boolean
 
-2. Behavior and Return Rules
-- Returns false for NaN, Infinity, -Infinity, non-number types (strings, booleans, objects, arrays).
-- Returns true for numeric values that are mathematically integers and representable in IEEE-754 double precision as an integer (examples: 5.0 yields true).
-- Due to floating-point precision limits, some values like 5.0000000000000001 may be represented as 5 and return true; some near the precision threshold may behave unexpectedly for very large magnitudes.
+2. Exact behaviour and algorithm
+- Returns true only if:
+  - typeof value === "number"
+  - value is finite (not NaN, +Infinity, -Infinity)
+  - Math.floor(value) === value (value has no fractional component)
+- Equivalent conditional: return typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
 
-3. Examples and Edge Cases
-- Number.isInteger(0) => true
-- Number.isInteger(1) => true
-- Number.isInteger(-100000) => true
-- Number.isInteger(0.1) => false
-- Number.isInteger(Math.PI) => false
-- Number.isInteger(NaN) => false
-- Number.isInteger(Infinity) => false
-- Number.isInteger("10") => false
-- Number.isInteger(5.0) => true
-- Number.isInteger(5.000000000000001) => false
-- Number.isInteger(5.0000000000000001) => true (precision)
+3. Edge cases and examples
+- Number.isInteger(1) -> true
+- Number.isInteger(1.0) -> true
+- Number.isInteger(1.5) -> false
+- Number.isInteger(NaN) -> false
+- Number.isInteger(Infinity) -> false
+- Number.isInteger('1') -> false (no coercion)
+- Number.isInteger(0) and Number.isInteger(-0) -> true
+- BigInt values: Number.isInteger(1n) -> false because typeof is 'bigint'
 
-4. Specification Reference
-- ECMAScript Language Specification: sec-number.isinteger — operation defined to check type and numeric integerness; returns ToNumber(value) type checks and Number.isFinite and floor checks in spec.
+4. Polyfill specification
+- Polyfill (ECMAScript-consistent): if Number.isInteger is undefined, define as function isInteger(value) { return typeof value === 'number' && isFinite(value) && Math.floor(value) === value; }
+- Ensure use of global isFinite with Number.isFinite semantics for numeric type checking.
 
-5. Usage Notes in Validation
-- Use as input validation for integer-only APIs before performing integer-specific operations, e.g., array length creation, iteration counts.
-- Combine with Number.isFinite(value) when necessary to distinguish finite numeric values.
+5. Supplementary details (type/coercion differences)
+- Unlike global isFinite or parseInt, Number.isInteger does not coerce its argument; it performs a strict type check first.
+- Use when exact numeric-integer tests are required without string/other-type coercion.
 
-Detailed Digest:
+6. Reference details (precise conditional expression)
+- Implementation-equivalent expression: typeof value === 'number' && isFinite(value) && Math.floor(value) === value
+- Signature: Number.isInteger(value) -> boolean
+
+7. Digest
 - Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
 - Retrieved: 2026-03-09
-- Extract: Syntax Number.isInteger(value), returns boolean, examples demonstrating precision caveats and behavior with NaN/Infinity/non-number types.
-- Data size obtained during crawling: approx 4,000 bytes.
+- Extracted technical content: signature, strict-type behavior, algorithmic conditional, polyfill recipe, edge cases.
+- Data size: ~1.0 KB extracted.
 
-Attribution:
-- Source: MDN Web Docs — "Number.isInteger" reference; retrieved 2026-03-09; license: CC BY-SA. Data size: approx 4.0KB.
+8. Attribution & data size
+- Attribution: MDN Web Docs (Number.isInteger). Retrieved 2026-03-09.
+- Approximate extracted payload: 1.0 KB.

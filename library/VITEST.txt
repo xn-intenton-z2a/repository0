@@ -1,41 +1,69 @@
-Title: VITEST
+VITEST
 
-Table of Contents:
-1. Purpose and Ecosystem Integration
-2. Key Features
-3. Compatibility and Use Cases
-4. Typical Commands and Scripts
-5. Testing Patterns and Best Practices
+TABLE OF CONTENTS
+1. CLI usage and scripts
+2. Test API (describe, test/it, hooks)
+3. Expect API and common matchers
+4. Mocking utilities (vi)
+5. Timer control and async support
+6. Configuration and coverage integration
+7. Best practices and troubleshooting
+8. Reference details (function signatures and options)
+9. Digest
+10. Attribution & data size
 
-1. Purpose and Ecosystem Integration
-- Vitest is a Vite-native testing framework that reuses Vite's configuration and transform pipeline; it supports ESM, TypeScript, JSX, and is suitable for frontend and backend projects.
+1. CLI usage and scripts
+- Run tests: vitest --run [pattern]
+- Common npm script: "test": "vitest --run tests/unit/*.test.js"
+- For coverage: use @vitest/coverage-v8 plugin and run vitest with coverage flags/config.
 
-2. Key Features
-- Jest-compatible API (expect, snapshot, coverage) for simpler migrations.
-- Intelligent watch mode that reruns affected tests similar to Vite HMR.
-- Built-in support for ESM and Vite plugins; integrates with Vite config.
-- Out-of-the-box TypeScript support via Oxc.
+2. Test API (describe, test/it, hooks)
+- describe(name: string, fn: () => void) -> void
+- test(name: string, fn: () => Promise|void) -> void
+- it is an alias for test
+- Hooks: beforeEach(fn), afterEach(fn), beforeAll(fn), afterAll(fn) — each accepts synchronous or async functions.
 
-3. Compatibility and Use Cases
-- Useful for Vite-based projects and non-Vite projects that want fast ESM-native tests.
-- Works well with Node >= recommended versions and supports running in CI (--run) to execute tests once.
+3. Expect API and common matchers
+- expect(received).toBe(expected)  // strict equality
+- expect(received).toEqual(expected) // deep equality
+- expect(received).toBeTruthy()/toBeFalsy()
+- expect(mock).toHaveBeenCalled()/toHaveBeenCalledWith(...args)
+- Async assertions: await expect(promise).resolves.toEqual(value); await expect(promise).rejects.toThrow(error)
 
-4. Typical Commands and Scripts (from package.json patterns)
-- Run all tests: vitest --run tests/unit/*.test.js
-- Run unit tests with coverage: vitest --run --coverage tests/unit/*.test.js
-- Behaviour/e2e: npm run build:web && npx playwright test --config playwright.config.js
-- Start dev/test server: npm run start (build web then serve docs) or npm run start:cli
+4. Mocking utilities (vi)
+- vi.fn(implementation?) -> mock function
+- vi.spyOn(object, 'method') -> spy that can be stubbed
+- vi.mock(modulePath, factory?) -> mock module
+- vi.restoreAllMocks() -> restore spies and mocks
 
-5. Testing Patterns and Best Practices
-- Keep unit tests in tests/unit/ and use vitest patterns for snapshots and coverage.
-- For ESM projects use native import syntax in tests; ensure package.json type is "module" where needed.
-- Use the watcher during development for instant feedback; use --run in CI to avoid interactive mode.
+5. Timer control and async support
+- vi.useFakeTimers() to replace real timers
+- vi.advanceTimersByTime(ms: number) to fast-forward fake timers
+- Supports top-level async tests and returning Promises from test functions
 
-Detailed Digest:
+6. Configuration and coverage integration
+- Configure vitest via package.json or vitest.config.js
+- Use "--run" for non-watch CI execution
+- Integrate coverage through @vitest/coverage-v8 and configure reporters/options in vitest config
+
+7. Best practices and troubleshooting
+- Ensure project module type aligns with tests (type: "module" in package.json when using ESM).
+- For ESM modules, ensure import paths include file extensions or package exports are defined.
+- If tests fail due to module resolution, run vitest with increased logging or check node "type" and file extensions.
+
+8. Reference details (function signatures and options)
+- describe(name: string, fn: () => void) -> void
+- test(name: string, fn: () => Promise|void, timeout?: number) -> void
+- expect(value: any) -> Expectation object with matcher methods
+- vi.fn(impl?: Function) -> MockFunction
+- vi.spyOn<T, K extends keyof T>(obj: T, key: K) -> Spy
+
+9. Digest
 - Source: https://vitest.dev/
 - Retrieved: 2026-03-09
-- Extract: Vitest overview: Vite-native testing, Jest-compatible, fast watch mode, ESM and TypeScript support. Typical commands and integrations with Vite and Playwright for e2e.
-- Data size obtained during crawling: approx 8,000 bytes.
+- Extracted technical content: CLI usage (vitest --run), test and hook APIs, expect matchers, vi mocking API, timer controls, configuration notes and CI usage patterns.
+- Data size: ~4.0 KB extracted from homepage and API summary.
 
-Attribution:
-- Source: Vitest official website; retrieved 2026-03-09; license: Open source (MIT or project-specified). Data size: approx 8.0KB.
+10. Attribution & data size
+- Attribution: Vitest documentation. Retrieved 2026-03-09.
+- Approximate extracted payload: 4.0 KB.
