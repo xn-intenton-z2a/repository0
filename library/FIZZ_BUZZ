@@ -1,71 +1,147 @@
-NORMALISED EXTRACT
+FIZZ_BUZZ
 
-Key technical points (implementation-ready):
-- Rules: For each integer i in the sequence 1..n: if divisible by 3 output "Fizz"; if divisible by 5 output "Buzz"; if divisible by both 3 and 5 output "FizzBuzz"; otherwise output the number itself.
-- Divisibility tests: use integer modulo operation; test both-conditions either by i % 15 == 0 or (i % 3 == 0 && i % 5 == 0).
-- Input constraints: algorithm expects integer positive n. Non-integer inputs must be validated and rejected or coerced explicitly.
-- Iteration pattern: single pass loop from 1 to n with constant-time checks per item.
+TABLE OF CONTENTS
+1. Normalised Extract: Core Implementation Details
+2. Supplementary Details: Specs and Implementation Notes
+3. Reference Details: Exact API Signatures, Exports, Config
+4. Troubleshooting and Best Practices
+5. Detailed Digest and Retrieval Metadata
+6. Attribution and Data Size
 
-Table of contents
-1. Rules and exact conditional order
-2. Iteration and complexity
-3. Input validation
-4. Edge cases and variations
-5. Implementation signature and behavior
+1. Normalised Extract: Core Implementation Details
 
-Details
-1. Rules and exact conditional order
-- Must check the "both" condition before single divisibility checks to avoid returning only "Fizz" or "Buzz" when both apply.
-- Explicit check options (equivalent):
-  - If (i modulo 15 == 0) output "FizzBuzz";
-  - else if (i modulo 3 == 0) output "Fizz";
-  - else if (i modulo 5 == 0) output "Buzz";
-  - else output i.
-- Order matters: if using separate tests without short-circuiting, ensure concatenation approach evaluates both divisibility conditions reliably.
+Function purpose and return
+- fizzBuzz(n): Given a positive integer n, produce an ordered sequence for i = 1..n where:
+  - if i % 3 === 0 and i % 5 === 0, value is "FizzBuzz"
+  - else if i % 3 === 0, value is "Fizz"
+  - else if i % 5 === 0, value is "Buzz"
+  - else value is the decimal string representation of i
+- The function returns an array of strings of length n, where each element corresponds to the transformed value for that index.
 
-2. Iteration and complexity
-- Single loop from 1 to n. Time complexity O(n). Space complexity O(1) if streaming output, O(n) if collecting results into an array.
-- Per-iteration operations: up to two modulo operations and constant-time branching.
+Input validation (explicit, exact checks to implement)
+- If typeof n !== 'number' then throw a TypeError with message: n must be a number
+- If Number.isInteger(n) === false then throw a TypeError with message: n must be an integer
+- If n <= 0 then throw a RangeError with message: n must be > 0
 
-3. Input validation
-- Enforce type: require numeric input. If language supports, require integer type or check via integer-test function.
-- Recommended validation policy:
-  - If value is not a number: throw TypeError.
-  - If value is a number but not an integer: throw TypeError or coerce by flooring explicitly (choose and document behavior).
-  - If value < 1: return empty array or throw RangeError depending on API contract; prefer returning empty array for non-positive ranges in simple libraries.
+Algorithm (imperative implementation)
+- Create an array result = [] with capacity n (pre-allocate length where supported)
+- For i from 1 to n inclusive:
+  - if (i % 15 === 0) push 'FizzBuzz'
+  - else if (i % 3 === 0) push 'Fizz'
+  - else if (i % 5 === 0) push 'Buzz'
+  - else push String(i)
+- Return result
 
-4. Edge cases and variations
-- Starting index: canonical implementations start at 1; allow configurable start index if needed.
-- Zero: 0 is divisible by any non-zero integer; decide treatment (0 -> "FizzBuzz" if included) and document.
-- Large n: watch for integer overflow or performance when collecting large arrays; stream output instead for very large ranges.
-- Extensions: add rules for other divisors (e.g., 7 -> "Bazz") or digit-containing rules (numbers containing 3 triggers fizz) by adding additional checks.
+Performance characteristics
+- Time complexity: O(n) single pass
+- Space complexity: O(n) for the returned array (optionally O(1) if streaming output instead of returning)
 
-5. Implementation signature and behavior
-- Suggested API signature (language-agnostic): fizzBuzz(n: integer) -> array of strings
-  - Parameters: n (integer, >=1)
-  - Returns: ordered array of length n where index i-1 corresponds to input i and each element is either the string "Fizz", "Buzz", "FizzBuzz" or the decimal representation of i.
-  - Errors: throw TypeError if n is not a number or not an integer; optionally throw RangeError if n < 0.
+ESM export and module packaging (exact lines to use)
+- Named export (preferred for testable library functions):
+  export function fizzBuzz(n) { /* implementation */ }
+- Default export variant (alternative):
+  export default function fizzBuzz(n) { /* implementation */ }
+- Node.js (file extension and package.json): ensure package.json contains "type": "module" to allow .js ESM imports in Node >= 12+; otherwise use .mjs extension for module files.
 
-Supplementary details
-- Example streaming pattern: for i in range(1,n): compute output string and write to stdout or yield it from a generator to avoid large memory usage.
-- Concurrency: not applicable; operations are CPU-bound and cheap per item.
-- Testing: verify sequences for n values including 1, 3, 5, 15, 16 and large boundary values. Include property-based tests: for all i, if output is "Fizz" then i % 3 == 0 and i % 5 != 0, etc.
+2. Supplementary Details: Specs and Implementation Notes
 
-Reference details (implementation patterns and exact checks)
-- Exact divisibility checks: i % 15 == 0 or (i % 3 == 0 && i % 5 == 0). Either is allowed; use i % 15 == 0 when both checks are common and efficient.
-- Function signature example (formal): fizzBuzz(n: integer) -> string[]
-  - Parameter validation: if typeof n !== 'number' or !Number.isInteger(n) -> throw TypeError('n must be integer'); if n < 1 -> return [] or throw RangeError('n must be >= 1') depending on API.
-- Output mapping rules precisely: mapping(i) =
-  - "FizzBuzz" when i % 15 == 0
-  - "Fizz" when i % 3 == 0 and i % 5 != 0
-  - "Buzz" when i % 5 == 0 and i % 3 != 0
-  - String(i) otherwise
+Type and error semantics
+- TypeError thrown for wrong JS type or non-integer values. Use checks in this order: typeof check, then Number.isInteger.
+- RangeError thrown for out-of-range numeric values (n <= 0). Use explicit message to aid tests.
 
-Detailed digest (source: Wikipedia Fizz buzz) — retrieved 2026-03-09
-- Source section extracted: description of game rules; sample sequence beginning 1,2,Fizz,4,Buzz,...; note that variants exist (other divisors, digit inclusion rules); used as programming interview question; typical implementation uses loop + conditionals.
+Alternate return shapes
+- Default recommended: return string[] where numbers are stringified to maintain uniform array element type.
+- Alternative: return Array<string|number> to preserve numeric values for non-Fizz/Buzz entries; this complicates downstream formatting and tests—avoid unless required.
 
-Attribution and crawl metadata
-- Source: https://en.wikipedia.org/wiki/Fizz_buzz
-- Retrieved: 2026-03-09T22:22:33.635Z
-- Data size obtained during crawling: ~2.5 KB (HTML text extracted)
-- Attribution: Wikipedia contributors (public domain/copyright per Wikimedia).
+Streaming/output variants
+- For very large n, provide an alternative API: fizzBuzzStream(n, onValue) where onValue(value: string, index: number) is invoked for each produced value; this reduces memory from O(n) to O(1).
+- Implement streaming variant by iterating and invoking callback, returning undefined when complete.
+
+Edge-case handling
+- n === 1 should return ['1']
+- n === 3 should return ['1','2','Fizz']
+- n === 5 should return ['1','2','Fizz','4','Buzz']
+- Validate for NaN: treat as TypeError (typeof NaN === 'number' but Number.isInteger(NaN) === false)
+
+3. Reference Details: Exact API Signatures, Exports, Config
+
+JavaScript (ESM) signatures and declarations
+- Named export (JS):
+  export function fizzBuzz(n) {
+    // validation and algorithm
+  }
+  - Parameters: n (number)
+  - Returns: string[]
+  - Throws: TypeError (when typeof n !== 'number' or !Number.isInteger(n)), RangeError (when n <= 0)
+
+- Default export (JS):
+  export default function fizzBuzz(n) { /* ... */ }
+  - Same parameter and return contract as named export.
+
+TypeScript signature (for reference / typing):
+- export function fizzBuzz(n: number): string[];
+- export function fizzBuzzStream(n: number, onValue: (value: string, index: number) => void): void;
+
+Exact error messages (for test assertions)
+- TypeError message for non-number: "n must be a number"
+- TypeError message for non-integer: "n must be an integer"
+- RangeError message for non-positive: "n must be > 0"
+
+package.json configuration required for Node ESM
+- "type": "module" to allow import './file.js' using ESM syntax
+- engines: { "node": ">=24.0.0" } (example present in the project; adjust as required)
+
+Vitest test patterns and commands (exact import lines and assertions)
+- Test file imports:
+  import { describe, it, expect } from 'vitest';
+  import { fizzBuzz } from '../../src/lib/main.js';
+- Example assertions:
+  expect(fizzBuzz(5)).toEqual(['1','2','Fizz','4','Buzz']);
+  expect(() => fizzBuzz('a')).toThrow(TypeError);
+  expect(() => fizzBuzz(0)).toThrow(RangeError);
+- Run tests (repository npm script): npm test resolves to: vitest --run tests/unit/*.test.js
+
+NPM package "fizzbuzz" (common API pattern)
+- Typical default export: import fizzbuzz from 'fizzbuzz'; const out = fizzbuzz(15);
+- Typical return: string[] of length n or streaming/console printing variants—verify package README before depending on behavior.
+
+4. Troubleshooting and Best Practices
+
+Common test failures and fixes
+- Failing equality between arrays: ensure consistent element types (all strings) and exact element order.
+- Wrong exceptions: ensure tests assert the specific Error class (TypeError vs RangeError) and exact message where tests check messages.
+- ESM import errors: ensure package.json "type" is set to "module" or rename files to .mjs; adjust import paths to include .js extension when running under Node ESM.
+
+Best practices
+- Keep fizzBuzz pure and side-effect free (no console.log inside the function). Separate printing from logic.
+- Use explicit validation early (fail-fast). This simplifies tests and error handling.
+- Provide small helper functions only if reused (e.g., isDivisible(i, d) is overkill for this simple function).
+- Provide streaming variant for huge n to avoid out-of-memory problems.
+
+5. Detailed Digest and Retrieval Metadata
+
+Sources processed (as listed in SOURCES.md):
+- https://en.wikipedia.org/wiki/Fizz_buzz
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
+- https://nodejs.org/api/esm.html
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError
+- https://vitest.dev/guide/
+- https://www.npmjs.com/package/fizzbuzz
+
+Date retrieved: 2026-03-09 (source list supplied in repository on this date)
+
+Notes on retrieval: content was supplied as source list in repository SOURCES.md; direct HTTP crawl not performed by this document generator; technical details are distilled from canonical knowledge of these references and the repository package.json test/script configuration.
+
+6. Attribution and Data Size
+
+Attribution
+- Core technical authority: Wikipedia Fizz Buzz; MDN JavaScript references (export, Number.isInteger, RangeError, TypeError); Node.js ESM docs; Vitest docs; npm package page for fizzbuzz.
+
+Data size
+- Sources list contains 8 URLs; no full remote crawl executed in this step; derived technical content estimated at ~12 KB of synthesized implementation guidance (this document). If full crawl is performed, record precise byte counts per URL.
+
+END
+
+[NARRATIVE] Created a focused implementation document FIZZ_BUZZ that consolidates rules, validation, ESM export patterns, exact test assertions, and configuration notes to enable direct implementation and testing of a JavaScript fizzBuzz function.
