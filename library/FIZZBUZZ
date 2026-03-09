@@ -1,0 +1,35 @@
+TABLE OF CONTENTS
+1. Game rules and mapping to program logic
+2. Standard replacements and ordering
+3. Variations and extended rules
+4. Use as programming exercise (requirements)
+
+1. Game rules and mapping to program logic
+- For integers starting from 1, for each n: if n divisible by 3 -> output "fizz"; if divisible by 5 -> output "buzz"; if divisible by both 3 and 5 -> output "fizzbuzz"; else output the number as string or numeric value. Implementation requires loop, modulus operations, and conditional ordering to ensure multiples of both yield fizzbuzz.
+
+2. Standard replacements and ordering
+- Check divisibility by 15 (or both 3 and 5) first, or combine conditional checks: if (n % 3 == 0 && n % 5 == 0) => fizzbuzz; else if (n % 3 == 0) => fizz; else if (n % 5 == 0) => buzz; else => n.
+- Alternatively build string result = (n%3==0?"fizz":"") + (n%5==0?"buzz":""); if result=="" then n else result.
+
+3. Variations and extended rules
+- Use divisibility by other numbers (e.g., 7) or digit-contains rules (numbers containing the digit trigger the rule).
+- Some implementations use lookup arrays, functional mappings, or rule lists to allow extensibility.
+
+4. Use as programming exercise (requirements)
+- Output first N FizzBuzz values; support customization of divisors and associated words; ensure deterministic output and clear API (function fizzbuzz(n, options) -> array or stream). Edge cases: n <= 0 produce empty list; non-integer input validated/converted.
+
+SUPPLEMENTARY DETAILS
+Source references: Wikipedia Fizz buzz page; npm fizzbuzz package metadata not accessible (npm blocked). Wikipedia notes FizzBuzz used in interviews and links to Rosetta Code, Enterprise FizzBuzz examples.
+
+REFERENCE DETAILS
+Specification (informal):
+- Function signature examples: fizzbuzz(n: number) => Array<string|number>
+- Behavior: for i from 1 to n inclusive, push (i%3==0 && i%5==0) ? "fizzbuzz" : (i%3==0 ? "fizz" : (i%5==0 ? "buzz" : i))
+
+DIGEST
+Source: https://en.wikipedia.org/wiki/Fizz_buzz
+Retrieved: 2026-03-09
+Size fetched: ~2KB
+
+ATTRIBUTION
+Wikipedia — Fizz buzz (retrieved 2026-03-09). Data extracted programmatically.

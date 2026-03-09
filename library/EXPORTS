@@ -1,0 +1,54 @@
+TABLE OF CONTENTS
+1. Export types and syntax
+2. Named exports semantics
+3. Default export semantics
+4. Re-exporting (export from) semantics and caveats
+5. Module execution and declaration ordering
+6. Usage notes and constraints
+
+1. Export types and syntax
+- Named exports: export let|const|var name; export function fn(){}; export { name1, name2 as alias };
+- Default exports: export default expression; export default function(){}; export default class {};
+- Aggregating exports: export * from "module"; export { name } from "module"; export * as ns from "module";
+
+2. Named exports semantics
+- A module can have multiple named exports; exported names must be unique per module.
+- Named exports are statically linked; importers must refer to the exported name (or rename via import { name as alias }).
+- Export declarations are not subject to temporal dead zone rules; you may declare export { x } before x is declared locally.
+
+3. Default export semantics
+- A module may have at most one default export. Default export can be any expression, declaration, or anonymous function/class declaration.
+- Default export can be imported with any local name: import anyName from './mod.js';
+
+4. Re-exporting (export from) semantics and caveats
+- export { name } from "mod" re-exports named exports without binding them locally.
+- export * from "mod" re-exports all named exports from mod, but not the default export.
+- Conflicting star exports result in the name being omitted; importing that name from the aggregator throws a SyntaxError.
+- To re-export a default export: export { default as name } from "mod" or export { default } from "mod" (re-exported as default).
+- export { name as "string name" } allows non-identifier exported names.
+
+5. Module execution and declaration ordering
+- export declarations are only declarations and do not access values at module evaluation time; therefore export { x }; const x = 1; works because export is a declaration only.
+- Duplicate exported names or multiple default exports cause SyntaxError and module evaluation will fail.
+
+6. Usage notes and constraints
+- Modules must be loaded as type="module" in browsers; cannot use file:// URLs with modules due to CORS.
+- Use export aggregators (barrel modules) to centralize exports; watch for conflicting names across aggregated modules.
+
+SUPPLEMENTARY DETAILS
+Specifications: ECMAScript #sec-exports. Export-from supports import attributes (e.g., export { default } from './data.json' with { type: 'json' }).
+
+REFERENCE DETAILS
+Syntax signatures:
+- export { name1, name2 as alias };
+- export default expression;
+- export * from "module";
+- export { default as alias } from "module";
+
+DIGEST
+Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
+Retrieved: 2026-03-09
+Size fetched: ~11KB
+
+ATTRIBUTION
+MDN Web Docs — export statement (contributors), last modified Jul 29, 2025. Data extracted programmatically.

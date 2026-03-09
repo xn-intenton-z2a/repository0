@@ -1,0 +1,64 @@
+TABLE OF CONTENTS
+1. Module systems in Node.js
+2. module.exports vs exports
+3. Determining module system and file extensions
+4. require() algorithm (resolution steps)
+5. Loading ES modules using require() interop rules
+6. Package exports/imports resolution
+7. Caching behavior and caveats
+8. Loading order, main module and package layout
+
+1. Module systems in Node.js
+- Node supports CommonJS and ECMAScript modules (ESM). Each file is a module; CommonJS uses require/module.exports/exports; ESM uses import/export.
+
+2. module.exports vs exports
+- Expose values by assigning to exports.<name> or setting module.exports = value. Assigning to exports directly does not replace module.exports; to replace the exported value assign module.exports.
+
+3. Determining module system and file extensions
+- Files are CommonJS by default when: .cjs extension; .js when nearest package.json has type: "commonjs"; or when no package.json type is present. .mjs files are ESM. package.json "type" controls interpretation. Files with nonstandard extensions follow rules described.
+
+4. require() algorithm (resolution steps)
+High-level pseudocode for require(X) from module at path Y:
+1. If X is core module -> return core module
+2. If X begins with '/' set Y to root
+3. If X is '.' or begins with './' or '../' -> LOAD_AS_FILE(Y+X) then LOAD_AS_DIRECTORY(Y+X)
+4. If X begins with '#' -> LOAD_PACKAGE_IMPORTS
+5. LOAD_PACKAGE_SELF
+6. LOAD_NODE_MODULES
+7. THROW not found
+
+LOAD_AS_FILE: try file, .js (respecting package.json type), .json, .node
+LOAD_AS_DIRECTORY: check package.json main, then index.js/json/node
+LOAD_NODE_MODULES: walk node_modules paths from start upward
+
+5. Loading ES modules using require() interop rules
+- require() can synchronously load ESM only when module is fully synchronous (no top-level await) and file matches one of: .mjs, .js with nearest package.json "type": "module", or .js parsed as ESM. Returned value is module namespace object; default export placed at .default. Tools converting ESM to CJS may rely on __esModule property; interop supports exporting 'module.exports' name to customize returned value.
+- If loaded ESM uses top-level await, require() throws ERR_REQUIRE_ASYNC_MODULE; use import() instead.
+
+6. Package exports/imports resolution
+- package.json "exports" and "imports" fields are consulted via PACKAGE_EXPORTS_RESOLVE and PACKAGE_IMPORTS_RESOLVE with conditions such as ["node","require","module-sync"]. LOAD_PACKAGE_EXPORTS and LOAD_PACKAGE_IMPORTS use resolver to produce match fileURL; then file is loaded with appropriate loader depending on resolved type.
+
+7. Caching behavior and caveats
+- Modules cached by resolved filename in require.cache; multiple require calls return same object. Partial objects can be returned to allow cyclic dependencies. Case-insensitive filesystems or different resolved filenames can cause multiple loads of same file. Built-in modules may bypass cache when using node: prefix.
+
+8. Loading order, main module and package layout
+- require.main is the module when file run directly; when entry is not a CommonJS module, require.main is undefined. Suggested package layout for system packages explained; NODE_MODULES_PATHS algorithm constructs lookup paths by walking directory parts and appending node_modules.
+
+SUPPLEMENTARY DETAILS
+- Pseudocode of resolution and loaders included: LOAD_AS_FILE, LOAD_INDEX, LOAD_AS_DIRECTORY, LOAD_NODE_MODULES, NODE_MODULES_PATHS. Use require.resolve() to get exact filename that will be loaded.
+
+REFERENCE DETAILS
+Key APIs and behavior:
+- require(id: string) => exports or module namespace object
+- module.exports mutable; exports alias to module.exports for incremental exports
+- require.resolve(id: string) => resolved filename
+- process.features.require_module boolean indicates support for require(esm)
+- Errors: ERR_REQUIRE_ASYNC_MODULE when attempting to require async ESM
+
+DIGEST
+Source: https://nodejs.org/api/modules.html#modules_exports
+Retrieved: 2026-03-09
+Size fetched: ~46KB (truncated in fetch) - full page available on Node.js docs
+
+ATTRIBUTION
+Node.js documentation — Modules: CommonJS modules and require() resolution. Data extracted programmatically.
