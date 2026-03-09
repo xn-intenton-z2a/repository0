@@ -445,3 +445,47 @@ Created six condensed library documents (FIZZ_BUZZ, JS_EXPORT, NODE_ESM, IS_INTE
 Maintained library (0 docs, limit 32)
 
 ---
+## fix-code at 2026-03-09T03:18:04.013Z
+
+**Outcome:** fix-applied
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 104292 (in: 101918, out: 2374)
+**Duration:** 52s (~0.9 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22836801022](https://github.com/xn-intenton-z2a/repository0/actions/runs/22836801022)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 11/32 | 21 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining |  |
+| features | 4/4 | 0 remaining | n/a |
+| library | 6/32 | 26 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. No issues have been closed by review as RESOLVED yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 0 | 0 | MET |
+| Open PRs | 0 | 0 | MET |
+| Issues closed by review (RESOLVED) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 11/32 | < 32 | OK |
+| Cumulative transforms | 11 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Added jsdom to devDependencies and updated package-lock via npm install so tests that import JSDOM run successfully.
+
+Applied fix for broken main build (run 22836783027)
+
+---
