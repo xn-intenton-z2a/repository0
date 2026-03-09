@@ -28,42 +28,71 @@
     </dl>
   </div>
   <h2>FizzBuzz Demo</h2>
-  <label for="n">N: </label>
-  <input id="n" type="number" value="15" min="0" />
+  <label for="start">Start: </label>
+  <input id="start" type="number" value="-5" />
+  <label for="end">End: </label>
+  <input id="end" type="number" value="5" />
   <button id="generate">Generate</button>
   <ul id="results" aria-live="polite"></ul>
 
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
-    import { fizzBuzz } from '../lib/main.js';
-
-    const input = document.getElementById('n');
-    const btn = document.getElementById('generate');
-    const results = document.getElementById('results');
-
-    function render(arr){
-      results.innerHTML = '';
-      arr.forEach((v,i)=>{
-        const li = document.createElement('li');
-        li.textContent = typeof v === 'number' ? String(v) : v;
-        li.dataset.index = String(i+1);
-        results.appendChild(li);
-      });
-    }
-
-    btn.addEventListener('click', ()=>{
-      const n = Number(input.value);
+    let fizzBuzzSequence;
+    // try importing library; if unavailable (e.g., JSDOM), fall back to local implementation
+    (async ()=>{
       try{
-        const out = fizzBuzz(n);
-        render(out);
-      }catch(e){
-        results.innerHTML = `<li class="error">${e.message}</li>`;
+        const mod = await import('../lib/main.js');
+        fizzBuzzSequence = mod.fizzBuzzSequence;
+      }catch(_){
+        // fallback implementation
+        const single = (i)=>{
+          if (!Number.isFinite(i) || !Number.isInteger(i)) throw new TypeError('n must be a finite integer');
+          const by3 = i % 3 === 0;
+          const by5 = i % 5 === 0;
+          if (by3 && by5) return 'FizzBuzz';
+          if (by3) return 'Fizz';
+          if (by5) return 'Buzz';
+          return String(i);
+        };
+        fizzBuzzSequence = (start,end)=>{
+          if (!Number.isFinite(start) || !Number.isInteger(start) || !Number.isFinite(end) || !Number.isInteger(end)) throw new TypeError('start and end must be integers');
+          if (start > end) throw new RangeError('start must be <= end');
+          const out=[];
+          for(let i=start;i<=end;i++) out.push(single(i));
+          return out;
+        };
       }
-    });
 
-    // initial render
-    btn.click();
+      const startInput = document.getElementById('start');
+      const endInput = document.getElementById('end');
+      const btn = document.getElementById('generate');
+      const results = document.getElementById('results');
+
+      function render(arr){
+        results.innerHTML = '';
+        arr.forEach((v,i)=>{
+          const li = document.createElement('li');
+          li.textContent = v;
+          li.dataset.index = String(i+1);
+          results.appendChild(li);
+        });
+      }
+
+      btn.addEventListener('click', ()=>{
+        const start = Number(startInput.value);
+        const end = Number(endInput.value);
+        try{
+          const out = fizzBuzzSequence(start,end);
+          render(out);
+        }catch(e){
+          results.innerHTML = `<li class="error">${e.message}</li>`;
+        }
+      });
+
+      // initial render
+      btn.click();
+    })();
   </script>
 </body>
 </html>

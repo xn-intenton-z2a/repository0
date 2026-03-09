@@ -18,59 +18,42 @@ export function getIdentity() {
 }
 
 // FizzBuzz implementation
-export function fizzBuzz(n) {
-  // Accept finite integer n; support zero and negatives by returning appropriate values per mission
-  if (!Number.isFinite(n) || !Number.isInteger(n)) {
-    throw new TypeError('fizzBuzz: n must be a finite integer');
-  }
-  if (n === 0) return [];
-  // For negative n, behaviour per MISSION: accept negative integers and apply divisibility rules when used as single values;
-  // However original mission also included a `fizzBuzz` that returns array 1..n; to keep compatibility, when n < 0 return []
-  if (n < 0) return [];
-  const res = [];
-  for (let i = 1; i <= n; i++) {
-    const by3 = i % 3 === 0;
-    const by5 = i % 5 === 0;
-    if (by3 && by5) res.push('FizzBuzz');
-    else if (by3) res.push('Fizz');
-    else if (by5) res.push('Buzz');
-    else res.push(String(i));
-  }
-  return res;
+function ensureInteger(n, name='n'){
+  if (!Number.isFinite(n) || !Number.isInteger(n)) throw new TypeError(`${name} must be a finite integer`);
 }
 
-export function fizzBuzzRange(start, end) {
-  if (!Number.isFinite(start) || !Number.isInteger(start) || !Number.isFinite(end) || !Number.isInteger(end)) {
-    throw new TypeError('fizzBuzzRange: start and end must be finite integers');
-  }
-  const len = Math.abs(end - start) + 1;
-  if (len > 10000) {
-    throw new RangeError('fizzBuzzRange: range too large');
-  }
-  const res = [];
-  if (start <= end) {
-    for (let i = start; i <= end; i++) {
-      res.push(fizzBuzzSingle(i));
-    }
-  } else {
-    for (let i = start; i >= end; i--) {
-      res.push(fizzBuzzSingle(i));
-    }
-  }
-  return res;
-}
-
-export function fizzBuzzSingle(i) {
-  if (!Number.isFinite(i) || !Number.isInteger(i)) {
-    throw new TypeError('fizzBuzz: n must be a finite integer');
-  }
-  // Apply divisibility for zero and negatives as well
+export function fizzBuzzSingle(i){
+  ensureInteger(i,'n');
   const by3 = i % 3 === 0;
   const by5 = i % 5 === 0;
   if (by3 && by5) return 'FizzBuzz';
   if (by3) return 'Fizz';
   if (by5) return 'Buzz';
   return String(i);
+}
+
+export function fizzBuzz(n){
+  ensureInteger(n,'n');
+  if (n === 0) return [];
+  const res = [];
+  if (n > 0){
+    for (let i = 1; i <= n; i++) res.push(fizzBuzzSingle(i));
+  } else {
+    // negative: produce sequence from n .. -1 preserving order
+    for (let i = n; i <= -1; i++) res.push(fizzBuzzSingle(i));
+  }
+  return res;
+}
+
+export function fizzBuzzSequence(start, end){
+  ensureInteger(start,'start');
+  ensureInteger(end,'end');
+  if (start > end) throw new RangeError('start must be <= end');
+  const len = end - start + 1;
+  if (len > 10000) throw new RangeError('range too large');
+  const res = [];
+  for (let i = start; i <= end; i++) res.push(fizzBuzzSingle(i));
+  return res;
 }
 
 export function main(args) {
