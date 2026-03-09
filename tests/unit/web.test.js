@@ -17,7 +17,8 @@ describe("Website", () => {
 
   test("index.html contains fizzbuzz demo elements", () => {
     const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain('id="n"');
+    expect(html).toContain('id="start"');
+    expect(html).toContain('id="end"');
     expect(html).toContain('id="generate"');
     expect(html).toContain('id="results"');
   });
