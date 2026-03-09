@@ -1,4 +1,3 @@
-// src/web/app.js
 import { fizzBuzz, fizzBuzzSingle } from '../lib/main.js';
 
 const singleInput = document.getElementById('fizz-input');
@@ -17,11 +16,12 @@ function showError(msg){
 
 singleBtn.addEventListener('click', ()=>{
   showError('');
-  const val = Number(singleInput.value);
+  const raw = singleInput.value;
+  const val = Number(raw);
   try{
-    if (!Number.isFinite(val) || !Number.isInteger(val)) throw new TypeError('n must be an integer');
-    if (val < 0) throw new RangeError('n must be a non-negative integer');
-    const out = fizzBuzzSingle(val);
+    // rely on library validators by converting to number and passing through
+    if (raw === '' || Number.isNaN(val)) throw new TypeError('n must be an integer');
+    const out = fizzBuzzSingle(Number.parseInt(raw, 10));
     singleOut.textContent = out;
   }catch(e){
     showError(e.message);
@@ -31,11 +31,11 @@ singleBtn.addEventListener('click', ()=>{
 
 rangeBtn.addEventListener('click', ()=>{
   showError('');
-  const val = Number(rangeInput.value);
+  const raw = rangeInput.value;
+  const val = Number(raw);
   try{
-    if (!Number.isFinite(val) || !Number.isInteger(val)) throw new TypeError('n must be an integer');
-    if (val < 0) throw new RangeError('n must be a non-negative integer');
-    const arr = fizzBuzz(val);
+    if (raw === '' || Number.isNaN(val)) throw new TypeError('n must be an integer');
+    const arr = fizzBuzz(Number.parseInt(raw, 10));
     rangeOut.textContent = arr.join(',');
   }catch(e){
     showError(e.message);
