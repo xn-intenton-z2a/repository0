@@ -27,7 +27,8 @@ function assertNonNegative(n){
 export function fizzBuzzSingle(i){
   assertInteger(i);
   assertNonNegative(i);
-  if (i === 0) return '0'; // though API expects only n>=1 for single, keep logical mapping
+  // per spec: single value for positive integers; handle 0 as valid for fizzBuzz only
+  if (i === 0) return '0';
   const by3 = i % 3 === 0;
   const by5 = i % 5 === 0;
   if (by3 && by5) return 'FizzBuzz';
@@ -37,7 +38,6 @@ export function fizzBuzzSingle(i){
 }
 
 export function fizzBuzz(n){
-  // per spec: n === 0 -> [] , integer >=1 returns array length n
   assertInteger(n);
   if (n === 0) return [];
   assertNonNegative(n);
@@ -46,9 +46,8 @@ export function fizzBuzz(n){
   return out;
 }
 
-// CLI entrypoint
-export function main(argv){
-  // argv is array of args (strings) after script
+export function main(argv = process.argv.slice(2)){
+  // argv: array of strings
   if (!argv || argv.length === 0){
     console.log(`${name}@${version} - FizzBuzz demo`);
     console.log('Usage: node src/lib/main.js <number>');
@@ -59,18 +58,18 @@ export function main(argv){
     return 0;
   }
   const arg = argv[0];
-  const n = Number(arg);
+  // parse base-10 integer
+  const n = Number.parseInt(arg, 10);
   if (arg === undefined || arg === '' || Number.isNaN(n)){
-    console.error('Invalid number');
-    console.log('Usage: node src/lib/main.js <number>');
+    console.error('n must be an integer');
     return 2;
   }
   try{
-    // If single numeric arg, print fizzBuzzSingle
     const res = fizzBuzzSingle(n);
     console.log(res);
     return 0;
   }catch(e){
+    // print exact error message to stderr
     console.error(e.message);
     return 2;
   }

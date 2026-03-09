@@ -1,26 +1,20 @@
-# FizzBuzz Library Demo
+# FizzBuzz Library
 
-This repository demonstrates a simple FizzBuzz library with unit tests and a web demo.
+A small JavaScript library that implements FizzBuzz.
 
-Library API (src/lib/main.js):
+Exports:
+- fizzBuzz(n): returns array of strings for 1..n with Fizz/Buzz substitutions. fizzBuzz(0) -> []
+- fizzBuzzSingle(n): returns string for a single integer ("Fizz", "Buzz", "FizzBuzz", or number as string)
 
-- fizzBuzz(n): returns array of strings from 1..n with Fizz/Buzz/FizzBuzz substitutions.
-- fizzBuzzSingle(n): returns string for single integer.
-
-Examples:
-
-- fizzBuzz(5) -> ["1","2","Fizz","4","Buzz"]
-- fizzBuzzSingle(15) -> "FizzBuzz"
+Validation and errors:
+- Non-integer or NaN inputs throw TypeError with exact message: "n must be an integer"
+- Negative integers throw RangeError with exact message: "n must be a non-negative integer"
 
 CLI:
+- Run: node src/lib/main.js <number>
+- On success prints the fizzBuzzSingle result to stdout and exits 0
+- On invalid input prints the error message to stderr and exits non-zero
 
-- node src/lib/main.js <number>
-
-Website demo:
-
-- Open src/web/index.html or run npm run start to serve docs/ and visit the demo.
-
-Tests:
-
-- npm test (unit tests)
-- npm run test:behaviour (Playwright behaviour tests; requires Playwright setup)
+Web demo:
+- src/web/index.html provides a demo. Build to docs/ with npm run build:web.
+- Demo elements: #fizz-input, #fizz-submit, #fizz-output, #fizz-range, #fizz-range-submit, #fizz-range-output, #fizz-error

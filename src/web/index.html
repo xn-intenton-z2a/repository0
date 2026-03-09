@@ -7,11 +7,11 @@
   <style>body{font-family:system-ui, -apple-system, sans-serif;max-width:780px;margin:2rem auto;padding:1rem}label{display:inline-block;width:120px}</style>
 </head>
 <body>
-  <h1>FizzBuzz Demo</h1>
+  <h1 id="lib-name">FizzBuzz Demo</h1>
   <section>
     <h2>Single value</h2>
     <label for="fizz-input">Number</label>
-    <input id="fizz-input" type="number" value="15" />
+    <input id="fizz-input" type="text" value="15" />
     <button id="fizz-submit">Submit</button>
     <div>Result: <span id="fizz-output" aria-live="polite"></span></div>
   </section>
@@ -19,7 +19,7 @@
   <section>
     <h2>Range</h2>
     <label for="fizz-range">Count (n)</label>
-    <input id="fizz-range" type="number" value="0" />
+    <input id="fizz-range" type="text" value="0" />
     <button id="fizz-range-submit">Generate</button>
     <div>Result: <span id="fizz-range-output" aria-live="polite"></span></div>
   </section>
