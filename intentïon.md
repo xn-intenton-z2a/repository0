@@ -533,3 +533,92 @@ Created a normalized technical digest (SOURCES_DIGEST) consolidating Array.from,
 Maintained library (5 docs, limit 8)
 
 ---
+## maintain-features at 2026-03-09T04:50:25.645Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 43441 (in: 41279, out: 2162)
+**Duration:** 43s (~0.7 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22838871113](https://github.com/xn-intenton-z2a/repository0/actions/runs/22838871113)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 13/16 | 3 remaining |  |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining |  |
+| library | 6/8 | 2 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. No issues have been closed by review as RESOLVED yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 0 | 0 | MET |
+| Open PRs | 0 | 0 | MET |
+| Issues closed by review (RESOLVED) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 13/16 | < 16 | OK |
+| Cumulative transforms | 13 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+transformation-budget approaching capacity (13/16).
+features at capacity (2/2) — actions will be blocked.
+
+### Narrative
+Edited the two feature specification files to make their goals, API contracts, CLI and web demo acceptance criteria explicit and testable.
+
+Maintained features (2 existing, limit 2)
+
+---
+## maintain-library at 2026-03-09T04:50:38.619Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** min
+**Token Count:** 18435 (in: 17760, out: 675)
+**Duration:** 13s (~0.2 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22838871113](https://github.com/xn-intenton-z2a/repository0/actions/runs/22838871113)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 14/16 | 2 remaining |  |
+| max-feature-issues | 0/1 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/1 | ? remaining | n/a |
+| max-attempts-per-branch | ?/2 | ? remaining | n/a |
+| features | 2/2 | 0 remaining | n/a |
+| library | 6/8 | 2 remaining |  |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. No issues have been closed by review as RESOLVED yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 0 | 0 | MET |
+| Open PRs | 0 | 0 | MET |
+| Issues closed by review (RESOLVED) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 14/16 | < 16 | OK |
+| Cumulative transforms | 14 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+transformation-budget approaching capacity (14/16).
+
+### Narrative
+Verified that each source URL from SOURCES.md already maps to an existing technical library document and therefore made no additions or edits.
+
+Maintained library (6 docs, limit 8)
+
+---
