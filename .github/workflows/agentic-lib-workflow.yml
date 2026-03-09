@@ -776,6 +776,8 @@ jobs:
         if: env.FIX_PR_NUMBER != '' && env.FIX_REASON == 'merge conflicts' && steps.fix-mission-check.outputs.mission-complete != 'true'
         id: trivial-resolve
         run: |
+          git config user.email 'action@github.com'
+          git config user.name 'GitHub Actions[bot]'
           git fetch origin main
           if git merge origin/main --no-edit 2>/dev/null; then
             echo "resolved=clean" >> $GITHUB_OUTPUT
@@ -787,7 +789,6 @@ jobs:
             # Metadata files (maintain updates) → accept theirs (main)
             SOURCE_PATTERN='^src/lib/|^tests/|^src/web/'
             RESOLVED_COUNT=0
-            FAILED_FILES=""
             for f in $CONFLICTED; do
               if echo "$f" | grep -qE "$SOURCE_PATTERN"; then
                 echo "  $f → keeping ours (source)"
