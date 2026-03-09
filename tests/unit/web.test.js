@@ -2,6 +2,7 @@
 // Copyright (C) 2025-2026 Polycode Limited
 import { describe, test, expect } from "vitest";
 import { readFileSync, existsSync } from "fs";
+import { fizzBuzz } from '../../src/lib/main.js';
 
 describe("Website", () => {
   test("src/web/index.html exists", () => {
@@ -24,5 +25,18 @@ describe("Website", () => {
     const html = readFileSync("src/web/index.html", "utf8");
     expect(html).toContain("lib-name");
     expect(html).toContain("lib-version");
+  });
+
+  test("fizzbuzz demo exists and has output element", () => {
+    expect(existsSync('src/web/fizzbuzz.html')).toBe(true);
+    const demo = readFileSync('src/web/fizzbuzz.html', 'utf8');
+    expect(demo).toContain('id="fizzbuzz-output"');
+    expect(existsSync('src/web/fizzbuzz.js')).toBe(true);
+  });
+
+  test('library wiring spot-check', () => {
+    // ensure library function exists and works
+    expect(typeof fizzBuzz).toBe('function');
+    expect(fizzBuzz(3)).toEqual(['1','2','Fizz']);
   });
 });

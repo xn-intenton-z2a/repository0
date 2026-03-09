@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>FizzBuzz Demo</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 2rem auto; color:#222 }
+    pre { background:#f6f8fa; padding:1rem; border-radius:6px; white-space: pre-wrap; }
+    label, input, button { font-size:1rem; }
+  </style>
+</head>
+<body>
+  <h1>FizzBuzz Demo</h1>
+  <p>Enter N and click Generate to produce the FizzBuzz sequence.</p>
+  <label for="fizzbuzz-n">N:</label>
+  <input id="fizzbuzz-n" type="number" value="15" min="0" />
+  <button id="fizzbuzz-gen">Generate</button>
+  <h2>Output</h2>
+  <pre id="fizzbuzz-output" aria-live="polite">(click Generate)</pre>
+  <script type="module" src="./fizzbuzz.js"></script>
+</body>
+</html>
