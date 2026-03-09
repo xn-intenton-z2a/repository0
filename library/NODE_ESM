@@ -1,0 +1,65 @@
+TITLE: NODE_ESM
+
+TABLE OF CONTENTS:
+1. Enabling ESM in Node.js
+2. Specifier types and resolution rules
+3. import attributes and JSON/WASM imports
+4. import.meta properties and APIs
+5. Interoperability with CommonJS
+6. Built-in module semantics and performance notes
+
+NORMALISED EXTRACT:
+1. Enabling ESM in Node.js
+- Mark module as ESM via .mjs file extension, package.json "type": "module", or CLI flag --input-type=module.
+- Conversely, use .cjs or "type": "commonjs" for CommonJS.
+- When lacking explicit markers, Node inspects source for ESM syntax and decides accordingly.
+
+2. Specifier types and resolution rules
+- Three specifier types: relative (./x.js, require extension), bare (package names), absolute (file:///...).
+- Relative/absolute specifiers MUST include file extensions and fully-specified directory indexes.
+- Bare specifier resolution follows Node package exports algorithm; packages with "exports" limit accessible paths.
+- Modules resolved and cached as URLs; special characters must be percent-encoded.
+
+3. import attributes and JSON/WASM imports
+- import ... with { type: 'json' } is supported; Node only supports the 'type' attribute currently.
+- JSON modules require type: 'json' when importing JSON via import assertions/attributes.
+- data: URLs supported for text/javascript, application/json, application/wasm with specified MIME types.
+
+4. import.meta properties and APIs
+- import.meta.url: absolute file: URL of module.
+- import.meta.filename and import.meta.dirname: absolute path and directory (file: modules only), available from Node v21+/v20.11+.
+- import.meta.main: boolean true when module is the process entry point (stability early).
+- import.meta.resolve(specifier): returns absolute URL string synchronously; signature: import.meta.resolve(specifier[, parentURL]) -> string. parentURL optional non-standard with experimental flag.
+
+5. Interoperability with CommonJS
+- import in ESM can reference CommonJS; module.exports becomes default export; static analysis may synthesize named exports.
+- Dynamic import() is available in both module types; require() loads synchronous ES modules only if no top-level await used.
+- CommonJS namespace wrapper exposes default and 'module.exports' named export; named export detection via static heuristics (merve semantics).
+
+6. Built-in module semantics and performance notes
+- Built-in modules expose named exports and a default export (the module.exports value).
+- Named exports of built-ins are populated even if not accessed; may make initial imports slightly slower than require().
+- Use module.createRequire() to construct a require function inside ESM when necessary.
+
+SUPPLEMENTARY DETAILS:
+- File import rules: always include file extension for relative imports; use url.pathToFileURL when programmatically creating file URLs.
+- Caching: modules are cached by resolved URL including query/fragment; import './foo.mjs?x=1' and './foo.mjs?x=2' load separately.
+- Loader hooks: Node supports loader hooks (resolve, load) in custom loaders; historically changed across versions, now 'load' and 'resolve' are primary hooks.
+
+REFERENCE DETAILS:
+- Exact API signatures and behaviours:
+  - import.meta.resolve(specifier: string, parentURL?: string | URL) => string (synchronous, returns absolute URL string);
+  - import('specifier') => Promise<moduleNamespace> (dynamic import resolves according to ESM rules);
+  - module.createRequire(filename?: string | URL) => function require(id: string): any;
+  - syncBuiltinESMExports(): void — force update of built-in named exports mapping.
+- File extension rule: relative specifier resolution requires explicit extension and fully-specified directory indexes.
+- JSON import with attributes: import val from './data.json' with { type: 'json' } — required for JSON modules.
+
+DETAILED DIGEST:
+- Source: https://nodejs.org/api/esm.html
+- Retrieved: 2026-03-09
+- Extracted content (technical): Detailed Node ESM rules: enabling markers (.mjs, package.json type field), mandatory file extensions, specifier categories, import attributes (type: 'json'), import.meta properties (url, filename, dirname, resolve, main), interop mapping for CommonJS (default export mapping and named export heuristics), and loader/caching behaviors.
+
+ATTRIBUTION AND DATA SIZE:
+- Attribution: Node.js documentation — Modules: ECMAScript modules (URL above).
+- Data fetched: 1 source; approximate characters fetched for this extract: ~18500.

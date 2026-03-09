@@ -1,54 +1,51 @@
-# FIZZBUZZ_FORMATTER
+# FIZZBUZZ_STREAM
 
 Summary
 
-Add an optional formatter argument to the core fizzBuzz function to allow callers to customise how each item in the sequence is rendered. The formatter is a pure function called for every integer in the sequence and receives the integer and the default fizzbuzz string for that integer; it returns the string to be included in the output array. This feature keeps the default behaviour unchanged when the formatter is omitted and allows easy demonstration in the web example and README.
+Add a memory-efficient generator API that yields FizzBuzz outputs one-at-a-time for large or streaming use-cases. The feature introduces a named export fizzBuzzStream(n) in src/lib/main.js which returns a synchronous iterable (generator) producing the canonical FizzBuzz strings for values 1..n without allocating the full array in memory.
 
 Rationale
 
-Providing a formatter makes the library more flexible while preserving its simple core API. It supports demonstration scenarios on the website, makes testing deterministic, and remains implementable entirely within src/lib/main.js with accompanying unit tests and README examples.
+The core fizzBuzz(n) returns an array which is simple and correct but may be inefficient for very large n or streaming consumers. A generator-based API allows consumers (CLI, web demo, tests) to iterate results lazily, reducing peak memory usage and enabling piping to streaming outputs or frameworks that consume iterables.
 
 Scope
 
-- Extend the existing fizzBuzz(n) function signature to accept an optional second parameter formatter: fizzBuzz(n, formatter)
-- The formatter is a function with signature (value, defaultString) => string
-- If formatter is not provided, behaviour is identical to the existing fizzBuzz(n)
-- Input validation rules remain unchanged: non-integer inputs throw TypeError, negative n throws RangeError, fizzBuzz(0) returns []
-- Update unit tests in tests/unit to include tests for custom formatter behaviour and that the default behaviour is preserved when formatter is omitted
-- Update README with usage example showing a formatter that prefixes index and value
-- Demonstrate formatter in src/web example so the page can toggle between default rendering and formatted rendering
+- Add a new named export fizzBuzzStream to src/lib/main.js with the signature: function* fizzBuzzStream(n)
+- The generator yields exactly the same strings that fizzBuzz(n) would include, in order, for i from 1 through n
+- Input validation mirrors fizzBuzz: non-integer inputs must throw TypeError, negative n must throw RangeError, n = 0 results in a generator that yields nothing
+- Update unit tests in tests/unit to include tests that consume the generator and assert equivalence to Array.from(fizzBuzzStream(n)) and to the existing fizzBuzz(n) behaviour for relevant n values
+- Demonstrate usage in the CLI and web example by showing how to consume the generator to stream output instead of building an array (examples in README and src/web)
 
-API Changes
+API
 
-- fizzBuzz(n, formatter?) -> Array<string>
-  - n: positive integer (0 allowed returning [])
-  - formatter: optional function (value: number, defaultString: string) => string
-  - Behaviour: For each i from 1..n compute defaultString per fizzbuzz rules; then if formatter provided call formatter(i, defaultString) and include its return value in the result array; otherwise include defaultString.
+- fizzBuzzStream(n) -> Iterable<string>
+  - n: integer >= 0 (0 allowed; generator yields nothing)
+  - Behaviour: Synchronously yields the FizzBuzz string for each integer i in 1..n using the same rules as fizzBuzzSingle
+  - Errors: If n is not an integer, throw TypeError; if n is negative, throw RangeError
 
 Tests
 
-- Unit tests must assert:
-  - Default behaviour unchanged: fizzBuzz(15) returns the canonical array ending with FizzBuzz when no formatter is passed
-  - Formatter is called for every element when provided and its return values are used
-  - A sample formatter that returns `${i}:${defaultString}` produces expected outputs for n=5 and n=15
-  - Passing a non-function as formatter results in a TypeError
-  - Edge-case behaviours: fizzBuzz(0, formatter) returns [] and does not call formatter
-  - Existing tests for fizzBuzzSingle remain unchanged
+- Unit tests must verify:
+  - Array.from(fizzBuzzStream(15)) equals fizzBuzz(15) and has 15 elements ending with FizzBuzz
+  - Consuming fizzBuzzStream(0) yields no values
+  - fizzBuzzStream throws TypeError for non-integer inputs
+  - fizzBuzzStream throws RangeError for negative inputs
+  - Iteration order and values match fizzBuzzSingle for sample inputs (3 -> Fizz, 5 -> Buzz, 15 -> FizzBuzz, 7 -> "7")
 
 Acceptance Criteria
 
-- fizzBuzz remains exported as a named export and accepts an optional formatter without breaking existing tests
-- New unit tests covering formatter behaviour are added and pass
-- README contains a short example showing usage of the formatter
-- The web example demonstrates toggling to formatted output and shows formatted list for n=15 ending with a formatted FizzBuzz entry
+- fizzBuzzStream is exported as a named export from src/lib/main.js
+- Tests cover generator behaviour and pass in CI
+- README contains a short example showing how to iterate the generator and demonstrates streaming output for n=15
+- CLI and web example contain example code or comments showing how to consume the iterable to stream output
 
 Implementation Notes
 
-- Keep the change minimal: modify src/lib/main.js to accept and validate an optional second parameter and to call it when present
-- Do not change the behaviour of fizzBuzzSingle
-- Add minimal unit tests to tests/unit to cover the new behaviour; reuse existing test patterns
-- Avoid external dependencies; implement in plain JavaScript
+- Implement fizzBuzzStream as a small generator using the same internal logic as fizzBuzzSingle to avoid duplication of rules
+- Keep changes constrained to src/lib/main.js, tests in tests/unit, README examples, and small updates to src/web for demonstration
+- Do not introduce runtime dependencies; implement with plain JavaScript generator functions
 
 Backward Compatibility
 
-- When formatter is omitted, the function must behave exactly as before and all existing tests should remain valid.
+- The existing fizzBuzz and fizzBuzzSingle exports remain unchanged and continue to behave as before
+- The new generator API is additive and optional for consumers who need streaming behaviour

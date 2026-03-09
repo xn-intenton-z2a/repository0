@@ -1,0 +1,48 @@
+TITLE: RANGE_ERROR
+
+TABLE OF CONTENTS:
+1. Description and use-cases
+2. Constructor and inheritance
+3. Instance properties and methods
+4. Examples and error-handling patterns
+5. Specification reference
+
+NORMALISED EXTRACT:
+1. Description and use-cases
+- RangeError is thrown when an argument value lies outside the set of allowed values for a function.
+- Common situations: illegal array length, numeric formatting methods receiving out-of-range parameters, invalid options passed to APIs (e.g., String.prototype.normalize invalid form).
+
+2. Constructor and inheritance
+- Constructor: RangeError(message?: string)
+- RangeError is a subclass of Error. Instances inherit Error properties and methods.
+- RangeError.prototype.name initial value is 'RangeError'.
+
+3. Instance properties and methods
+- Inherits standard Error properties: name, message, stack (environment-dependent).
+- No additional instance methods beyond Error's.
+
+4. Examples and error-handling patterns
+- Throwing: throw new RangeError('The argument must be between -500 and 500.');
+- Catch-and-check: try { check(n) } catch (e) { if (e instanceof RangeError) { handle } }
+- Use in validation code to indicate invalid numeric or enumerated values.
+
+5. Specification reference
+- ECMAScript native error types spec: sec-native-error-types-used-in-this-standard-rangeerror in ECMAScript 2026.
+
+SUPPLEMENTARY DETAILS:
+- Serializable: RangeError objects are serializable and can be cloned with structuredClone() or transferred between Workers via postMessage.
+- Best practices: throw RangeError for numeric range violations; use TypeError for incorrect types.
+
+REFERENCE DETAILS:
+- Constructor signature: RangeError(message?: string) => RangeError instance
+- Instance check: e instanceof RangeError
+- Example validation flow (textual): function check(n) { if (!(n >= min && n <= max)) throw new RangeError('...'); }
+
+DETAILED DIGEST:
+- Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError
+- Retrieved: 2026-03-09
+- Extracted content (technical): Definition, constructor, inheritance from Error, examples of throwing and catching, serializability notes, and spec link.
+
+ATTRIBUTION AND DATA SIZE:
+- Attribution: MDN Web Docs — RangeError
+- Data fetched: 1 source; approximate characters fetched for this extract: ~1500.

@@ -1,0 +1,57 @@
+TITLE: FIZZ_BUZZ
+
+TABLE OF CONTENTS:
+1. Rule definition
+2. Implementation logic
+3. Variants and edge cases
+4. Performance and complexity
+
+NORMALISED EXTRACT:
+1. Rule definition
+- Replace numbers divisible by 3 with "fizz".
+- Replace numbers divisible by 5 with "buzz".
+- Replace numbers divisible by both 3 and 5 with "fizzbuzz".
+- Counting proceeds incrementally from 1 upward; players or program output sequence.
+
+2. Implementation logic
+- Primary check order: check for divisibility by both 3 and 5 (i.e., 15) first to output "fizzbuzz", then check 3 then 5.
+- Divisibility test: use integer modulus operator: n % k === 0.
+- Loop bounds: start at 1 and continue to desired N (e.g., 100); inclusive upper bound N.
+- Output format: sequential values separated by commas/spaces or one-per-line depending on consumer.
+
+3. Variants and edge cases
+- Additional divisibility rules: e.g., 7 or digits-containing rules (numbers containing digit 5 trigger buzz).
+- Non-integer inputs: ignore or validate and throw error; canonical FizzBuzz is defined for positive integers.
+- Very large N: ensure loop counter uses integer types that preserve exactness; in JS use Number but be aware of MAX_SAFE_INTEGER.
+
+4. Performance and complexity
+- Time complexity: O(N) with O(1) per iteration.
+- Memory complexity: O(1) if streaming output; O(N) if accumulating results in memory.
+
+SUPPLEMENTARY DETAILS:
+- Recommended implementation pattern:
+  - For imperative languages: for (i = 1; i <= N; ++i) { if (i % 15 === 0) print('fizzbuzz'); else if (i % 3 === 0) print('fizz'); else if (i % 5 === 0) print('buzz'); else print(i); }
+  - For functional languages: map over range 1..N and apply mapping function using modulus checks in same order.
+- Testing recommendations:
+  - Unit tests verifying outputs at known indices: 3 -> fizz, 5 -> buzz, 15 -> fizzbuzz, 1 -> 1.
+  - Property-based tests: for any k divisible by 3 and not 5 -> fizz, divisible by 5 and not 3 -> buzz, divisible by 15 -> fizzbuzz.
+- Edge-case handling: define behavior for 0, negative numbers, non-integers; typically either exclude or throw RangeError/TypeError.
+
+REFERENCE DETAILS:
+- Exact check signatures and types (JavaScript):
+  - isDivisible(n: number, k: number): boolean — returns true if Number.isInteger(n) and n % k === 0.
+  - fizzBuzzValue(n: number): string | number — returns 'fizzbuzz' | 'fizz' | 'buzz' | n.
+- Examples of constraints:
+  - Input: integer n where 1 <= n <= N. Behavior undefined for non-integers unless validated with Number.isInteger.
+- Best practices:
+  - Validate inputs early: if (!Number.isInteger(n) || n < 1) throw new RangeError('n must be positive integer');
+  - Prefer checking n % 15 === 0 to detect fizzbuzz instead of nested conditionals for correctness.
+
+DETAILED DIGEST:
+- Source: https://en.wikipedia.org/wiki/Fizz_buzz
+- Retrieved: 2026-03-09
+- Extracted content (technical): "Players count incrementally, replacing numbers divisible by 3 with 'fizz', by 5 with 'buzz', and by both with 'fizzbuzz'. Typical program outputs first 100 FizzBuzz numbers. Variants include using divisibility by 7 or digit-containing rules."
+
+ATTRIBUTION AND DATA SIZE:
+- Attribution: Wikipedia — Fizz buzz (URL above).
+- Data fetched: 1 source; total approximate characters fetched for this extract: ~750.
