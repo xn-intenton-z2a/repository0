@@ -7,7 +7,6 @@
 
 [schedule]
 supervisor = "off"              # off | weekly | daily | hourly | continuous
-model = "gpt-5-mini"
 
 [paths]
 mission = "MISSION.md"
@@ -69,19 +68,19 @@ infinite-sessions = false        # set to true for long sessions with compaction
 # [tuning] or [limits] to deviate from the active profile.
 
 [profiles.min]
-# Fast & cheap — CI testing, quick validation, budget-conscious iteration.
+# ~10% of gpt-4.1 context (128K). Fast, cheap — CI testing, quick validation.
 reasoning-effort = "low"                # low | medium | high | none
 infinite-sessions = false               # enable session compaction for long runs
 transformation-budget = 16             # max code-changing cycles per run
 max-feature-files = 3                      # max feature files included in prompts
 max-source-files = 3                        # max source files included in prompts
-max-source-chars = 1000                  # max chars of each source file's content included in prompts
-max-test-chars = 500                     # max chars of each test file's content included in prompts
+max-source-chars = 4000                  # max chars of each source file's content included in prompts
+max-test-chars = 2000                     # max chars of each test file's content included in prompts
 max-issues = 5                        # max open issues included in prompts
-issue-body-limit = 200                 # max chars of each issue's body text included in prompts
+issue-body-limit = 1000                 # max chars of each issue's body text included in prompts
 stale-days = 14                        # days since last activity before an issue is considered stale and excluded
-max-summary-chars = 500                 # max chars of each document's summary included in prompts
-max-discussion-comments = 5               # max recent discussion comments (newest first) included in prompts
+max-summary-chars = 2000                 # max chars of each document's summary included in prompts
+max-discussion-comments = 3               # max recent discussion comments (newest first) included in prompts
 max-feature-issues = 1                     # max concurrent feature development issues
 max-maintenance-issues = 1                 # max concurrent maintenance issues
 max-attempts-per-branch = 2               # max transform attempts before abandoning a branch
@@ -90,18 +89,18 @@ features-limit = 2                     # max feature files in features/ director
 library-limit = 8                      # max library entries in library/ directory
 
 [profiles.recommended]
-# Balanced — good results without excessive cost. Default for consumer repos.
+# ~30% of claude-sonnet-4 context (216K). Balanced — good results, default for consumer repos.
 reasoning-effort = "medium"            # low | medium | high | none
 infinite-sessions = true               # enable session compaction for long runs
 transformation-budget = 32             # max code-changing cycles per run
 max-feature-files = 10                     # max feature files included in prompts
 max-source-files = 10                       # max source files included in prompts
-max-source-chars = 5000                  # max chars of each source file's content included in prompts
-max-test-chars = 3000                    # max chars of each test file's content included in prompts
-max-issues = 20                       # max open issues included in prompts
-issue-body-limit = 500                 # max chars of each issue's body text included in prompts
+max-source-chars = 8000                  # max chars of each source file's content included in prompts
+max-test-chars = 5000                    # max chars of each test file's content included in prompts
+max-issues = 15                       # max open issues included in prompts
+issue-body-limit = 2000                 # max chars of each issue's body text included in prompts
 stale-days = 30                        # days since last activity before an issue is considered stale and excluded
-max-summary-chars = 2000                # max chars of each document's summary included in prompts
+max-summary-chars = 5000                # max chars of each document's summary included in prompts
 max-discussion-comments = 10              # max recent discussion comments (newest first) included in prompts
 max-feature-issues = 2                     # max concurrent feature development issues
 max-maintenance-issues = 1                 # max concurrent maintenance issues
@@ -111,19 +110,19 @@ features-limit = 4                     # max feature files in features/ director
 library-limit = 32                     # max library entries in library/ directory
 
 [profiles.max]
-# Thorough — maximum context, highest quality. For complex missions.
+# ~90% of gpt-5-mini context (264K). Thorough — maximum context for complex missions.
 reasoning-effort = "high"              # low | medium | high | none
 infinite-sessions = true               # enable session compaction for long runs
 transformation-budget = 128           # max code-changing cycles per run
-max-feature-files = 50                     # max feature files included in prompts
-max-source-files = 50                       # max source files included in prompts
-max-source-chars = 20000                 # max chars of each source file's content included in prompts
-max-test-chars = 15000                   # max chars of each test file's content included in prompts
-max-issues = 100                      # max open issues included in prompts
-issue-body-limit = 2000                # max chars of each issue's body text included in prompts
+max-feature-files = 20                     # max feature files included in prompts
+max-source-files = 25                       # max source files included in prompts
+max-source-chars = 12000                 # max chars of each source file's content included in prompts
+max-test-chars = 8000                   # max chars of each test file's content included in prompts
+max-issues = 30                      # max open issues included in prompts
+issue-body-limit = 3000                # max chars of each issue's body text included in prompts
 stale-days = 90                        # days since last activity before an issue is considered stale and excluded
-max-summary-chars = 10000               # max chars of each document's summary included in prompts
-max-discussion-comments = 25              # max recent discussion comments (newest first) included in prompts
+max-summary-chars = 8000               # max chars of each document's summary included in prompts
+max-discussion-comments = 20              # max recent discussion comments (newest first) included in prompts
 max-feature-issues = 4                     # max concurrent feature development issues
 max-maintenance-issues = 2                 # max concurrent maintenance issues
 max-attempts-per-branch = 5               # max transform attempts before abandoning a branch
@@ -135,7 +134,7 @@ library-limit = 64                     # max library entries in library/ directo
 log-file = "intentïon.md"
 
 [init]
-timestamp = "2026-03-09T02:05:48.955Z"
+timestamp = "2026-03-09T03:32:42.887Z"
 mode = "purge"
 mission = "fizz-buzz"
-version = "7.1.97"
+version = "7.1.100"

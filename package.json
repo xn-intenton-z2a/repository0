@@ -17,11 +17,12 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.1.97"
+    "@xn-intenton-z2a/agentic-lib": "^7.1.100"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",
     "@vitest/coverage-v8": "^4.0.18",
+    "jsdom": "^26.1.0",
     "serve": "^14.2.4",
     "vitest": "^4.0.18"
   },

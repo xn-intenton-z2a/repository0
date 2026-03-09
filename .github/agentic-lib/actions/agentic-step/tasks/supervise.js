@@ -605,6 +605,31 @@ async function executeMissionComplete(octokit, repo, params, ctx) {
   ].join("\n");
   writeFileSync("MISSION_COMPLETE.md", signal);
   core.info(`Mission complete signal written: ${reason}`);
+
+  // Persist MISSION_COMPLETE.md to the repository via Contents API so it survives across runs
+  try {
+    const contentBase64 = Buffer.from(signal).toString("base64");
+    // Check if file already exists (to get its SHA for updates)
+    let existingSha;
+    try {
+      const { data } = await octokit.rest.repos.getContent({ ...repo, path: "MISSION_COMPLETE.md", ref: "main" });
+      existingSha = data.sha;
+    } catch {
+      // File doesn't exist yet — that's fine
+    }
+    await octokit.rest.repos.createOrUpdateFileContents({
+      ...repo,
+      path: "MISSION_COMPLETE.md",
+      message: "mission-complete: " + reason.substring(0, 72),
+      content: contentBase64,
+      branch: "main",
+      ...(existingSha ? { sha: existingSha } : {}),
+    });
+    core.info("MISSION_COMPLETE.md committed to main via Contents API");
+  } catch (err) {
+    core.warning(`Could not commit MISSION_COMPLETE.md to repo: ${err.message}`);
+  }
+
   if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
     try {
       await octokit.rest.actions.createWorkflowDispatch({
@@ -638,6 +663,30 @@ async function executeMissionFailed(octokit, repo, params, ctx) {
   ].join("\n");
   writeFileSync("MISSION_FAILED.md", signal);
   core.info(`Mission failed signal written: ${reason}`);
+
+  // Persist MISSION_FAILED.md to the repository via Contents API so it survives across runs
+  try {
+    const contentBase64 = Buffer.from(signal).toString("base64");
+    let existingSha;
+    try {
+      const { data } = await octokit.rest.repos.getContent({ ...repo, path: "MISSION_FAILED.md", ref: "main" });
+      existingSha = data.sha;
+    } catch {
+      // File doesn't exist yet — that's fine
+    }
+    await octokit.rest.repos.createOrUpdateFileContents({
+      ...repo,
+      path: "MISSION_FAILED.md",
+      message: "mission-failed: " + reason.substring(0, 72),
+      content: contentBase64,
+      branch: "main",
+      ...(existingSha ? { sha: existingSha } : {}),
+    });
+    core.info("MISSION_FAILED.md committed to main via Contents API");
+  } catch (err) {
+    core.warning(`Could not commit MISSION_FAILED.md to repo: ${err.message}`);
+  }
+
   if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
     try {
       await octokit.rest.actions.createWorkflowDispatch({
@@ -716,7 +765,7 @@ export async function supervise(context) {
   if (ctx.initTimestamp && !ctx.missionComplete && !ctx.missionFailed) {
     // Check for any prior agentic-lib-workflow runs since init (count > 1 because current run is included)
     const supervisorRunCount = ctx.actionsSinceInit.filter(
-      (a) => a.name === "agentic-lib-workflow",
+      (a) => a.name.startsWith("agentic-lib-workflow"),
     ).length;
     const hasPriorSupervisor = supervisorRunCount > 1 || ctx.recentActivity.includes("supervised:");
     if (!hasPriorSupervisor && ctx.mission && ctx.activeDiscussionUrl) {

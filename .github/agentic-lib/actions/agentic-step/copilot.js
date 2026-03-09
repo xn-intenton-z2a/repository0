@@ -277,7 +277,7 @@ export async function runCopilotTask({
   profileName,
   maxRetries = 3,
 }) {
-  const profile = profileName || "unknown";
+  const profile = profileName || tuning?.profileName || "unknown";
 
   // Attempt 0 is the initial call; attempts 1..maxRetries are retries after 429s.
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -308,7 +308,7 @@ async function _runCopilotTaskOnce({
   tuning,
   profileName,
 }) {
-  const profile = profileName || "unknown";
+  const profile = profileName || tuning?.profileName || "unknown";
   core.info(
     `[copilot] Creating client (model=${model}, promptLen=${prompt.length}, writablePaths=${writablePaths.length}, tuning=${tuning?.reasoningEffort || "default"}, profile=${profile})`,
   );
