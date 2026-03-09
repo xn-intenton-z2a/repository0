@@ -1,0 +1,71 @@
+NORMALISED EXTRACT
+
+Key technical points (implementation-ready):
+- Rules: For each integer i in the sequence 1..n: if divisible by 3 output "Fizz"; if divisible by 5 output "Buzz"; if divisible by both 3 and 5 output "FizzBuzz"; otherwise output the number itself.
+- Divisibility tests: use integer modulo operation; test both-conditions either by i % 15 == 0 or (i % 3 == 0 && i % 5 == 0).
+- Input constraints: algorithm expects integer positive n. Non-integer inputs must be validated and rejected or coerced explicitly.
+- Iteration pattern: single pass loop from 1 to n with constant-time checks per item.
+
+Table of contents
+1. Rules and exact conditional order
+2. Iteration and complexity
+3. Input validation
+4. Edge cases and variations
+5. Implementation signature and behavior
+
+Details
+1. Rules and exact conditional order
+- Must check the "both" condition before single divisibility checks to avoid returning only "Fizz" or "Buzz" when both apply.
+- Explicit check options (equivalent):
+  - If (i modulo 15 == 0) output "FizzBuzz";
+  - else if (i modulo 3 == 0) output "Fizz";
+  - else if (i modulo 5 == 0) output "Buzz";
+  - else output i.
+- Order matters: if using separate tests without short-circuiting, ensure concatenation approach evaluates both divisibility conditions reliably.
+
+2. Iteration and complexity
+- Single loop from 1 to n. Time complexity O(n). Space complexity O(1) if streaming output, O(n) if collecting results into an array.
+- Per-iteration operations: up to two modulo operations and constant-time branching.
+
+3. Input validation
+- Enforce type: require numeric input. If language supports, require integer type or check via integer-test function.
+- Recommended validation policy:
+  - If value is not a number: throw TypeError.
+  - If value is a number but not an integer: throw TypeError or coerce by flooring explicitly (choose and document behavior).
+  - If value < 1: return empty array or throw RangeError depending on API contract; prefer returning empty array for non-positive ranges in simple libraries.
+
+4. Edge cases and variations
+- Starting index: canonical implementations start at 1; allow configurable start index if needed.
+- Zero: 0 is divisible by any non-zero integer; decide treatment (0 -> "FizzBuzz" if included) and document.
+- Large n: watch for integer overflow or performance when collecting large arrays; stream output instead for very large ranges.
+- Extensions: add rules for other divisors (e.g., 7 -> "Bazz") or digit-containing rules (numbers containing 3 triggers fizz) by adding additional checks.
+
+5. Implementation signature and behavior
+- Suggested API signature (language-agnostic): fizzBuzz(n: integer) -> array of strings
+  - Parameters: n (integer, >=1)
+  - Returns: ordered array of length n where index i-1 corresponds to input i and each element is either the string "Fizz", "Buzz", "FizzBuzz" or the decimal representation of i.
+  - Errors: throw TypeError if n is not a number or not an integer; optionally throw RangeError if n < 0.
+
+Supplementary details
+- Example streaming pattern: for i in range(1,n): compute output string and write to stdout or yield it from a generator to avoid large memory usage.
+- Concurrency: not applicable; operations are CPU-bound and cheap per item.
+- Testing: verify sequences for n values including 1, 3, 5, 15, 16 and large boundary values. Include property-based tests: for all i, if output is "Fizz" then i % 3 == 0 and i % 5 != 0, etc.
+
+Reference details (implementation patterns and exact checks)
+- Exact divisibility checks: i % 15 == 0 or (i % 3 == 0 && i % 5 == 0). Either is allowed; use i % 15 == 0 when both checks are common and efficient.
+- Function signature example (formal): fizzBuzz(n: integer) -> string[]
+  - Parameter validation: if typeof n !== 'number' or !Number.isInteger(n) -> throw TypeError('n must be integer'); if n < 1 -> return [] or throw RangeError('n must be >= 1') depending on API.
+- Output mapping rules precisely: mapping(i) =
+  - "FizzBuzz" when i % 15 == 0
+  - "Fizz" when i % 3 == 0 and i % 5 != 0
+  - "Buzz" when i % 5 == 0 and i % 3 != 0
+  - String(i) otherwise
+
+Detailed digest (source: Wikipedia Fizz buzz) — retrieved 2026-03-09
+- Source section extracted: description of game rules; sample sequence beginning 1,2,Fizz,4,Buzz,...; note that variants exist (other divisors, digit inclusion rules); used as programming interview question; typical implementation uses loop + conditionals.
+
+Attribution and crawl metadata
+- Source: https://en.wikipedia.org/wiki/Fizz_buzz
+- Retrieved: 2026-03-09T22:22:33.635Z
+- Data size obtained during crawling: ~2.5 KB (HTML text extracted)
+- Attribution: Wikipedia contributors (public domain/copyright per Wikimedia).
