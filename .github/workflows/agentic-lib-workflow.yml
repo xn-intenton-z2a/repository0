@@ -772,41 +772,19 @@ jobs:
         run: |
           git checkout -b agentic-lib-fix-main-build
 
-      - name: "Tier 1: Auto-resolve merge conflicts (prefer-main for metadata)"
+      - name: "Tier 1: Auto-resolve merge conflicts (prefer main for conflicts)"
         if: env.FIX_PR_NUMBER != '' && env.FIX_REASON == 'merge conflicts' && steps.fix-mission-check.outputs.mission-complete != 'true'
         id: trivial-resolve
         run: |
           git config user.email 'action@github.com'
           git config user.name 'GitHub Actions[bot]'
           git fetch origin main
-          if git merge origin/main --no-edit 2>/dev/null; then
-            echo "resolved=clean" >> $GITHUB_OUTPUT
-          else
-            CONFLICTED=$(git diff --name-only --diff-filter=U)
-            echo "Conflicted files:"
-            echo "$CONFLICTED"
-            # Source files (branch has new code) → keep ours
-            # Metadata files (maintain updates) → accept theirs (main)
-            SOURCE_PATTERN='^src/lib/|^tests/|^src/web/'
-            RESOLVED_COUNT=0
-            for f in $CONFLICTED; do
-              if echo "$f" | grep -qE "$SOURCE_PATTERN"; then
-                echo "  $f → keeping ours (source)"
-                git checkout --ours "$f"
-              else
-                echo "  $f → accepting theirs (metadata)"
-                git checkout --theirs "$f"
-              fi
-              git add "$f"
-              RESOLVED_COUNT=$((RESOLVED_COUNT + 1))
-            done
-            # Regenerate lock file after conflict resolution
-            npm install 2>/dev/null || true
-            git add package-lock.json 2>/dev/null || true
-            git commit --no-edit
-            echo "Resolved $RESOLVED_COUNT conflicted files"
-            echo "resolved=auto" >> $GITHUB_OUTPUT
-          fi
+          # -X theirs: apply all clean merges normally, resolve conflicts by picking main
+          git merge origin/main -X theirs --no-edit
+          npm install 2>/dev/null || true
+          git add package-lock.json 2>/dev/null || true
+          git diff --cached --quiet || git commit --amend --no-edit
+          echo "resolved=auto" >> $GITHUB_OUTPUT
 
       - name: "Tier 2: LLM fix (failing checks only — conflicts handled by Tier 1)"
         if: |
