@@ -1,0 +1,48 @@
+NORMALISED EXTRACT
+
+Table of Contents:
+1. Installation and engine requirements
+2. Test naming and running
+3. Configuration patterns
+4. Project and CLI options
+
+1. Installation and engine requirements
+- Install: npm install -D vitest (or yarn/pnpm/bun equivalents).
+- Requirements: Vite >= 6.0.0 and Node >= 20.0.0.
+
+2. Test naming and running
+- File naming: tests must include .test. or .spec. in filename by default.
+- Run tests: npm run test where package.json scripts map "test": "vitest"; to run once use vitest run.
+- CLI: npx vitest or vitest binary; use vitest run for single-shot execution and vitest for watch mode.
+
+3. Configuration patterns
+- Vitest reads vite.config.* if present; alternatively create vitest.config.ts with defineConfig({ test: { ... } }).
+- Supported config file extensions: .js, .mjs, .cjs, .ts, .cts, .mts (not .json).
+- To merge Vite config and Vitest config, use mergeConfig from 'vitest/config' or use single config file for both.
+- Projects support: define multiple test projects in test.projects to run different environments/configs.
+
+4. Project and CLI options
+- Automatic dependency installation prompts can be disabled with VITEST_SKIP_INSTALL_CHECKS=1.
+- Use --config to pass a specific config file path; environment variable VITEST is set to 'test' by default during test runs.
+
+SUPPLEMENTARY DETAILS
+
+Implementation notes:
+- For Node-only tests, set environment: 'node' in project config; for DOM-like tests use 'happy-dom' or jsdom as needed.
+- For CI, use vitest run --coverage and configure coverage provider in package.json or vitest config.
+
+REFERENCE DETAILS
+
+Commands and script patterns:
+- package.json scripts: "test": "vitest", "coverage": "vitest run --coverage"
+- Example import in tests: import { expect, test } from 'vitest'
+- Example test file signature: test('desc', () => { expect(sum(1,2)).toBe(3) })
+
+DETAILED DIGEST
+
+Source: https://vitest.dev/guide/
+Retrieved: 2026-03-09
+Data size: page content retrieved; exact bytes not recorded.
+
+Attribution
+- Vitest Guide, vitest.dev documentation.
