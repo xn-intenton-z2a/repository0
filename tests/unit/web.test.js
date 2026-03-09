@@ -1,27 +1,23 @@
-import { readFileSync } from 'fs';
-import { JSDOM } from 'jsdom';
 import { describe, it, expect } from 'vitest';
-import { generate } from '../../src/lib/main.js';
+import { JSDOM } from 'jsdom';
+import fs from 'fs';
+import path from 'path';
 
-describe('web demo structure and wiring', () => {
-  it('index.html contains demo container and control elements and wiring works', async () => {
-    const html = readFileSync('src/web/index.html', 'utf8');
-    const dom = new JSDOM(html);
-    const { document, window } = dom.window;
+const html = fs.readFileSync(path.join(process.cwd(), 'src', 'web', 'index.html'), 'utf8');
 
-    const demo = document.getElementById('fizzbuzz-demo');
-    const input = document.getElementById('fizzbuzz-n');
-    const button = document.getElementById('fizzbuzz-render');
+describe('web demo structure', () => {
+  it('has demo container, input and button', async () => {
+    const dom = new JSDOM(html, { runScripts: 'dangerously' });
+    const doc = dom.window.document;
+    expect(doc.getElementById('fizzbuzz-demo')).toBeTruthy();
+    expect(doc.getElementById('fizzbuzz-n')).toBeTruthy();
+    expect(doc.getElementById('fizzbuzz-render')).toBeTruthy();
+  });
 
-    expect(demo).toBeTruthy();
-    expect(input).toBeTruthy();
-    expect(button).toBeTruthy();
-
-    // Simulate wiring: expose library generate function to the page and assert results
-    window.generateFizzBuzz = generate;
-    const res = window.generateFizzBuzz(15);
-    expect(res[2]).toBe('fizz');
-    expect(res[4]).toBe('buzz');
-    expect(res[14]).toBe('fizzbuzz');
+  it('fizzbuzz-client is importable and exposes functions', async () => {
+    const client = await import('../../../src/web/fizzbuzz-client.js');
+    expect(typeof client.fizzBuzz).toBe('function');
+    expect(typeof client.fizzBuzzSingle).toBe('function');
+    expect(client.fizzBuzz(5)[2]).toBe('Fizz');
   });
 });

@@ -25,7 +25,7 @@
   <pre id="usage">Node API: import { generate } from './src/lib/main.js'\nCLI: node src/lib/main.js 20\nWeb: window.generateFizzBuzz(n) returns an Array</pre>
 
   <script type="module">
-    import { generate as browserGenerate } from './fizzbuzz-client.js';
+    import { fizzBuzz as browserGenerate } from './fizzbuzz-client.js';
 
     const demo = document.getElementById('fizzbuzz-demo');
     const input = document.getElementById('fizzbuzz-n');
@@ -33,7 +33,7 @@
 
     function renderList(n) {
       try {
-        const arr = (window.generateFizzBuzz || browserGenerate)(Number(n));
+        const arr = (window.fizzBuzz || browserGenerate)(Number(n));
         const ul = document.createElement('ul');
         arr.forEach((v, idx) => {
           const li = document.createElement('li');

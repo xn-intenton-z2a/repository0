@@ -7,8 +7,9 @@ test("homepage returns 200 and renders", async ({ page }) => {
   expect(response.status()).toBe(200);
 
   await expect(page.locator("#lib-name")).toBeVisible();
-  await expect(page.locator("#lib-version")).toBeVisible();
-  await expect(page.locator("#demo-output")).toBeVisible();
+  await expect(page.locator("#fizzbuzz-demo")).toBeVisible();
+  await expect(page.locator("#fizzbuzz-render")).toBeVisible();
 
+  // optional screenshot for debugging in CI
   await page.screenshot({ path: "SCREENSHOT_INDEX.png", fullPage: true });
 });

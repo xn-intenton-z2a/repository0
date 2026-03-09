@@ -1,41 +1,35 @@
-# repository0 — fizz-buzz demo
+# FizzBuzz Library (repo)
 
-This repository demonstrates a small, reusable FizzBuzz library with unit tests, a web demo, and behaviour tests.
+This repository demonstrates a small FizzBuzz library with CLI and web demo.
 
-Features
-- Library: src/lib/main.js exports generate(n) and format(n).
-- Web demo: src/web/index.html shows generated fizz-buzz output and provides a small control to render with a custom n.
-- Tests: unit tests (vitest) and behaviour tests (Playwright) verify the library and demo.
+Links:
+- Mission: MISSION.md
+- Contributing: CONTRIBUTING.md
+- License: LICENSE
+- agentic-lib: https://github.com/xn-intenton-z2a/agentic-lib
 
-API
+Usage examples (Node API):
 
-- generate(n)
-  - Signature: generate(n: number): Array<number | 'fizz' | 'buzz' | 'fizzbuzz'>
-  - Behavior: returns an array for 1..n inclusive where multiples of 3 -> 'fizz', multiples of 5 -> 'buzz', multiples of 15 -> 'fizzbuzz', otherwise the number.
-  - Errors: throws TypeError with message "n must be a positive integer" for non-integer, NaN, non-number, or n < 1.
+```js
+import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js';
+console.log(fizzBuzz(15));
+console.log(fizzBuzzSingle(3));
+```
 
-- format(n)
-  - Signature: format(n: number): string
-  - Behavior: returns a newline-separated string representation of generate(n) suitable for CLI and web display.
+CLI usage:
 
-CLI
+```
+node src/lib/main.js --help
+node src/lib/main.js fizz 15
+node src/lib/main.js fizz 15 --json
+node src/lib/main.js fizz-single 3
+```
 
-- Node: node src/lib/main.js 20
+Input validation:
+- Non-number types and non-integers throw TypeError
+- Negative integers throw RangeError
+- fizzBuzz(0) returns []
+- fizzBuzzSingle(0) throws RangeError
 
-Web Demo
-
-- Open the demo locally (build step copies files to docs/):
-  - npm run build:web
-  - npm start
-  - Open http://localhost:5000 (served by `serve` package) or open docs/index.html directly in the browser.
-
-Running Tests
-
-- Unit tests: npm test
-- Behaviour tests (Playwright): npm run test:behaviour
-
-Notes & Links
-
-- This project follows the mission of demonstrating a minimal agentic-library demo and CI workflows. See MISSION.md, CONTRIBUTING.md and LICENSE.
-- The agentic-lib project: https://github.com/xn-intenton-z2a/agentic-lib
+Docs and examples are in the `docs/` directory (built by `npm run build:web`).
 
