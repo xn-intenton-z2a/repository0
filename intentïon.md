@@ -621,3 +621,91 @@ Fetched the SOURCES.md URLs, extracted implementation-ready technical details fo
 Maintained library (0 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-09T23:34:50.983Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 129953 (in: 126783, out: 3170)
+**Duration:** 56s (~0.9 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22879722303](https://github.com/xn-intenton-z2a/repository0/actions/runs/22879722303)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 15/32 | 17 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 0/32 | 32 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 1 open issue(s) remain. No issues have been closed by review as RESOLVED yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 1 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues closed by review (RESOLVED) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 15/32 | < 32 | OK |
+| Cumulative transforms | 15 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Added a new ERROR_MESSAGES feature spec to standardise exact error types and messages so tests and demos can assert deterministic validation output.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-09T23:35:26.405Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 41139 (in: 38912, out: 2227)
+**Duration:** 35s (~0.6 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22879722303](https://github.com/xn-intenton-z2a/repository0/actions/runs/22879722303)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 16/32 | 16 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 0/32 | 32 remaining |  |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 1 open issue(s) remain. No issues have been closed by review as RESOLVED yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 1 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues closed by review (RESOLVED) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 16/32 | < 32 | OK |
+| Cumulative transforms | 16 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Read SOURCES.md and existing library documents, verified each source had a corresponding SCREAMING_SNAKECASE entry, and recorded the npm fetch failure for follow-up.
+
+Maintained library (0 docs, limit 32)
+
+---
