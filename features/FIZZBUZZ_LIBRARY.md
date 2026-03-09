@@ -1,43 +1,69 @@
 # FIZZBUZZ_LIBRARY
 
 ## Summary
-Add a well-specified library feature implemented in src/lib/main.js that exposes the canonical FizzBuzz API required by the mission. This feature documents the exports, behaviour, edge-case handling, examples, and unit-test acceptance criteria so implementers and tests have a single source of truth.
+A precise, implementable feature specification for the FizzBuzz library exported by src/lib/main.js. This document defines exports, behaviour, input validation, examples, CLI contract, and exact unit-test acceptance criteria so the implementation, tests, docs, and web demo are consistent and verifiable.
 
 ## Goals
-- Ensure named exports fizzBuzz and fizzBuzzSingle exist and match mission semantics.
-- Require precise error handling: n = 0 returns [], negative numbers throw RangeError, non-integers throw TypeError.
-- Provide usage examples for both library and CLI usage.
-- Provide clear unit-test acceptance criteria so tests can assert exact behaviour.
+- Export named functions fizzBuzz and fizzBuzzSingle from src/lib/main.js as ES module named exports.
+- Define strict, testable input validation and error messages.
+- Provide clear examples for README and web demo use.
+- Specify CLI behaviour for single-argument invocation.
 
-## API
+## API Contract
 - fizzBuzz(n): Array<string>
-  - For integer n >= 1 returns array of strings for 1..n with Fizz/Buzz/FizzBuzz substitutions.
-  - For n === 0 returns an empty array.
-  - For negative integers throws RangeError with message: "n must be a non-negative integer".
-  - For non-integer numbers throws TypeError with message: "n must be an integer".
+  - Signature: fizzBuzz(n: number) => string[]
+  - Behaviour:
+    - If n === 0, return an empty array.
+    - If n is a positive integer (n >= 1), return an array of length n where each element is the string result for i from 1..n following FizzBuzz rules:
+      - divisible by 15 => "FizzBuzz"
+      - divisible by 3 => "Fizz"
+      - divisible by 5 => "Buzz"
+      - otherwise the decimal string of the number
+    - If n is a negative integer, throw RangeError with exact message: n must be a non-negative integer
+    - If n is not an integer (e.g., 2.5, NaN, non-number), throw TypeError with exact message: n must be an integer
 
 - fizzBuzzSingle(n): string
-  - For integer n >= 1 returns the string for the single number according to FizzBuzz rules.
-  - For negative integers throws RangeError.
-  - For non-integer numbers throws TypeError.
+  - Signature: fizzBuzzSingle(n: number) => string
+  - Behaviour:
+    - Apply the same validation rules as fizzBuzz for n.
+    - Return the single FizzBuzz string for n according to the same substitution rules above.
 
-## Examples
-- Library usage example (to appear in README and docs):
+## CLI Contract
+- File: src/lib/main.js when executed as a script (node src/lib/main.js) should:
+  - If invoked with a single command-line argument parse it as a base-10 number.
+  - On valid integer input, call fizzBuzzSingle and print the result followed by a newline to stdout.
+  - On invalid input print the error message to stderr and exit process with non-zero exit code.
+  - Do not print additional diagnostic text; only the result or the error message.
+
+## Error messages (exact strings)
+- RangeError message: n must be a non-negative integer
+- TypeError message: n must be an integer
+
+## Examples (to include in README and docs)
+- Library:
+  - import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js'
   - fizzBuzz(5) -> ["1","2","Fizz","4","Buzz"]
   - fizzBuzzSingle(15) -> "FizzBuzz"
+- CLI:
+  - node src/lib/main.js 3  => prints: Fizz
 
-- CLI usage example (node src/lib/main.js) should call fizzBuzzSingle when given a single numeric arg and print the result.
+## Unit-test Acceptance Criteria
+Provide unit tests that assert the following exactly:
+- fizzBuzz(15) returns an array of length 15 with element 15 === "FizzBuzz"
+- fizzBuzzSingle(3) === "Fizz"
+- fizzBuzzSingle(5) === "Buzz"
+- fizzBuzzSingle(15) === "FizzBuzz"
+- fizzBuzzSingle(7) === "7"
+- fizzBuzz(0) returns [] (deep-equal to empty array)
+- fizzBuzz(-1) and fizzBuzzSingle(-1) each throw RangeError with message "n must be a non-negative integer"
+- fizzBuzz(2.5) and fizzBuzzSingle(2.5) each throw TypeError with message "n must be an integer"
+- CLI invoked with "3" prints "Fizz" to stdout and exits 0; invoked with "-1" prints the RangeError message to stderr and exits non-zero
 
-## Acceptance Criteria
-- fizzBuzz(15) returns a 15-element array with the correct substitutions and last element "FizzBuzz".
-- fizzBuzzSingle(3) returns "Fizz".
-- fizzBuzzSingle(5) returns "Buzz".
-- fizzBuzzSingle(15) returns "FizzBuzz".
-- fizzBuzzSingle(7) returns "7".
-- fizzBuzz(0) returns [].
-- Passing -1 to either function throws RangeError.
-- Passing 2.5 to either function throws TypeError.
-- README includes the documented examples and usage lines.
+## Notes for Implementers
+- Keep implementation small and idiomatic JavaScript; prefer integer checks Number.isInteger and clear error throwing.
+- Export named functions; do not change package.json main.
+- Tests should use vitest and reside in tests/unit/ matching existing patterns.
+- Web demo and behaviour tests must import the library functions rather than reimplementing logic.
 
-## Notes
-- This feature is intentionally narrow and aligns strictly with the mission. Tests and web demo features should rely on this canonical spec.
+## Acceptance
+This feature is satisfied when all unit tests pass and README demonstrates the example usage described above.
