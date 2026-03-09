@@ -1,0 +1,47 @@
+Title: NUMBER_ISINTEGER
+
+Table of Contents:
+1. Syntax and Signature
+2. Behavior and Return Rules
+3. Examples and Edge Cases
+4. Specification Reference
+5. Usage Notes in Validation
+
+1. Syntax and Signature
+- JavaScript runtime API: Number.isInteger(value) => boolean
+- Parameter: value (any type)
+- Return: boolean true if the given value is an integer number value; otherwise false.
+
+2. Behavior and Return Rules
+- Returns false for NaN, Infinity, -Infinity, non-number types (strings, booleans, objects, arrays).
+- Returns true for numeric values that are mathematically integers and representable in IEEE-754 double precision as an integer (examples: 5.0 yields true).
+- Due to floating-point precision limits, some values like 5.0000000000000001 may be represented as 5 and return true; some near the precision threshold may behave unexpectedly for very large magnitudes.
+
+3. Examples and Edge Cases
+- Number.isInteger(0) => true
+- Number.isInteger(1) => true
+- Number.isInteger(-100000) => true
+- Number.isInteger(0.1) => false
+- Number.isInteger(Math.PI) => false
+- Number.isInteger(NaN) => false
+- Number.isInteger(Infinity) => false
+- Number.isInteger("10") => false
+- Number.isInteger(5.0) => true
+- Number.isInteger(5.000000000000001) => false
+- Number.isInteger(5.0000000000000001) => true (precision)
+
+4. Specification Reference
+- ECMAScript Language Specification: sec-number.isinteger — operation defined to check type and numeric integerness; returns ToNumber(value) type checks and Number.isFinite and floor checks in spec.
+
+5. Usage Notes in Validation
+- Use as input validation for integer-only APIs before performing integer-specific operations, e.g., array length creation, iteration counts.
+- Combine with Number.isFinite(value) when necessary to distinguish finite numeric values.
+
+Detailed Digest:
+- Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+- Retrieved: 2026-03-09
+- Extract: Syntax Number.isInteger(value), returns boolean, examples demonstrating precision caveats and behavior with NaN/Infinity/non-number types.
+- Data size obtained during crawling: approx 4,000 bytes.
+
+Attribution:
+- Source: MDN Web Docs — "Number.isInteger" reference; retrieved 2026-03-09; license: CC BY-SA. Data size: approx 4.0KB.

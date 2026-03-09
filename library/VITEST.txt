@@ -1,0 +1,41 @@
+Title: VITEST
+
+Table of Contents:
+1. Purpose and Ecosystem Integration
+2. Key Features
+3. Compatibility and Use Cases
+4. Typical Commands and Scripts
+5. Testing Patterns and Best Practices
+
+1. Purpose and Ecosystem Integration
+- Vitest is a Vite-native testing framework that reuses Vite's configuration and transform pipeline; it supports ESM, TypeScript, JSX, and is suitable for frontend and backend projects.
+
+2. Key Features
+- Jest-compatible API (expect, snapshot, coverage) for simpler migrations.
+- Intelligent watch mode that reruns affected tests similar to Vite HMR.
+- Built-in support for ESM and Vite plugins; integrates with Vite config.
+- Out-of-the-box TypeScript support via Oxc.
+
+3. Compatibility and Use Cases
+- Useful for Vite-based projects and non-Vite projects that want fast ESM-native tests.
+- Works well with Node >= recommended versions and supports running in CI (--run) to execute tests once.
+
+4. Typical Commands and Scripts (from package.json patterns)
+- Run all tests: vitest --run tests/unit/*.test.js
+- Run unit tests with coverage: vitest --run --coverage tests/unit/*.test.js
+- Behaviour/e2e: npm run build:web && npx playwright test --config playwright.config.js
+- Start dev/test server: npm run start (build web then serve docs) or npm run start:cli
+
+5. Testing Patterns and Best Practices
+- Keep unit tests in tests/unit/ and use vitest patterns for snapshots and coverage.
+- For ESM projects use native import syntax in tests; ensure package.json type is "module" where needed.
+- Use the watcher during development for instant feedback; use --run in CI to avoid interactive mode.
+
+Detailed Digest:
+- Source: https://vitest.dev/
+- Retrieved: 2026-03-09
+- Extract: Vitest overview: Vite-native testing, Jest-compatible, fast watch mode, ESM and TypeScript support. Typical commands and integrations with Vite and Playwright for e2e.
+- Data size obtained during crawling: approx 8,000 bytes.
+
+Attribution:
+- Source: Vitest official website; retrieved 2026-03-09; license: Open source (MIT or project-specified). Data size: approx 8.0KB.

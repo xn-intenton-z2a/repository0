@@ -1,0 +1,42 @@
+Title: RANGEERROR
+
+Table of Contents:
+1. Description and When to Throw
+2. Constructor and Instance Properties
+3. Common Use Cases
+4. Example Handling Patterns
+5. Specification Link
+
+1. Description and When to Throw
+- RangeError is a built-in Error subtype thrown when a numeric value is outside an allowed range or an argument is not an allowed value for a function's parameter space.
+- Common triggers:
+  - Creating an array with illegal length (new Array(-1))
+  - Passing out-of-range inputs to Number.prototype.toExponential/toFixed/toPrecision
+  - Explicit validation: argument must be between min and max
+
+2. Constructor and Instance Properties
+- Constructor: RangeError(message?: string)
+- Instance properties inherited from Error: name ("RangeError"), message, stack (engine-dependent).
+
+3. Common Use Cases
+- API validation: if (!(n >= min && n <= max)) throw new RangeError("The argument must be between min and max.");
+- Non-numeric allowed values for specific APIs: throw RangeError when an option string is not among allowed enumerated values (example: String.prototype.normalize allowed forms).
+- Serializable: RangeError is serializable and can be structuredCloned or posted between workers.
+
+4. Example Handling Patterns
+- Throwing:
+  - if (!Number.isInteger(value) || value < 0 || value > MAX) throw new RangeError('...');
+- Catching and filtering:
+  - try { fn(); } catch (err) { if (err instanceof RangeError) handleRangeError(err); else throw err; }
+
+5. Specification Link
+- ECMAScript 2026 Language Specification section: native error types RangeError.
+
+Detailed Digest:
+- Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError
+- Retrieved: 2026-03-09
+- Extract: RangeError semantics, constructor, instance properties, examples of where it occurs and typical validation patterns.
+- Data size obtained during crawling: approx 2,200 bytes.
+
+Attribution:
+- Source: MDN Web Docs — "RangeError"; retrieved 2026-03-09; license: CC BY-SA. Data size: approx 2.2KB.

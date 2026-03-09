@@ -1,0 +1,69 @@
+Title: ESM
+
+Table of Contents:
+1. Enabling and Identification
+2. Import Specifiers and Resolution
+3. File Extensions and Mandatory Specifiers
+4. import.meta properties and APIs
+5. Interop with CommonJS
+6. Import attributes and data URLs
+
+1. Enabling and Identification
+- Node.js recognizes ES modules by:
+  - .mjs file extension
+  - package.json field "type": "module" (for .js files)
+  - CLI flag --input-type=module for stdin input
+- If no explicit markers, Node inspects source for ESM syntax and selects module system accordingly.
+
+2. Import Specifiers and Resolution
+- Three specifier types:
+  - Relative: './file.js' or '../dir/file.mjs' — file extension mandatory for relative/absolute specifiers; directory index must be fully specified.
+  - Bare: 'package' or 'package/sub' — resolved by Node package resolution algorithm; file extension may be omitted for packages that provide "exports" map.
+  - Absolute URLs: 'file:///path/to/file.js' — supported; percent-encoding required for special characters.
+- Resolution rules: relative and absolute use standard URL resolution semantics; bare specifiers use Node resolution algorithm respecting package.json "exports".
+
+3. File Extensions and Mandatory Specifiers
+- Using import keyword requires explicit file extensions for relative/absolute specifiers.
+- Directory indexes must be specified explicitly (e.g., './startup/index.js').
+- Recommendation: use url.pathToFileURL when constructing file: imports programmatically to avoid encoding issues.
+
+4. import.meta properties and APIs
+- import.meta is an object with properties (node >= versions noted):
+  - import.meta.url: absolute file: URL of module.
+  - import.meta.filename: full absolute path and filename, symlinks resolved (file: modules only).
+  - import.meta.dirname: directory name of current module (same as path.dirname(import.meta.filename)).
+  - import.meta.main: boolean true when module is entry.
+  - import.meta.resolve(specifier): returns the absolute URL string that a specifier would resolve to relative to current module; signature import.meta.resolve(specifier: string) => string; may accept parentURL in experimental mode.
+- Caveats: import.meta.resolve may perform synchronous filesystem ops; not available in custom loaders.
+
+5. Interop with CommonJS
+- When importing CommonJS from ESM, Node provides a namespace object where:
+  - default export maps to module.exports object.
+  - Node performs static analysis heuristics to expose named exports from common module.exports patterns; live updates to module.exports after evaluation are not reflected in these named exports.
+- To create a require function in ESM, use module.createRequire(filename).
+- __filename and __dirname are not available in ESM; use import.meta.filename and import.meta.dirname.
+
+6. Import attributes and data URLs
+- import ... with { type: 'json' } supports JSON module imports; Node requires type attribute when importing JSON using import syntax.
+- data: URLs importing supported MIME types: text/javascript for JS modules, application/json for JSON, application/wasm for WASM.
+- Node supports node: builtin import specifiers: import fs from 'node:fs/promises'.
+
+Supplementary Details:
+- Top-level await is supported in ES modules in Node when not behind experimental flags in modern Node versions.
+- Builtin modules when imported as ESM populate named exports eagerly which may make initial import slower than require() in some cases.
+- Use import.meta.url and new URL('./relative', import.meta.url) to resolve companion resource files.
+
+Reference Details (Node ESM specifics):
+- File extension enforcement: import './file.js' must include .js or .mjs extension.
+- import.meta.resolve(specifier: string): string — synchronous resolution to absolute URL; throws only in experimental variants when parentURL invalid.
+- import.meta.main: boolean — true if module is entry.
+- Data URIs supported for module loading only for specified MIME types.
+
+Detailed Digest:
+- Source: https://nodejs.org/api/esm.html
+- Retrieved: 2026-03-09
+- Extract: Node.js ESM rules: enabling markers (.mjs, package.json type), mandatory file extensions for relative imports, import.meta APIs (url, filename, dirname, resolve), import attributes for JSON, CommonJS interoperability semantics and named export heuristics.
+- Data size obtained during crawling: approx 18,000 bytes.
+
+Attribution:
+- Source: Node.js documentation — "Modules: ECMAScript modules"; retrieved 2026-03-09; license: OpenJS Foundation / Node.js docs. Data size: approx 18KB.

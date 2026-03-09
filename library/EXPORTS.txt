@@ -1,0 +1,66 @@
+Title: EXPORTS
+
+Table of Contents:
+1. Syntax Summary
+2. Named vs Default Exports
+3. Re-exporting and Aggregation
+4. Temporal and Hoisting Rules
+5. Errors and Conflicts
+6. Implementation Patterns
+
+1. Syntax Summary
+- Export declarations supported:
+  - export let name1, name2;
+  - export const name = value;
+  - export function functionName() { }
+  - export class ClassName { }
+  - export { name1, name2 as alias };
+  - export default expression;
+  - export * from "module";
+  - export { name } from "module";
+  - export * as ns from "module";
+
+2. Named vs Default Exports
+- Named exports: multiple per module; imported with exact name: import { name } from './mod.js'; can be aliased using as.
+- Default export: single per module; can be imported with any local name: import anyName from './mod.js'; exported via export default expression or export default function/class.
+- Only one default export allowed; duplicate names or multiple defaults cause SyntaxError at module parse/evaluation.
+
+3. Re-exporting and Aggregation
+- Re-exporting syntax allows module to relay exports without binding them locally.
+- export { x } from 'mod'; re-exports named export x from mod.
+- export * from 'mod'; re-exports all named exports (not default) from mod; duplicate re-exports for same name cause runtime/module resolution error when imported.
+- export { default as Name } from 'mod'; re-exports default from mod as Name.
+- Aggregator pattern: use a barrel module to consolidate exports from multiple modules.
+
+4. Temporal and Hoisting Rules
+- Export declarations are declarations only; they are not subject to TDZ for the export statement itself: export { x }; const x = 1; is syntactically allowed (export doesn't access the value at module parse time).
+- Function and class declarations exported are hoisted appropriately as per JS semantics (function declarations hoisted within module scope).
+
+5. Errors and Conflicts
+- Duplicate exported names across multiple export * statements result in a SyntaxError at import time: "conflicting star exports for name 'a'".
+- Using export default more than once or duplicate named exports with same identifier cause SyntaxError.
+
+6. Implementation Patterns
+- Barrel module:
+  - export { a } from './a.js';
+  - export { b } from './b.js';
+- Re-export default:
+  - export { default as DefaultExport } from './mod.js';
+- Use of import attributes with export from syntax for JSON modules: export { default } from './data.json' with { type: 'json' }.
+
+Supplementary Details:
+- When creating bundles or transpiled output maintain distinct named and default semantics. Tools that convert CommonJS to ESM must map module.exports to default export and may attempt static analysis to provide named exports for compatibility.
+
+Reference Details (spec-level):
+- ECMAScript export grammar covers: ExportDeclaration, ExportNamedDeclaration, ExportDefaultDeclaration, ExportAllDeclaration.
+- Parser must enforce: only one ExportDefaultDeclaration per module; export lists must contain valid identifiers or string-literal alias names.
+- Error conditions: duplicate export names across export * collections trigger a module resolution failure during import-time evaluation.
+
+Detailed Digest:
+- Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
+- Retrieved: 2026-03-09
+- Extract: Full syntax forms listed; named versus default semantics; re-exporting semantics and caveats about conflicting star exports; export with import attributes for JSON.
+- Data size obtained during crawling: approx 6,500 bytes.
+
+Attribution:
+- Source: MDN Web Docs — "export" reference; retrieved 2026-03-09; license: CC BY-SA. Data size: approx 6.5KB.
