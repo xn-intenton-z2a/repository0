@@ -1,23 +1,28 @@
-import { describe, it, expect } from 'vitest';
-import { JSDOM } from 'jsdom';
-import fs from 'fs';
-import path from 'path';
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
+import { describe, test, expect } from "vitest";
+import { readFileSync, existsSync } from "fs";
 
-const html = fs.readFileSync(path.join(process.cwd(), 'src', 'web', 'index.html'), 'utf8');
-
-describe('web demo structure', () => {
-  it('has demo container, input and button', async () => {
-    const dom = new JSDOM(html, { runScripts: 'dangerously' });
-    const doc = dom.window.document;
-    expect(doc.getElementById('fizzbuzz-demo')).toBeTruthy();
-    expect(doc.getElementById('fizzbuzz-n')).toBeTruthy();
-    expect(doc.getElementById('fizzbuzz-render')).toBeTruthy();
+describe("Website", () => {
+  test("src/web/index.html exists", () => {
+    expect(existsSync("src/web/index.html")).toBe(true);
   });
 
-  it('fizzbuzz-client is importable and exposes functions', async () => {
-    const client = await import('../../../src/web/fizzbuzz-client.js');
-    expect(typeof client.fizzBuzz).toBe('function');
-    expect(typeof client.fizzBuzzSingle).toBe('function');
-    expect(client.fizzBuzz(5)[2]).toBe('Fizz');
+  test("index.html contains valid HTML structure", () => {
+    const html = readFileSync("src/web/index.html", "utf8");
+    expect(html).toContain("<!DOCTYPE html>");
+    expect(html).toContain("<html");
+    expect(html).toContain("</html>");
+  });
+
+  test("index.html imports the library via lib-meta.js", () => {
+    const html = readFileSync("src/web/index.html", "utf8");
+    expect(html).toContain("lib-meta.js");
+  });
+
+  test("index.html displays library identity elements", () => {
+    const html = readFileSync("src/web/index.html", "utf8");
+    expect(html).toContain("lib-name");
+    expect(html).toContain("lib-version");
   });
 });

@@ -231,18 +231,26 @@ jobs:
             const tomlPath = 'agentic-lib.toml';
             if (!fs.existsSync(tomlPath)) return;
             let toml = fs.readFileSync(tomlPath, 'utf8');
-            if (model) {
-              const modelRegex = /(\[tuning\][^\[]*?)(^\s*model\s*=\s*"[^"]*")/m;
-              if (modelRegex.test(toml)) {
-                toml = toml.replace(modelRegex, `$1model = "${model}"`);
-                core.info(`Updated [tuning].model to: ${model}`);
+            // Extract the [tuning] section, then replace within it.
+            // Previous regex [^\[]*? failed when comments contained '[' characters.
+            const tuningSectionRegex = /(\[tuning\])([\s\S]*?)(?=\n\[|$)/;
+            const tuningMatch = toml.match(tuningSectionRegex);
+            if (tuningMatch) {
+              let section = tuningMatch[0];
+              if (model) {
+                const updated = section.replace(/^(\s*model\s*=\s*)"[^"]*"/m, `$1"${model}"`);
+                if (updated !== section) {
+                  toml = toml.replace(section, updated);
+                  section = updated;
+                  core.info(`Updated [tuning].model to: ${model}`);
+                }
               }
-            }
-            if (profile) {
-              const profileRegex = /(\[tuning\][^\[]*?)(^\s*profile\s*=\s*"[^"]*")/m;
-              if (profileRegex.test(toml)) {
-                toml = toml.replace(profileRegex, `$1profile = "${profile}"`);
-                core.info(`Updated [tuning].profile to: ${profile}`);
+              if (profile) {
+                const updated = section.replace(/^(\s*profile\s*=\s*)"[^"]*"/m, `$1"${profile}"`);
+                if (updated !== section) {
+                  toml = toml.replace(section, updated);
+                  core.info(`Updated [tuning].profile to: ${profile}`);
+                }
               }
             }
             fs.writeFileSync(tomlPath, toml);

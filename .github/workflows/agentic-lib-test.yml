@@ -40,6 +40,7 @@ on:
 permissions:
   contents: write
   actions: write
+  issues: write
 
 jobs:
   test:
@@ -119,7 +120,7 @@ jobs:
     if: >-
       !cancelled()
       && github.ref == 'refs/heads/main'
-      && (github.event_name == 'push' || github.event_name == 'schedule')
+      && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_call')
       && github.repository != 'xn-intenton-z2a/agentic-lib'
       && (needs.test.result == 'failure' || needs.behaviour.result == 'failure')
     runs-on: ubuntu-latest
@@ -154,3 +155,92 @@ jobs:
             --repo "${{ github.repository }}" \
             -f mode=full \
             -f message="Build broken on main: agentic-lib-test run ${{ github.run_id }} failed. Please fix."
+
+  # ─── Report instability: create/update GitHub issue on test failure ──
+  report-instability:
+    needs: [test, behaviour]
+    if: >-
+      !cancelled()
+      && github.ref == 'refs/heads/main'
+      && github.repository != 'xn-intenton-z2a/agentic-lib'
+      && (needs.test.result == 'failure' || needs.behaviour.result == 'failure')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine failure type
+        id: failure-type
+        run: |
+          UNIT="${{ needs.test.result }}"
+          BEHAVIOUR="${{ needs.behaviour.result }}"
+          if [ "$UNIT" = "failure" ] && [ "$BEHAVIOUR" = "failure" ]; then
+            echo "type=both" >> $GITHUB_OUTPUT
+          elif [ "$UNIT" = "failure" ]; then
+            echo "type=unit" >> $GITHUB_OUTPUT
+          else
+            echo "type=behaviour" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Collect failure logs
+        id: logs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.run_id }}"
+          # Get failed job logs via gh CLI
+          gh run view "$RUN_ID" --repo "${{ github.repository }}" --log-failed > /tmp/failed-logs.txt 2>&1 || true
+          # Trim to reasonable size (keep last 400 lines — generous context)
+          tail -400 /tmp/failed-logs.txt > /tmp/trimmed-logs.txt
+
+      - name: Create or update instability issue
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const failureType = '${{ steps.failure-type.outputs.type }}';
+            const runId = '${{ github.run_id }}';
+            const runUrl = `https://github.com/${{ github.repository }}/actions/runs/${runId}`;
+            const logs = fs.readFileSync('/tmp/trimmed-logs.txt', 'utf8').slice(0, 60000);
+
+            const title = `instability: ${failureType} test failure on main`;
+            const body = [
+              `## Test Failure Report`,
+              ``,
+              `**Type**: ${failureType}`,
+              `**Run**: [${runId}](${runUrl})`,
+              `**Trigger**: ${context.eventName}`,
+              `**Time**: ${new Date().toISOString()}`,
+              ``,
+              `## Failure Logs`,
+              ``,
+              '```',
+              logs,
+              '```',
+            ].join('\n');
+
+            // Check for existing open instability issue of the same failure type
+            const { data: existing } = await github.rest.issues.listForRepo({
+              ...context.repo, state: 'open', labels: 'instability', per_page: 10,
+            });
+
+            const match = existing.find(i => i.title.includes(failureType));
+            if (match) {
+              // Add a comment with the new failure logs instead of creating a duplicate
+              await github.rest.issues.createComment({
+                ...context.repo, issue_number: match.number,
+                body: `## Recurrence — run [${runId}](${runUrl})\n\n**Trigger**: ${context.eventName}\n**Time**: ${new Date().toISOString()}\n\n` + '```\n' + logs.slice(0, 30000) + '\n```',
+              });
+              core.info(`Updated existing instability issue #${match.number}`);
+            } else {
+              // Ensure instability label exists
+              try {
+                await github.rest.issues.createLabel({
+                  ...context.repo, name: 'instability',
+                  color: 'e11d48', description: 'Automated: test instability on main',
+                });
+              } catch (e) { /* label already exists */ }
+
+              const { data: issue } = await github.rest.issues.create({
+                ...context.repo, title, body,
+                labels: ['instability', 'ready', 'automated'],
+              });
+              core.info(`Created instability issue #${issue.number}`);
+            }

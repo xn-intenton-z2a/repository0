@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-09T09:22:19.042Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -18,7 +17,7 @@ concurrency:
 
 on:
   schedule:
-    - cron: "5,15,25,35,45,55 * * * *"
+    - cron: "0 6 * * 1"
   workflow_call:
     inputs:
       model:
@@ -320,6 +319,16 @@ jobs:
               labels: i.labels.map(l => l.name),
             }));
 
+            // W7: Check for open instability issues (mechanical priority override)
+            const { data: instabilityIssues } = await github.rest.issues.listForRepo({
+              owner, repo, state: 'open', labels: 'instability',
+              sort: 'created', direction: 'asc', per_page: 10,
+            });
+            const instabilityNumbers = instabilityIssues.map(i => i.number);
+            if (instabilityNumbers.length > 0) {
+              core.info(`Found ${instabilityNumbers.length} instability issue(s): ${instabilityNumbers.join(', ')}`);
+            }
+
             // Open PRs
             const { data: prs } = await github.rest.pulls.list({
               owner, repo, state: 'open', per_page: 10,
@@ -420,6 +429,7 @@ jobs:
 
             const telemetry = {
               issues: issuesSummary,
+              instabilityIssues: instabilityNumbers,
               prs: prsSummary,
               recentRuns: runsSummary,
               mission: mission.slice(0, 500),
@@ -963,6 +973,17 @@ jobs:
               core.setOutput('issue-number', specificIssue);
               return;
             }
+            // W7: Mechanical instability override — prioritise instability issues
+            // before any other ready issues, regardless of supervisor decisions
+            const { data: instabilityIssues } = await github.rest.issues.listForRepo({
+              ...context.repo, state: 'open', labels: 'instability',
+              sort: 'created', direction: 'asc', per_page: 1,
+            });
+            if (instabilityIssues.length > 0) {
+              core.setOutput('issue-number', String(instabilityIssues[0].number));
+              core.info(`Instability override: targeting issue #${instabilityIssues[0].number}: ${instabilityIssues[0].title}`);
+              return;
+            }
             // Find oldest open issue with 'ready' label
             const { data: issues } = await github.rest.issues.listForRepo({
               ...context.repo, state: 'open', labels: 'ready',
@@ -1025,15 +1046,33 @@ jobs:
           echo "tests-passed=true" >> $GITHUB_OUTPUT
           echo "All tests passed"
 
+      - name: Run behaviour tests before committing
+        id: pre-commit-behaviour-test
+        if: steps.issue.outputs.issue-number != '' && steps.pre-commit-test.outputs.tests-passed == 'true' && (hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != '')
+        run: |
+          npx playwright install --with-deps chromium 2>/dev/null || true
+          npm run build:web 2>/dev/null || true
+          set +e
+          npm run --if-present test:behaviour 2>&1 | tail -30
+          EXIT_CODE=$?
+          set -e
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "tests-passed=false" >> $GITHUB_OUTPUT
+            echo "WARNING: Behaviour tests failed (exit $EXIT_CODE) — skipping commit and PR"
+            exit 0
+          fi
+          echo "tests-passed=true" >> $GITHUB_OUTPUT
+          echo "Behaviour tests passed"
+
       - name: Commit and push
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true' && steps.pre-commit-behaviour-test.outputs.tests-passed != 'false'
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
           commit-message: "agentic-step: transform issue #${{ steps.issue.outputs.issue-number }}"
           push-ref: ${{ steps.branch.outputs.branchName }}
 
       - name: Create PR and attempt merge
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true' && steps.pre-commit-behaviour-test.outputs.tests-passed != 'false'
         uses: actions/github-script@v8
         with:
           script: |
