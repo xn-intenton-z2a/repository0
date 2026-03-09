@@ -1,0 +1,42 @@
+TABLE OF CONTENTS
+1. Array.from() signature and parameters
+2. Behavioural guarantees and return value
+3. Common implementation patterns and examples
+4. Sequence-generation pattern using Array.from
+
+NORMALISED EXTRACT
+Array.from() signature and parameters
+- Signature forms: Array.from(items), Array.from(items, mapFn), Array.from(items, mapFn, thisArg).
+- Parameters: items is an iterable or array-like object; mapFn is an optional function called as mapFn(element, index); thisArg is optional this for mapFn.
+
+Behavioural guarantees and return value
+- Returns a new Array instance (or instance of subclass when called on a subclass constructor).
+- Array.from never creates a sparse array: missing indices in array-like items become undefined in the result.
+- When items is iterable, the constructor is called with no length argument; when array-like, constructor is called with normalized length and final length set after iteration.
+- mapFn is applied during creation and receives (element, index) only; it does not receive the entire array because the array is under construction.
+
+Common implementation patterns and examples
+- Convert a string to array of characters: Array.from('foo') -> ['f','o','o'].
+- Convert Set/Map iterators: Array.from(set) -> array of set values; Array.from(map) -> array of [key,value] pairs; Array.from(map.values()) -> array of values.
+- Convert NodeList to array: Array.from(document.querySelectorAll('img'), img => img.src) to get src list.
+
+Sequence-generation pattern
+- Range generator pattern: Array.from({ length: N }, (_, i) => start + i * step) produces a numeric sequence of length N with step increments. Use Math.ceil((stop-start)/step) to compute length when generating stop-exclusive ranges.
+
+SUPPLEMENTARY DETAILS
+- Typed arrays: Array.from shares signature with TypedArray.from and avoids intermediate array to prevent truncation into typed array ranges.
+- Calling on custom constructors: Array.from.call(CustomCtor, items) will construct instances of CustomCtor when CustomCtor accepts a single length argument.
+
+REFERENCE DETAILS
+- ECMAScript spec link: # sec-array.from in ECMA-262.
+- Return type: new Array instance or subclass instance. Map function call signature: mapFn(element, index) -> mappedValue.
+- Sequence implementation pattern: range = (start, stop, step) => Array.from({ length: Math.ceil((stop - start) / step) }, (_, i) => start + i * step)
+
+DETAILED DIGEST
+Source: MDN — Array.from (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from)
+Retrieved: 2026-03-09T09:51:49.437Z
+Content extracted: full method signature, parameters and examples including sequence generator pattern and behaviour for iterables and array-like objects.
+
+ATTRIBUTION
+Source: MDN Web Docs — Array.from
+Data size obtained during crawl: full page content retrieved (exact byte count unavailable)."} , 

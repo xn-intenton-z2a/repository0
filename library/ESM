@@ -1,0 +1,53 @@
+TABLE OF CONTENTS
+1. Enabling ES modules in Node.js
+2. Import specifier types and mandatory file extensions
+3. import.meta properties and methods
+4. import() dynamic import and interoperability
+5. Import attributes and node: and data: URLs
+
+NORMALISED EXTRACT
+Enabling ES modules in Node.js
+- ES modules enabled via: .mjs file extension, package.json "type": "module", or --input-type=module flag.
+- When code lacks explicit markers, Node.js inspects syntax to determine module system: presence of import/export triggers ESM parsing.
+
+Import specifier types and mandatory file extensions
+- Specifier types: relative (./file.js), bare (package-name), absolute (file:///path). Relative and absolute specifiers require file extensions; directory index resolution requires full filename.
+- Bare specifiers resolution follows Node package resolution and "exports" field in package.json may restrict internal paths.
+- File extensions are mandatory for import statements to match browser semantics; omit only when package exports provide mapping.
+
+import.meta properties and methods
+- import.meta.url: absolute file: URL of the module.
+- import.meta.filename: absolute path filename (since Node v21.2.0); returns string with symlinks resolved.
+- import.meta.dirname: directory name of current module (since v21.2.0).
+- import.meta.main: boolean true when module is entry point (since v24.2.0) — use to guard main execution.
+- import.meta.resolve(specifier): resolves a module specifier relative to the current module and returns absolute URL string; signature: import.meta.resolve(specifier[, parentURL]) -> string. parentURL optional for non-standard flag; may perform synchronous filesystem operations.
+
+import() dynamic import and interoperability
+- import(specifier) returns a Promise resolving to module namespace; supports loading ESM and CommonJS (CJS provided as default export object for CJS modules).
+- Dynamic import works in both ESM and CommonJS contexts (CommonJS can use import() to load ESM modules asynchronously).
+- When importing CommonJS into ESM, module.exports becomes default export; named exports may be provided by static analysis for convenience.
+
+Import attributes and node: and data: URLs
+- Import attributes: syntax import foo from './foo.json' with { type: 'json' } to assert JSON module type; Node supports type: 'json' for JSON modules.
+- node: specifier scheme (node:fs) allows referencing builtin modules; data: URLs supported for text/javascript, application/json, application/wasm according to Node rules.
+
+SUPPLEMENTARY DETAILS
+- Mandatory extension rule: always include .js or .mjs for relative/absolute imports to match browser ESM behaviour and avoid resolution errors in Node.
+- Use url.pathToFileURL when constructing file: URLs programmatically to avoid percent-encoding surprises.
+- For package internals prefer package.json exports mapping to present only supported entry points.
+
+REFERENCE DETAILS
+- import.meta.resolve: signature import.meta.resolve(specifier: string, parentURL?: string|URL) -> string (synchronous). Returns resolved absolute module URL string. CAUTION: may perform sync FS operations.
+- import.meta.filename: string path of module file (since v21.2.0).
+- import.meta.dirname: string directory path of module file (since v21.2.0).
+- import.meta.main: boolean (since v24.2.0).
+- Enabling: set package.json {"type":"module"} to treat .js as ESM; use .mjs extension for ESM in packages without type field.
+
+DETAILED DIGEST
+Source: Node.js ESM docs (https://nodejs.org/api/esm.html)
+Retrieved: 2026-03-09T09:51:49.437Z
+Content extracted: Node.js ESM behaviours including enabling ESM, specifier types, import.meta properties, import() semantics, import attributes and node: + data: URL rules. Tool note: page content truncated in tool output; refer to Node docs for full spec.
+
+ATTRIBUTION
+Source: Node.js Documentation — Modules: ECMAScript modules
+Data size obtained during crawl: partial page retrieved; exact byte count unavailable.

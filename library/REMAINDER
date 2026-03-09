@@ -1,0 +1,37 @@
+TABLE OF CONTENTS
+1. Remainder operator (%) semantics
+2. Edge cases and sign rules
+3. Assignment variants and operator precedence
+
+NORMALISED EXTRACT
+Remainder operator (%) semantics
+- Operator: a % b returns the remainder after dividing a by b using integer division semantics for numeric operands.
+- In JavaScript, % is the remainder operator (not modulo). It returns a value with the same sign as the dividend (left operand).
+- Computation: a % b === a - Math.trunc(a / b) * b for numeric operands, where Math.trunc removes fractional part toward zero.
+
+Edge cases and sign rules
+- If a or b is NaN, result is NaN.
+- Division by zero: a % 0 returns NaN for nonzero a; 0 % 0 returns NaN.
+- Negative operands: example semantics:  5 % 3 === 2; -5 % 3 === -2; 5 % -3 === 2; -5 % -3 === -2.
+- Non-integer numeric operands: operands are converted to numbers; remainder is computed after conversion (floating point behaviour preserved).
+
+Assignment variants and operator precedence
+- Remainder assignment: a %= b is equivalent to a = a % b except a is evaluated only once on the left-hand side per JavaScript evaluation rules.
+- Precedence: % shares the same precedence group as multiplication and division; evaluate left-to-right.
+
+SUPPLEMENTARY DETAILS
+- Use Number.isFinite and Number.isNaN checks prior to remainder if inputs may be invalid to avoid NaN propagation.
+- For mathematical modulo with always non-negative results, implement ((a % b) + b) % b to normalize to positive remainder for positive modulus b.
+
+REFERENCE DETAILS
+- Exact specification: ECMAScript numeric remainder semantics as defined in ECMA-262 (Remainder operator). Implementation formula: remainder = a - trunc(a / b) * b, with trunc toward zero.
+- Practical pattern for positive modulo: function mod(a,b){const r = a % b; return (r + Math.abs(b)) % Math.abs(b);} ensures 0 <= result < |b| when b != 0.
+
+DETAILED DIGEST
+Source: MDN — Arithmetic operators (Remainder section) (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Arithmetic_operators#remainder)
+Retrieved: 2026-03-09T09:51:49.437Z
+Content extracted: operator behaviour, examples, edge cases and reference to ECMAScript specification. Tool note: content truncated for very long pages.
+
+ATTRIBUTION
+Source: MDN Web Docs — Arithmetic operators: Remainder
+Data size obtained during crawl: page content retrieved (exact byte count unavailable)."} , 

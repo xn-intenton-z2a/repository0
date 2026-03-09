@@ -1,0 +1,41 @@
+TABLE OF CONTENTS
+1. Rules and replacement logic
+2. Variants and edge rules
+3. Implementation notes for programs
+
+NORMALISED EXTRACT
+Rules and replacement logic
+- Replace integers divisible by 3 with the token fizz.
+- Replace integers divisible by 5 with the token buzz.
+- Replace integers divisible by both 3 and 5 (i.e., divisible by 15) with the token fizzbuzz.
+- Counting is sequential starting from any integer (commonly 1). Each number is evaluated for divisibility and replaced accordingly.
+- When multiple divisibility rules apply, the combined rule (both 3 and 5) supersedes the single rules.
+
+Variants and edge rules
+- Additional divisibility rules may be added (e.g., 7) with the same behaviour: divisibility triggers substitution.
+- A digit-containing rule variant: if a number contains a digit (e.g., contains '5'), treat it as matching the corresponding divisibility rule (e.g., 52 triggers the rule for 5).
+- Different output tokens may be used; implementations must ensure rule precedence is defined (e.g., digit-containing rule vs divisibility).
+
+Implementation notes for programs
+- Minimal algorithm: loop i from start to end; for each i compute (i % 3 === 0), (i % 5 === 0); select output: fizzbuzz if both true, fizz if only 3, buzz if only 5, else numeric string of i.
+- For performance on large ranges, avoid repeated string concatenation per number; use buffered output append and write in chunks.
+- Deterministic ordering: evaluate combined rule first (i % 15 === 0) or evaluate components and combine.
+
+SUPPLEMENTARY DETAILS
+- Typical range: 1..N where N is caller-specified. Many interview tasks use N = 100.
+- Output format: newline-separated tokens or array of strings for programmatic consumption.
+- Internationalisation: tokens are language strings; implementations can parameterize tokens (e.g., {div3:'fizz',div5:'buzz'}).
+
+REFERENCE DETAILS
+- No external APIs required. Primitive operations used: integer modulo operator %, equality checks, loop constructs (for/while), conditional branching (if/else), array push/append and join, or stream write.
+- Example evaluation ordering: if (i % 15 === 0) output fizzbuzz; else if (i % 3 === 0) output fizz; else if (i % 5 === 0) output buzz; else output i.toString().
+- Language-agnostic pattern: compute booleans d3 = (i % 3 == 0), d5 = (i % 5 == 0); output depends on (d3, d5) tuple.
+
+DETAILED DIGEST
+Source: https://en.wikipedia.org/wiki/Fizz_buzz
+Retrieved: 2026-03-09T09:51:49.437Z
+Content extracted: Wikipedia article describing the game rules and variants (divisibility by 3 -> fizz, by 5 -> buzz, both -> fizzbuzz; digit-containing rules; use as programming interview question). Tool note: full page retrieved; content truncated only if the tool limited output.
+
+ATTRIBUTION
+Source: Wikipedia — Fizz buzz (https://en.wikipedia.org/wiki/Fizz_buzz)
+Data size obtained during crawl: full article text retrieved by fetch tool (exact byte count unavailable)."} , 
