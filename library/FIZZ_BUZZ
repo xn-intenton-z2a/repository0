@@ -1,147 +1,134 @@
-FIZZ_BUZZ
+NORMALISED EXTRACT
 
-TABLE OF CONTENTS
-1. Normalised Extract: Core Implementation Details
-2. Supplementary Details: Specs and Implementation Notes
-3. Reference Details: Exact API Signatures, Exports, Config
-4. Troubleshooting and Best Practices
-5. Detailed Digest and Retrieval Metadata
-6. Attribution and Data Size
+Table of Contents
+1. FizzBuzz rules and algorithmic patterns
+2. Input validation and error handling (Number.isInteger, RangeError, TypeError)
+3. JavaScript module export patterns relevant to library code (export syntax, re-exporting, default vs named)
+4. Node.js ESM runtime rules relevant to packaging and imports (package.json "type", .mjs, mandatory file extensions, import.meta properties, import attributes)
+5. Testing with Vitest (installation, test naming, CLI, config, projects)
 
-1. Normalised Extract: Core Implementation Details
+1. FizzBuzz rules and algorithmic patterns
+- Core rules: iterate sequentially over integers from 1 to N inclusive.
+- For each integer i: if divisible by both 3 and 5 output "FizzBuzz"; else if divisible by 3 output "Fizz"; else if divisible by 5 output "Buzz"; else output the integer.
+- Divisibility detection: use modulo arithmetic: i % 3 === 0, i % 5 === 0. Detect both via i % 15 === 0 or by checking both booleans and concatenating results.
+- Complexity: time O(N), space O(1) if streaming output, O(N) if collecting results in array.
+- Implementation patterns: return an array of length N with values drawn from the rules; provide an option to stream/print to console; prefer checking combined condition first (i % 15 === 0) to avoid overriding.
+- Edge behaviors: define behavior for N <= 0 (usually return empty array), non-integer N (validate and reject), very large N (protect against memory exhaustion when collecting results). Provide configuration options: start (default 1), end (N), step (default 1).
 
-Function purpose and return
-- fizzBuzz(n): Given a positive integer n, produce an ordered sequence for i = 1..n where:
-  - if i % 3 === 0 and i % 5 === 0, value is "FizzBuzz"
-  - else if i % 3 === 0, value is "Fizz"
-  - else if i % 5 === 0, value is "Buzz"
-  - else value is the decimal string representation of i
-- The function returns an array of strings of length n, where each element corresponds to the transformed value for that index.
+2. Input validation and error handling
+- Use Number.isInteger(value) to assert integer inputs. Signature: Number.isInteger(value) -> boolean. Returns false for NaN, Infinity, non-number values. Returns true for numeric values that are mathematically integers within floating-point precision limits.
+- For type mismatches: throw new TypeError(message) where message describes expected type. TypeError constructor: TypeError([message]) -> TypeError instance; instance.name === "TypeError".
+- For out-of-range values (e.g., negative end, end < start, or excessively large N if rejecting): throw new RangeError(message). RangeError constructor: RangeError([message]) -> RangeError instance; use to signal argument outside allowed numeric range.
+- Example validation rules (implementation-ready):
+  - if (!Number.isInteger(end)) throw new TypeError('end must be integer');
+  - if (end < 1) throw new RangeError('end must be >= 1');
+  - if (end - start > MAX_SAFE_ITERATIONS) throw new RangeError('range too large');
+- Recommended constant: MAX_SAFE_ITERATIONS = 1_000_000 by default for collector mode; streaming mode may allow larger ranges.
 
-Input validation (explicit, exact checks to implement)
-- If typeof n !== 'number' then throw a TypeError with message: n must be a number
-- If Number.isInteger(n) === false then throw a TypeError with message: n must be an integer
-- If n <= 0 then throw a RangeError with message: n must be > 0
+3. JavaScript module export patterns
+- Named export syntax (explicit): export function foo() { } ; export const VALUE = 1; export { foo, VALUE }.
+- Default export syntax: export default expression; export default function name() { } ; only one default per module.
+- Re-export/aggregation: export { name } from 'module'; export * from 'module' re-exports all named exports (does not re-export default); export * as ns from 'module' to expose module namespace.
+- Use cases for packaging fizz-buzz utilities: export a default convenience function that runs FizzBuzz and named exports for helpers (isFizz, isBuzz, formatValue). Example export surface: export default runFizzBuzz; export { isFizz, isBuzz, formatValue }.
+- Module execution: export declarations are static and evaluated as module declarations; do not rely on run-time mutation of exported bindings for API shape.
 
-Algorithm (imperative implementation)
-- Create an array result = [] with capacity n (pre-allocate length where supported)
-- For i from 1 to n inclusive:
-  - if (i % 15 === 0) push 'FizzBuzz'
-  - else if (i % 3 === 0) push 'Fizz'
-  - else if (i % 5 === 0) push 'Buzz'
-  - else push String(i)
-- Return result
+4. Node.js ESM runtime rules and packaging
+- Enabling ESM in Node.js: set package.json "type": "module" to make .js files be interpreted as ES modules; alternatively use .mjs file extension or --input-type=module for one-off evaluation.
+- Mandatory file extensions: relative/absolute import specifiers must include file extensions (e.g. import { x } from './mod.js'); directory indexes must be fully specified (./dir/index.js must be written with filename).
+- Specifier types:
+  - relative specifiers: './x.js' or '../x.mjs' (file extension required)
+  - bare specifiers: 'pkg' or 'pkg/sub' resolved via package resolution (subject to package.json "exports" map)
+  - absolute file: file:///...
+- import.meta properties (Node.js specifics): import.meta.url -> file: URL of current module; import.meta.filename -> absolute path string of current module (Node >= v21/v20 as stable); import.meta.dirname -> directory name of current module (string). Caveat: some import.meta properties only available for file: modules.
+- Import attributes and JSON modules: import foo from './data.json' with { type: 'json' }; Node supports type: 'json' for import with attribute.
+- Built-in module imports with node: prefix: import fs from 'node:fs' or import { readFile } from 'node:fs/promises'; prefer node: prefix to avoid ambiguity.
 
-Performance characteristics
-- Time complexity: O(n) single pass
-- Space complexity: O(n) for the returned array (optionally O(1) if streaming output instead of returning)
+5. Testing with Vitest (practical patterns)
+- Install: npm install -D vitest (requires Node >=20, Vite >=6). Use npx vitest for local execution.
+- Test file naming: include .test. or .spec. in filename (e.g., fizz.test.js) so Vitest picks it by default.
+- Basic CLI usage: npx vitest or npm script "test": "vitest"; run once: vitest run; coverage: vitest run --coverage or npm run coverage.
+- Config: add test property to vite.config.ts or create vitest.config.ts; supported config file extensions: .js, .mjs, .cjs, .ts, .cts, .mts (not .json).
+- Example project setups: use projects array in config to run multiple test environments; use environment: 'node' for pure node tests.
+- Assertion usage: import { test, expect } from 'vitest'; expect(actual).toBe(expected) and other matchers supported.
+- Test selection and focused tests: use test.only for single test; use --threads=1 or --run for single-run CI.
 
-ESM export and module packaging (exact lines to use)
-- Named export (preferred for testable library functions):
-  export function fizzBuzz(n) { /* implementation */ }
-- Default export variant (alternative):
-  export default function fizzBuzz(n) { /* implementation */ }
-- Node.js (file extension and package.json): ensure package.json contains "type": "module" to allow .js ESM imports in Node >= 12+; otherwise use .mjs extension for module files.
+SUPPLEMENTARY DETAILS
 
-2. Supplementary Details: Specs and Implementation Notes
+Technical specifications and implementation details
+- Data model for API: runFizzBuzz(options) -> returns Array<string|number> by default unless options.stream === true; options: { start: number (default 1), end: number (required), step: number (default 1), stream: boolean (default false), onValue?: (value) => void }
+- Recommended runtime checks in runFizzBuzz:
+  - ensure Number.isInteger(start) and Number.isInteger(end) and Number.isInteger(step)
+  - ensure step >= 1
+  - ensure end >= start for positive stepping
+  - optional safety: if (!stream && (end - start) > MAX_SAFE_ITERATIONS) throw RangeError
+- Implementation patterns for helpers:
+  - isFizz(n): return n % 3 === 0
+  - isBuzz(n): return n % 5 === 0
+  - formatValue(n): let s = ''; if (isFizz(n)) s += 'Fizz'; if (isBuzz(n)) s += 'Buzz'; return s || n
+- Packaging patterns:
+  - Expose runFizzBuzz as default export for ease of use in consumers; export helpers for unit testing.
+  - Provide an entrypoint file main export map in package.json: { "exports": { ".": { "import": "./dist/index.js" } } } to support ESM consumers; include types field for TypeScript if adding typings.
+- CLI usage pattern (optional): create bin/fizz-buzz.js that imports the runFizzBuzz default and prints lines to stdout; add package.json "bin": { "fizz-buzz": "./bin/fizz-buzz.js" } and ensure bin file has executable header and uses node ESM-compatible shebang handling.
 
-Type and error semantics
-- TypeError thrown for wrong JS type or non-integer values. Use checks in this order: typeof check, then Number.isInteger.
-- RangeError thrown for out-of-range numeric values (n <= 0). Use explicit message to aid tests.
+REFERENCE DETAILS (API SIGNATURES, OPTIONS, ERRORS)
 
-Alternate return shapes
-- Default recommended: return string[] where numbers are stringified to maintain uniform array element type.
-- Alternative: return Array<string|number> to preserve numeric values for non-Fizz/Buzz entries; this complicates downstream formatting and tests—avoid unless required.
+Number.isInteger
+Signature: Number.isInteger(value) -> boolean
+Behavior: returns true for numeric values that are integers within floating-point precision; false for NaN, Infinity, non-number types.
 
-Streaming/output variants
-- For very large n, provide an alternative API: fizzBuzzStream(n, onValue) where onValue(value: string, index: number) is invoked for each produced value; this reduces memory from O(n) to O(1).
-- Implement streaming variant by iterating and invoking callback, returning undefined when complete.
+TypeError
+Constructor: new TypeError([message]) -> TypeError
+Properties: name === 'TypeError', message: string, stack: string
+Usage: throw new TypeError('end must be integer') for incorrect types.
 
-Edge-case handling
-- n === 1 should return ['1']
-- n === 3 should return ['1','2','Fizz']
-- n === 5 should return ['1','2','Fizz','4','Buzz']
-- Validate for NaN: treat as TypeError (typeof NaN === 'number' but Number.isInteger(NaN) === false)
+RangeError
+Constructor: new RangeError([message]) -> RangeError
+Properties: name === 'RangeError', message, stack
+Usage: throw new RangeError('end must be >= start') for invalid numeric ranges or excessive iteration requests.
 
-3. Reference Details: Exact API Signatures, Exports, Config
+Export syntax (selected forms)
+- export let a, b;
+- export const C = 1;
+- export function fn() { }
+- export default expression;
+- export { name1, name2 } from 'module';
+- export * from 'module' (re-exports named exports only; default not re-exported)
 
-JavaScript (ESM) signatures and declarations
-- Named export (JS):
-  export function fizzBuzz(n) {
-    // validation and algorithm
-  }
-  - Parameters: n (number)
-  - Returns: string[]
-  - Throws: TypeError (when typeof n !== 'number' or !Number.isInteger(n)), RangeError (when n <= 0)
+Node.js ESM rules (practical checklist)
+- package.json "type": "module" -> .js files treated as ESM; use .mjs for explicit ESM otherwise.
+- Relative imports MUST include file extensions: import x from './mod.js'
+- Use import.meta.url to compute file path when needed; convert via url.fileURLToPath(import.meta.url) to interoperate with path APIs.
+- Use node: prefix for builtins: import fs from 'node:fs'
 
-- Default export (JS):
-  export default function fizzBuzz(n) { /* ... */ }
-  - Same parameter and return contract as named export.
+Vitest CLI and config quick reference
+- Install: npm install -D vitest
+- Run: npx vitest or npm run test
+- Run once for CI: vitest run
+- Coverage: vitest run --coverage
+- Config file: vitest.config.ts or in vite.config.ts under test property
+- Test file patterns: **/*.test.* or **/*.spec.*
 
-TypeScript signature (for reference / typing):
-- export function fizzBuzz(n: number): string[];
-- export function fizzBuzzStream(n: number, onValue: (value: string, index: number) => void): void;
+DETAILED DIGEST (source extraction)
+- Source list used: (1) Wikipedia Fizz_buzz (concept, variants, usage in interviews) (2) MDN Export (complete export syntax, named/default, re-exporting, spec reference) (3) Node.js ESM docs (enabling ESM, package.json "type", .mjs, mandatory file extensions, import.meta properties, import attributes) (4) MDN Number.isInteger (signature, return rules, edge cases around IEEE-754 precision and MAX_SAFE_INTEGER) (5) MDN RangeError (description, when to throw, constructor) (6) MDN TypeError (constructor, examples) (7) Vitest guide (installation, basic usage, config, projects, CLI options) (8) npm fizzbuzz package page - fetch blocked (HTTP 403) so package-specific usage could not be retrieved during this crawl.
+- Retrieval date: 2026-03-09
+- Notes: Node ESM content truncated on fetch; core sections extracted include enabling ESM, import specifier rules, import.meta properties, and import attributes. MDN pages include explicit constructor semantics and method signatures used above.
 
-Exact error messages (for test assertions)
-- TypeError message for non-number: "n must be a number"
-- TypeError message for non-integer: "n must be an integer"
-- RangeError message for non-positive: "n must be > 0"
+ATTRIBUTION
+- Sources crawled (full list):
+  - https://en.wikipedia.org/wiki/Fizz_buzz
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
+  - https://nodejs.org/api/esm.html
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError
+  - https://vitest.dev/guide/
+  - https://www.npmjs.com/package/fizzbuzz (fetch failed: HTTP 403)
+- Data size obtained during crawling: per-source character counts not reported by fetch tool; content partially truncated for very large pages. Exact byte counts unavailable in this run.
+- Retrieval timestamp: 2026-03-09T23:17:09.692Z
 
-package.json configuration required for Node ESM
-- "type": "module" to allow import './file.js' using ESM syntax
-- engines: { "node": ">=24.0.0" } (example present in the project; adjust as required)
+USAGE NOTES FOR DEVELOPERS
+- Use the API signatures and runtime checks above when implementing runFizzBuzz to make behavior deterministic and testable.
+- Export helpers as named exports for direct unit testing with Vitest; publish default export for consumer convenience.
+- Ensure package.json sets "type": "module" if targeting ESM consumers and use file extensions in imports to meet Node ESM resolution rules.
 
-Vitest test patterns and commands (exact import lines and assertions)
-- Test file imports:
-  import { describe, it, expect } from 'vitest';
-  import { fizzBuzz } from '../../src/lib/main.js';
-- Example assertions:
-  expect(fizzBuzz(5)).toEqual(['1','2','Fizz','4','Buzz']);
-  expect(() => fizzBuzz('a')).toThrow(TypeError);
-  expect(() => fizzBuzz(0)).toThrow(RangeError);
-- Run tests (repository npm script): npm test resolves to: vitest --run tests/unit/*.test.js
-
-NPM package "fizzbuzz" (common API pattern)
-- Typical default export: import fizzbuzz from 'fizzbuzz'; const out = fizzbuzz(15);
-- Typical return: string[] of length n or streaming/console printing variants—verify package README before depending on behavior.
-
-4. Troubleshooting and Best Practices
-
-Common test failures and fixes
-- Failing equality between arrays: ensure consistent element types (all strings) and exact element order.
-- Wrong exceptions: ensure tests assert the specific Error class (TypeError vs RangeError) and exact message where tests check messages.
-- ESM import errors: ensure package.json "type" is set to "module" or rename files to .mjs; adjust import paths to include .js extension when running under Node ESM.
-
-Best practices
-- Keep fizzBuzz pure and side-effect free (no console.log inside the function). Separate printing from logic.
-- Use explicit validation early (fail-fast). This simplifies tests and error handling.
-- Provide small helper functions only if reused (e.g., isDivisible(i, d) is overkill for this simple function).
-- Provide streaming variant for huge n to avoid out-of-memory problems.
-
-5. Detailed Digest and Retrieval Metadata
-
-Sources processed and fetch status:
-- https://en.wikipedia.org/wiki/Fizz_buzz  — fetched successfully (content used)
-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export  — fetched successfully (truncated by fetch tool in places)
-- https://nodejs.org/api/esm.html  — fetched successfully (truncated in places)
-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger  — fetched successfully
-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError  — fetched successfully
-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError  — fetched successfully
-- https://vitest.dev/guide/  — fetched successfully (truncated in places)
-- https://www.npmjs.com/package/fizzbuzz  — fetch attempt returned HTTP 403 (not included)
-
-Date retrieved: 2026-03-09T22:53:33.480Z (UTC)
-
-Notes on retrieval: web fetches were executed for the listed URLs; seven pages returned content which was used to extract technical details. Several long pages were truncated by the fetch tool; consult original canonical pages for full examples and edge-case discussion.
-
-6. Attribution and Data Size
-
-Attribution
-- Core technical authority: Wikipedia Fizz Buzz; MDN JavaScript references (export, Number.isInteger, RangeError, TypeError); Node.js ESM docs; Vitest docs; npm package page for fizzbuzz.
-
-Data size
-- Sources list contains 8 URLs; no full remote crawl executed in this step; derived technical content estimated at ~12 KB of synthesized implementation guidance (this document). If full crawl is performed, record precise byte counts per URL.
-
-END
-
-[NARRATIVE] Created a focused implementation document FIZZ_BUZZ that consolidates rules, validation, ESM export patterns, exact test assertions, and configuration notes to enable direct implementation and testing of a JavaScript fizzBuzz function.
+END OF DOCUMENT
