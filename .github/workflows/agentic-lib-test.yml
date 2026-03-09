@@ -16,8 +16,20 @@ on:
     - cron: "10 * * * *"
   push:
     branches: [main]
+    paths:
+      - "**/*.js"
+      - "**/*.json"
+      - "**/*.html"
+      - "**/*.yml"
+      - "**/*.sh"
   pull_request:
     branches: [main]
+    paths:
+      - "**/*.js"
+      - "**/*.json"
+      - "**/*.html"
+      - "**/*.yml"
+      - "**/*.sh"
   workflow_call:
   workflow_dispatch:
 
