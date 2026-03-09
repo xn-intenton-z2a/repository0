@@ -701,13 +701,13 @@ jobs:
 
               if (!hasFailing && !hasConflicts) continue;
 
-              // Check fix attempt count
-              const { data: fixRuns } = await github.rest.actions.listWorkflowRuns({
-                owner, repo, workflow_id: 'agentic-lib-workflow.yml',
-                branch: pr.head.ref, per_page: maxFixAttempts + 1,
+              // Check fix attempt count via PR comments with marker
+              const { data: comments } = await github.rest.issues.listComments({
+                owner, repo, issue_number: pr.number, per_page: 100,
               });
-              if (fixRuns.total_count >= maxFixAttempts) {
-                core.info(`PR #${pr.number} exceeded fix attempts. Removing automerge.`);
+              const fixAttempts = comments.filter(c => c.body && c.body.includes('<!-- fix-stuck-attempt -->')).length;
+              if (fixAttempts >= maxFixAttempts) {
+                core.info(`PR #${pr.number} exceeded ${maxFixAttempts} fix attempts (found ${fixAttempts} markers). Removing automerge.`);
                 try { await github.rest.issues.removeLabel({ owner, repo, issue_number: pr.number, name: 'automerge' }); } catch (e) {}
                 continue;
               }
@@ -759,12 +759,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Record fix-stuck attempt on PR
+        if: env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment "${{ env.FIX_PR_NUMBER }}" --body "<!-- fix-stuck-attempt -->
+          **fix-stuck** attempting to resolve: ${{ env.FIX_REASON }} (run [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}))"
+
       - name: Create fix branch for broken main build
         if: env.FIX_MAIN_BUILD == 'true' && steps.fix-mission-check.outputs.mission-complete != 'true'
         run: |
           git checkout -b agentic-lib-fix-main-build
 
-      - name: "Tier 1: Auto-resolve trivial merge conflicts"
+      - name: "Tier 1: Auto-resolve merge conflicts (prefer-main for metadata)"
         if: env.FIX_PR_NUMBER != '' && env.FIX_REASON == 'merge conflicts' && steps.fix-mission-check.outputs.mission-complete != 'true'
         id: trivial-resolve
         run: |
@@ -773,33 +781,37 @@ jobs:
             echo "resolved=clean" >> $GITHUB_OUTPUT
           else
             CONFLICTED=$(git diff --name-only --diff-filter=U)
-            TRIVIAL_PATTERN='intentïon\.md|intention\.md|package-lock\.json'
-            NON_TRIVIAL=$(echo "$CONFLICTED" | grep -vE "$TRIVIAL_PATTERN" || true)
-            if [ -z "$NON_TRIVIAL" ]; then
-              echo "All conflicts are trivial — auto-resolving"
-              for f in $CONFLICTED; do
+            echo "Conflicted files:"
+            echo "$CONFLICTED"
+            # Source files (branch has new code) → keep ours
+            # Metadata files (maintain updates) → accept theirs (main)
+            SOURCE_PATTERN='^src/lib/|^tests/|^src/web/'
+            RESOLVED_COUNT=0
+            FAILED_FILES=""
+            for f in $CONFLICTED; do
+              if echo "$f" | grep -qE "$SOURCE_PATTERN"; then
+                echo "  $f → keeping ours (source)"
+                git checkout --ours "$f"
+              else
+                echo "  $f → accepting theirs (metadata)"
                 git checkout --theirs "$f"
-                git add "$f"
-              done
-              npm install 2>/dev/null || true
-              git add package-lock.json 2>/dev/null || true
-              git commit --no-edit
-              echo "resolved=trivial" >> $GITHUB_OUTPUT
-            else
-              git merge --abort
-              echo "resolved=none" >> $GITHUB_OUTPUT
-              echo "non_trivial<<EOF" >> $GITHUB_OUTPUT
-              echo "$NON_TRIVIAL" >> $GITHUB_OUTPUT
-              echo "EOF" >> $GITHUB_OUTPUT
-            fi
+              fi
+              git add "$f"
+              RESOLVED_COUNT=$((RESOLVED_COUNT + 1))
+            done
+            # Regenerate lock file after conflict resolution
+            npm install 2>/dev/null || true
+            git add package-lock.json 2>/dev/null || true
+            git commit --no-edit
+            echo "Resolved $RESOLVED_COUNT conflicted files"
+            echo "resolved=auto" >> $GITHUB_OUTPUT
           fi
 
-      - name: "Tier 2: LLM fix (conflicts or failing checks)"
+      - name: "Tier 2: LLM fix (failing checks only — conflicts handled by Tier 1)"
         if: |
           env.FIX_PR_NUMBER != '' &&
           steps.fix-mission-check.outputs.mission-complete != 'true' &&
-          (env.FIX_REASON != 'merge conflicts' ||
-           steps.trivial-resolve.outputs.resolved == 'none')
+          env.FIX_REASON != 'merge conflicts'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
