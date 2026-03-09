@@ -1,28 +1,26 @@
-# repository0 — FizzBuzz Feature
+# FizzBuzz Library Demo
 
-This repository demonstrates a small FizzBuzz library and web demo used by the agentic workflows.
+This repository demonstrates a simple FizzBuzz library with unit tests and a web demo.
 
-Usage examples:
+Library API (src/lib/main.js):
 
-- Library
+- fizzBuzz(n): returns array of strings from 1..n with Fizz/Buzz/FizzBuzz substitutions.
+- fizzBuzzSingle(n): returns string for single integer.
 
-  import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js'
+Examples:
 
-  fizzBuzz(5) -> ["1","2","Fizz","4","Buzz"]
-  fizzBuzzSingle(15) -> "FizzBuzz"
+- fizzBuzz(5) -> ["1","2","Fizz","4","Buzz"]
+- fizzBuzzSingle(15) -> "FizzBuzz"
 
-- CLI
+CLI:
 
-  node src/lib/main.js 15
-  # prints: FizzBuzz
+- node src/lib/main.js <number>
 
-- Web demo
+Website demo:
 
-  Open `src/web/index.html` (or run `npm run start` after `npm run build:web`) and use the interactive demo.
+- Open src/web/index.html or run npm run start to serve docs/ and visit the demo.
 
-Web demo element IDs used by testers:
-- fizz-input, fizz-submit, fizz-output
-- fizz-range, fizz-range-submit, fizz-range-output
-- fizz-error
+Tests:
 
-See docs/fizz-buzz.md for API contract and examples.
+- npm test (unit tests)
+- npm run test:behaviour (Playwright behaviour tests; requires Playwright setup)
