@@ -1,0 +1,153 @@
+FIZZBUZZ
+
+NORMALISED EXTRACT
+
+Table of contents
+1. FizzBuzz core rules and exact conditionals
+2. Numeric divisibility semantics (JS remainder operator)
+3. Loop and iteration patterns for generating ranges in JavaScript
+4. Array.from range generation pattern
+5. Node.js ESM runtime considerations for module-based implementations
+6. Vitest test harness and minimal test API required
+
+1. FizzBuzz core rules and exact conditionals
+- Input: integer sequence 1..N (inclusive).
+- For each integer i in 1..N apply these checks and produce the following output (string or number as shown):
+  - If i is divisible by 3 and not divisible by 5 -> output exactly the string: Fizz
+  - If i is divisible by 5 and not divisible by 3 -> output exactly the string: Buzz
+  - If i is divisible by both 3 and 5 -> output exactly the string: FizzBuzz
+  - Otherwise -> output the numeric value i (as a Number or string representation depending on API choice)
+- Exact conditional implementations that are functionally equivalent (choose one):
+  - Combined-check: if (i % 15 === 0) -> FizzBuzz; else if (i % 3 === 0) -> Fizz; else if (i % 5 === 0) -> Buzz; else -> i
+  - Concatenation-check: let out = ''; if (i % 3 === 0) out += 'Fizz'; if (i % 5 === 0) out += 'Buzz'; output out || i
+- Comparison rules: use strict equality (===) when comparing remainder results to zero.
+
+2. Numeric divisibility semantics (JS remainder operator)
+- Operator: a % b returns the remainder of division of a by b as a Number.
+- Behavior details required for robust implementation:
+  - If b === 0 -> result is NaN; therefore do not divide or modulo by zero without guarding (not relevant for fixed divisors 3 and 5, but documented for completeness).
+  - If a or b is NaN -> result is NaN.
+  - The sign of the remainder matches the sign of the dividend (a). For positive a and positive b, remainder is non-negative and in [0, b-1].
+  - Use (i % k === 0) to determine divisibility when i and k are integers and k !== 0.
+
+3. Loop and iteration patterns for generating ranges in JavaScript
+- For-loop pattern (explicit): for (let i = 1; i <= N; i++) { ... }
+  - Use when N is known and performance/memory minimal overhead required.
+- Array iteration patterns (range + forEach / for...of):
+  - Generate an array of values then iterate: Array.from({length: N}, (_, idx) => idx + 1).forEach(i => { ... })
+  - for...of over generated array: for (const i of Array.from({length: N}, (_, idx) => idx + 1)) { ... }
+  - Map to outputs in a single expression: const outputs = Array.from({length: N}, (_, idx) => fizzbuzzOf(idx + 1))
+- Implementation note: prefer pure functions (fizzbuzzOf(n) => 'Fizz'|'Buzz'|'FizzBuzz'|n) for testability.
+
+4. Array.from range generation pattern
+- Signature summary: Array.from(arrayLike, mapFn?, thisArg?) -> Array
+- Range pattern: Array.from({ length: N }, (_, idx) => idx + 1) produces [1,2,...,N]
+- mapFn receives (element, index) where element is undefined for the object-literal-with-length pattern; index is the position starting at 0.
+
+5. Node.js ESM runtime considerations for module-based implementations
+- package.json configuration: set "type": "module" to enable ES module import/export in .js files.
+- Local imports must include file extensions: import foo from './foo.js'
+- __filename and __dirname are not defined in ESM; to obtain equivalents use: fileURLToPath(import.meta.url) and path.dirname(...) (require importing fileURLToPath from 'url' and path from 'path').
+- Top-level await is permitted in ESM modules under current Node versions used by this project (Node >= 24 as in package.json engines).
+
+6. Vitest test harness and minimal test API required
+- Importing test API: import { describe, it, expect } from 'vitest'
+- Core test primitives and signatures used in examples and CI integration:
+  - describe(name: string, fn: () => void): void
+  - it(name: string, fn: () => void | Promise<void>): void
+  - expect(received).toBe(expected): assertion for strict equality
+  - expect(received).toEqual(expected): deep equality
+  - expect(received).toHaveLength(n): array/string length assertion
+- Running tests in repository: use the npm script "test" which invokes "vitest --run tests/unit/*.test.js"; use "npm run test:unit" for coverage run.
+
+SUPPLEMENTARY DETAILS (implementation-focused)
+
+A. Minimal functional interface recommendations
+- Implement and export a single pure function with signature: fizzbuzzOf(n) -> returns string|'number' where:
+  - Parameter: n (Number, integer >= 1)
+  - Return: 'Fizz'|'Buzz'|'FizzBuzz' or numeric n (caller may stringify)
+- Implement and export a sequence generator: fizzbuzzSequence(N) -> Array where:
+  - Parameter: N (Number, integer >= 1)
+  - Return: Array of N outputs where element at index k is fizzbuzzOf(k+1)
+
+B. Example call patterns (plain text lines, not code blocks)
+- Generate outputs for console: for i in 1..N compute fizzbuzzOf(i) and log or collect.
+- Bulk generation: const outputs = Array.from({length: N}, (_, idx) => fizzbuzzOf(idx + 1))
+
+C. Error handling and edge cases
+- Validate N is a finite integer >= 1; if invalid, throw TypeError or return empty array for sequence generator (documented behavior).
+- Guard against non-integer inputs by coercing via Math.floor and validating equality if choosing strict mode.
+
+REFERENCE DETAILS (API signatures, exact options, configuration values)
+
+1) FizzBuzz function signatures (recommended exact text for source files)
+- Exported pure function signature (JavaScript):
+  - export function fizzbuzzOf(n) {
+    - Input: Number n
+    - Behavior: if (n % 15 === 0) return 'FizzBuzz'; else if (n % 3 === 0) return 'Fizz'; else if (n % 5 === 0) return 'Buzz'; else return n
+    - Comparisons: use strict equality === when comparing remainders to zero
+  - }
+- Exported sequence function signature (JavaScript):
+  - export function fizzbuzzSequence(N) {
+    - Input: Number N
+    - Behavior: return Array.from({ length: N }, (_, idx) => fizzbuzzOf(idx + 1))
+  - }
+
+2) Array.from exact parameter description
+- Array.from(arrayLike, mapFn?, thisArg?)
+  - arrayLike: object with length property or iterable
+  - mapFn: (element, index) => mappedValue  (optional)
+  - thisArg: optional this binding for mapFn
+- Effect: constructs a new Array with elements obtained by applying mapFn to each index if provided
+
+3) Remainder operator exact semantics
+- Expression: a % b -> Number
+- If b === 0 -> result is NaN
+- If either operand is NaN -> result is NaN
+- Sign of result equals sign of dividend a
+- Use (a % k === 0) for integer divisibility checks when k !== 0
+
+4) Node.js ESM configuration options and effects
+- package.json: add property "type": "module" to treat .js files as ESM modules
+- Local import syntax: import something from './module.js'  (include .js extension)
+- To compute __dirname equivalent:
+  - import { fileURLToPath } from 'url'
+  - import path from 'path'
+  - const __filename = fileURLToPath(import.meta.url)
+  - const __dirname = path.dirname(__filename)
+- Top-level await: permitted in modules when running under Node ESM support (no extra flag required for supported Node versions)
+
+5) Vitest CLI and configuration values used in repository
+- npm script "test": vitest --run tests/unit/*.test.js
+- For coverage: npm run test:unit runs vitest --run --coverage tests/unit/*.test.js
+- Minimal test API methods (signatures above) are sufficient to write unit tests for fizzbuzzOf and fizzbuzzSequence
+
+BEST PRACTICES AND IMPLEMENTATION EXAMPLES (concrete guidance)
+- Prefer pure functions (fizzbuzzOf) for unit testing and composition.
+- Use the combined-check (i % 15 === 0) or concatenation approach; both are functionally equivalent. Choose the concatenation approach if you need to support future expansion of other tokens and prefer composability.
+- Use Array.from({ length: N }, (_, idx) => /*fn*/ ) to produce consistent ranges without manual loop bookkeeping when you need a collection result.
+- In ESM modules, always include file extension in local imports and avoid assuming __dirname; use fileURLToPath when file-system paths are required.
+- Use strict equality for remainder comparisons to avoid truthiness pitfalls (0 is falsy).
+
+TROUBLESHOOTING CHECKLIST (step-by-step)
+1. Tests failing with unexpected types: confirm fizzbuzzOf returns primitive 'string' for tokens and a Number for raw values, or choose to always return strings and update tests accordingly.
+2. Unexpected NaN in modulo checks: verify operands are Numbers and divisor is non-zero; for divisibility by 3/5 these are constants so verify input coercion.
+3. ESM import errors (Cannot use import statement outside a module): ensure package.json contains "type": "module" or rename files to .mjs.
+4. Local import file not found: verify the import path includes the file extension (./lib.js vs ./lib)
+
+DETAILED DIGEST (source content and retrieval date)
+- Retrieved from SOURCES.md on 2026-03-09
+- Exact source list obtained (raw):
+  - https://en.wikipedia.org/wiki/Fizz_buzz
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Loops_and_iteration
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Arithmetic_operators#remainder
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
+  - https://nodejs.org/api/esm.html
+  - https://vitest.dev/guide/
+- Data obtained during crawl: 605 bytes (SOURCES.md raw file size)
+
+ATTRIBUTION
+- Sources listed above (see exact URLs in digest). Content in this document is condensed technical extraction from those sources.
+- Crawl metadata: file SOURCES.md read from repository root; byte size recorded as 605 bytes.
+
+END OF DOCUMENT
