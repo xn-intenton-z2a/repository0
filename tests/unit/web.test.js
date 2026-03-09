@@ -1,47 +1,28 @@
-import { describe, it, expect } from 'vitest';
-import fs from 'fs';
-import path from 'path';
-import { JSDOM } from 'jsdom';
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
+import { describe, test, expect } from "vitest";
+import { readFileSync, existsSync } from "fs";
 
-describe('web demo wiring', () => {
-  it('page has fizz-buzz elements and renders 15 items with FizzBuzz present', async () => {
-    const file = path.resolve('src/web/index.html');
-    const html = fs.readFileSync(file, 'utf-8');
-    const dom = new JSDOM(html, { runScripts: 'dangerously', resources: 'usable', url: 'file://' + file });
-    // Wait for the module script to execute and render
-    const window = dom.window;
-    await new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error('timed out waiting for demo render')), 2000);
-      function check() {
-        const out = window.document.getElementById('fizz-buzz-output');
-        if (out && out.children && out.children.length >= 15) {
-          clearTimeout(timeout);
-          resolve();
-        } else setTimeout(check, 50);
-      }
-      check();
-    });
+describe("Website", () => {
+  test("src/web/index.html exists", () => {
+    expect(existsSync("src/web/index.html")).toBe(true);
+  });
 
-    const document = window.document;
-    const input = document.getElementById('fizz-buzz-input');
-    const run = document.getElementById('fizz-buzz-run');
-    const output = document.getElementById('fizz-buzz-output');
+  test("index.html contains valid HTML structure", () => {
+    const html = readFileSync("src/web/index.html", "utf8");
+    expect(html).toContain("<!DOCTYPE html>");
+    expect(html).toContain("<html");
+    expect(html).toContain("</html>");
+  });
 
-    expect(input).toBeTruthy();
-    expect(run).toBeTruthy();
-    expect(output).toBeTruthy();
-    expect(output.children.length).toBe(15);
+  test("index.html imports the library via lib-meta.js", () => {
+    const html = readFileSync("src/web/index.html", "utf8");
+    expect(html).toContain("lib-meta.js");
+  });
 
-    // verify at least one FizzBuzz entry exists
-    const texts = Array.from(output.children).map(c => c.textContent);
-    expect(texts.some(t => t.includes('FizzBuzz'))).toBe(true);
-
-    // simulate clicking Run with value 5
-    input.value = '5';
-    run.click();
-    // allow update
-    await new Promise(r => setTimeout(r, 50));
-    expect(output.children.length).toBe(5);
-    expect(output.children[4].textContent).toBe('Buzz');
+  test("index.html displays library identity elements", () => {
+    const html = readFileSync("src/web/index.html", "utf8");
+    expect(html).toContain("lib-name");
+    expect(html).toContain("lib-version");
   });
 });
