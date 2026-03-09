@@ -37,36 +37,31 @@ SUPPLEMENTARY DETAILS
 Technical specifications and implementation details:
 - ToLength operation: clamp ToInteger(length) between 0 and 2^53-1.
 - Iterator protocol: call GetIterator(source) then repeatedly call IteratorNext(iterator) and extract IteratorValue.
-- Map function call order: sequential from index 0 upward; mapping can mutate the source but iterator semantics apply for iterables.
-- Construction: new Array with length 0, push/set by index to avoid side-effect on constructor-provided species.
+- Map function: If provided, invoked with arguments (value, index) and bound to thisArg when specified; mapped result assigned to destination index.
+- Length handling: destination array length is set after insertion; holes preserved when source has missing indices.
 
 REFERENCE DETAILS
 
-API signature: Array.from(source, mapFn?, thisArg?) -> Array
+API signatures and exact behaviour:
+- Array.from(source[, mapFn[, thisArg]]) -> Array
 Parameters:
-- source: any (array-like or iterable)
-- mapFn: function? (value, index) -> any
-- thisArg: any
-Return type: Array<any>
+- source: ArrayLike<T> | Iterable<T>
+- mapFn?: (value: T, index: number) => U
+- thisArg?: any
+Return: Array<U>
 
-Exact behavior notes:
-- Throws TypeError if source is null/undefined.
-- Throws TypeError if mapFn provided and typeof mapFn !== 'function'.
-- Iteration uses source[Symbol.iterator] when present; otherwise reads length and numeric properties.
-- Mapping uses OrdinaryCall, with thisArg as provided.
+Errors:
+- Throws TypeError if source is null or undefined.
+- Throws TypeError if mapFn is provided and not callable.
 
-TROUBLESHOOTING
-
-- If Array.from([...]) returns unexpected values, verify whether source is iterable or array-like; inspect Symbol.iterator.
-- If mapFn not invoked, ensure it is a function and not undefined.
-- For performance, when source is array, prefer slice or spread for shallow copy instead of Array.from with mapping.
+Implementation notes:
+- For string sources, iterator yields code points; use [...str] equivalent semantics.
+- ToLength uses 2^53-1 clamp; implementations must coerce length via ToInteger then clamp.
 
 DIGEST
-
 Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
 Retrieved: 2026-03-09
-Size: small (single MDN reference)
+Size: small (web page)
 
 ATTRIBUTION
-
-Content adapted from MDN Web Docs (developer.mozilla.org) and ECMAScript specification concepts. Data size: ~1 page equivalent.
+Content adapted from MDN Web Docs. Data size: ~1 page equivalent.

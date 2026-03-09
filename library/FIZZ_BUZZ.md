@@ -48,14 +48,12 @@ Configuration options:
 TROUBLESHOOTING
 
 - If outputs are incorrect for large n, verify integer precision and modulo correctness; JavaScript numbers are safe up to 2^53-1.
-- For streaming, ensure consumer respects backpressure if producing large sequences.
+- For streaming, ensure consumer respects backpressure and use generators or async iterators.
 
 DIGEST
-
 Source: https://en.wikipedia.org/wiki/Fizz_buzz
 Retrieved: 2026-03-09
-Size: small (Wikipedia article)
+Size: small (web page)
 
 ATTRIBUTION
-
-Content adapted from Wikipedia article on Fizz Buzz. Data size: ~1 page equivalent.
+Content adapted from Wikipedia Fizz Buzz article. Data size: ~1 page equivalent.

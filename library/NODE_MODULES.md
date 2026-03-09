@@ -33,19 +33,12 @@ REFERENCE DETAILS
 
 Exact configuration patterns:
 - package.json snippet: { "type": "module", "main": "dist/index.cjs", "exports": { ".": { "import": "./dist/index.mjs", "require": "./dist/index.cjs" } } }
-- Use require('pkg') in CJS to receive module.exports bound; use import pkg from 'pkg' in ESM to receive default if available.
-
-TROUBLESHOOTING
-
-- If import fails with ERR_REQUIRE_ESM, ensure target file is ESM or use dynamic import() from CJS.
-- If package entry not found, check exports mapping and file paths relative to package root.
+- Use require('pkg') in CJS and import pkg from 'pkg' in ESM depending on export targets.
 
 DIGEST
-
 Source: https://nodejs.org/api/modules.html#modules_exports
 Retrieved: 2026-03-09
-Size: small (Node.js docs page)
+Size: small (web page)
 
 ATTRIBUTION
-
-Content adapted from Node.js documentation (nodejs.org) and packaging specification. Data size: ~1 page equivalent.
+Content adapted from Node.js documentation. Data size: ~1 page equivalent.

@@ -40,11 +40,9 @@ TROUBLESHOOTING
 - If package API differs, inspect installed package's main file to confirm exported names.
 
 DIGEST
-
 Source: https://www.npmjs.com/package/fizzbuzz
 Retrieved: 2026-03-09
-Size: small (npm package page)
+Size: small (web page)
 
 ATTRIBUTION
-
 Content adapted from npm package page for "fizzbuzz". Data size: ~1 page equivalent.

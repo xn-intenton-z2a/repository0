@@ -29,30 +29,26 @@ SUPPLEMENTARY DETAILS
 
 Technical specifications and implementation details:
 - Export semantics follow ES Module Loader: importers resolve module specifiers, instantiate modules, evaluate in specific phases: parsing, instantiation (bindings created), evaluation (code runs).
-- Exports must be statically analyzable: named exports and imports are resolved at compile time; dynamic export forms (e.g., export from variable) not allowed.
-- When mixing CommonJS and ESM, default interop wrappers may apply; Node.js provides module.exports and exports mapping; prefer using export in ESM files (type: module).
+- Exports must be statically analyzable: named exports and imports are resolved at compile time.
+- Live bindings implemented by creating getter accessors on module namespace objects so imports reflect current values.
 
 REFERENCE DETAILS
 
-API signatures and examples (semantic, not code-escaped):
-- export { localName as exportedName } : re-exports localName under exportedName.
-- export default expression : module's default export set to result of expression evaluation.
+Exact syntax and patterns:
+- export const name = value;
+- export function fname() { }
+- export default function optionalName() { }
+- export { local as exported };
+- export * from 'module';
 
-Configuration options and effects:
-- In Node.js, set "type": "module" in package.json or use .mjs extension to enable ESM parsing.
-- When transpiling, ensure tools preserve live binding semantics when converting to CommonJS; transpilers may emulate with getters.
-
-TROUBLESHOOTING
-
-- If imports see stale values, verify code mutates exported bindings after import time; ensure proper initialization order or refactor to use functions.
-- If default not found when importing CommonJS, check transpiler or interop defaults (module.exports vs exports.default).
+Behavioural specifics:
+- Imported bindings are immutable in the importing module (cannot reassign import binding) but reflect mutations from exporter.
+- Default export is a separately named binding 'default' in module namespace.
 
 DIGEST
-
 Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
 Retrieved: 2026-03-09
-Size: small (MDN reference)
+Size: small (web page)
 
 ATTRIBUTION
-
-Content adapted from MDN Web Docs (developer.mozilla.org) and ECMAScript module semantics. Data size: ~1 page equivalent.
+Content adapted from MDN Web Docs. Data size: ~1 page equivalent.
