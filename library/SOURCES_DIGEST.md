@@ -7,90 +7,92 @@ Table of Contents:
 4. FizzBuzz rules, API, and npm package behavior
 
 1. Array.from behavior and algorithm
-- Signature: Array.from(source[, mapFn[, thisArg]])
-- Source types: iterable (Symbol.iterator) or array-like (length + numeric indices).
-- Steps: if source is null/undefined -> throw TypeError. If mapFn provided and not callable -> throw TypeError. If source is iterable: obtain iterator and repeatedly call next() until done, extract IteratorValue for each step. If not iterable: read length = ToLength(source.length) where ToLength clamps ToInteger(length) to [0, 2^53-1]; iterate i from 0 to length-1 and read source[i]. For each value: if mapFn provided call mapped = Call(mapFn, thisArg, [value, index]) else mapped = value. Assign to newArray[index] and at end set newArray.length and return it.
-- Edge cases: strings iterate by code points (handles surrogate pairs); sparse array-like yields undefined for missing indices; non-callable mapFn -> TypeError; ToLength clamps very large lengths to 2^53-1.
+Signature: Array.from(source[, mapFn[, thisArg]])
+Source types: iterable (Symbol.iterator) or array-like (length + numeric indices).
+Input validation: if source is null or undefined -> throw TypeError. If mapFn provided and not callable -> throw TypeError.
+Iterator path: obtain iterator via GetIterator(source); loop: IteratorNext until done; extract IteratorValue for each step; for each value call mapFn(value, index) if provided with thisArg as this.
+Array-like path: read length = ToLength(source.length) where ToLength clamps ToInteger(length) to the range 0 .. 2^53-1; for i=0..length-1 read source[i]; if mapFn provided call mapFn(value, index) with thisArg.
+Assignment: set newArray[index] = mapped; after iteration set newArray.length = finalIndex and return newArray.
+Edge behaviors: strings iterate by Unicode code points (surrogate pairs handled by string iterator); sparse array-like yields undefined for missing indices; non-callable mapFn raises TypeError; ToLength clamps very large lengths to 2^53-1.
 
 2. ES module export forms and live bindings
-- Named exports: export const A = ...; export function f() {} ; export { local as exported }.
-- Default export: export default expression; import default using import d from 'm'.
-- Aggregate exports: export * from 'module'; export { name as alias } from 'module'.
-- Live binding semantics: exported identifiers are live views into module-local bindings; mutation of exported variables updates imported bindings in other modules.
-- Circular dependency behavior: modules create exported bindings at instantiation; cycles may observe partially initialized bindings; prefer functions to delay usage until after initialization.
-- Re-export patterns: export { x } from 'm' re-exports without creating a local binding; export * excludes default.
+Named exports: export const A = ...; export function f() {} ; export { localName as exportedName }.
+Default export: export default expression; export default function name?() {}; export default class {}.
+Aggregate/re-export: export * from 'module'; export { name1, name2 as local } from 'module'; export { default as alias } from 'module'.
+Live binding semantics: exported identifiers are live views into module-local bindings; importing modules observe mutations to exported bindings.
+Static analysis requirement: exports and imports are statically analyzable at parse/compile time; binding creation happens during module instantiation, evaluation executes code and may leave partially initialized bindings observable in cycles.
+Circular dependency guidance: modules in cycles get exported bindings created at instantiation; consumers may see undefined/temporal values until initialization completes; prefer exposing functions or lazy accessors to avoid reliance on initialization order.
+Re-export specifics: export { name } from 'module' re-exports imported binding without creating a local binding; export * re-exports all named exports except default.
 
 3. Node.js module resolution, package.json "type" and exports
-- Resolution algorithm: resolve specifier to file via exact file match, extension lookup (.js, .json, .node), package.json "exports" and "main" fields, directory index files, and node_modules traversal up parent directories until filesystem root.
-- package.json "type": when set to "module", .js files are parsed as ESM; otherwise .js parsed as CommonJS. Use .mjs for explicit ESM when type is not module.
-- "exports" field pattern: exports: { ".": { "import": "./dist/index.mjs", "require": "./dist/index.cjs" } } allows conditional entry points per import type.
-- CommonJS vs ESM interop: require(ESM) produces a synthetic default export wrapper; import CJS sees namespace with default mapping to module.exports. Transpilers emulate live bindings by defining getters on exports object.
-- Loading phases: resolve -> load (format detection) -> instantiate (create bindings) -> evaluate (run code).
+Resolution algorithm: for a module specifier resolve exact file matches first, then extensions (.js, .json, .node), then package.json "exports" field and index files in directories; for bare specifiers, resolve via node_modules lookup by traversing parent directories until filesystem root.
+package.json "type": set to "module" to treat .js files as ESM; absent or set to "commonjs" means .js is CommonJS; use .mjs to explicitly mark ESM when "type" not set.
+"exports" field pattern: conditional exports example: "exports": { ".": { "import": "./dist/index.mjs", "require": "./dist/index.cjs" } } — resolver selects branch based on import form and environment.
+CommonJS vs ESM interop: when requiring an ESM package, Node provides a synthetic default export wrapper; when importing a CommonJS module from ESM, the module's exports are treated as a namespace with default mapping to module.exports. Transpilers emulate live bindings by defining getters on exports to approximate ESM semantics.
+Loading phases: resolve -> load (detect format) -> instantiate (create bindings) -> evaluate (run module code).
 
 4. FizzBuzz rules, API, and npm package behavior
-- Problem rules: For integer n starting at 1: if divisible by 15 -> "FizzBuzz"; else if divisible by 3 -> "Fizz"; else if divisible by 5 -> "Buzz"; else number as string.
-- Implementation pattern (imperative): for i in range: output = ''; if i%3 === 0 output+='Fizz'; if i%5 ===0 output+='Buzz'; if output==='' output=String(i); push output.
-- Signatures: single-value evaluator signature: fizzbuzzValue(n: number, rules?: Array<[number,string]>) -> string. Range generator: fizzbuzzRange(n: number, rules?) -> Iterable<string>. npm package common API: fizzbuzz(n: number) -> string[]; single evaluator alias fb(n) -> string.
-- Complexity: O(n * r) where r is number of rules; typical implementations are O(n) with O(n) memory for full-range generator or O(1) extra for streaming generators.
+Problem rules: iterate integers starting at start (default 1) to end (inclusive). For each n: if n % 3 === 0 and n % 5 === 0 output "FizzBuzz"; else if n % 3 === 0 output "Fizz"; else if n % 5 === 0 output "Buzz"; else output String(n).
+Ordering: check combined divisibility first (or concatenate labels in sequence) to produce "FizzBuzz" for multiples of 15.
+Variations: configurable rules list of [divisor,label] pairs; outputs can be strings, objects {n, output, matchedDivisors} or streamed via generator/iterator to save memory.
+Complexity: range generator O(n * r) where r is number of rules; single-value evaluation O(r); sequence generator uses O(n) time and O(n) memory unless streaming.
+NPM package "fizzbuzz" typical API signatures (varies by version): fizzbuzz(n: number) -> string[]; fizzbuzz.single(n: number) -> string (alias fb). Parameters: n: integer count or value. Return types: array of strings for range generator; string for single evaluator.
+Installation: npm install fizzbuzz; CommonJS: const fizzbuzz = require('fizzbuzz'); ESM: import fizzbuzz from 'fizzbuzz'.
 
 SUPPLEMENTARY DETAILS
 
 Technical specifications and implementation details:
-- ToLength: ToInteger(length) then clamp between 0 and 2^53-1 (9007199254740991).
-- Iterator protocol: GetIterator(source) -> iterator with next() returning { value, done } until done true; use IteratorValue from result.
-- Live bindings implementation: modules create property descriptors (getters) on import objects referencing module environment records, ensuring observers see updated values.
-- package.json exports conditional resolution: exact key "." maps subpath "/"; nested exports allow fine-grained entry points; unsupported subpath -> throw ERR_MODULE_NOT_FOUND.
-- FizzBuzz rule customization: accept rules as ordered list of [divisor, label]; compute labels by iterating rule list and concatenating when n % divisor === 0.
+- ToLength: ToLength(length) = clamp(ToInteger(length), 0, 2^53-1).
+- Iterator protocol usage: call GetIterator(source) -> iterator object with next(); each iteration step: result = iterator.next(); if result.done true break; value = result.value; process value.
+- Live binding implementation pattern: export creates a binding record; importing modules receive a reference to that binding; runtime updates reflect across modules.
+- package.json exports conditional resolution: exact match keys preferred; nested exports allow path mapping; include both import and require targets for environment-specific entry points.
+- FizzBuzz configuration pattern: rules: Array of objects {divisor: number, label: string}; engine: for each rule if n % divisor === 0 then append label; if none matched return String(n).
 
 REFERENCE DETAILS
 
-API signatures and configuration options:
-- Array.from(source: Iterable|ArrayLike, mapFn?: (value:any, index:number)=>any, thisArg?: any) -> any[]
-  - Errors: TypeError if source null/undefined or mapFn not callable.
-  - ToLength applies to array-like length reading.
+API signatures and concrete patterns:
+Array.from
+- Signature: Array.from(source[, mapFn[, thisArg]]) -> Array
+- Parameters: source: Iterable or Array-like; mapFn?: (value, index) => any; thisArg?: any
+- Return: new Array instance containing mapped values
 
-- ES module exports
-  - export { names } syntax must be statically analyzable; names are resolved at parse/instantiation time.
-  - Re-export exact forms: export { name as alias } from 'module'; export * from 'module' (excludes default).
+ES Module export forms
+- Named export: export const NAME = value;
+- Default export: export default expression;
+- Re-export: export { name as alias } from 'module'; export * from 'module';
+- Live binding effect: exported variable mutation pattern: export let x = initial; x = updated; importers see updated value via the binding reference.
 
-- Node package.json fields
-  - type: "module" | omitted/other -> affects .js parsing mode
-  - exports: object mapping subpaths to entry points; conditional keys: import, require, node, default
-  - example: { "type":"module","main":"dist/index.cjs","exports":{ ".": { "import":"./dist/index.mjs","require":"./dist/index.cjs" } } }
+Node package.json example
+- { "type": "module", "main": "dist/index.cjs", "exports": { ".": { "import": "./dist/index.mjs", "require": "./dist/index.cjs" } } }
+Effect: Node will parse .js files as ESM; importers using ESM will resolve to dist/index.mjs; require() will resolve to dist/index.cjs.
 
-- FizzBuzz npm package (common signatures)
-  - fizzbuzz(n: number) -> string[] (returns 1..n mapped according to rules)
-  - fizzbuzz.single or fb(n: number) -> string
-  - Parameters: n must be integer; behavior for n <= 0 depends on implementation (empty array or throw). Validate inputs.
+FizzBuzz implementation pattern
+- Single value evaluator signature: fizzbuzzValue(n: number, rules?: Array<{divisor:number,label:string}>) -> string
+- Range generator signature: fizzbuzzRange(start: number = 1, end: number, rules?) -> Iterable<string>
+- Imperative implementation pattern:
+  for (let i = start; i <= end; ++i) {
+    let out = '';
+    if (i % 3 === 0) out += 'Fizz';
+    if (i % 5 === 0) out += 'Buzz';
+    if (out === '') out = String(i);
+    push out to result or yield out;
+  }
 
-BEST PRACTICES & TROUBLESHOOTING
-
-Best practices:
-- Prefer using iterable protocol for Array.from inputs when dealing with strings to preserve Unicode code points.
-- Use export bindings rather than copying values to preserve live updates across modules.
-- Set package.json "exports" to restrict public API surface and provide separate ESM/CJS builds.
-- For large FizzBuzz ranges, implement streaming generator to avoid O(n) memory.
-
-Troubleshooting:
-- If Array.from returns unexpected values for strings, ensure the source is an iterable string and not indexed access that breaks surrogate pairs.
-- If module resolution fails, verify package.json "exports" keys and runtime import style (require vs import) match provided conditional exports.
-- If require('fizzbuzz') yields undefined, check module type (ESM vs CJS) and whether the package exposes a default export or named exports; use dynamic import or adjust require interop accordingly.
+Troubleshooting patterns
+- If Array.from throws TypeError: verify source is not null/undefined and mapFn is callable.
+- If ESM imports show undefined bindings in cycles: refactor to use functions or ensure initialization order; avoid relying on top-level evaluated values that depend on other modules in the cycle.
+- If Node resolves incorrect entry: check package.json "exports" and "type" fields; run node --trace-resolve to debug resolution (Node >= relevant version may provide trace flags).
+- If fizzbuzz npm API differs from expectations: inspect node_modules/fizzbuzz/package.json and the module's main file to confirm exported identifiers.
 
 DIGEST
-
-Source list and retrieval date:
-- MDN Array.from — retrieved 2026-03-09
-- MDN export statement — retrieved 2026-03-09
-- Node.js Modules docs — retrieved 2026-03-09
-- npm package "fizzbuzz" — retrieved 2026-03-09
-- Wikipedia Fizz Buzz — retrieved 2026-03-09
-
-Attribution and data size:
-- Sources: MDN Web Docs (Array.from, export), Node.js official documentation, npmjs.com (fizzbuzz package), Wikipedia (Fizz Buzz)
-- Approximate data size aggregated: small (each source ~1 page), total ~5 pages equivalent
-
-[Retrieved: 2026-03-09]
+Source list processed: 
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
+- https://nodejs.org/api/modules.html#modules_exports
+- https://www.npmjs.com/package/fizzbuzz
+- https://en.wikipedia.org/wiki/Fizz_buzz
+Retrieved: 2026-03-09T06:43:01Z
+Data size: small (approx. a few web pages)
 
 ATTRIBUTION
-
-Content compiled from MDN Web Docs, Node.js official documentation, npm package page for "fizzbuzz", and Wikipedia Fizz Buzz article. Data size: ~5 pages equivalent.
+Content adapted from MDN Web Docs (Array.from, export), Node.js documentation (modules), npm package page (fizzbuzz), and Wikipedia (Fizz Buzz). Data size: ~1-3 pages per source; total crawled pages: 5.
