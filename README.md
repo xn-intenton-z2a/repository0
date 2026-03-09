@@ -1,79 +1,43 @@
-# repo
+# repository0 — FizzBuzz Feature
 
-This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests on a schedule.
+This repository demonstrates a small library feature: FizzBuzz, with full unit tests, a browser demo, Playwright behaviour tests, and documentation.
 
-## Getting Started
+Usage
 
-1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
-2. **Configure GitHub** — see [Setup](#setup) below
-3. **Push to main** — the autonomous workflows take over from here
+- Library API (node):
 
-The system will create issues from your mission, generate code to resolve them, run tests, and open PRs. A supervisor agent orchestrates the pipeline, and you can interact through GitHub Discussions.
-
-## Setup
-
-### Required Secrets
-
-Add these in your repository: **Settings → Secrets and variables → Actions → New repository secret**
-
-| Secret | How to create | Purpose |
-|--------|---------------|---------|
-| `COPILOT_GITHUB_TOKEN` | [Fine-grained PAT](https://github.com/settings/tokens?type=beta) with **GitHub Copilot** → Read permission | Authenticates with the Copilot SDK for all agentic tasks |
-| `WORKFLOW_TOKEN` | [Classic PAT](https://github.com/settings/tokens) with **workflow** scope | Allows `init.yml` to update workflow files (GITHUB_TOKEN cannot modify `.github/workflows/`) |
-
-### Repository Settings
-
-| Setting | Where | Value |
-|---------|-------|-------|
-| GitHub Actions | Settings → Actions → General | Allow all actions |
-| Workflow permissions | Settings → Actions → General | Read and write permissions |
-| Allow GitHub Actions to create PRs | Settings → Actions → General | Checked |
-| GitHub Discussions | Settings → General → Features | Enabled (for the discussions bot) |
-
-### Optional: Branch Protection
-
-For production repositories, consider adding branch protection on `main`:
-- Require pull request reviews before merging
-- Require status checks to pass (select the `test` workflow)
-
-## How It Works
-
-```
-MISSION.md → [supervisor] → dispatch workflows → Issue → Code → Test → PR → Merge
-                                                    ↑                          |
-                                                    +——————————————————————————+
+```js
+import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js';
+console.log(fizzBuzz(15));
+console.log(fizzBuzzSingle(3));
 ```
 
-The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context (issues, PRs, workflow runs, features) and strategically dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
+- CLI:
 
-## Configuration
+Run `npm run start:cli` or `node src/lib/main.js` to print FizzBuzz for n=100 to stdout (one entry per line).
 
-Edit `agentic-lib.toml` to tune the system:
+Testing
 
-```toml
-[schedule]
-supervisor = "daily"    # off | weekly | daily | hourly | continuous
+- Unit tests: `npm test`
+- Behaviour tests (Playwright): `npm run test:behaviour` (this runs `npm run build:web` then Playwright)
 
-[paths]
-mission = "MISSION.md"
-source = "src/lib/"
-tests = "tests/unit/"
+Website demo
 
-[limits]
-max-feature-issues = 2      # max concurrent feature issues
-max-attempts-per-issue = 2   # max retries per issue
+- Build the web demo: `npm run build:web` (this copies `src/web/*` to `docs/`)
+- Serve the demo locally: `npm run start` and open `http://localhost:3000/fizzbuzz.html` or visit the built `docs/fizzbuzz.html`.
+
+Examples
+
+- `fizzBuzz(15)` returns:
+
+```
+["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]
 ```
 
-## Updating
+- `fizzBuzzSingle(5)` returns `"Buzz"`.
 
-The `init.yml` workflow runs daily and updates the agentic infrastructure automatically. To update manually:
+Notes
 
-```bash
-npx @xn-intenton-z2a/agentic-lib@latest init
-```
+- Input validation: all functions throw `TypeError` with message exactly "n must be a non-negative integer" when called with invalid inputs (non-number, non-integer, or negative).
 
-## Links
-
-- [MISSION.md](MISSION.md) — your project goals
-- [agentic-lib documentation](https://github.com/xn-intenton-z2a/agentic-lib) — full SDK docs
-- [intentïon website](https://xn--intenton-z2a.com)
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
