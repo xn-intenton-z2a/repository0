@@ -120,19 +120,19 @@ Best practices
 
 5. Detailed Digest and Retrieval Metadata
 
-Sources processed (as listed in SOURCES.md):
-- https://en.wikipedia.org/wiki/Fizz_buzz
-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
-- https://nodejs.org/api/esm.html
-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError
-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError
-- https://vitest.dev/guide/
-- https://www.npmjs.com/package/fizzbuzz
+Sources processed and fetch status:
+- https://en.wikipedia.org/wiki/Fizz_buzz  — fetched successfully (content used)
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export  — fetched successfully (truncated by fetch tool in places)
+- https://nodejs.org/api/esm.html  — fetched successfully (truncated in places)
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger  — fetched successfully
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError  — fetched successfully
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError  — fetched successfully
+- https://vitest.dev/guide/  — fetched successfully (truncated in places)
+- https://www.npmjs.com/package/fizzbuzz  — fetch attempt returned HTTP 403 (not included)
 
-Date retrieved: 2026-03-09 (source list supplied in repository on this date)
+Date retrieved: 2026-03-09T22:53:33.480Z (UTC)
 
-Notes on retrieval: content was supplied as source list in repository SOURCES.md; direct HTTP crawl not performed by this document generator; technical details are distilled from canonical knowledge of these references and the repository package.json test/script configuration.
+Notes on retrieval: web fetches were executed for the listed URLs; seven pages returned content which was used to extract technical details. Several long pages were truncated by the fetch tool; consult original canonical pages for full examples and edge-case discussion.
 
 6. Attribution and Data Size
 
