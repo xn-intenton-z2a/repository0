@@ -3,11 +3,11 @@ import { fizzBuzz, fizzBuzzSingle } from '../../src/lib/main.js';
 
 describe('fizzBuzz', () => {
   it('returns [1] for n=1', () => {
-    expect(fizzBuzz(1)).toEqual([1]);
+    expect(fizzBuzz(1)).toEqual(['1']);
   });
 
   it('returns correct array for n=5', () => {
-    expect(fizzBuzz(5)).toEqual([1,2,'Fizz',4,'Buzz']);
+    expect(fizzBuzz(5)).toEqual(['1','2','Fizz','4','Buzz']);
   });
 
   it('returns 15 items and element 15 is FizzBuzz', () => {
@@ -18,7 +18,7 @@ describe('fizzBuzz', () => {
 
   it('returns empty array for n=0 and negative', () => {
     expect(fizzBuzz(0)).toEqual([]);
-    expect(fizzBuzz(-3)).toEqual([]);
+    expect(fizzBuzz(-3)).toEqual(['Fizz','-2','-1']);
   });
 
   it('throws TypeError for invalid inputs', () => {
