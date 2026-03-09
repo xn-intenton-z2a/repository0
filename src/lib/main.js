@@ -17,29 +17,38 @@ export function getIdentity() {
   return { name, version, description };
 }
 
+// Validate integer helper
+function _assertInteger(value, fnName, allowZero = false) {
+  if (typeof value !== 'number' || !Number.isInteger(value)) {
+    throw new TypeError(`${fnName}: expected integer`);
+  }
+  if (allowZero) {
+    if (value < 0) throw new RangeError(`${fnName}: expected non-negative integer`);
+  } else {
+    if (value < 1) throw new RangeError(`${fnName}: expected positive integer`);
+  }
+}
+
 // Return the FizzBuzz string for a single positive integer i
 export function fizzBuzzSingle(i) {
-  if (typeof i !== 'number' || !Number.isInteger(i) || i < 1) {
-    throw new TypeError('n must be a non-negative integer');
-  }
+  _assertInteger(i, 'fizzBuzzSingle', false);
   const by3 = (i % 3 === 0);
   const by5 = (i % 5 === 0);
-  if (by3 && by5) return 'FizzBuzz';
-  if (by3) return 'Fizz';
-  if (by5) return 'Buzz';
+  if (by3 && by5) return 'fizzbuzz';
+  if (by3) return 'fizz';
+  if (by5) return 'buzz';
   return String(i);
 }
 
-// Return an array of FizzBuzz strings from 1..n (1-indexed). n must be a non-negative integer.
-export function fizzBuzz(n) {
-  if (typeof n !== 'number' || !Number.isInteger(n) || n < 0) {
-    throw new TypeError('n must be a non-negative integer');
-  }
+// Return an array of FizzBuzz strings from start..n (inclusive). opts: { start }
+export function fizzBuzz(n, opts = {}) {
+  _assertInteger(n, 'fizzBuzz', true); // allow zero
   if (n === 0) return [];
+  const start = opts && opts.start !== undefined ? opts.start : 1;
+  _assertInteger(start, 'fizzBuzz: opts.start', true);
+  if (start > n) return [];
   const out = [];
-  for (let i = 1; i <= n; i++) {
-    out.push(fizzBuzzSingle(i));
-  }
+  for (let i = start; i <= n; i++) out.push(fizzBuzzSingle(i));
   return out;
 }
 

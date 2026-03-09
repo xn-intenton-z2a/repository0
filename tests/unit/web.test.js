@@ -37,6 +37,6 @@ describe("Website", () => {
   test('library wiring spot-check', () => {
     // ensure library function exists and works
     expect(typeof fizzBuzz).toBe('function');
-    expect(fizzBuzz(3)).toEqual(['1','2','Fizz']);
+    expect(fizzBuzz(3)).toEqual(['1','2','fizz']);
   });
 });
