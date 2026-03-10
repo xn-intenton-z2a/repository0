@@ -357,3 +357,91 @@ Extracted canonical conversion rules and API contracts from the repository's SOU
 Maintained library (0 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-10T03:34:50.280Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 45000 (in: 41055, out: 3945)
+**Duration:** 45s (~0.8 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22885830804](https://github.com/xn-intenton-z2a/repository0/actions/runs/22885830804)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 9/32 | 23 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 0/32 | 32 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 1 open issue(s) remain. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 1 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 9/32 | < 32 | OK |
+| Cumulative transforms | 9 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Updated the features directory by replacing the exhaustive-test feature file with a README-focused feature spec so the repository includes a clear, testable README, runnable examples, and links to tests and the demo.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-10T03:35:47.944Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 104360 (in: 99246, out: 5114)
+**Duration:** 57s (~1.0 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22885830804](https://github.com/xn-intenton-z2a/repository0/actions/runs/22885830804)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 10/32 | 22 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 0/32 | 32 remaining |  |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 1 open issue(s) remain. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 1 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 10/32 | < 32 | OK |
+| Cumulative transforms | 10 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Created a normalized technical document from the listed Roman numeral sources to provide exact mappings, algorithms, validation regex, API method signatures, and Project Euler rules for implementation.
+
+Maintained library (0 docs, limit 32)
+
+---

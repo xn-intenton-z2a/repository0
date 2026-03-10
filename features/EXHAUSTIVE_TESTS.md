@@ -1,36 +1,82 @@
-# EXHAUSTIVE_TESTS
+# README_DOCS
 
 # Summary
 
-Add a focused feature that implements exhaustive unit tests asserting the library preserves the round-trip property for the complete valid integer domain (1–3999). The tests ensure fromRoman(toRoman(n)) === n for every valid n and document execution considerations so maintainers can run or skip the suite as needed.
+Provide a single, testable feature that ensures the project README fully documents the library API, the CLI, and the web demo, includes a clear conversion table and usage examples, and links to the canonical behaviour and validation rules. The README will be the authoritative quick-start and reference for users integrating or testing the roman numerals library.
 
 # Motivation
 
-The library's core correctness requirement is the round-trip invariant across the full permitted range. Representative tests are valuable, but an exhaustive programmatic check provides the strongest guardrail against regressions, especially when automated agents or refactors modify conversion logic.
+The mission centers on a small but exact library: correct, well-specified conversions between integers and Roman numerals. A comprehensive README reduces user confusion, documents error behaviours (RangeError/TypeError), demonstrates round-trip correctness, and provides copy-paste examples for library, CLI, and web demo usage — increasing adoption and easing maintenance.
 
 # Scope
 
-- Create a single unit test file under tests/unit/exhaustive.test.js that:
-  - Imports the named exports toRoman and fromRoman from src/lib/main.js (or the built docs lib-main.js helper when appropriate for the test runner environment).
-  - Iterates integers 1 through 3999 and asserts fromRoman(toRoman(n)) === n.
-  - Asserts toRoman throws RangeError for values 0 and 4000 and that fromRoman throws TypeError for a selection of malformed examples (e.g., IIII, VV, IL).
-- Keep the test deterministic and reasonably fast. If necessary, provide a short note in the test to skip or gate the exhaustive loop with an environment variable (EXHAUSTIVE_TESTS=false) to avoid CI timeouts; default behaviour in CI should run the loop.
-- Update tests only; no library code changes are required for this feature.
+- Update README.md to include:
+  - A short project summary that mirrors MISSION.md intent.
+  - Installation and quick-start code examples for library usage (toRoman and fromRoman named imports).
+  - CLI usage examples demonstrating --to-roman and --from-roman and the --lenient/--strict flags where applicable.
+  - Web demo section describing how to run the demo (npm run start) and the global demo wrapper functions.
+  - A canonical conversion table with key example mappings and boundary examples (1, 4, 9, 40, 90, 400, 900, 1994, 3999).
+  - Error handling notes documenting which errors are thrown (RangeError for out of range, TypeError for invalid roman strings in strict mode) and how to enable lenient parsing if STRICT_VALIDATION feature is present.
+  - A short testing note describing the exhaustive check test (how to run and how to opt-out via EXHAUSTIVE_TESTS environment variable if present) and links to unit test files.
 
-# Implementation notes
+- Add short runnable examples in examples/ that are small JS files showing: import { toRoman, fromRoman } from 'src/lib/main.js' and using the CLI via npm run start:cli examples.
 
-- Use the existing test runner (vitest) and project test conventions.
-- Keep assertions simple and idiomatic: strict equality for round-trip checks and throws for error cases.
-- If performance becomes an issue, the test may be guarded by process.env.EXHAUSTIVE_TESTS !== 'false'. Document this guard in the test file header comment.
+- Keep the README succinct and copyable: users should be able to run examples verbatim.
+
+# API examples to include (exact text for README)
+
+- Library usage
+
+Import named exports and use them:
+
+const { toRoman, fromRoman } = require('./src/lib/main.js');
+console.log(toRoman(1994)); // MCMXCIV
+console.log(fromRoman('MCMXCIV')); // 1994
+
+- CLI usage
+
+node src/lib/main.js --to-roman 1994
+node src/lib/main.js --from-roman MCMXCIV
+node src/lib/main.js --from-roman IIII --lenient
+
+# Canonical conversion table (to show in README)
+
+1 I
+4 IV
+9 IX
+40 XL
+90 XC
+400 CD
+900 CM
+1994 MCMXCIV
+3999 MMMCMXCIX
+
+# Tests and behaviour notes
+
+- Document where unit tests live (tests/unit/) and how to run them (npm test).
+- Note the exhaustive round-trip test exists and how to skip it if needed (EXHAUSTIVE_TESTS=false). If the repo contains STRICT_VALIDATION feature, document default strict behaviour and the optional lenient mode option for fromRoman.
 
 # Acceptance criteria
 
-- A new test file tests/unit/exhaustive.test.js exists and runs under npm test.
-- The exhaustive round-trip assertion passes: fromRoman(toRoman(n)) === n for every n in 1..3999 when the guard is enabled.
-- toRoman(0) and toRoman(4000) throw RangeError as expected.
-- fromRoman rejects clearly malformed inputs by throwing TypeError for examples such as IIII, VV, IL.
-- The test file documents how to disable the exhaustive loop via EXHAUSTIVE_TESTS=false if needed.
+- README.md contains a Quick Start section showing both library and CLI examples that run without modification.
+- README includes the canonical conversion table with the listed examples.
+- README documents thrown error types and recommended handling (RangeError and TypeError) and the behaviour of lenient parsing if available.
+- README links to the demo and describes how to start it (npm run start) and the CLI (npm run start:cli).
+- Examples/ contains at least one small JS example that can be executed to demonstrate toRoman and fromRoman usages.
+- Unit tests remain the authoritative checks: README references the tests and how to run them; no behavioural change to library is made by this feature.
+
+# Implementation notes
+
+- Make minimal, non-breaking text edits to README.md; include exact example commands and code blocks that are safe to copy.
+- Add example files into examples/ that are short and reference relative path imports so they work locally in the repo.
+- Keep language clear about strict vs lenient parsing; prefer explicit examples that show both behaviours.
+
+# Deliverables
+
+- Updated README.md with all sections described above.
+- One or two example JS files in examples/ demonstrating library and CLI usage.
+- A brief line in README referencing the exhaustive test and how to skip it with EXHAUSTIVE_TESTS=false if the exhaustive test file is present.
 
 # Notes
 
-This feature complements existing STRICT_VALIDATION and ensures the library's core invariant is continuously validated by unit tests without changing runtime behaviour of the library API.
+This feature is documentation-first and small in code impact; it aids adoption, testing, and reduces support overhead by making the library behaviour explicit and demonstrable in a single repository.
