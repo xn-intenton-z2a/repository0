@@ -7,6 +7,7 @@ export default defineConfig({
   timeout: 30000,
   use: {
     baseURL: "http://localhost:3000",
+    timezoneId: "America/New_York",
   },
   webServer: {
     command: "npx serve docs -l 3000",
