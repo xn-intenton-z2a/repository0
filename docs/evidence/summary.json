@@ -1,8 +1,0 @@
-{
-  "library": "hamming-distance",
-  "tests": {
-    "unit": "passing",
-    "behaviour": "smoke"
-  },
-  "examples": "docs/examples/demo-output.json"
-}

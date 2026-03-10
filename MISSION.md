@@ -1,26 +1,30 @@
 # Mission
 
-A JavaScript library exporting Hamming distance functions.
+A JavaScript library for converting between integers and Roman numeral strings.
 
 ## Core Functions
 
-- `hammingDistance(a, b)` — compute the Hamming distance between two strings of equal length (number of positions where characters differ). Throw an error if the strings have different lengths.
-- `hammingDistanceBits(x, y)` — compute the Hamming distance between two non-negative integers (count the number of differing bits).
+- `toRoman(n)` — convert an integer (1–3999) to its Roman numeral representation using subtractive notation (IV, IX, XL, XC, CD, CM).
+- `fromRoman(s)` — convert a Roman numeral string back to an integer.
 
 ## Requirements
 
-- Handle Unicode strings correctly (compare code points, not UTF-16 code units).
-- Validate inputs: throw `TypeError` for non-string/non-integer arguments, `RangeError` for unequal-length strings or negative integers.
+- Throw `RangeError` for numbers outside 1–3999.
+- Throw `TypeError` for invalid Roman numeral strings.
+- Handle subtractive notation correctly (e.g. IV = 4, not IIII).
+- The round-trip property must hold: `fromRoman(toRoman(n)) === n` for all valid n.
 - Export both functions as named exports from `src/lib/main.js`.
-- Comprehensive unit tests covering normal cases, edge cases (empty strings, zero, large integers), and error cases.
-- README with usage examples and API documentation.
+- Comprehensive unit tests including boundary values (1, 3999), subtractive cases, and invalid inputs.
+- README with usage examples and conversion table.
 
 ## Acceptance Criteria
 
-- [ ] `hammingDistance("karolin", "kathrin")` returns `3`
-- [ ] `hammingDistance("", "")` returns `0`
-- [ ] `hammingDistance("a", "bb")` throws `RangeError`
-- [ ] `hammingDistanceBits(1, 4)` returns `2` (binary: 001 vs 100)
-- [ ] `hammingDistanceBits(0, 0)` returns `0`
+- [ ] `toRoman(1994)` returns `"MCMXCIV"`
+- [ ] `fromRoman("MCMXCIV")` returns `1994`
+- [ ] `toRoman(4)` returns `"IV"`
+- [ ] `fromRoman(toRoman(n)) === n` for all n in 1–3999
+- [ ] `toRoman(0)` throws `RangeError`
+- [ ] `toRoman(4000)` throws `RangeError`
+- [ ] `fromRoman("IIII")` throws or returns `4` (accept either; document the choice)
 - [ ] All unit tests pass
 - [ ] README documents usage with examples

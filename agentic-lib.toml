@@ -134,7 +134,7 @@ library-limit = 64                     # max library entries in library/ directo
 log-file = "intentïon.md"
 
 [init]
-timestamp = "2026-03-10T02:15:09.024Z"
+timestamp = "2026-03-10T02:59:19.589Z"
 mode = "purge"
-mission = "hamming-distance"
+mission = "roman-numerals"
 version = "7.2.1"
