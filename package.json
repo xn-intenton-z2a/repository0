@@ -1,7 +1,7 @@
 {
   "name": "repo",
   "version": "0.1.0",
-  "description": "",
+  "description": "FizzBuzz demo library",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {

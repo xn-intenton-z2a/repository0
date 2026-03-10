@@ -1,28 +1,21 @@
-// SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
-import { describe, test, expect } from "vitest";
-import { readFileSync, existsSync } from "fs";
+import { describe, it, expect } from 'vitest';
+import fs from 'fs';
+import path from 'path';
 
-describe("Website", () => {
-  test("src/web/index.html exists", () => {
-    expect(existsSync("src/web/index.html")).toBe(true);
+describe('web index.html structure and wiring', () => {
+  it('contains expected elements and imports', async () => {
+    const html = fs.readFileSync(path.resolve('src/web/index.html'), 'utf8');
+    expect(html).toContain('id="lib-name"');
+    expect(html).toContain('id="lib-version"');
+    expect(html).toContain('id="demo-output"');
+    expect(html).toContain("import('./lib-meta.js')");
+    expect(html).toContain("import('./browser-lib.js')");
   });
 
-  test("index.html contains valid HTML structure", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain("<!DOCTYPE html>");
-    expect(html).toContain("<html");
-    expect(html).toContain("</html>");
-  });
-
-  test("index.html imports the library via lib-meta.js", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain("lib-meta.js");
-  });
-
-  test("index.html displays library identity elements", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain("lib-name");
-    expect(html).toContain("lib-version");
+  it('browser-lib exports fizzBuzz function', async () => {
+    const browserLib = await import('../../src/web/browser-lib.js');
+    expect(typeof browserLib.fizzBuzz).toBe('function');
+    const out = browserLib.fizzBuzz(5);
+    expect(out).toEqual(['1','2','Fizz','4','Buzz']);
   });
 });
