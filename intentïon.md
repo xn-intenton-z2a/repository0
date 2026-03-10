@@ -181,3 +181,91 @@ Extracted Roman numeral implementation rules and algorithms from SOURCES.md URLs
 Maintained library (0 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-10T03:18:25.405Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 57949 (in: 56097, out: 1852)
+**Duration:** 39s (~0.6 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22885448418](https://github.com/xn-intenton-z2a/repository0/actions/runs/22885448418)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 5/32 | 27 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 0/32 | 32 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 1 open issue(s) remain. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 1 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 5/32 | < 32 | OK |
+| Cumulative transforms | 5 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Created an exhaustive-tests feature spec to verify fromRoman(toRoman(n)) === n for all valid n and to assert expected errors for out-of-range and malformed inputs.
+
+Maintained features (3 existing, limit 4)
+
+---
+## maintain-library at 2026-03-10T03:19:55.687Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 87101 (in: 81922, out: 5179)
+**Duration:** 90s (~1.5 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22885448418](https://github.com/xn-intenton-z2a/repository0/actions/runs/22885448418)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 6/32 | 26 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 0/32 | 32 remaining |  |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 1 open issue(s) remain. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 1 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 6/32 | < 32 | OK |
+| Cumulative transforms | 6 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Extracted canonical Roman numeral rules, conversion algorithms, regex validation, API signatures, implementation patterns, and provenance from SOURCES.md to produce a single actionable reference document.
+
+Maintained library (0 docs, limit 32)
+
+---
