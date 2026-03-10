@@ -1,0 +1,4 @@
+1994 -> MCMXCIV
+4 -> IV
+1 -> I
+3999 -> MMMCMXCIX

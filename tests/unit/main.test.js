@@ -1,26 +1,34 @@
-// SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
-import { describe, test, expect } from "vitest";
-import { main, getIdentity, name, version, description } from "../../src/lib/main.js";
+import { describe, it, expect } from 'vitest';
+import { toRoman, fromRoman } from '../../src/lib/main.js';
 
-describe("Main Output", () => {
-  test("should terminate without error", () => {
-    process.argv = ["node", "src/lib/main.js"];
-    main();
-  });
-});
-
-describe("Library Identity", () => {
-  test("exports name, version, and description", () => {
-    expect(typeof name).toBe("string");
-    expect(typeof version).toBe("string");
-    expect(typeof description).toBe("string");
-    expect(name.length).toBeGreaterThan(0);
-    expect(version).toMatch(/^\d+\.\d+\.\d+/);
+describe('Roman numeral conversions', () => {
+  it('toRoman(1994) -> MCMXCIV', () => {
+    expect(toRoman(1994)).toBe('MCMXCIV');
   });
 
-  test("getIdentity returns correct structure", () => {
-    const identity = getIdentity();
-    expect(identity).toEqual({ name, version, description });
+  it('fromRoman("MCMXCIV") -> 1994', () => {
+    expect(fromRoman('MCMXCIV')).toBe(1994);
   });
+
+  it('toRoman(4) -> IV', () => {
+    expect(toRoman(4)).toBe('IV');
+  });
+
+  it('toRoman throws RangeError for 0 and 4000', () => {
+    expect(() => toRoman(0)).toThrow(RangeError);
+    expect(() => toRoman(4000)).toThrow(RangeError);
+  });
+
+  it('fromRoman rejects non-canonical numerals like "IIII"', () => {
+    expect(() => fromRoman('IIII')).toThrow(TypeError);
+    expect(() => fromRoman('ABC')).toThrow(TypeError);
+  });
+
+  it('round-trip property holds for 1..3999', () => {
+    for (let n = 1; n <= 3999; n++) {
+      const r = toRoman(n);
+      const back = fromRoman(r);
+      expect(back).toBe(n);
+    }
+  }, 20000);
 });
