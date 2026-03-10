@@ -26,8 +26,8 @@ export async function transform(context) {
     return { outcome: "nop", details: "No mission file found" };
   }
 
-  // Check mission-complete signal
-  if (existsSync("MISSION_COMPLETE.md")) {
+  // Check mission-complete signal (skip in maintenance mode)
+  if (existsSync("MISSION_COMPLETE.md") && config.supervisor !== "maintenance") {
     core.info("Mission is complete — skipping transformation (MISSION_COMPLETE.md exists)");
     return { outcome: "nop", details: "Mission already complete (MISSION_COMPLETE.md signal)" };
   }

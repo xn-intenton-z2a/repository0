@@ -19,8 +19,8 @@ export async function maintainFeatures(context) {
   const { config, instructions, writablePaths, model, octokit, repo } = context;
   const t = config.tuning || {};
 
-  // Check mission-complete signal
-  if (existsSync("MISSION_COMPLETE.md")) {
+  // Check mission-complete signal (skip in maintenance mode)
+  if (existsSync("MISSION_COMPLETE.md") && config.supervisor !== "maintenance") {
     return { outcome: "nop", details: "Mission already complete (MISSION_COMPLETE.md signal)" };
   }
 

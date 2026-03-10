@@ -847,7 +847,8 @@ export async function supervise(context) {
 
   // Strategy A: Deterministic mission-complete fallback
   // If the LLM didn't choose mission-complete but conditions are clearly met, auto-execute it.
-  if (!ctx.missionComplete && !ctx.missionFailed) {
+  // Skip in maintenance mode — maintenance keeps running regardless of mission status.
+  if (!ctx.missionComplete && !ctx.missionFailed && config.supervisor !== "maintenance") {
     const llmChoseMissionComplete = results.some((r) => r.startsWith("mission-complete:"));
     if (!llmChoseMissionComplete) {
       const resolvedCount = ctx.recentlyClosedSummary.filter((s) => s.includes("RESOLVED")).length;

@@ -502,12 +502,16 @@ jobs:
       - name: Check mission-complete signal
         id: mission-check
         run: |
-          if [ -f MISSION_COMPLETE.md ]; then
+          SUPERVISOR=$(grep '^\s*supervisor\s*=' agentic-lib.toml 2>/dev/null | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/')
+          if [ -f MISSION_COMPLETE.md ] && [ "$SUPERVISOR" != "maintenance" ]; then
             echo "mission-complete=true" >> $GITHUB_OUTPUT
             echo "Mission is complete — skipping budget-consuming tasks"
             cat MISSION_COMPLETE.md
           else
             echo "mission-complete=false" >> $GITHUB_OUTPUT
+            if [ "$SUPERVISOR" = "maintenance" ] && [ -f MISSION_COMPLETE.md ]; then
+              echo "Maintenance mode — ignoring MISSION_COMPLETE.md"
+            fi
           fi
 
       - uses: actions/setup-node@v6
@@ -662,7 +666,8 @@ jobs:
       - name: Check mission-complete signal
         id: fix-mission-check
         run: |
-          if [ -f MISSION_COMPLETE.md ]; then
+          SUPERVISOR=$(grep '^\s*supervisor\s*=' agentic-lib.toml 2>/dev/null | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/')
+          if [ -f MISSION_COMPLETE.md ] && [ "$SUPERVISOR" != "maintenance" ]; then
             echo "mission-complete=true" >> $GITHUB_OUTPUT
             echo "Mission is complete — skipping fix-stuck"
           else
@@ -1039,12 +1044,16 @@ jobs:
       - name: Check mission-complete signal
         id: dev-mission-check
         run: |
-          if [ -f MISSION_COMPLETE.md ]; then
+          SUPERVISOR=$(grep '^\s*supervisor\s*=' agentic-lib.toml 2>/dev/null | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/')
+          if [ -f MISSION_COMPLETE.md ] && [ "$SUPERVISOR" != "maintenance" ]; then
             echo "mission-complete=true" >> $GITHUB_OUTPUT
             echo "Mission is complete — skipping dev transformation"
             cat MISSION_COMPLETE.md
           else
             echo "mission-complete=false" >> $GITHUB_OUTPUT
+            if [ "$SUPERVISOR" = "maintenance" ] && [ -f MISSION_COMPLETE.md ]; then
+              echo "Maintenance mode — ignoring MISSION_COMPLETE.md"
+            fi
           fi
 
       - name: Find target issue
