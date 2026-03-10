@@ -50,7 +50,7 @@ function buildMissionMetrics(config, result, limitsStatus, cumulativeCost, featu
   const metrics = [
     { metric: "Open issues", value: String(openIssues), target: "0", status: openIssues === 0 ? "MET" : "NOT MET" },
     { metric: "Open PRs", value: String(openPrs), target: "0", status: openPrs === 0 ? "MET" : "NOT MET" },
-    { metric: "Issues closed by review (RESOLVED)", value: String(resolvedCount), target: ">= 1", status: resolvedCount >= 1 ? "MET" : "NOT MET" },
+    { metric: "Issues resolved (review or PR merge)", value: String(resolvedCount), target: ">= 1", status: resolvedCount >= 1 ? "MET" : "NOT MET" },
     { metric: "Transformation budget used", value: `${cumulativeCost}/${budgetCap}`, target: budgetCap > 0 ? `< ${budgetCap}` : "unlimited", status: budgetCap > 0 && cumulativeCost >= budgetCap ? "EXHAUSTED" : "OK" },
     { metric: "Cumulative transforms", value: String(cumulativeCost), target: ">= 1", status: cumulativeCost >= 1 ? "MET" : "NOT MET" },
     { metric: "Mission complete declared", value: missionComplete ? "YES" : "NO", target: "—", status: "—" },
@@ -66,7 +66,7 @@ function buildMissionMetrics(config, result, limitsStatus, cumulativeCost, featu
 function buildMissionReadiness(metrics) {
   const openIssues = parseInt(metrics.find((m) => m.metric === "Open issues")?.value || "0", 10);
   const openPrs = parseInt(metrics.find((m) => m.metric === "Open PRs")?.value || "0", 10);
-  const resolved = parseInt(metrics.find((m) => m.metric === "Issues closed by review (RESOLVED)")?.value || "0", 10);
+  const resolved = parseInt(metrics.find((m) => m.metric === "Issues resolved (review or PR merge)")?.value || "0", 10);
   const missionComplete = metrics.find((m) => m.metric === "Mission complete declared")?.value === "YES";
   const missionFailed = metrics.find((m) => m.metric === "Mission failed declared")?.value === "YES";
 
@@ -82,12 +82,12 @@ function buildMissionReadiness(metrics) {
 
   if (conditionsMet) {
     parts.push("Mission complete conditions ARE met.");
-    parts.push(`0 open issues, 0 open PRs, ${resolved} issue(s) closed by review as RESOLVED.`);
+    parts.push(`0 open issues, 0 open PRs, ${resolved} issue(s) resolved.`);
   } else {
     parts.push("Mission complete conditions are NOT met.");
     if (openIssues > 0) parts.push(`${openIssues} open issue(s) remain.`);
     if (openPrs > 0) parts.push(`${openPrs} open PR(s) remain.`);
-    if (resolved < 1) parts.push("No issues have been closed by review as RESOLVED yet.");
+    if (resolved < 1) parts.push("No issues have been resolved yet.");
   }
 
   return parts.join(" ");
