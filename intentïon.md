@@ -93,3 +93,91 @@ Added authoritative technical references to SOURCES.md to support implementing e
 Discovered sources for SOURCES.md from mission
 
 ---
+## maintain-features at 2026-03-10T21:04:08.538Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 31503 (in: 28271, out: 3232)
+**Duration:** 44s (~0.7 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22924153813](https://github.com/xn-intenton-z2a/repository0/actions/runs/22924153813)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 3/32 | 29 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 2/4 | 2 remaining |  |
+| library | 0/32 | 32 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 0 | 0 | MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 3/32 | < 32 | OK |
+| Cumulative transforms | 3 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Created a new MATH_PARSER feature spec to define a secure, testable math expression parser and compiler so expression evaluation is deterministic and safe for plotting.
+
+Maintained features (1 existing, limit 4)
+
+---
+## maintain-library at 2026-03-10T21:07:59.074Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 119483 (in: 104635, out: 14848)
+**Duration:** 230s (~3.8 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22924153813](https://github.com/xn-intenton-z2a/repository0/actions/runs/22924153813)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 4/32 | 28 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 2/4 | 2 remaining | n/a |
+| library | 0/32 | 32 remaining |  |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 0 | 0 | MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 4/32 | < 32 | OK |
+| Cumulative transforms | 4 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Created a single normalized library document (PLOT_STACK) consolidating APIs, implementation patterns, and exact CSV rules from the crawled sources to support plotting, expression evaluation, image rendering, CLI handling, and CSV export.
+
+Maintained library (0 docs, limit 32)
+
+---
