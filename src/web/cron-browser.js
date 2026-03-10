@@ -96,8 +96,10 @@ export function matches(expression, date) {
 
   const f = parsed.fields;
   if (!matchesField(f.month, mo)) return false;
-  if (!matchesField(f.dayOfMonth, dom)) return false;
-  if (!matchesField(f.dayOfWeek, dow)) return false;
+  // cron semantics: if both day fields are restricted, either matching field is sufficient
+  const domMatch = matchesField(f.dayOfMonth, dom);
+  const dowMatch = matchesField(f.dayOfWeek, dow);
+  if (!domMatch && !dowMatch) return false;
   if (!matchesField(f.hours, hr)) return false;
   if (!matchesField(f.minutes, min)) return false;
   if (parsed.hasSeconds) {
