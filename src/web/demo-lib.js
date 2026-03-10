@@ -1,38 +1,4 @@
-#!/usr/bin/env node
-// src/lib/main.js
-
-import { createRequire } from "module";
-import { fileURLToPath } from "url";
-
-const require = createRequire(import.meta.url);
-const pkg = require("../../package.json");
-
-export const name = pkg.name;
-export const version = pkg.version;
-export const description = pkg.description;
-
-export function getIdentity() {
-  return { name, version, description };
-}
-
-export function main(args) {
-  if (args?.includes("--version")) {
-    console.log(version);
-    return;
-  }
-  if (args?.includes("--identity")) {
-    console.log(JSON.stringify(getIdentity(), null, 2));
-    return;
-  }
-  console.log(`${name}@${version}`);
-}
-
-/**
- * Compute the Hamming distance between two strings, comparing Unicode code points.
- * @param {string} a
- * @param {string} b
- * @returns {number}
- */
+// Browser-friendly demo copy of the library functions for the website
 export function hammingDistance(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') {
     throw new TypeError('hammingDistance expects two strings');
@@ -49,13 +15,6 @@ export function hammingDistance(a, b) {
   return diff;
 }
 
-/**
- * Compute the Hamming distance between two non-negative integers (count differing bits).
- * Accepts Number (integer >= 0) or BigInt.
- * @param {number|bigint} x
- * @param {number|bigint} y
- * @returns {number}
- */
 export function hammingDistanceBits(x, y) {
   const isNumber = (v) => typeof v === 'number';
   const isBigInt = (v) => typeof v === 'bigint';
@@ -81,13 +40,17 @@ export function hammingDistanceBits(x, y) {
   let xor = bx ^ by;
   let count = 0;
   while (xor) {
-    xor &= xor - 1n; // remove lowest set bit
+    xor &= xor - 1n;
     count++;
   }
   return count;
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2);
-  main(args);
+export function demoResults() {
+  return {
+    example1: { a: 'karolin', b: 'kathrin', distance: hammingDistance('karolin', 'kathrin') },
+    example2: { a: '', b: '', distance: hammingDistance('', '') },
+    bits1: { x: 1, y: 4, distance: hammingDistanceBits(1, 4) },
+    bits2: { x: 0, y: 0, distance: hammingDistanceBits(0, 0) }
+  };
 }
