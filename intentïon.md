@@ -269,3 +269,91 @@ Located and reviewed the existing HAMMING_DISTANCE library document and ensured 
 Maintained library (0 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-10T02:42:52.128Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 28852 (in: 25633, out: 3219)
+**Duration:** 61s (~1.0 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22884569666](https://github.com/xn-intenton-z2a/repository0/actions/runs/22884569666)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 7/32 | 25 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 3/4 | 1 remaining |  |
+| library | 0/32 | 32 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 0 | 0 | MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 7/32 | < 32 | OK |
+| Cumulative transforms | 7 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Added CLI and web-demo feature specifications to expand usage and testing paths for the Hamming-distance library.
+
+Maintained features (1 existing, limit 4)
+
+---
+## maintain-library at 2026-03-10T02:45:53.871Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 137565 (in: 127043, out: 10522)
+**Duration:** 181s (~3.0 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22884569666](https://github.com/xn-intenton-z2a/repository0/actions/runs/22884569666)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 8/32 | 24 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 3/4 | 1 remaining | n/a |
+| library | 0/32 | 32 remaining |  |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 0 | 0 | MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 8/32 | < 32 | OK |
+| Cumulative transforms | 8 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Created a consolidated HAMMING_DISTANCE library entry by extracting implementation-ready details (XOR+popcount patterns, popcount algorithms and masks, JS Unicode iteration and bitwise semantics) from the provided SOURCES and recorded retrieval metadata.
+
+Maintained library (0 docs, limit 32)
+
+---
