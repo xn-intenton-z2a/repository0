@@ -2,11 +2,11 @@
 
 ## Table of Contents
 
-1. Algorithm Definition and Mathematical Properties
+1. Algorithm Definition and Mathematical Properties  
 2. Binary String Implementation Methods
 3. Error Detection and Correction Capabilities
 4. Performance Characteristics and Complexity Analysis
-5. Implementation Variations and Optimizations
+5. Implementation Code Examples and Optimizations
 
 ## Normalised Extract
 
@@ -17,9 +17,9 @@ The Hamming distance between two equal-length strings of symbols is the number o
 For a fixed length n, the Hamming distance is a metric on the set of words of length n as it fulfills the conditions of non-negativity, symmetry, the Hamming distance of two words is 0 if and only if the two words are identical, and it satisfies the triangle inequality.
 
 Examples:
-- "karolin" and "kathrin" is 3
-- "karolin" and "kerstin" is 3  
-- "kathrin" and "kerstin" is 4
+- karolin and kathrin is 3
+- karolin and kerstin is 3  
+- kathrin and kerstin is 4
 - 0000 and 1111 is 4
 - 2173896 and 2233796 is 3
 
@@ -42,42 +42,51 @@ Error Detection: A code C is k error detecting if the minimum Hamming distance b
 
 Error Correction: A code C is k-error correcting if the minimum Hamming distance between any two of its codewords is at least 2k+1. This means for every word w, there exists at most one codeword c such that the Hamming distance between w and c is at most k.
 
-A code with minimum Hamming distance d between its codewords can:
-- Detect at most d-1 errors
-- Correct floor((d-1)/2) errors
-
-The error-correcting capability is also called the packing radius of the code.
+A code with minimum Hamming distance d between its codewords can detect at most d-1 errors and can correct floor((d-1)/2) errors. The latter number is also called the packing radius or the error-correcting capability of the code.
 
 ### Performance Characteristics and Complexity Analysis
 
 Time Complexity: O(n) where n is the length of the strings
-Space Complexity: O(n) 
+Space Complexity: O(1) for efficient implementations
 Best-case performance: O(n)
 Worst-case performance: O(n)
 Average performance: O(n)
 
 The linear time complexity applies to both the basic character-by-character comparison method and the optimized bitwise operations for binary data.
 
-### Implementation Variations and Optimizations
+### Implementation Code Examples and Optimizations
 
-Character Comparison Method:
-- Iterate through each position in both strings
-- Increment counter when characters differ
-- Return final counter value
+Character Comparison Method in Python:
+def hamming_distance(string1: str, string2: str) -> int:
+    if len(string1) != len(string2):
+        raise ValueError("Strings must be of equal length.")
+    dist_counter = 0
+    for n in range(len(string1)):
+        if string1[n] != string2[n]:
+            dist_counter += 1
+    return dist_counter
 
-Bitwise XOR Method for Binary Data:
-- Compute XOR of the two values
-- Count set bits in the XOR result using bit manipulation techniques
-- Use processor-specific population count instructions when available
+Bitwise XOR Method for Integers in C:
+int hamming_distance(unsigned x, unsigned y) {
+    int dist = 0;
+    for (unsigned val = x ^ y; val > 0; ++dist) {
+        val = val & (val - 1); // Wegner's method
+    }
+    return dist;
+}
 
-Population Count Optimization:
-- Use built-in processor instructions like __builtin_popcount
-- Apply bit manipulation algorithms such as Wegner's method
-- Leverage specialized hardware instructions for maximum performance
+Population Count Optimization Using Built-in Functions:
+int hamming_distance32(unsigned int x, unsigned int y) {
+    return __builtin_popcount(x ^ y);
+}
+
+int hamming_distance64(unsigned long long x, unsigned long long y) {
+    return __builtin_popcountll(x ^ y);
+}
 
 ## Supplementary Details
 
-The Hamming distance has applications in telecommunications for counting flipped bits as an estimate of transmission error, coding theory for error detection and correction, information theory for measuring information differences, cryptography for analyzing bit patterns, and systematics as a measure of genetic distance.
+The Hamming distance is named after Richard Hamming, who introduced the concept in his fundamental paper Error detecting and error correcting codes in 1950. It has applications in telecommunications for counting flipped bits as an estimate of transmission error, coding theory for error detection and correction, information theory for measuring information differences, cryptography for analyzing bit patterns, and systematics as a measure of genetic distance.
 
 The metric space of length-n binary strings with Hamming distance is known as the Hamming cube, equivalent to distances between vertices in a hypercube graph. Binary strings can be viewed as vectors in n-dimensional space where Hamming distance equals Manhattan distance between vertices.
 
@@ -86,18 +95,13 @@ The metric space of length-n binary strings with Hamming distance is known as th
 ### Bit Manipulation Specifications
 
 XOR Truth Table for Hamming Distance Calculation:
-```
 x | y | x XOR y
 0 | 0 | 0
 0 | 1 | 1  
 1 | 0 | 1
 1 | 1 | 0
-```
 
-Wegner Bit Counting Algorithm:
-```
-val = val & (val - 1)  // Sets to zero val's lowest-order 1 bit
-```
+Wegner Bit Counting Algorithm: val = val & (val - 1) sets to zero val's lowest-order 1 bit
 
 Population Count Functions:
 - __builtin_popcount(x) for 32-bit integers
@@ -110,11 +114,13 @@ For minimum distance d:
 - Maximum correctable errors: floor((d - 1) / 2)
 - Sphere packing radius: floor((d - 1) / 2)
 
-Hamming Sphere: Closed ball of radius k centered on a codeword, containing all words within Hamming distance k.
+Hamming Spheres: Closed balls of radius k centered on distinct codewords being disjoint for k-error correcting codes.
 
 ### Performance Specifications
 
 Linear time complexity applies regardless of input alphabet size. For binary strings, XOR-based methods provide constant factor improvements over character comparison. Hardware population count instructions offer additional performance gains when available.
+
+The Hamming distance is also used in systematics as a measure of genetic distance. However, for comparing strings of different lengths, or strings where not just substitutions but also insertions or deletions have to be expected, a more sophisticated metric such as the Levenshtein distance may be more appropriate.
 
 ## Detailed Digest
 

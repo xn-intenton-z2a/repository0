@@ -3,7 +3,7 @@
 ## Table of Contents
 
 1. String Character Access Methods
-2. Unicode Code Point Handling
+2. Unicode Code Point Handling  
 3. UTF-16 Encoding and Surrogate Pairs
 4. Code Unit vs Code Point Distinctions
 5. String Iteration Best Practices
@@ -29,10 +29,12 @@ Higher code points (above 65535) are represented by surrogate pairs - two 16-bit
 ### UTF-16 Encoding and Surrogate Pairs
 
 When a Unicode code point exceeds the 16-bit range, it is encoded as a surrogate pair:
-- Leading surrogate: High 16-bit value (0xD800-0xDBFF range)
+- Leading surrogate: High 16-bit value (0xD800-0xDBFF range)  
 - Trailing surrogate: Low 16-bit value (0xDC00-0xDFFF range)
 
 If codePointAt() encounters a leading surrogate at the given index, it returns the full code point value of the surrogate pair. If it encounters a trailing surrogate, it returns only the trailing surrogate code unit value.
+
+charCodeAt() may return lone surrogates which are not valid Unicode characters. To get the full Unicode code point at a given index, use codePointAt() instead of attempting to reconstruct from charCodeAt() values.
 
 ### Code Unit vs Code Point Distinctions
 
@@ -48,7 +50,7 @@ Avoid index-based iteration when working with Unicode text containing surrogate 
 
 Recommended iteration methods:
 - for...of loops which iterate by code points
-- Spread operator [...string] which creates an array of code points
+- Spread operator [...string] which creates an array of code points  
 - String Symbol.iterator which iterates by code points
 
 When using these methods, apply codePointAt(0) to get the numeric code point value of each element.
@@ -68,8 +70,8 @@ String.prototype.charAt(pos)
 - Returns: String - single character or empty string
 - Range validation: Returns empty string for out-of-range indices
 
-String.prototype.charCodeAt(pos)
-- Parameters: pos (number) - zero-based index, undefined converts to 0  
+String.prototype.charCodeAt(pos)  
+- Parameters: pos (number) - zero-based index, undefined converts to 0
 - Returns: Number - integer 0-65535 or NaN for out-of-range
 - Encoding: Returns UTF-16 code unit value
 
@@ -78,56 +80,62 @@ String.prototype.codePointAt(pos)
 - Returns: Number - non-negative integer 0-0x10FFFF or undefined
 - Encoding: Returns full Unicode code point, handles surrogate pairs
 
+### ECMAScript Specification Implementation
+
+ECMAScript 2026 String.prototype.codePointAt performs these steps:
+1. Let O be the this value
+2. Perform ? RequireObjectCoercible(O)
+3. Let S be ? ToString(O)
+4. Let position be ? ToIntegerOrInfinity(pos)
+5. Let size be the length of S
+6. If position < 0 or position >= size, return undefined
+7. Let cp be CodePointAt(S, position)
+8. Return F(cp.[[CodePoint]])
+
+Returns non-negative integral Number less than or equal to 0x10FFFF that is the numeric value of the UTF-16 encoded code point starting at index pos. If no valid UTF-16 surrogate pair begins at pos, returns the code unit at pos.
+
 ### Surrogate Pair Conversion Algorithms
 
 UTF-16 to Unicode conversion constants:
-```
 LEAD_OFFSET = 0xD800 - (0x10000 >> 10)
 SURROGATE_OFFSET = 0x10000 - (0xD800 << 10) - 0xDC00
-```
 
 Conversion function logic:
-```
 utf16ToUnicode(lead, trail) = (lead << 10) + trail + SURROGATE_OFFSET
 unicodeToUTF16(codePoint) = [LEAD_OFFSET + (codePoint >> 10), 0xDC00 + (codePoint & 0x3FF)]
-```
 
 ### Safe Iteration Patterns
 
 Index-based iteration (problematic with surrogate pairs):
-```
 for (let i = 0; i < str.length; i++) {
   // May split surrogate pairs
 }
-```
 
 Code-point based iteration (recommended):
-```
 for (const codePoint of str) {
   let value = codePoint.codePointAt(0);
 }
 
 [...str].map(cp => cp.codePointAt(0));
-```
 
-### ECMAScript Specification References
+### Browser Compatibility and Polyfills
 
-String.prototype.codePointAt defined in ECMAScript 2026 Language Specification section 22.1.3.4. Implementation must handle surrogate pair detection, boundary checking, and proper Unicode code point calculation according to UTF-16 encoding rules.
+String.prototype.codePointAt has universal browser support in modern JavaScript environments. For older environments, polyfills are available through core-js and es-shims packages.
 
-Browser compatibility spans all modern JavaScript environments. Polyfills available for older environments through core-js and es-shims packages.
+Methods are intentionally generic and do not require this value to be a String object, allowing transfer to other object types.
 
 ## Detailed Digest
 
-Technical documentation extracted from MDN JavaScript String reference covering character access methods, Unicode handling, and UTF-16 encoding specifics. Retrieved 2026-03-10.
+Technical documentation extracted from MDN JavaScript String reference and ECMAScript specification covering character access methods, Unicode handling, and UTF-16 encoding specifics. Retrieved 2026-03-10.
 
-Content focuses on practical implementation details for string character manipulation in JavaScript, emphasizing proper Unicode support and surrogate pair handling for international text processing.
+Content provides comprehensive guidance for string character manipulation in JavaScript, emphasizing proper Unicode support and surrogate pair handling for international text processing applications.
 
 ## Attribution Information
 
 Sources: 
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt
-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt  
 - https://tc39.es/ecma262/multipage/text-processing.html#sec-string.prototype.codepointat
 
-Data size: 30000 characters extracted
+Data size: 35000 characters extracted
 Retrieved: 2026-03-10
