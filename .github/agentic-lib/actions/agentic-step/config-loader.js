@@ -257,6 +257,14 @@ export function loadConfig(configPath) {
   const execution = toml.execution || {};
   const bot = toml.bot || {};
 
+  // Mission-complete thresholds (with safe defaults)
+  const mc = toml["mission-complete"] || {};
+  const missionCompleteThresholds = {
+    minResolvedIssues: mc["min-resolved-issues"] ?? 3,
+    requireDedicatedTests: mc["require-dedicated-tests"] ?? true,
+    maxSourceTodos: mc["max-source-todos"] ?? 0,
+  };
+
   return {
     supervisor: toml.schedule?.supervisor || "daily",
     model: toml.tuning?.model || toml.schedule?.model || "gpt-5-mini",
@@ -274,6 +282,7 @@ export function loadConfig(configPath) {
     },
     init: toml.init || null,
     tdd: toml.tdd === true,
+    missionCompleteThresholds,
     writablePaths,
     readOnlyPaths,
     configToml: rawToml,

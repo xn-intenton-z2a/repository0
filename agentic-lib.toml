@@ -6,8 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "off"              # off | weekly | daily | hourly | continuous
-model = "gpt-5-mini"
+supervisor = "continuous"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -39,7 +38,7 @@ test = "npm ci && npm test"
 [tuning]
 # Profile sets defaults for all tuning and limit knobs: min | recommended | max
 # Profile definitions live in [profiles.*] sections below.
-profile = "recommended"
+profile = "max"
 #
 # Model selection — each has different strengths:
 #   gpt-5-mini      — Fast, cheap, supports reasoning-effort. Best for CI and iteration.
@@ -47,7 +46,7 @@ profile = "recommended"
 #   gpt-4.1         — High capability, large context. Best for thorough analysis.
 # Note: reasoning-effort only works with gpt-5-mini and o4-mini.
 # For other models it is automatically skipped.
-model = "gpt-5-mini"
+model = "claude-sonnet-4"
 #
 # Override individual knobs below. Omit or comment out to use profile defaults.
 # reasoning-effort = "low"       # low | medium | high | none (none = disable entirely)
@@ -131,11 +130,18 @@ max-attempts-per-issue = 4                 # max transform attempts before aband
 features-limit = 8                     # max feature files in features/ directory
 library-limit = 64                     # max library entries in library/ directory
 
+[mission-complete]
+# Thresholds for deterministic mission-complete declaration.
+# All conditions must be met simultaneously.
+min-resolved-issues = 3            # minimum closed-as-RESOLVED issues since init
+require-dedicated-tests = true     # require test files that import from src/lib/
+max-source-todos = 0               # max TODO comments allowed in ./src (0 = none)
+
 [bot]
 log-file = "intentïon.md"
 
 [init]
-timestamp = "2026-03-10T20:55:07.256Z"
+timestamp = "2026-03-10T22:19:20.948Z"
 mode = "purge"
-mission = "plot-code-lib"
-version = "7.2.4"
+mission = "hamming-distance"
+version = "7.2.6"

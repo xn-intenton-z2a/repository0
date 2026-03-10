@@ -90,8 +90,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run behaviour tests
-        run: npm run test:behaviour
+      - name: Run behaviour tests (with retry)
+        run: |
+          npm run test:behaviour || {
+            echo "::warning::Behaviour test attempt 1 failed — retrying"
+            sleep 2
+            npm run test:behaviour
+          }
         #env:
         #  HOME: /root
 

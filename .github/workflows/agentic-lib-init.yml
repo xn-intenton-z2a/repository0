@@ -333,3 +333,59 @@ jobs:
               exit 1
             fi
           done
+
+      # W8: Create initial seed issues after purge so the pipeline has work to do
+      - name: Create initial seed issues
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.INIT_MODE == 'purge' && needs.params.outputs.dry-run != 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const missionContent = fs.existsSync('MISSION.md')
+              ? fs.readFileSync('MISSION.md', 'utf8')
+              : '(no MISSION.md found)';
+
+            // Ensure labels exist
+            for (const label of ['automated', 'ready']) {
+              try {
+                await github.rest.issues.createLabel({
+                  ...context.repo, name: label,
+                  color: label === 'automated' ? '0e8a16' : '1d76db',
+                  description: label === 'automated' ? 'Created by automation' : 'Ready for dev transform',
+                });
+              } catch (e) { /* label already exists */ }
+            }
+
+            // W8a: Initial unit tests issue
+            const unitTestBody = [
+              'Create a unit test file for each of the major features in the mission ',
+              'and put a TODO in a trivial empty passing test in each.',
+              '',
+              '## MISSION.md',
+              '',
+              missionContent,
+            ].join('\n');
+            const { data: issue1 } = await github.rest.issues.create({
+              ...context.repo,
+              title: 'Initial unit tests',
+              body: unitTestBody,
+              labels: ['automated', 'ready'],
+            });
+            core.info(`Created issue #${issue1.number}: Initial unit tests`);
+
+            // W8b: Initial web layout issue
+            const webLayoutBody = [
+              'Create the home page layout to showcase each of the major features in the mission ',
+              'and put a TODO in a trivial empty passing test in each.',
+              '',
+              '## MISSION.md',
+              '',
+              missionContent,
+            ].join('\n');
+            const { data: issue2 } = await github.rest.issues.create({
+              ...context.repo,
+              title: 'Initial web layout',
+              body: webLayoutBody,
+              labels: ['automated', 'ready'],
+            });
+            core.info(`Created issue #${issue2.number}: Initial web layout`);

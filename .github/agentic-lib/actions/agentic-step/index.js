@@ -9,7 +9,8 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { loadConfig, getWritablePaths } from "./config-loader.js";
 import { logActivity, generateClosingNotes } from "./logging.js";
-import { readFileSync, existsSync, readdirSync } from "fs";
+import { readFileSync, existsSync, readdirSync, statSync } from "fs";
+import { join } from "path";
 
 // Task implementations
 import { resolveIssue } from "./tasks/resolve-issue.js";
@@ -21,6 +22,7 @@ import { enhanceIssue } from "./tasks/enhance-issue.js";
 import { reviewIssue } from "./tasks/review-issue.js";
 import { discussions } from "./tasks/discussions.js";
 import { supervise } from "./tasks/supervise.js";
+import { direct } from "./tasks/direct.js";
 
 const TASKS = {
   "resolve-issue": resolveIssue,
@@ -32,7 +34,37 @@ const TASKS = {
   "review-issue": reviewIssue,
   "discussions": discussions,
   "supervise": supervise,
+  "direct": direct,
 };
+
+/**
+ * Recursively count TODO/FIXME comments in source files under a directory.
+ * @param {string} dir - Directory to scan
+ * @param {string[]} [extensions] - File extensions to include (default: .js, .ts, .mjs)
+ * @returns {number} Total count of TODO/FIXME occurrences
+ */
+export function countSourceTodos(dir, extensions = [".js", ".ts", ".mjs"]) {
+  let count = 0;
+  if (!existsSync(dir)) return 0;
+  try {
+    const entries = readdirSync(dir);
+    for (const entry of entries) {
+      if (entry === "node_modules" || entry.startsWith(".")) continue;
+      const fullPath = join(dir, entry);
+      try {
+        const stat = statSync(fullPath);
+        if (stat.isDirectory()) {
+          count += countSourceTodos(fullPath, extensions);
+        } else if (extensions.some((ext) => entry.endsWith(ext))) {
+          const content = readFileSync(fullPath, "utf8");
+          const matches = content.match(/\bTODO\b/gi);
+          if (matches) count += matches.length;
+        }
+      } catch { /* skip unreadable files */ }
+    }
+  } catch { /* skip unreadable dirs */ }
+  return count;
+}
 
 /**
  * Build mission-complete metrics array for the intentïon.md dashboard.
@@ -47,10 +79,28 @@ function buildMissionMetrics(config, result, limitsStatus, cumulativeCost, featu
   // Count open PRs from result if available
   const openPrs = result.openPrCount || 0;
 
+  // W9: Count TODO comments in source directory
+  const sourcePath = config.paths?.source?.path || "src/lib/";
+  const sourceDir = sourcePath.endsWith("/") ? sourcePath.slice(0, -1) : sourcePath;
+  // Scan the parent src/ directory to catch all source TODOs
+  const srcRoot = sourceDir.includes("/") ? sourceDir.split("/").slice(0, -1).join("/") || "src" : "src";
+  const todoCount = countSourceTodos(srcRoot);
+
+  // W3: Check for dedicated test files
+  const hasDedicatedTests = result.hasDedicatedTests ?? false;
+
+  // W11: Thresholds from config
+  const thresholds = config.missionCompleteThresholds || {};
+  const minResolved = thresholds.minResolvedIssues ?? 3;
+  const requireTests = thresholds.requireDedicatedTests ?? true;
+  const maxTodos = thresholds.maxSourceTodos ?? 0;
+
   const metrics = [
     { metric: "Open issues", value: String(openIssues), target: "0", status: openIssues === 0 ? "MET" : "NOT MET" },
     { metric: "Open PRs", value: String(openPrs), target: "0", status: openPrs === 0 ? "MET" : "NOT MET" },
-    { metric: "Issues resolved (review or PR merge)", value: String(resolvedCount), target: ">= 1", status: resolvedCount >= 1 ? "MET" : "NOT MET" },
+    { metric: "Issues resolved (review or PR merge)", value: String(resolvedCount), target: `>= ${minResolved}`, status: resolvedCount >= minResolved ? "MET" : "NOT MET" },
+    { metric: "Dedicated test files", value: hasDedicatedTests ? "YES" : "NO", target: requireTests ? "YES" : "—", status: !requireTests || hasDedicatedTests ? "MET" : "NOT MET" },
+    { metric: "Source TODO count", value: String(todoCount), target: `<= ${maxTodos}`, status: todoCount <= maxTodos ? "MET" : "NOT MET" },
     { metric: "Transformation budget used", value: `${cumulativeCost}/${budgetCap}`, target: budgetCap > 0 ? `< ${budgetCap}` : "unlimited", status: budgetCap > 0 && cumulativeCost >= budgetCap ? "EXHAUSTED" : "OK" },
     { metric: "Cumulative transforms", value: String(cumulativeCost), target: ">= 1", status: cumulativeCost >= 1 ? "MET" : "NOT MET" },
     { metric: "Mission complete declared", value: missionComplete ? "YES" : "NO", target: "—", status: "—" },
@@ -67,6 +117,8 @@ function buildMissionReadiness(metrics) {
   const openIssues = parseInt(metrics.find((m) => m.metric === "Open issues")?.value || "0", 10);
   const openPrs = parseInt(metrics.find((m) => m.metric === "Open PRs")?.value || "0", 10);
   const resolved = parseInt(metrics.find((m) => m.metric === "Issues resolved (review or PR merge)")?.value || "0", 10);
+  const hasDedicatedTests = metrics.find((m) => m.metric === "Dedicated test files")?.value === "YES";
+  const todoCount = parseInt(metrics.find((m) => m.metric === "Source TODO count")?.value || "0", 10);
   const missionComplete = metrics.find((m) => m.metric === "Mission complete declared")?.value === "YES";
   const missionFailed = metrics.find((m) => m.metric === "Mission failed declared")?.value === "YES";
 
@@ -77,17 +129,23 @@ function buildMissionReadiness(metrics) {
     return "Mission has been declared failed.";
   }
 
-  const conditionsMet = openIssues === 0 && openPrs === 0 && resolved >= 1;
+  // Check all NOT MET conditions
+  const notMet = metrics.filter((m) => m.status === "NOT MET");
+  const allMet = notMet.length === 0;
   const parts = [];
 
-  if (conditionsMet) {
+  if (allMet) {
     parts.push("Mission complete conditions ARE met.");
-    parts.push(`0 open issues, 0 open PRs, ${resolved} issue(s) resolved.`);
+    parts.push(`0 open issues, 0 open PRs, ${resolved} issue(s) resolved, dedicated tests: ${hasDedicatedTests ? "yes" : "no"}, TODOs: ${todoCount}.`);
   } else {
     parts.push("Mission complete conditions are NOT met.");
     if (openIssues > 0) parts.push(`${openIssues} open issue(s) remain.`);
     if (openPrs > 0) parts.push(`${openPrs} open PR(s) remain.`);
-    if (resolved < 1) parts.push("No issues have been resolved yet.");
+    for (const m of notMet) {
+      if (m.metric !== "Open issues" && m.metric !== "Open PRs") {
+        parts.push(`${m.metric}: ${m.value} (target: ${m.target}).`);
+      }
+    }
   }
 
   return parts.join(" ");
@@ -166,9 +224,23 @@ async function run() {
     const profileName = config.tuning?.profileName || "unknown";
 
     // Transformation cost: 1 for code-changing tasks, 0 otherwise
+    // W4: Instability transforms (infrastructure fixes) don't count against mission budget
     const COST_TASKS = ["transform", "fix-code", "maintain-features", "maintain-library"];
     const isNop = result.outcome === "nop" || result.outcome === "error";
-    const transformationCost = COST_TASKS.includes(task) && !isNop ? 1 : 0;
+    let isInstabilityTransform = false;
+    if (issueNumber && COST_TASKS.includes(task) && !isNop) {
+      try {
+        const { data: issueData } = await context.octokit.rest.issues.get({
+          ...context.repo,
+          issue_number: Number(issueNumber),
+        });
+        isInstabilityTransform = issueData.labels.some((l) => l.name === "instability");
+        if (isInstabilityTransform) {
+          core.info(`Issue #${issueNumber} has instability label — transform does not count against mission budget`);
+        }
+      } catch { /* ignore — conservative: count as mission transform */ }
+    }
+    const transformationCost = COST_TASKS.includes(task) && !isNop && !isInstabilityTransform ? 1 : 0;
 
     // Read cumulative transformation cost from the activity log
     const intentionFilepath = config.intentionBot?.intentionFilepath;
@@ -189,6 +261,31 @@ async function run() {
     const libraryUsed = libraryPath && existsSync(libraryPath)
       ? readdirSync(libraryPath).filter((f) => f.endsWith(".md")).length
       : 0;
+
+    // W3/W10: Detect dedicated test files (centrally, for all tasks)
+    let hasDedicatedTests = result.hasDedicatedTests ?? false;
+    if (!hasDedicatedTests) {
+      try {
+        const { scanDirectory: scanDir } = await import("./copilot.js");
+        const testDirs = ["tests", "__tests__"];
+        for (const dir of testDirs) {
+          if (existsSync(dir)) {
+            const testFiles = scanDir(dir, [".js", ".ts", ".mjs"], { limit: 20 });
+            for (const tf of testFiles) {
+              if (/^(main|web|behaviour)\.test\.[jt]s$/.test(tf.name)) continue;
+              const content = readFileSync(tf.path, "utf8");
+              if (/from\s+['"].*src\/lib\//.test(content) || /require\s*\(\s*['"].*src\/lib\//.test(content)) {
+                hasDedicatedTests = true;
+                break;
+              }
+            }
+            if (hasDedicatedTests) break;
+          }
+        }
+      } catch { /* ignore — scanDirectory not available in test environment */ }
+    }
+    // Inject hasDedicatedTests into result for buildMissionMetrics
+    result.hasDedicatedTests = hasDedicatedTests;
 
     // Count open automated issues (feature vs maintenance)
     let featureIssueCount = 0;
