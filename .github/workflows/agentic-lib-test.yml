@@ -35,7 +35,18 @@ on:
       - "**/*.yml"
       - "**/*.sh"
   workflow_call:
+    inputs:
+      push-screenshot:
+        type: string
+        required: false
+        default: "false"
   workflow_dispatch:
+    inputs:
+      push-screenshot:
+        description: "Push screenshot to main (default: only on schedule)"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -93,7 +104,9 @@ jobs:
           if-no-files-found: ignore
 
       - name: Push screenshot on main
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        if: |
+          github.ref == 'refs/heads/main' &&
+          (github.event_name == 'schedule' || inputs.push-screenshot == 'true' || inputs.push-screenshot == true)
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config user.name "github-actions[bot]"
