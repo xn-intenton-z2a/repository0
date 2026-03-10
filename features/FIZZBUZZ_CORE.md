@@ -2,40 +2,70 @@
 
 ## Overview
 
-Define and standardise the core library API for generating FizzBuzz output so the project fulfils the mission: a minimal JavaScript library exporting two functions with deterministic behaviour and comprehensive unit tests.
+Standardise the library core so the repository reliably fulfils the fizz-buzz mission: provide two small, pure, well-documented functions and exhaustive unit tests that validate normal behaviour and edge cases.
+
+This feature specifies the public API, exact validation rules, error types and messages, and concrete acceptance criteria so implementers can write code and tests that are unambiguous and machine-testable.
 
 ## Specification
 
-- Exports
-  - fizzBuzz(n): named export. Returns an array of strings of length n (or empty array for n = 0) where each element is the FizzBuzz string for the 1-based index.
-  - fizzBuzzSingle(n): named export. Returns a single FizzBuzz string for the positive integer n.
+- Named exports (src/lib/main.js)
+  - fizzBuzz(n)
+    - Description: return an array of strings representing FizzBuzz for the integers 1..n (1-based).
+    - Behaviour: for each i from 1 to n inclusive, element i-1 is fizzBuzzSingle(i).
+    - Special case: fizzBuzz(0) returns an empty array.
+  - fizzBuzzSingle(n)
+    - Description: return the FizzBuzz string for a single positive integer n.
 
-- Behaviour rules
-  - For positive integers: replace multiples of 3 with Fizz, multiples of 5 with Buzz, multiples of both with FizzBuzz, otherwise return the decimal string for the number.
-  - For n === 0: fizzBuzz(0) returns an empty array; fizzBuzzSingle is not called with 0 in normal usage but should throw RangeError if called with non-positive integers.
-  - For negative numbers: both functions throw RangeError.
-  - For non-integers and non-number types: both functions throw TypeError.
+- Validation rules (apply uniformly to both functions)
+  - If typeof n !== "number": throw TypeError with message Input must be a number.
+  - If Number.isInteger(n) === false: throw TypeError with message Input must be an integer.
+  - For fizzBuzzSingle: if n < 1 throw RangeError with message Input must be >= 1.
+  - For fizzBuzz: if n < 0 throw RangeError with message Input must be >= 0.
 
-- Error types and messages (implementation should include clear messages):
-  - TypeError when typeof n !== "number" or Number.isInteger(n) is false.
-  - RangeError when n < 1 for fizzBuzzSingle or when n < 0 for fizzBuzz (fizzBuzz(0) is allowed and returns []).
+- FizzBuzz transformation rules (pure logic)
+  - If n is divisible by 3 and 5: return the exact string FizzBuzz.
+  - Else if divisible by 3: return the exact string Fizz.
+  - Else if divisible by 5: return the exact string Buzz.
+  - Else: return the decimal string for the number (String(n)).
+
+- Implementation constraints
+  - Keep functions pure (no side effects) and synchronous.
+  - Reuse fizzBuzzSingle inside fizzBuzz to avoid duplication.
+  - Export both functions as named exports from src/lib/main.js (ES module syntax).
+  - Do not introduce new runtime dependencies.
 
 ## Acceptance criteria
 
-- fizzBuzz(15) returns an array of 15 strings with the 15th element equal to FizzBuzz.
-- fizzBuzzSingle(3) returns Fizz.
-- fizzBuzzSingle(5) returns Buzz.
-- fizzBuzzSingle(15) returns FizzBuzz.
-- fizzBuzzSingle(7) returns 7.
-- fizzBuzz(0) returns an empty array.
-- fizzBuzzSingle called with a negative or zero value throws RangeError.
-- Non-number and non-integer inputs to either function throw TypeError.
-- Both functions are exported as named exports from src/lib/main.js.
-- Unit tests in tests/unit/ ensure every acceptance criterion is asserted.
+All acceptance criteria must be asserted by unit tests in tests/unit/ and be precise about types and messages where applicable.
+
+- fizzBuzz(15) returns an array of 15 strings and the 15th element strictly equals FizzBuzz.
+- fizzBuzzSingle(3) strictly equals Fizz.
+- fizzBuzzSingle(5) strictly equals Buzz.
+- fizzBuzzSingle(15) strictly equals FizzBuzz.
+- fizzBuzzSingle(7) strictly equals "7" (string).
+- fizzBuzz(0) strictly equals an empty array (length 0).
+- fizzBuzzSingle called with 0 or a negative integer throws a RangeError and message Input must be >= 1.
+- fizzBuzz called with a negative integer throws a RangeError and message Input must be >= 0.
+- Passing a non-number (e.g., "3", null, {}) to either function throws a TypeError with message Input must be a number.
+- Passing a non-integer number (e.g., 3.5) to either function throws a TypeError with message Input must be an integer.
+- Both functions are exported as named exports; tests must import { fizzBuzz, fizzBuzzSingle } from src/lib/main.js and assert their presence and behaviour.
+
+## Tests and examples
+
+- Unit tests (tests/unit/main.test.js)
+  - Assert every acceptance criterion above; for thrown errors assert both the error class and the exact message.
+  - Use deterministic input and exact equality checks; avoid fuzzy matching.
+- README.md examples
+  - Show ES module import and exact function calls with their expected outputs (examples must match tests).
+- examples/node-example.js
+  - Use the named exports and print results so an integration test can spawn node and assert stdout lines.
 
 ## Implementation notes
 
-- Keep functions pure and deterministic so unit tests can assert equality without mocking.
-- Place core logic in src/lib/main.js and expose named exports; add small wrapper for CLI (if CLI feature present) but keep the core functions testable in isolation.
-- Update README.md with usage examples for both functions.
-- Tests should cover edge cases and invalid inputs precisely and assert thrown error types, not just messages.
+- Keep error message strings exact and small so tests can assert equality: Input must be a number, Input must be an integer, Input must be >= 0, Input must be >= 1.
+- Aim for a single source file implementation (src/lib/main.js) so the feature is self-contained and testable.
+- Reuse this core in CLI and web demo features rather than duplicating logic.
+
+## Rationale
+
+Clear, exact validation messages and deterministic behaviour simplify unit tests and downstream features (CLI, examples, web demo) so the repository consistently meets the mission.

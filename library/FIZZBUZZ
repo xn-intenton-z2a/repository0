@@ -177,12 +177,12 @@ DETAILED DIGEST (sources and retrieval date)
   6. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError  — TypeError constructor and instances
   7. https://vitest.dev/guide/  — Vitest install, conventions, config and CLI usage
   8. https://www.npmjs.com/package/fizzbuzz  — attempted but HTTP 403 during crawl (package metadata not retrieved)
-- Crawl retrieval timestamp: 2026-03-09T23:55:16.985Z (UTC)
+- Crawl retrieval timestamp: 2026-03-10T00:50:55.239Z (UTC)
 - Crawl result: 7 pages fetched successfully, 1 page blocked (npmjs returned 403). Total retrieved payload approximately 85 KB (text) across fetched pages; npmjs HTML blocked.
 
 ATTRIBUTION
 - Content sources: Wikipedia, MDN Web Docs, Node.js official docs, Vitest docs, npm registry (blocked). Use these sources' authoritative sections for final verification when implementing in production.
-- Crawl metadata: fetch performed 2026-03-09T23:41:36Z; 7/8 sources fetched successfully; npmjs returned HTTP 403
+- Crawl metadata: fetch performed 2026-03-10T00:50:55.239Z; 7/8 sources fetched successfully; npmjs returned HTTP 403
 
 USAGE NOTE
 - This document is implementation-focused: copy exact syntax lines into code where needed and validate runtime behavior with unit tests (Vitest). For FizzBuzz, prefer the provided API signature and input validation rules when adding to src/lib/main.js to match repository conventions.
