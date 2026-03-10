@@ -1,0 +1,64 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - heading "repo v0.1.0" [level=1] [ref=e2]
+  - generic [ref=e4]:
+    - term [ref=e5]: Package
+    - definition [ref=e6]: repo@0.1.0
+    - term [ref=e7]: Description
+    - definition [ref=e8]: A JavaScript library for computing Hamming distances between strings and integers
+  - heading "Interactive Demo" [level=2] [ref=e9]
+  - generic [ref=e10]:
+    - heading "String Hamming Distance" [level=3] [ref=e11]
+    - paragraph [ref=e12]: Compare two strings of equal length and count differing positions. Supports Unicode correctly.
+    - generic [ref=e13]:
+      - textbox "First string" [ref=e14]: karolin
+      - textbox "Second string" [ref=e15]: kathrin
+      - button "Calculate" [ref=e16] [cursor=pointer]
+    - generic [ref=e17]: Library not available in browser context
+  - generic [ref=e18]:
+    - heading "Bits Hamming Distance" [level=3] [ref=e19]
+    - paragraph [ref=e20]: Compare two non-negative integers and count differing bits in their binary representation.
+    - generic [ref=e21]:
+      - spinbutton [ref=e22]: "1"
+      - spinbutton [ref=e23]: "4"
+      - button "Calculate" [ref=e24] [cursor=pointer]
+    - generic [ref=e25]: Library not available in browser context
+  - heading "Features" [level=2] [ref=e26]
+  - generic [ref=e27]:
+    - generic [ref=e28]:
+      - generic [ref=e29]: String Hamming Distance
+      - paragraph [ref=e30]: Calculate differences between equal-length strings with proper Unicode support.
+      - generic [ref=e31]:
+        - strong [ref=e32]: "Example:"
+        - text: hammingDistance("karolin", "kathrin") → 3
+    - generic [ref=e33]:
+      - generic [ref=e34]: Bits Hamming Distance
+      - paragraph [ref=e35]: Count differing bits between non-negative integers using XOR operations.
+      - generic [ref=e36]:
+        - strong [ref=e37]: "Example:"
+        - text: hammingDistanceBits(1, 4) → 2
+        - text: "Binary: 001 vs 100"
+    - generic [ref=e38]:
+      - generic [ref=e39]: Input Validation
+      - paragraph [ref=e40]: Comprehensive type checking and error handling for all edge cases.
+      - generic [ref=e41]:
+        - strong [ref=e42]: "Throws:"
+        - text: TypeError for wrong types
+        - text: RangeError for invalid ranges
+    - generic [ref=e43]:
+      - generic [ref=e44]: Unicode Support
+      - paragraph [ref=e45]: Correctly handles Unicode code points, not just UTF-16 code units.
+      - generic [ref=e46]:
+        - strong [ref=e47]: "Example:"
+        - text: hammingDistance("café", "cave") → 2
+        - text: hammingDistance("🎉🎊", "🎉🌟") → 1
+  - heading "About" [level=2] [ref=e48]
+  - paragraph [ref=e49]: This website demonstrates the Hamming Distance JavaScript library. The library provides functions for calculating Hamming distances between strings and integers, with comprehensive input validation and Unicode support.
+  - paragraph [ref=e50]:
+    - text: See
+    - link "the repository" [ref=e51] [cursor=pointer]:
+      - /url: https://github.com/xn-intenton-z2a/repository0
+    - text: for source code, documentation, and API details.
+```
