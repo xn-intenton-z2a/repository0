@@ -78,23 +78,31 @@ export function parseCron(expression) {
   };
 }
 
+function matchesField(f, value) {
+  if (!f) return false;
+  if (f.any) return true;
+  return f.values.has(value);
+}
+
 export function matches(expression, date) {
   const parsed = typeof expression === 'string' ? parseCron(expression) : expression;
   if (!(date instanceof Date)) throw new Error('date must be a Date');
-  const mo = date.getMonth() + 1;
+  const mo = date.getMonth() + 1; // 1-12
   const dom = date.getDate();
   const hr = date.getHours();
   const min = date.getMinutes();
   const sec = date.getSeconds();
-  const dow = date.getDay();
+  const dow = date.getDay(); // 0-6
+
   const f = parsed.fields;
-  const matchesField = (f, v) => f.any ? true : f.values.has(v);
   if (!matchesField(f.month, mo)) return false;
   if (!matchesField(f.dayOfMonth, dom)) return false;
   if (!matchesField(f.dayOfWeek, dow)) return false;
   if (!matchesField(f.hours, hr)) return false;
   if (!matchesField(f.minutes, min)) return false;
-  if (parsed.hasSeconds && !matchesField(f.seconds, sec)) return false;
+  if (parsed.hasSeconds) {
+    if (!matchesField(f.seconds, sec)) return false;
+  }
   return true;
 }
 
@@ -102,9 +110,11 @@ export function nextRun(expression, after) {
   const parsed = typeof expression === 'string' ? parseCron(expression) : expression;
   const stepMs = parsed.hasSeconds ? 1000 : 60 * 1000;
   let candidate = after ? new Date(after.getTime()) : new Date();
+  // start strictly after
   candidate = new Date(candidate.getTime() + stepMs);
   const limit = new Date(candidate.getTime());
   limit.setFullYear(limit.getFullYear() + 5);
+
   while (candidate <= limit) {
     if (matches(parsed, candidate)) return candidate;
     candidate = new Date(candidate.getTime() + stepMs);
