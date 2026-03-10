@@ -35,6 +35,10 @@ on:
         type: string
         required: false
         default: "true"
+      skipMaintain:
+        type: string
+        required: false
+        default: "false"
       config-path:
         type: string
         required: false
@@ -98,6 +102,11 @@ on:
         type: string
         required: false
         default: ""
+      skipMaintain:
+        description: "Skip maintain job (for testing fix-stuck in isolation)"
+        type: boolean
+        required: false
+        default: false
       dry-run:
         description: "Skip all push/PR/merge operations"
         type: boolean
@@ -480,7 +489,8 @@ jobs:
     if: |
       !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'maintain-only') &&
-      needs.params.result == 'success'
+      needs.params.result == 'success' &&
+      inputs.skipMaintain != 'true' && inputs.skipMaintain != true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -757,19 +767,109 @@ jobs:
         run: |
           git checkout -b agentic-lib-fix-main-build
 
-      - name: "Tier 1: Sync PR branch with main (prefer main for conflicts)"
+      - name: "Sync PR branch with main (incremental conflict resolution)"
         if: env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
         id: trivial-resolve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
           git config user.email 'action@github.com'
           git config user.name 'GitHub Actions[bot]'
           git fetch origin main
-          # -X theirs: apply all clean merges normally, resolve conflicts by picking main
-          git merge origin/main -X theirs --no-edit
-          npm install 2>/dev/null || true
-          git add package-lock.json 2>/dev/null || true
-          git diff --cached --quiet || git commit --amend --no-edit
-          echo "resolved=auto" >> $GITHUB_OUTPUT
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          RESOLVED=false
+
+          # --- Tier 1: Simple merge (no conflicts) ---
+          echo "=== Tier 1: Simple merge ==="
+          if git merge origin/main --no-edit 2>&1; then
+            echo "Tier 1: merge clean, pushing..."
+            git push origin HEAD:"$BRANCH" 2>&1 && RESOLVED=true || echo "Tier 1: push failed"
+          else
+            echo "Tier 1: conflicts detected, aborting..."
+            git merge --abort 2>/dev/null || true
+          fi
+
+          # Check
+          if [ "$RESOLVED" = "true" ]; then
+            sleep 5
+            MERGEABLE=$(gh pr view "${{ env.FIX_PR_NUMBER }}" --json mergeable --jq '.mergeable')
+            echo "After Tier 1: mergeable=$MERGEABLE"
+            if [ "$MERGEABLE" = "CONFLICTING" ]; then
+              echo "Tier 1 pushed but PR still conflicting — continuing"
+              RESOLVED=false
+            fi
+          fi
+
+          # --- Tier 2: Merge preferring main for conflicts (-X theirs) ---
+          if [ "$RESOLVED" != "true" ]; then
+            echo "=== Tier 2: Merge with -X theirs ==="
+            git reset --hard HEAD 2>/dev/null || true
+            if git merge origin/main -X theirs --no-edit 2>&1; then
+              npm install 2>/dev/null || true
+              git add package-lock.json 2>/dev/null || true
+              git diff --cached --quiet || git commit --amend --no-edit
+              echo "Tier 2: merge succeeded, pushing..."
+              git push origin HEAD:"$BRANCH" 2>&1 || git push --force-with-lease origin HEAD:"$BRANCH" 2>&1
+              RESOLVED=true
+            else
+              echo "Tier 2: merge -X theirs failed, aborting..."
+              git merge --abort 2>/dev/null || true
+            fi
+          fi
+
+          # Check
+          if [ "$RESOLVED" = "true" ]; then
+            sleep 5
+            MERGEABLE=$(gh pr view "${{ env.FIX_PR_NUMBER }}" --json mergeable --jq '.mergeable')
+            echo "After Tier 2: mergeable=$MERGEABLE"
+            if [ "$MERGEABLE" = "CONFLICTING" ]; then
+              echo "Tier 2 pushed but PR still conflicting — continuing"
+              RESOLVED=false
+            fi
+          fi
+
+          # --- Tier 3: Save source files, reset to main, copy back, force-push ---
+          if [ "$RESOLVED" != "true" ]; then
+            echo "=== Tier 3: Nuclear — save files, reset to main, copy back ==="
+            TMPDIR=$(mktemp -d)
+            for dir in src tests; do
+              [ -d "$dir" ] && cp -r "$dir" "$TMPDIR/" || true
+            done
+            cp package.json "$TMPDIR/" 2>/dev/null || true
+
+            git reset --hard origin/main
+            for dir in src tests; do
+              [ -d "$TMPDIR/$dir" ] && cp -r "$TMPDIR/$dir" ./ || true
+            done
+            cp "$TMPDIR/package.json" . 2>/dev/null || true
+            npm install 2>/dev/null || true
+
+            git add -A
+            if ! git diff --cached --quiet; then
+              git commit -m "fix-stuck: sync with main (resolve conflicts)"
+              git push --force-with-lease origin HEAD:"$BRANCH" 2>&1 && RESOLVED=true
+            else
+              echo "Tier 3: no differences after reset — branch identical to main"
+              RESOLVED=true
+            fi
+            rm -rf "$TMPDIR"
+          fi
+
+          # --- Final check: HARD FAIL if still not resolved ---
+          sleep 5
+          MERGEABLE=$(gh pr view "${{ env.FIX_PR_NUMBER }}" --json mergeable --jq '.mergeable')
+          echo "Final PR mergeable status: $MERGEABLE"
+          if [ "$MERGEABLE" = "CONFLICTING" ]; then
+            echo "::error::PR #${{ env.FIX_PR_NUMBER }} is STILL CONFLICTING after all 3 resolution tiers"
+            exit 1
+          fi
+          if [ "$RESOLVED" != "true" ]; then
+            echo "::error::All 3 tiers failed to resolve PR #${{ env.FIX_PR_NUMBER }}"
+            exit 1
+          fi
+          echo "PR #${{ env.FIX_PR_NUMBER }} successfully synced with main"
+          echo "resolved=true" >> $GITHUB_OUTPUT
 
       - name: "Tier 2: LLM fix (only for explicitly requested PRs with failing checks)"
         if: |
@@ -814,9 +914,17 @@ jobs:
 
       - name: Commit and push fixes
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
-        uses: ./.github/agentic-lib/actions/commit-if-changed
-        with:
-          commit-message: "agentic-step: fix failing tests / resolve conflicts"
+        run: |
+          git config user.email 'action@github.com'
+          git config user.name 'GitHub Actions[bot]'
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "agentic-step: fix failing tests / resolve conflicts"
+            git push origin HEAD:"$BRANCH" 2>&1 || git push --force-with-lease origin HEAD:"$BRANCH" 2>&1
+          else
+            echo "No additional changes to push"
+          fi
 
       - name: Commit, push, and open PR for main build fix
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.FIX_MAIN_BUILD == 'true' && steps.fix-mission-check.outputs.mission-complete != 'true'
