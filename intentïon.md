@@ -885,3 +885,91 @@ Updated the FIZZBUZZ library document to record the current crawl retrieval time
 Maintained library (0 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-10T00:39:00.040Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 138057 (in: 134378, out: 3679)
+**Duration:** 80s (~1.3 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22881507618](https://github.com/xn-intenton-z2a/repository0/actions/runs/22881507618)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 21/32 | 11 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 0/32 | 32 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. No issues have been closed by review as RESOLVED yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 0 | 0 | MET |
+| Open PRs | 0 | 0 | MET |
+| Issues closed by review (RESOLVED) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 21/32 | < 32 | OK |
+| Cumulative transforms | 21 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Rewrote the usage examples feature to make runnable examples and a lightweight testable integration step so the README and examples align precisely with the core FizzBuzz acceptance criteria.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-10T00:40:44.300Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 108071 (in: 101937, out: 6134)
+**Duration:** 104s (~1.7 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22881507618](https://github.com/xn-intenton-z2a/repository0/actions/runs/22881507618)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 22/32 | 10 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 0/32 | 32 remaining |  |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. No issues have been closed by review as RESOLVED yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 0 | 0 | MET |
+| Open PRs | 0 | 0 | MET |
+| Issues closed by review (RESOLVED) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 22/32 | < 32 | OK |
+| Cumulative transforms | 22 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Extracted technical implementation details for FizzBuzz, ESM exports, Node ESM rules, Number.isInteger, RangeError/TypeError usage, and Vitest testing guidance from the listed sources to produce a single actionable library document.
+
+Maintained library (0 docs, limit 32)
+
+---
