@@ -1,0 +1,106 @@
+NAME
+CRON_PARSER (harrisiirak/cron-parser - JavaScript)
+
+TABLE OF CONTENTS
+1. Cron expression format supported (6-field with optional seconds)
+2. Supported special characters and semantics
+3. API signatures and return types
+4. Options object fields and behaviors
+5. Iterator and date range behaviors
+6. Timezone, DST and hash/jitter support
+7. File parsing utilities and return shape
+
+NORMALISED EXTRACT (direct technical content)
+1. Cron expression format
+- Visual layout: second minute hour day-of-month month day-of-week (second is optional)
+- Field ranges:
+  - second: 0-59 (optional)
+  - minute: 0-59
+  - hour: 0-23
+  - day-of-month: 1-31
+  - month: 1-12 or JAN-DEC
+  - day-of-week: 0-7 (0 or 7 is Sun) or SUN-SAT
+- Supports optional second field; accepts both 6-field and 7-field expressions depending on whether seconds are used.
+
+2. Supported special characters
+- * wildcard
+- ? alias for *
+- , list separator
+- - range
+- / step values
+- L last day of month or last weekday semantics
+- # nth day-of-week in month (e.g., 6#3 = 3rd Friday)
+- H randomized value (Jenkins-style hash-based jitter)
+
+3. API signatures and behavior (direct usable forms)
+- parse(expression: string, options?: CronExpressionOptions): CronExpressionParser
+  - Returns an iterator-like CronExpressionParser instance exposing next(), prev(), take(n), stringify(), fields, and iterator support.
+- CronExpressionParser.next(): Date  -- returns next occurrence as JS Date
+- CronExpressionParser.prev(): Date  -- returns previous occurrence
+- CronExpressionParser.take(n: number): Date[] -- returns next n dates
+- CronExpressionParser.stringify(): string -- returns normalized string representation
+- CronFileParser.parseFile(path: string): Promise<CronFileParseResult>
+- CronFileParser.parseFileSync(path: string): CronFileParseResult
+
+4. CronExpressionOptions (fields and types)
+- currentDate: Date | string | number  — base reference date for iteration; defaults to now (UTC)
+- startDate: Date | string | number — lower bound of iteration range
+- endDate: Date | string | number — upper bound of iteration range
+- tz: string — IANA timezone identifier (e.g., 'Europe/London'); library uses Luxon for tz handling
+- hashSeed: string — seed for deterministic H randomness
+- strict: boolean — enable strict validation rules (disallow ambiguous DOM+DOW and require full 6 fields)
+
+5. Iterator and date-range behavior
+- If currentDate omitted and startDate provided, currentDate := startDate
+- Automatic clamping: if currentDate outside startDate..endDate, currentDate will be clamped to startDate or throw when iteration would exceed endDate
+- Validation: iteration methods throw errors when iteration would exceed endDate ("Out of the time span range")
+
+6. Timezone and DST handling
+- Uses Luxon to apply IANA tz and handle DST transitions correctly
+- Provide tz option as IANA zone string; parser computes next occurrences using timezone-aware arithmetic
+
+7. Hash/Jitter semantics (H)
+- H picks a pseudo-random value within field range; deterministic when hashSeed provided
+- H(x-y) picks randomized value within range x..y
+- H/n supports stepping starting from randomized offset; offset constrained < step
+
+8. Field manipulation API
+- CronFieldCollection.from(existingFields, modifications) -> CronFieldCollection
+- Pass raw arrays or CronField instances for modified fields
+- CronFieldCollection.stringify() yields canonical expression
+
+9. CronFileParser I/O
+- parseFile(path): async -> { variables: Record<string,string>, expressions: string[], errors: ParseError[] }
+- parseFileSync(path): same shape synchronously
+
+SUPPLEMENTARY DETAILS
+- Node/TypeScript requirements: Node >= 18, TS >= 5
+- Predefined expressions supported: @yearly, @monthly, @weekly, @daily, @hourly, @minutely, @secondly, @weekdays, @weekends
+- Strict mode: rejects expressions with both day-of-month and day-of-week set, and rejects expressions with missing fields when strict required.
+
+REFERENCE DETAILS (method signatures, options types)
+- parse(expression: string, options?: {
+    currentDate?: Date | string | number,
+    startDate?: Date | string | number,
+    endDate?: Date | string | number,
+    tz?: string,
+    hashSeed?: string,
+    strict?: boolean
+  }): CronExpressionParser
+
+- CronExpressionParser interface (essential methods):
+  - next(): Date
+  - prev(): Date
+  - take(count: number): Date[]
+  - stringify(): string
+  - fields: { second?: number[], minute: number[], hour: number[], dayOfMonth?: number[], month: number[], dayOfWeek?: number[] }
+  - [Symbol.iterator](): Iterator<Date>
+
+DIGEST
+Source: https://github.com/harrisiirak/cron-parser (retrieved 2026-03-10). Contains full API docs, options, special characters, examples, and advanced features (strict mode, L/W/#, H jitter, timezone support). Data retrieved: ~38 KB.
+
+ATTRIBUTION
+Source: harrisiirak/cron-parser GitHub and API docs (MIT). Retrieved 2026-03-10. Approx. data size fetched: ~38 KB.
+
+NOTES
+NPM registry page returned HTTP 403 during fetch; use GitHub API/docs and library README for canonical API and install instructions (npm install cron-parser).

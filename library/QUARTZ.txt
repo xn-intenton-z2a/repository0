@@ -1,0 +1,59 @@
+NAME
+QUARTZ_CRON (Quartz CronTrigger syntax)
+
+TABLE OF CONTENTS
+1. Field layout (6 or 7 fields)
+2. Allowed values per field
+3. Special characters with exact semantics (?, L, W, #, *, /, , , -)
+4. Year field and optional usage
+5. Examples and canonical forms
+6. Notes about DST and limitations
+
+NORMALISED EXTRACT (direct technical content)
+1. Field layout
+Cron expressions in Quartz use 6 or 7 fields separated by whitespace in the order:
+- seconds (0-59) [REQUIRED]
+- minutes (0-59) [REQUIRED]
+- hours (0-23) [REQUIRED]
+- day-of-month (1-31) [REQUIRED]
+- month (1-12 or JAN-DEC) [REQUIRED]
+- day-of-week (1-7 or SUN-SAT) [REQUIRED]
+- year (optional; empty or 1970-2099)
+
+2. Allowed values and characters
+- Asterisk (*) matches all values for the field
+- Question mark (?) means "no specific value" and is allowed only in day-of-month and day-of-week fields; use ? in one when the other is specified
+- Dash (-) for ranges, e.g., 10-12
+- Comma (,) for enumerations, e.g., MON,WED,FRI
+- Slash (/) for increments, e.g., 0/15 in seconds means 0,15,30,45
+- L in day-of-month or day-of-week for "last" semantics. In day-of-week, "6L" means last Friday of month; in day-of-month, "L" = last day of month; L-3 means third-to-last day
+- W for the weekday nearest a given day-of-month (e.g., 15W)
+- # to specify "nth" weekday of month, e.g., 6#3 = 3rd Friday
+
+3. Year field
+- Optional; valid values range 1970-2099; supports ranges and lists like other numeric fields
+
+4. Examples (canonical)
+- 0 0 12 * * ? => Fire at 12:00pm every day
+- 0 15 10 ? * MON-FRI => Fire at 10:15am Monday-Friday
+- 0 0/5 14 * * ? => Every 5 minutes during 14:00 hour
+- 0 15 10 L * ? => Fire at 10:15am on last day of month
+
+5. Notes on DST and behavior
+- Quartz recommends being explicit about time zones when scheduling across DST. Use a scheduler API that accepts a time zone parameter (IANA zone) or convert times to UTC during storage and compute next run using timezone-aware rules.
+- The '?' character is used to disambiguate between day-of-month and day-of-week; one of the two must be '?' when the other is specified with a value.
+
+SUPPLEMENTARY DETAILS
+- Quartz expressions are more expressive than classic five-field cron; include seconds and optional year.
+- For cross-platform cron-engine, accept both classic five-field (minute..dow) and Quartz six-field (second..dow) forms; normalize internally to a single canonical internal structure.
+
+REFERENCE DETAILS (implementation rules)
+- Parser must accept 6-field expressions with seconds, or 7-field including year; when given 5-field classical expressions, assume missing seconds = 0 and missing year = wildcard.
+- '?' allowed only in day-of-month or day-of-week. If both are specific values, interpret per Quartz rules: use ? to mark the unused field. Reject expressions that specify both DOM and DOW without ? if strict mode enabled.
+- Implement L, W, # semantics exactly as defined above; L with offset (L-n) means n-th from last day.
+
+DIGEST
+Source: https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html (retrieved 2026-03-10). Data retrieved: ~7 KB.
+
+ATTRIBUTION
+Quartz Scheduler docs (CronTrigger tutorial). Retrieved 2026-03-10. Approx. data size fetched: ~7 KB.

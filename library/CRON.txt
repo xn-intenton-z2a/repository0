@@ -1,0 +1,68 @@
+NAME
+CRON
+
+TABLE OF CONTENTS
+1. Cron expression fields (five-field format)
+2. Field ranges and meanings
+3. Execution semantics and day-of-month vs day-of-week rule
+4. Predefined macros and @reboot
+5. System files and permissions
+6. Time zone handling (CRON_TZ)
+
+NORMALISED EXTRACT (direct technical content)
+1. Cron expression fields (five-field format)
+Each crontab line: minute hour day-of-month month day-of-week  command
+Positions (1..5):
+- minute: 0-59
+- hour: 0-23
+- day-of-month: 1-31
+- month: 1-12 (or JAN-DEC)
+- day-of-week: 0-6 (Sunday=0) on many systems; some implementations accept 0-7 with 0 and 7 as Sunday
+
+2. Field ranges and allowed operators
+Allowed operators: * , - /
+- * selects all values
+- comma "," enumerates values
+- dash "-" specifies ranges
+- slash "/" specifies steps, e.g., */5 means every 5th unit
+Some implementations accept "*/n" shorthand and multiple lists (1,2,3)
+
+3. Execution semantics and day-of-month vs day-of-week rule
+- A job is executed when all time/date specification fields match the current time, with a notable exception: if both day-of-month and day-of-week fields are restricted (not *), then the job runs when either field matches (POSIX behavior), meaning logical OR between the two fields on many systems.
+- Some implementations differ; take care when migrating expressions between systems.
+
+4. Predefined macros and @reboot
+Nonstandard macros supported by many implementations:
+- @yearly / @annually => 0 0 1 1 *
+- @monthly => 0 0 1 * *
+- @weekly => 0 0 * * 0
+- @daily / @midnight => 0 0 * * *
+- @hourly => 0 * * * *
+- @reboot => run once at daemon start / machine boot (behavior varies; Debian treats restart differently)
+
+5. System files and permissions
+- /etc/cron.allow: if exists, user must be listed to use cron
+- /etc/cron.deny: if cron.allow does not exist but cron.deny does, users listed are denied
+- If neither exist, policy is site-dependent (either only superuser or all users allowed)
+
+6. Time zone handling
+- Most cron daemons interpret crontab entries in the system time zone where the daemon runs.
+- Some implementations recognize a line "CRON_TZ=Region/Name" at the top of a user crontab; subsequent entries are interpreted using that time zone. Implementation-specific: verify support before relying on CRON_TZ.
+
+SUPPLEMENTARY DETAILS
+- Typical crontab storage locations: per-user crontab spools (system-specific) and /etc/cron.d for system-wide crontabs which may include a sixth field (username) on some systems.
+- Historical algorithms: simple minute-polling vs event-queue implementations using Franta–Maly event list for efficiency; modern cron uses event-list style to scale.
+- DST edge cases: times around DST transitions may skip or repeat; schedule planning must account for DST transitions if using local system zones.
+
+REFERENCE DETAILS (IMPLEMENTATION SPECIFICS)
+- Field parsing rules: parse tokens separated by whitespace into five fields; accept numeric ranges and synonyms for months and weekdays where supported.
+- Day-of-week numeric mapping: 0 or 7 -> Sunday, 1 -> Monday, ... 6 -> Saturday; some systems differ (verify target platform).
+- Macro expansion: expand @yearly, @monthly, etc. to equivalent five-field expressions at parse time.
+- @reboot semantics: treat as a one-shot job scheduled when daemon detects boot or first start; do not re-run on cron daemon restart unless implementation defines so.
+- CRON_TZ processing: parse a CRON_TZ= IANA zone string and apply tz conversion rules to interpretation of subsequent schedule lines; if not supported, ignore or error.
+
+DIGEST
+Extracted from: https://en.wikipedia.org/wiki/Cron (retrieved 2026-03-10). Content retrieved: cron daemon and crontab format, field semantics, macros, CRON_TZ mention, /etc/cron.allow and /etc/cron.deny, @reboot behavior, DST cautionary notes. Data retrieved: ~12KB (page truncated during fetch).
+
+ATTRIBUTION
+Source: Wikipedia — Cron (https://en.wikipedia.org/wiki/Cron). Retrieved 2026-03-10. Approx. data size fetched: ~12 KB.

@@ -1,0 +1,49 @@
+NAME
+INTL
+
+TABLE OF CONTENTS
+1. Intl overview and constructors relevant to cron-engine
+2. Locale identifiers and BCP 47 composition rules
+3. Options and locale negotiation
+4. DateTimeFormat usage for localized formatting and timezone-aware display
+5. Static methods useful for capabilities detection
+
+NORMALISED EXTRACT (direct technical content)
+1. Intl overview
+- Intl is a namespace with static constructors and methods for language-sensitive operations: Intl.Collator, Intl.DateTimeFormat, Intl.NumberFormat, Intl.Locale, Intl.getCanonicalLocales, Intl.supportedValuesOf, etc.
+- Intl is not a constructor; all members are static constructors/functions.
+
+2. Locale identifiers (BCP 47)
+- Structure: language[-script][-region][-variants][extensions][private-use]
+- Subtags: language (2-3 or 5-8 letters), optional script (4 letters), optional region (2 letters or 3 digits), optional variants
+- Unicode extension sequences (u and t) allow requesting behavior such as collation and numbering system: example u-co-phonebk, u-nu-thai, u-ca-japanese.
+
+3. Options and locale negotiation
+- Constructors accept (locales, options)
+- locales: undefined | string | array of strings | Intl.Locale
+- options.localeMatcher: "lookup" | "best fit" determines algorithm used for selecting best-supported locale
+- Unicode extension keys are applied to customize behavior per constructor where supported
+
+4. Date/time formatting and timezone notes
+- Intl.DateTimeFormat formats according to locale conventions; however, timezone selection in DateTimeFormat depends on runtime support and options; to display timezone-aware dates, pass a Date already adjusted or use a formatter that supports timeZone option when available.
+- Use navigator.language or navigator.languages in browsers for preferred-locale selection; server-side code should accept explicit locale input.
+
+5. Static helper methods
+- Intl.getCanonicalLocales(locales): string[] canonicalized
+- Intl.supportedValuesOf(key): returns supported values for calendars, collations, currencies, numbering systems, etc.
+
+SUPPLEMENTARY DETAILS (cron-engine relevance)
+- Use Intl to render dates for UI in user-preferred locale string formats after computing occurrences in IANA time zone.
+- Use Intl.getCanonicalLocales to normalize locale inputs before storing user preferences.
+- Use Unicode extension 'u-ca' to present dates in non-Gregorian calendars if needed.
+
+REFERENCE DETAILS (method signatures)
+- Intl.getCanonicalLocales(locales: string | string[] | Intl.Locale): string[]
+- Intl.supportedValuesOf(key: string): string[]
+- new Intl.DateTimeFormat(locales?: string | string[], options?: { localeMatcher?: 'lookup'|'best fit', timeZone?: string, hour?: 'numeric'|'2-digit', minute?: 'numeric'|'2-digit', second?: 'numeric'|'2-digit', year?: 'numeric'|'2-digit', month?: 'numeric'|'2-digit'|'long'|'short'|'narrow', day?: 'numeric'|'2-digit' }): Intl.DateTimeFormat
+
+DIGEST
+Source: MDN Intl reference (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl). Retrieved 2026-03-10. Data retrieved: ~9 KB.
+
+ATTRIBUTION
+Source: MDN Web Docs — Intl. Retrieved 2026-03-10. Approx. data size fetched: ~9 KB.
