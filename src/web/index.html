@@ -3,18 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>repository0 - Cron Engine Demo</title>
-  <meta property="og:title" content="repository0">
-  <meta property="og:description" content="Cron engine demo">
-  <meta property="og:type" content="website">
+  <title>repository0 - Cron Engine Demo (DST aware)</title>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; max-width: 900px; margin: 0 auto; padding: 2rem; color: #333; }
     h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
-    a { color: #0366d6; }
     .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
-    .identity dt { font-weight: bold; color: #666; }
-    .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-    #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
+    #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 4rem; }
+    label { display:block; margin-top:0.5rem; }
+    input, button { font-size: 1rem; padding: 0.4rem; margin-top:0.3rem; }
+    .hint { color:#666; font-size:0.9rem }
   </style>
 </head>
 <body>
@@ -27,10 +24,26 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
-  <h2>Demo Output</h2>
-  <div id="demo-output">Loading demo...</div>
-  <h2>About</h2>
-  <p>This website demonstrates the cron engine. It runs a small demo to show scheduled next runs.</p>
+
+  <h2>DST-aware Cron Demo</h2>
+  <p class="hint">Enter a cron expression (5 fields or 6 with seconds), pick a start instant (ISO with offset recommended), and the demo will show next N run instants (ISO UTC) and highlight repeated/skipped local times across DST.</p>
+
+  <label for="cron-input">Cron expression</label>
+  <input id="cron-input" value="30 1 * * *" />
+
+  <label for="start-input">Start instant (ISO, include offset recommended)</label>
+  <input id="start-input" value="2021-11-07T00:00:00-04:00" />
+
+  <label for="count-input">Count</label>
+  <input id="count-input" value="5" />
+
+  <div style="margin-top:0.5rem;">
+    <button id="generate-button">Generate</button>
+  </div>
+
+  <h3>Demo Output</h3>
+  <div id="demo-output">Ready.</div>
+
   <script type="module" src="./demo.js"></script>
 </body>
 </html>

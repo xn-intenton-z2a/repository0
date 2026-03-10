@@ -1,26 +1,38 @@
-# Cron Engine
+# repository0 - Cron Engine (DST aware)
 
-This repository implements a small cron engine library that can parse cron expressions, compute next run times, and check schedule matches.
+This repository provides a small cron parsing and scheduling library with explicit DST-aware wall-clock semantics.
 
-Usage examples
+Features
+
+- parseCron(expression) — parse standard cron expressions (5 or 6 fields) into a structured object.
+- matches(expression, date) — evaluates cron fields against the Date object's local wall-clock getters (getFullYear, getMonth, getDate, getHours, getMinutes, getSeconds).
+- nextRun(expression, after?) / nextRuns(expression, count, after?) — compute next occurrences using local wall-clock semantics; repeated local times are returned as distinct instants, and skipped local times are not manufactured.
+- toString(parsed) — convert parsed object back to cron string.
+
+DST semantics summary
+
+- Repeated local times (fall-back): both instants are valid and returned.
+- Skipped local times (spring-forward): no surrogate; the engine advances to the next valid matching date/time.
+
+Example (US Eastern DST fall-back 2021-11-07)
 
 ```js
-import { parseCron, nextRun, nextRuns, matches } from './src/lib/cron.js';
+import { nextRuns } from './src/lib/main.js';
 
-const parsed = parseCron('*/15 * * * *');
-console.log(parsed);
-
-const next = nextRun('0 9 * * 1', new Date());
-console.log('Next Monday 09:00:', next);
-
-console.log(matches('0 0 25 12 *', new Date(2025,11,25)));
+const runs = nextRuns('30 1 * * *', 2, new Date('2021-11-07T00:00:00-04:00'));
+console.log(runs.map(r => r.toISOString()));
+// [ '2021-11-07T05:30:00.000Z', '2021-11-07T06:30:00.000Z' ]
 ```
 
-Website demo
+Testing
 
-Run `npm run build:web` then `npm run start` to view the demo at http://localhost:3000 (served by serve).
+- Unit tests: npm test
+- Behaviour tests (Playwright): npm run test:behaviour (builds the web demo into docs/ and runs Playwright)
 
-Tests
+Docs
 
-- Unit tests: `npm test`
-- Behaviour tests: `npm run test:behaviour`
+See docs/DST_AWARE.md for rationale and deterministic testing guidance.
+
+Mission
+
+The library focuses on deterministic, testable schedule semantics and is designed so future work can add explicit timezone options.
