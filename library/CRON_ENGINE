@@ -1,214 +1,176 @@
-CRON_ENGINE
+DOCUMENT: CRON_ENGINE
 
-1. NORMALISED EXTRACT
+NORMALISED EXTRACT
 
-Table of contents:
-1.1 Cron formats and field definitions (POSIX/vixie cron)
-1.2 Quartz Cron format and extensions
-1.3 Special strings and common shorthands
-1.4 Field value grammar: ranges, lists, steps
-1.5 DOM vs DOW semantics
-1.6 Time zone handling and DST implications
-1.7 cron-parser (harrisiirak) API: signatures, options, return objects
-1.8 Parsing/Runtime semantics and edge cases
-1.9 Concrete examples
+Table of Contents:
+1. Cron expression formats
+2. Field semantics and allowed values
+3. Special characters and exact semantics
+4. Differences: Unix cron vs Quartz vs cron-parser extensions
+5. Time zones and DST handling
+6. Parser behavior, options and iterator semantics (cron-parser)
+7. Scheduling engine implementation notes (event queue, SIGHUP, @reboot)
 
-1.1 Cron formats and field definitions (POSIX/vixie cron)
-- Standard crontab expression: five space-separated fields: minute hour day-of-month month day-of-week
-- Field order and ranges:
-  minute: 0-59
-  hour: 0-23
-  day-of-month (DOM): 1-31
-  month: 1-12 or JAN-DEC
-  day-of-week (DOW): 0-7 or SUN-SAT (0 and 7 both Sunday)
-- Field separators: white-space (single space recommended). Tabs allowed by implementations but normalize to single spaces before parsing.
-- Allowed tokens within a field: * (any), a-b (range inclusive), a,b (list), */n or a-b/n (step values), names for month/day-of-week (JAN, FEB, MON, TUE, etc).
+1. Cron expression formats
+- Unix Vixie-style crontab: five fields: minute (0-59), hour (0-23), day of month (1-31), month (1-12), day of week (0-6 or 0/7 = Sunday). Typical line: "m h dom mon dow command".
+- Some implementations accept a sixth field for user or year; Windows nnCron may use sixth for year.
+- Quartz CronTrigger: six or seven fields: seconds (0-59), minutes (0-59), hours (0-23), day-of-month (1-31), month (1-12 or JAN-DEC), day-of-week (1-7 or SUN-SAT), optional year (empty or 1970-2099). Example minimal Quartz expression: "* * * * ? *".
+- cron-parser (JS) supports six-field expressions where the first field is seconds (optional in some modes) and includes additional extensions (H, L with week variants, #, etc.).
 
-1.2 Quartz Cron format and extensions
-- Quartz cron expression: seven fields (seconds minutes hours day-of-month month day-of-week year) where year is optional.
-- Field ranges:
-  seconds: 0-59
-  minutes: 0-59
-  hours: 0-23
-  day-of-month: 1-31
-  month: 1-12 or JAN-DEC
-  day-of-week: 1-7 or SUN-SAT (Quartz uses 1=SUN, 2=MON, ... 7=SAT)
-  year: optional, e.g., 1970-2099
-- Quartz-specific special characters:
-  ? : no specific value (used for either DOM or DOW when the other is specified)
-  L : last day of the month or last weekday when used with W (e.g., LW)
-  W : nearest weekday to given day-of-month (e.g., 15W)
-  # : nth day-of-week in the month (e.g., 2#1 = first Monday)
-  C : calendar day? (implementation-specific; treat as advanced extension)
-- Quartz requires that either DOM or DOW be ? when you need the other to drive scheduling; do not rely on OR semantics used by some cron implementations.
+2. Field semantics and allowed values
+- Seconds: 0-59 (Quartz and cron-parser when using seconds)
+- Minutes: 0-59
+- Hours: 0-23
+- Day of month: 1-31; special values: L (last day), LW/LW combinations, W (nearest weekday)
+- Month: 1-12 or JAN-DEC; case-insensitive
+- Day of week: Unix: 0-6 (0 or 7 = Sunday); Quartz: 1-7 or SUN-SAT; cron-parser allows 0-7 and SUN-SAT and 1L-7L for last-weekday
+- Year: optional in Quartz; numeric range typically 1970-2099
+- POSIX exception: when both day-of-month and day-of-week are restricted (not *), some Unix crons trigger if either field matches; Quartz requires using '?' in one of the two fields to avoid ambiguity.
 
-1.3 Special strings and common shorthands
-- Common shorthands recognized by many crons: @reboot, @yearly (or @annually), @monthly, @weekly, @daily (or @midnight), @hourly
-- Implementation note: shorthands are translated into equivalent cron expressions by the scheduler; store the canonical expression for persistence and comparison.
+3. Special characters and exact semantics
+- * : all values for the field
+- ? : no specific value (Quartz); in Unix often same as * or used to avoid ambiguity in day-of-month/day-of-week
+- , : value list separator (e.g., MON,WED,FRI)
+- - : inclusive range (e.g., 10-12)
+- / : step values; can appear as "start/step" or "*/step" meaning every step units starting at start or 0
+- L : last occurrence. Day-of-month: L = last day of month; Day-of-week: "6L" = last Friday of month; offsets allowed like L-3
+- W : weekday nearest given day-of-month. E.g., 15W fires nearest weekday to 15th; special-case months boundaries: 1W on Saturday moves to Monday 3rd
+- # : "nth" weekday of month; e.g., 6#3 = third Friday of month
+- H (cron-parser extension): randomized deterministic hash-based value within field range; seedable via hashSeed option; supports ranges H(x-y) and steps H/step
+- @macros (Unix): @yearly, @monthly, @weekly, @daily/@midnight, @hourly, @reboot; mapped to equivalent expressions except @reboot which triggers on daemon start only
 
-1.4 Field value grammar: ranges, lists, steps
-- Grammar elements and their interpretations:
-  * : wildcard matches every permitted value in field range.
-  a-b : inclusive range from a to b.
-  a,b,c : explicit list containing specified values.
-  */n or a-b/n : step values; when used with * means every n units, when used with range means every n units within [a,b].
-  Named values: JAN, FEB, MAR... and SUN, MON... are case-insensitive; normalize to upper-case before matching.
-- Validation rules: enforce numeric bounds per field; reject values outside permitted ranges; when named values provided, map to their numeric equivalents.
+4. Differences: Unix cron vs Quartz vs cron-parser
+- Field count: Unix 5 fields (minute..dow), Quartz 6/7 (seconds included, year optional), cron-parser supports seconds and many Quartz-like extensions plus Jenkins-style H
+- Day-of-month vs day-of-week resolution: Unix historically treats both fields such that if both are restricted, match occurs when either matches; Quartz enforces use of '?' in one field to disambiguate. cron-parser offers strict mode to reject expressions that set both DOM and DOW.
+- Named months/days: Quartz and cron-parser accept JAN-DEC and SUN-SAT; UNIX crontab implementations differ but many support names.
+- Time zones: many cron daemons run in system timezone; some accept CRON_TZ=TZNAME lines in crontabs to set timezone per crontab; cron-parser accepts tz option with IANA zone name and uses a timezone library (e.g., Luxon) to compute transitions and DST behavior.
 
-1.5 DOM vs DOW semantics
-- POSIX/vixie cron: when both DOM and DOW are restricted (not *), the job runs when either field matches the current time (logical OR). Implementation must replicate this behavior if targeting vixie cron compatibility.
-- Quartz: DOM and DOW fields are mutually exclusive selection fields; use ? to indicate the unused field. Do not apply OR semantics for Quartz expressions.
-- When offering a parser API, provide explicit mode flags: mode: "cron" (5-field OR semantics) vs "quartz" (7-field, ? semantics) and a strictMode or compatibility flag to reject ambiguous expressions.
+5. Time zones and DST handling
+- Use IANA tz database zone names (e.g., Europe/London, America/Los_Angeles). Do not use numeric offsets for persistent schedules where DST matters.
+- IANA tzdb is distributed (e.g., tzdata2026a.tar.gz) and must be kept up-to-date when political boundary or DST rules change.
+- During DST "spring forward" an hour may be skipped (some local times never occur); during "fall back" an hour is repeated. Schedulers must define behavior: prefer to interpret cron expressions in local time and either skip or repeat events according to wall-clock semantics.
+- Best practice: schedule using local wall-clock semantics using IANA tz names and compute next-fire instants using a timezone-aware library (Luxon, ICU via Intl, or similar), ensuring correct handling of ambiguous or non-existent local instants by choosing well-documented resolution rules (e.g., prefer earlier/later or skip depending on desired semantics).
 
-1.6 Time zone handling and DST implications
-- Use IANA time zone identifiers (e.g., Europe/London, America/Los_Angeles) to compute local trigger times. Avoid system locale names.
-- Two common execution strategies:
-  1) Store expressions and evaluate next-run times in UTC: convert cron expression times from local timezone to UTC when scheduling and persist UTC next-run timestamps. Advantage: unambiguous storage; disadvantage: next-run changes around DST.
-  2) Evaluate expressions in an IANA time zone at runtime: compute next occurrences using the provided zone so local wall-clock semantics are preserved across DST transitions.
-- DST handling rules:
-  - Ambiguous local times (clocks set backward): two distinct UTC instants map to same local wall-clock; choose the earlier or later occurrence consistently; document choice.
-  - Skipped local times (clocks set forward): some local times do not exist; scheduler must skip or execute at next valid time depending on policy. Recommended default: skip non-existent local times and log as missed runs or schedule next valid instant.
-- Use Intl.DateTimeFormat and the IANA registry for validation of time zone identifiers.
+6. Parser behavior, options and iterator semantics (cron-parser)
+- Primary API: CronExpressionParser.parse(expression: string, options?: CronExpressionOptions) returns a CronExpression/iterator object.
+- Options (CronExpressionOptions):
+  - currentDate: Date | string | number — the current date for iteration; defaults to now (UTC by default in cron-parser unless tz provided)
+  - startDate: Date | string | number — iteration lower bound; if currentDate omitted and startDate provided, startDate becomes currentDate
+  - endDate: Date | string | number — iteration upper bound; iteration throws when exceeding endDate
+  - tz: string — IANA timezone identifier (e.g., 'Europe/London') used for computing next/prev in local time and converting to UTC instants
+  - hashSeed: string — seed for deterministic H (jitter) values
+  - strict: boolean — enable strict validation (rejects ambiguous DOM+DOW combos, requires full field count, rejects empty expression)
+- Iterator methods and semantics:
+  - next(): Date — returns next matching date (as Date object). Throws if next date would exceed endDate or iteration range
+  - prev(): Date — returns previous matching date
+  - take(n): Date[] — returns next n dates
+  - iterator is iterable (for...of) and supports break
+  - stringify()/toString(): returns canonical string representation of the parsed expression (with random H resolved when hashSeed used)
+- Date range handling: if currentDate is outside startDate..endDate, the parser clamps currentDate to startDate when startDate provided; iteration enforces endDate bound and throws when exceeded
+- Timezone handling: when tz is provided, parser computes matching local datetimes in tz and then converts to absolute instants (UTC) to return Date objects; DST transitions are handled by the underlying timezone library
 
-1.7 cron-parser (harrisiirak) API: signatures, options, return objects
-- Primary function signature:
-  parseExpression(expression: string, options?: {
-    currentDate?: Date | string,
-    endDate?: Date | string,
-    iterator?: boolean,
-    utc?: boolean,
-    tz?: string, // IANA time zone name
-    throwException?: boolean,
-    useUnixTimestamp?: boolean,
-    // Implementation note: some forks support useSeconds: true to allow 6/7-field expressions
-  }) => CronIterator | Date
-- Return value when iterator option is false:
-  next(): Date  // returns next occurrence as JS Date object
-  prev(): Date  // returns previous occurrence as JS Date object
-  hasNext(): boolean
-  // Additional properties:
-  fields: {
-    seconds?: number[],
-    minutes: number[],
-    hours: number[],
-    dayOfMonth: number[],
-    month: number[],
-    dayOfWeek: number[],
-    years?: number[]
+7. Scheduling engine implementation notes (event queue, SIGHUP, @reboot)
+- Efficient scheduler pattern: compute next-fire time for each job, insert into a priority/event queue (Franta–Maly event list recommended for efficiency) keyed by next-fire instant, sleep until head-of-queue time, wake and execute tasks, then compute and re-insert their next-fire times.
+- On daemon start, scan crontabs, compute next times for each job, populate queue; on SIGHUP or file-change, recompute affected crontab entries and update queue atomically.
+- CRON_TZ per-crontab: parse lines like CRON_TZ=Europe/London and apply that tz to subsequent expressions in that file; otherwise use daemon/system tz.
+- @reboot: implement by queuing a one-time event at daemon startup only; do not re-run on cron daemon restarts unless design requires it.
+- Job execution: fork/exec or spawn under job's configured user context where supported (system crontabs may include user field). Capture stdout/stderr and optionally email output to job owner.
+
+SUPPLEMENTARY DETAILS (implementation specifications and configuration)
+
+- Expression normalization: accept both numeric and named month/day tokens; convert to canonical numeric ranges internally for comparison.
+- Field parsing: tokenize by whitespace for top-level fields; support optional seconds field when present (6th field vs 5-field mode). In strict mode require 6 fields.
+- Range expansion: support single values, ranges (a-b), lists (a,b,c), steps (a/b or */b), and nested constructs like JAN-MAR/2.
+- L/W/#: implement month-aware calculations: L for DOM => use lastDay = daysInMonth(year, month); L-3 => lastDay - 3; weekday nearest W => compute candidate day; if weekend, shift as per rules and month boundary checks.
+- H hashing: compute deterministic hash(jobIdentifier + hashSeed) mapped into field range. When seed omitted, use randomized but repeatable per process life if desired.
+- Time arithmetic: use timezone-aware library (recommended: Luxon or ICU-based) to compute local instants; handle ambiguous and nonexistent local times explicitly:
+  - Non-existent (spring forward): choose strategy: 1) shift forward to next valid local time; 2) skip this local occurrence (no firing); document chosen policy. cron-parser uses timezone library semantics to compute next valid instant.
+  - Ambiguous (fall back): choose earliest or latest mapping consistently; document and expose option if controllable.
+- Validation: strict mode rejects expressions that set both DOM and DOW; default mode accepts and implements the historical behavior (match if either is satisfied) unless deploying Quartz-style semantics which requires '?' in one field.
+
+REFERENCE DETAILS (API signatures, types, configs, values, examples)
+
+cron-parser (JS) API signatures and types (normalized):
+- parse(expression: string, options?: CronExpressionOptions): CronExpressionIterator
+  - CronExpressionOptions {
+    currentDate?: Date | string | number,
+    startDate?: Date | string | number,
+    endDate?: Date | string | number,
+    tz?: string, // IANA zone, e.g., 'Europe/London'
+    hashSeed?: string,
+    strict?: boolean
   }
-  toString(): string // canonicalized expression
-- When iterator option is true, parseExpression returns an iterator whose next() method returns an object {value: Date, done: boolean} (conforms to JS iterator pattern).
-- Options effects:
-  currentDate sets the base reference instant for computing next/prev occurrences.
-  endDate limits generation of occurrences; next() throws or returns done when beyond endDate depending on iterator.
-  tz applies IANA time zone rules when computing dates; utc forces UTC semantics.
-  iterator toggles iterator output shape.
-  throwException toggles whether invalid expressions throw or return a handled error object.
+- CronExpressionIterator methods:
+  - next(): Date
+  - prev(): Date
+  - take(n: number): Date[]
+  - toString(): string
+  - stringify(): string
+  - [Symbol.iterator](): Iterator<Date>
+- CronFileParser:
+  - parseFile(path: string): Promise<{variables: Record<string,string>, expressions: string[], errors: any[]}>
+  - parseFileSync(path: string): {variables: Record<string,string>, expressions: string[], errors: any[]}
+- CronFieldCollection.from(fields, patch: Partial<Record<'second'|'minute'|'hour'|'dayOfMonth'|'month'|'dayOfWeek', any>>): CronFieldCollection
+  - CronFieldCollection.stringify(): string
 
-1.8 Parsing/Runtime semantics and edge cases
-- Named months/days: map JAN..DEC to 1..12 and SUN..SAT to 0..6 (or 1..7 for Quartz) consistently. Expose mapping table in API docs.
-- Steps and ranges validation: "0/15" in minute field interpreted as 0,15,30,45; "5-30/5" interpreted as 5,10,15,20,25,30.
-- Leap years and February handling: when DOM contains 29 and month excludes February in non-leap year, skip occurrences for that month.
-- End-of-month semantics: when expression refers to 31 and month has fewer days, skip the month occurrence.
-- Large backfill or lookahead: when computing next N occurrences, set a maximum attempt limit (e.g., 10,000 iterations) to avoid infinite loops from malformed expressions; return error if limit reached.
-- Invalid expression handling: return error with location information (field index, token) if throwException=true; otherwise return a structured error object.
+Quartz Cron expression format (exact field order and allowed values):
+- Fields: seconds (0-59), minutes (0-59), hours (0-23), day-of-month (1-31 or L/W), month (1-12 or JAN-DEC), day-of-week (1-7 or SUN-SAT, supports L and #), year (optional: 1970-2099)
+- Allowed special chars: * , - / ? L W #
+- Use '?' in either day-of-month or day-of-week to indicate 'no specific value' for that field when the other is used.
+- Examples:
+  - "0 0 12 * * ?" => Fire at 12:00:00 every day
+  - "0 0/5 14 * * ?" => Fire every 5 minutes between 14:00 and 14:59
 
-1.9 Concrete examples
-- "0 0 * * *" -> every day at 00:00 UTC (or local if tz provided)
-- "*/15 9-17 * * MON-FRI" -> every 15 minutes between 09:00 and 17:59 on weekdays
-- Quartz: "0 0 12 ? * MON-FRI" -> at 12:00:00 (noon) on every Monday through Friday
-- "0 0 0 1 1 ? 2026" (Quartz) -> midnight on January 1, 2026
+IANA tzdb usage and update handling:
+- Use canonical IANA names (e.g., America/Los_Angeles) when constructing tz-aware iterators.
+- Ensure deployment includes tzdb updates: fetch tzdataYYYYx.tar.gz from IANA and install into the runtime's timezone library or OS tz database; sizes (example recent release): tzdb-2026a.tar.lz ~546.2kb, tzdata2026a.tar.gz ~460.8kb.
+- Provide a configuration option to select local system tzdb or bundled tzdb for consistent cross-host scheduling.
 
-2. SUPPLEMENTARY DETAILS
+Intl (ECMA/JS) relevant methods for localisation/time handling:
+- Intl.getCanonicalLocales(locales: string | string[]): string[]
+- Intl.supportedValuesOf(key: 'calendar' | 'collation' | 'currency' | 'numberingSystem' | 'unit'): string[]
+- Intl.DateTimeFormat(locales?: string | string[], options?: DateTimeFormatOptions)
+  - DateTimeFormatOptions include timeZone?: string (IANA zone), hour12?: boolean, etc.
+- Use Intl.DateTimeFormat and Intl.Locale for canonicalizing locale and for formatting; to compute timezone offsets and locale date formatting use Intl with timeZone set to IANA zone.
 
-2.1 IANA time zone names and validation
-- Use full IANA names; validation: test against Intl.supportedValuesOf("timeZone") when available or match against a curated list from IANA TZ database.
-- Store time zone identifiers alongside the cron expression and persist them immutably for the schedule; changing the stored identifier should be explicit migration.
+BEST PRACTICES (concrete)
+- Always use IANA tz names (e.g., 'Europe/London') when scheduling across DST regions.
+- Prefer timezone-aware iterator that computes local matches then converts to UTC instants; do not naively apply fixed UTC offsets.
+- Expose strict mode in the API for users who want Quartz-like validation; default permissive mode can mimic Vixie cron historical behavior.
+- Implement and document deterministic jitter (H) via a seed per job name or ID to spread load across workers; provide hashSeed option.
+- For @reboot jobs, queue a single startup job and avoid re-queueing on daemon restart unless system boot detected; document semantics clearly.
+- When modifying crontab entries at runtime, recompute affected next-fire times and update the event queue; use atomic swap to avoid duplicate firings.
 
-2.2 Formatting and presentation (Intl)
-- Use Intl.DateTimeFormat(locale, {timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', timeZoneName:'short'}) to render human-readable next-run times in the expression's timezone.
+TROUBLESHOOTING PROCEDURES (step-by-step)
+- If a job did not fire during DST transition:
+  1. Verify crontab's tz or daemon tz; confirm IANA zone used.
+  2. Compute the local requested time for the transition date; check whether local time was non-existent (spring forward) or ambiguous (fall back).
+  3. Check scheduler policy for non-existent times (skip vs shift). Adjust policy if necessary.
+- If expressions parse differently between systems:
+  1. Check whether seconds-field is expected; some systems use 5 vs 6 fields.
+  2. Check strict mode settings (disallowing both DOM and DOW).
+  3. Confirm interpretation of day-of-week numbering (0 vs 1-based) and named tokens.
+- If jitter (H) values appear inconsistent:
+  1. Confirm hashSeed provided and identical across processes if deterministic behavior required.
+  2. Verify hashing algorithm and mapping to field range; ensure same encoding (UTF-8) and normalization of job identifier.
 
-2.3 Best practices
-- Persist canonicalized expressions (normalized spacing, upper-cased names, and expanded shorthand replacement) to enable deterministic comparisons.
-- Expose two evaluation modes: strict (reject nonstandard extensions) and compatibility (accept vixie or Quartz extensions depending on mode flag).
-- Prefer evaluating schedules in the explicit IANA timezone rather than relying on system local time.
-- Provide tooling to convert between 5-field cron and 6/7-field Quartz forms with clear documentation of differences.
+DETAILED DIGEST (source extracts and retrieval date)
+- Sources crawled (retrieved 2026-03-10):
+  - https://en.wikipedia.org/wiki/Cron — Unix cron history, typical 5-field syntax, CRON_TZ usage notes, @macros, multi-user behavior and scheduling algorithm overview. (content partially retrieved; larger page)
+  - https://crontab.guru/ — quick cron expression editor and reference for common usages (landing page retrieved)
+  - https://github.com/harrisiirak/cron-parser — library README and API: supports seconds field, H jitter, L/W/#, timezone support, strict mode, iterator API, CronFileParser, field manipulation and hashSeed; examples of parse(), next(), take(), parseFile/parseFileSync. (content retrieved)
+  - https://www.npmjs.com/package/cron-parser — (fetch returned 403; npm page metadata omitted) — use GitHub README for API details
+  - https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html — Quartz CronTrigger tutorial: 6/7 field format, allowed special characters: *,?, -, /, L, W, #, examples, notes on using ? in DOM/DOW to avoid ambiguity, year field optional. (content retrieved)
+  - https://www.iana.org/time-zones — tz database distribution, latest tzdb version listing (2026a) and distribution sizes: tzdb-2026a.tar.lz 546.2kb, tzdata2026a.tar.gz 460.8kb, tzcode2026a.tar.gz 315.2kb. (content retrieved)
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl — Intl overview: locale identifier syntax (BCP 47), locale negotiation, Intl.DateTimeFormat and static methods Intl.getCanonicalLocales(), Intl.supportedValuesOf(), formatting with timeZone option, Unicode extensions usage (u and t extensions). (content partially retrieved)
 
-3. REFERENCE DETAILS (APIS, SIGNATURES, CONFIG)
+ATTRIBUTION
+- Content extracted from publicly available documentation and pages listed in SOURCES.md on 2026-03-10. Sources include Wikipedia (Cron), crontab.guru, GitHub cron-parser README, Quartz CronTrigger tutorial, IANA Time Zone Database site, and MDN Intl documentation.
 
-3.1 cron-parser API (precise method signatures and effects)
-- parseExpression(expression: string, options?: {
-    currentDate?: Date | string,
-    endDate?: Date | string,
-    iterator?: boolean,
-    utc?: boolean,
-    tz?: string,
-    throwException?: boolean,
-    useSeconds?: boolean // when true enable parsing of 6/7 field expressions
-  }) => CronIterator
-
-- CronIterator methods and properties:
-  next(): Date | {value: Date, done: boolean}
-  prev(): Date
-  hasNext(): boolean
-  fields: {
-    seconds?: number[],
-    minutes: number[],
-    hours: number[],
-    dayOfMonth: number[],
-    month: number[],
-    dayOfWeek: number[],
-    years?: number[]
-  }
-  toString(): string // normalized expression
-
-- Error behavior:
-  - When throwException is true, invalid expressions throw a SyntaxError with message including field index and token.
-  - When false, function returns an error object {error: true, message: string, location: {field: number, token: string}}
-
-3.2 Quartz cron rules (explicit specification for implementation)
-- Field counts: allow 6 or 7 fields. If 6 fields present, interpret as seconds absent only if useSeconds flag is false; explicit policy: prefer explicit useSeconds option.
-- Special characters:
-  ? : allowed only in DOM or DOW to indicate no specific value
-  L : allowed in DOM (last day) or DOW (last weekday) with semantics: when in DOW, L means last occurrence of that weekday in the month
-  W : when suffixed to a DOM value, finds nearest weekday to that DOM value
-  # : DOW#n selects nth occurrence of weekday in month (e.g., 2#1 = first Monday)
-- Day-of-week numbering: 1-7 = SUN-SAT. When accepting 0-7 input, normalize 0 to 7 only in non-Quartz modes.
-
-3.3 Time zone options and behaviors
-- tz option (IANA string): when provided, compute next/prev occurrences in that zone, returning JS Date objects in system timezone but representing the correct instant. Example: parseExpression('0 0 2 * * *', {tz: 'America/New_York'}) -> next() returns a Date representing the UTC instant that corresponds to 02:00 America/New_York on the next matching day.
-- utc boolean: when true, treat expression as UTC-based and ignore tz.
-- CurrentDate and endDate may be supplied as ISO-8601 strings; accept both Date objects and strings.
-
-3.4 Validation and normalization rules to implement
-- Normalize whitespace and collapse repeated spaces.
-- Upper-case named tokens and map to numeric values.
-- Reject mixed-mode expressions unless useSeconds flag is explicit.
-- Provide canonicalize(expression, options?) utility that returns normalized expression (tokens upper-cased, names expanded to numeric where configured, shorthand replaced) and a parsed AST with fields and tokens.
-
-3.5 Troubleshooting and diagnostics
-- If next() does not progress (infinite loop), key checks:
-  1) Verify expression is valid and not equivalent to an empty set (e.g., month range inverted).
-  2) Check time zone mapping; an invalid tz can prevent progress.
-  3) Increase logging: output attempted candidate instants and matched field values.
-- For DST-related missed runs: provide an audit log entry when a scheduled run maps to a non-existent local time and either skipped or rescheduled.
-- For ambiguous runs (repeated local time), log which UTC instant was chosen (earlier or later) and provide a policy switch for users.
-
-4. DETAILED DIGEST (source excerpts and retrieval)
-- Sources consulted (as listed in project SOURCES.md):
-  1) https://en.wikipedia.org/wiki/Cron
-  2) https://crontab.guru/
-  3) https://github.com/harrisiirak/cron-parser
-  4) https://www.npmjs.com/package/cron-parser
-  5) https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html
-  6) https://www.iana.org/time-zones
-  7) https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl
-- Retrieval date: 2026-03-10
-- Extracted technical content: grammar of cron fields and tokens, Quartz special characters and seven-field semantics, cron-parser API surface and options, IANA time zone usage and Intl.DateTimeFormat formatting options.
-
-5. ATTRIBUTION AND DATA SIZE
-- Attribution: content consolidated from Wikipedia (Cron), crontab.guru, cron-parser GitHub and npm pages, Quartz CronTrigger tutorial, IANA time zone registry, and MDN Intl documentation.
-- Sources count: 7 URLs listed in SOURCES.md.
-- Crawl metadata: only SOURCES.md references were used (no full HTTP bodies fetched in this extraction step); approximate working metadata size: ~1 KB (source list only). If full documents are required, fetch each URL and add raw sizes per source.
+DATA SIZE (from crawl)
+- IANA tzdb listing: explicit distribution sizes reported on page: tzdb-2026a.tar.lz = 546.2 KB, tzdata2026a.tar.gz = 460.8 KB, tzcode2026a.tar.gz = 315.2 KB.
+- Other pages: content retrieved; some pages truncated by fetch due to length or access (Wikipedia and MDN were truncated in fetch output; npm returned 403). Full sizes not enumerated here.
 
 END
+
+[Digest retrieved: 2026-03-10]
