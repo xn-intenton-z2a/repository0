@@ -1,4 +1,0 @@
-slugify: hello-world
-truncate: Hello…
-camelCase: fooBarBaz
-levenshtein: 3

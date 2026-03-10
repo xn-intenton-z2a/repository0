@@ -1,36 +1,35 @@
 # Mission
 
-A JavaScript library of string utility functions. This is a bag-of-functions problem — each function is independent.
+A JavaScript library that parses cron expressions, computes next run times, and checks schedule matches.
 
 ## Core Functions
 
-Export each as a named function from `src/lib/main.js`:
+- `parseCron(expression)` — parse a cron expression (standard 5-field, or 6-field with seconds) into a structured object. Supports ranges (`1-5`), lists (`1,3,5`), steps (`*/15`), and wildcards (`*`).
+- `nextRun(expression, after?)` — compute the next run time after the given date (default: now). Returns a `Date`.
+- `nextRuns(expression, count, after?)` — compute the next N run times. Returns an array of `Date`.
+- `matches(expression, date)` — check if a date matches a cron expression. Returns boolean.
+- `toString(parsed)` — convert a parsed cron object back to a cron string.
 
-- `slugify(str)` — convert to URL-friendly slug (lowercase, hyphens, strip non-alphanumeric)
-- `truncate(str, maxLength, suffix?)` — truncate with suffix (default "…"), don't break mid-word
-- `camelCase(str)` — convert to camelCase
-- `kebabCase(str)` — convert to kebab-case
-- `titleCase(str)` — capitalise first letter of each word
-- `wordWrap(str, width)` — wrap text at word boundaries to given width
-- `stripHtml(str)` — remove HTML tags, decode common entities
-- `escapeRegex(str)` — escape special regex characters
-- `pluralize(word, count)` — basic English pluralisation (add "s", handle "y"→"ies", "s"→"ses", etc.)
-- `levenshteinDistance(a, b)` — compute edit distance between two strings
+## Special Strings
+
+Support these shortcuts: `@yearly` (`0 0 1 1 *`), `@monthly` (`0 0 1 * *`), `@weekly` (`0 0 * * 0`), `@daily` (`0 0 * * *`), `@hourly` (`0 * * * *`).
 
 ## Requirements
 
-- Handle edge cases: empty strings, null/undefined (return empty string), Unicode characters.
+- Handle edge cases: DST transitions, month-end boundaries (e.g. "30th of February"), leap years.
+- Validate expressions: throw on invalid syntax with a descriptive error message.
 - No external dependencies required (but allowed if beneficial).
-- Comprehensive unit tests for each function including edge cases.
-- README with usage examples for each function.
+- Export all functions as named exports from `src/lib/main.js`.
+- Comprehensive unit tests covering field combinations, special strings, edge cases, and invalid input.
+- README with usage examples.
 
 ## Acceptance Criteria
 
-- [ ] All 10 functions are exported and work correctly
-- [ ] `slugify("Hello World!")` returns `"hello-world"`
-- [ ] `truncate("Hello World", 8)` returns `"Hello…"`
-- [ ] `camelCase("foo-bar-baz")` returns `"fooBarBaz"`
-- [ ] `levenshteinDistance("kitten", "sitting")` returns `3`
-- [ ] Edge cases (empty string, null, Unicode) handled gracefully
+- [ ] `parseCron("*/15 * * * *")` returns a valid parsed object
+- [ ] `nextRun("0 9 * * 1")` returns the next Monday at 09:00
+- [ ] `matches("0 0 25 12 *", new Date("2025-12-25"))` returns `true`
+- [ ] `nextRuns("@daily", 7)` returns 7 consecutive daily dates
+- [ ] DST transitions handled correctly (no skipped or duplicated runs)
+- [ ] Invalid expressions throw descriptive errors
 - [ ] All unit tests pass
-- [ ] README documents all functions with examples
+- [ ] README documents usage with examples
