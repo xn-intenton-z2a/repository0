@@ -1,28 +1,27 @@
-// SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
-import { describe, test, expect } from "vitest";
-import { readFileSync, existsSync } from "fs";
+import { describe, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
-describe("Website", () => {
-  test("src/web/index.html exists", () => {
-    expect(existsSync("src/web/index.html")).toBe(true);
+import * as demo from '../../src/web/demo-lib.js';
+
+describe('website structure and demo wiring', () => {
+  it('index.html contains expected elements', () => {
+    const html = readFileSync(resolve('src/web/index.html'), 'utf8');
+    const dom = new JSDOM(html);
+    const doc = dom.window.document;
+    expect(doc.getElementById('lib-name')).toBeTruthy();
+    expect(doc.getElementById('lib-version')).toBeTruthy();
+    expect(doc.getElementById('demo-output')).toBeTruthy();
   });
 
-  test("index.html contains valid HTML structure", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain("<!DOCTYPE html>");
-    expect(html).toContain("<html");
-    expect(html).toContain("</html>");
-  });
-
-  test("index.html imports the library via lib-meta.js", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain("lib-meta.js");
-  });
-
-  test("index.html displays library identity elements", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain("lib-name");
-    expect(html).toContain("lib-version");
+  it('demo-lib exports functions and produces expected results', () => {
+    expect(typeof demo.hammingDistance).toBe('function');
+    expect(typeof demo.hammingDistanceBits).toBe('function');
+    const results = demo.demoResults();
+    expect(results.example1.distance).toBe(3);
+    expect(results.example2.distance).toBe(0);
+    expect(results.bits1.distance).toBe(2);
+    expect(results.bits2.distance).toBe(0);
   });
 });
