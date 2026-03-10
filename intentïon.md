@@ -446,3 +446,47 @@ Created a consolidated CRON_SPECS document draft and attempted to write it to li
 Maintained library (0 docs, limit 32)
 
 ---
+## fix-code at 2026-03-10T05:31:51.034Z
+
+**Outcome:** fix-applied
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 686672 (in: 679848, out: 6824)
+**Duration:** 154s (~2.6 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22888460286](https://github.com/xn-intenton-z2a/repository0/actions/runs/22888460286)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 11/32 | 21 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining |  |
+| features | 4/4 | 0 remaining | n/a |
+| library | 0/32 | 32 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 0 | 0 | MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 11/32 | < 32 | OK |
+| Cumulative transforms | 11 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Updated playwright.config.js to set testDir to "tests" so Playwright can discover tests under both behaviour and unit paths, then ran the test suite to confirm it passes.
+
+Applied fix for broken main build (run 22887503815)
+
+---
