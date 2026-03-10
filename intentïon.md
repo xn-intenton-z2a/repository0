@@ -269,3 +269,47 @@ Created and saved normalized technical documents for cron-engine sources to libr
 Maintained library (0 docs, limit 32)
 
 ---
+## fix-code at 2026-03-10T04:57:47.814Z
+
+**Outcome:** fix-applied
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 1381764 (in: 1370500, out: 11264)
+**Duration:** 285s (~4.7 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22887525625](https://github.com/xn-intenton-z2a/repository0/actions/runs/22887525625)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 7/32 | 25 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining |  |
+| features | 4/4 | 0 remaining | n/a |
+| library | 0/32 | 32 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 1 open issue(s) remain. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 1 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 7/32 | < 32 | OK |
+| Cumulative transforms | 7 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Updated DST-related tests and Playwright configuration and test locations so the cron DST unit tests and browser behaviour tests run reliably in the expected America/New_York timezone and pass.
+
+Applied fix for broken main build (run 22887503815)
+
+---
