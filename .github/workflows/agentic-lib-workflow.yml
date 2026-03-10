@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-10T09:17:18.632Z
+# Schedule updated: 2026-03-10T20:56:20.419Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -272,7 +272,17 @@ jobs:
 
       - name: Install dependencies (non-blocking)
         id: install-deps
-        run: npm ci 2>/dev/null || echo "npm ci failed (non-blocking)"
+        run: |
+          set +e
+          INSTALL_CMD="npm ci"
+          OUTPUT=$(eval "$INSTALL_CMD" 2>&1)
+          EXIT_CODE=$?
+          echo "exit-code=$EXIT_CODE" | tee -a $GITHUB_OUTPUT
+          ERROR_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ error' | head -1 | grep -oP '\d+' || echo "0")
+          echo "error-count=$ERROR_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "$OUTPUT" | tail -100 > /tmp/install-output.txt
+          echo "$OUTPUT"
+          exit 0
 
       - name: Run unit tests (non-blocking)
         id: unit-tests
@@ -285,12 +295,13 @@ jobs:
           TEST_CMD="${TEST_CMD:-npm test}"
           OUTPUT=$(eval "$TEST_CMD" 2>&1)
           EXIT_CODE=$?
-          echo "exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          echo "exit-code=$EXIT_CODE" | tee -a $GITHUB_OUTPUT
           PASS_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ pass' | head -1 | grep -oP '\d+' || echo "0")
           FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ fail' | head -1 | grep -oP '\d+' || echo "0")
-          echo "pass-count=$PASS_COUNT" >> $GITHUB_OUTPUT
-          echo "fail-count=$FAIL_COUNT" >> $GITHUB_OUTPUT
+          echo "pass-count=$PASS_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "fail-count=$FAIL_COUNT" | tee -a $GITHUB_OUTPUT
           echo "$OUTPUT" | tail -100 > /tmp/unit-test-output.txt
+          echo "$OUTPUT"
           exit 0
 
       - name: Run behaviour tests (non-blocking)
@@ -302,12 +313,13 @@ jobs:
           npm run build:web 2>/dev/null || true
           OUTPUT=$(npm run --if-present test:behaviour 2>&1)
           EXIT_CODE=$?
-          echo "exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          echo "exit-code=$EXIT_CODE" | tee -a  $GITHUB_OUTPUT
           PASS_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ passed' | head -1 | grep -oP '\d+' || echo "0")
           FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ failed' | head -1 | grep -oP '\d+' || echo "0")
-          echo "pass-count=$PASS_COUNT" >> $GITHUB_OUTPUT
-          echo "fail-count=$FAIL_COUNT" >> $GITHUB_OUTPUT
+          echo "pass-count=$PASS_COUNT" | tee -a  $GITHUB_OUTPUT
+          echo "fail-count=$FAIL_COUNT" | tee -a  $GITHUB_OUTPUT
           echo "$OUTPUT" | tail -50 > /tmp/behaviour-test-output.txt
+          echo "$OUTPUT"
           exit 0
 
       - name: Gather telemetry
@@ -430,8 +442,11 @@ jobs:
             } catch (e) {}
 
             // Live test results from earlier steps
-            const unitOutput = fs.existsSync('/tmp/unit-test-output.txt')
-              ? fs.readFileSync('/tmp/unit-test-output.txt', 'utf8').slice(0, 5000)
+            const installOutput = fs.existsSync('/tmp/install-output.txt')
+              ? fs.readFileSync('/tmp/install-output.txt', 'utf8').slice(0, 5000)
+              : '';
+            const unitOutput = fs.existsSync('/tmp/install-output.txt')
+              ? fs.readFileSync('/tmp/install-output.txt', 'utf8').slice(0, 5000)
               : '';
             const behaviourOutput = fs.existsSync('/tmp/behaviour-test-output.txt')
               ? fs.readFileSync('/tmp/behaviour-test-output.txt', 'utf8').slice(0, 2500)
@@ -446,6 +461,11 @@ jobs:
               featureFiles: features,
               message: message || null,
               liveTests: {
+                install: {
+                  exitCode: parseInt('${{ steps.install-deps.outputs.exit-code }}' || '0'),
+                  errorCount: parseInt('${{ steps.install-deps.outputs.error-count }}' || '0'),
+                  output: installOutput,
+                },
                 unit: {
                   exitCode: parseInt('${{ steps.unit-tests.outputs.exit-code }}' || '0'),
                   passCount: parseInt('${{ steps.unit-tests.outputs.pass-count }}' || '0'),
@@ -481,6 +501,13 @@ jobs:
             } catch (e) {}
             const summary = JSON.stringify(telemetry);
             core.setOutput('telemetry', summary.slice(0, maxTelemetryChars));
+
+      - name: Output telemetry
+        shell: bash
+        run: |
+          echo "Telemetry data:"
+          echo '${{ steps.gather.outputs.telemetry }}'
+
     outputs:
       telemetry: ${{ steps.gather.outputs.telemetry }}
 

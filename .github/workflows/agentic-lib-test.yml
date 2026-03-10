@@ -92,12 +92,12 @@ jobs:
 
       - name: Run behaviour tests
         run: npm run test:behaviour
-        env:
-          HOME: /root
+        #env:
+        #  HOME: /root
 
       - name: Upload screenshot
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: screenshot
           path: SCREENSHOT_INDEX.png
@@ -192,16 +192,57 @@ jobs:
             echo "type=behaviour" >> $GITHUB_OUTPUT
           fi
 
-      - name: Collect failure logs
-        id: logs
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install dependencies (non-blocking)
+        id: install-deps
         run: |
-          RUN_ID="${{ github.run_id }}"
-          # Get failed job logs via gh CLI
-          gh run view "$RUN_ID" --repo "${{ github.repository }}" --log-failed > /tmp/failed-logs.txt 2>&1 || true
-          # Trim to reasonable size (keep last 400 lines — generous context)
-          tail -400 /tmp/failed-logs.txt > /tmp/trimmed-logs.txt
+          set +e
+          INSTALL_CMD="npm ci"
+          OUTPUT=$(eval "$INSTALL_CMD" 2>&1)
+          EXIT_CODE=$?
+          echo "exit-code=$EXIT_CODE" | tee -a $GITHUB_OUTPUT
+          ERROR_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ error' | head -1 | grep -oP '\d+' || echo "0")
+          echo "error-count=$ERROR_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "$OUTPUT" | tail -100 > /tmp/install-output.txt
+          echo "$OUTPUT"
+          exit 0
+
+      - name: Run unit tests (non-blocking)
+        id: unit-tests
+        run: |
+          set +e
+          TEST_CMD=""
+          if [ -f agentic-lib.toml ]; then
+            TEST_CMD=$(grep '^\s*test\s*=' agentic-lib.toml 2>/dev/null | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/')
+          fi
+          TEST_CMD="${TEST_CMD:-npm test}"
+          OUTPUT=$(eval "$TEST_CMD" 2>&1)
+          EXIT_CODE=$?
+          echo "exit-code=$EXIT_CODE" | tee -a $GITHUB_OUTPUT
+          PASS_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ pass' | head -1 | grep -oP '\d+' || echo "0")
+          FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ fail' | head -1 | grep -oP '\d+' || echo "0")
+          echo "pass-count=$PASS_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "fail-count=$FAIL_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "$OUTPUT" | tail -100 > /tmp/unit-test-output.txt
+          echo "$OUTPUT"
+          exit 0
+
+      - name: Run behaviour tests (non-blocking)
+        id: behaviour-tests
+        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
+        run: |
+          set +e
+          npx playwright install --with-deps chromium 2>/dev/null || true
+          npm run build:web 2>/dev/null || true
+          OUTPUT=$(npm run --if-present test:behaviour 2>&1)
+          EXIT_CODE=$?
+          echo "exit-code=$EXIT_CODE" | tee -a  $GITHUB_OUTPUT
+          PASS_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ passed' | head -1 | grep -oP '\d+' || echo "0")
+          FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ failed' | head -1 | grep -oP '\d+' || echo "0")
+          echo "pass-count=$PASS_COUNT" | tee -a  $GITHUB_OUTPUT
+          echo "fail-count=$FAIL_COUNT" | tee -a  $GITHUB_OUTPUT
+          echo "$OUTPUT" | tail -50 > /tmp/behaviour-test-output.txt
+          echo "$OUTPUT"
+          exit 0
 
       - name: Create or update instability issue
         uses: actions/github-script@v8
@@ -211,8 +252,19 @@ jobs:
             const failureType = '${{ steps.failure-type.outputs.type }}';
             const runId = '${{ github.run_id }}';
             const runUrl = `https://github.com/${{ github.repository }}/actions/runs/${runId}`;
-            const logs = fs.readFileSync('/tmp/trimmed-logs.txt', 'utf8').slice(0, 60000);
-
+            
+            // Live test results from earlier steps
+            const installOutput = fs.existsSync('/tmp/install-output.txt')
+              ? fs.readFileSync('/tmp/install-output.txt', 'utf8').slice(0, 5000)
+              : '';
+            const unitOutput = fs.existsSync('/tmp/install-output.txt')
+              ? fs.readFileSync('/tmp/install-output.txt', 'utf8').slice(0, 5000)
+              : '';
+            const behaviourOutput = fs.existsSync('/tmp/behaviour-test-output.txt')
+              ? fs.readFileSync('/tmp/behaviour-test-output.txt', 'utf8').slice(0, 2500)
+              : '';
+            const logs = `=== Install Output ===\n${installOutput}\n\n=== Unit Test Output ===\n${unitOutput}\n\n=== Behaviour Test Output ===\n${behaviourOutput}`;
+            
             const title = `instability: ${failureType} test failure on main`;
             const body = [
               `## Test Failure Report`,

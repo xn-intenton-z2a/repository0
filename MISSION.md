@@ -1,35 +1,24 @@
 # Mission
 
-A JavaScript library that parses cron expressions, computes next run times, and checks schedule matches.
+_"Be a go-to plot library with a CLI, be the jq of formulae visualisations."_
 
-## Core Functions
+**plot-code-lib** is a JavaScript library and CLI tool designed to:
+- Transform and given range and a simple expression syntax for (pick an existing open standard) to time series data.
+- Read and write the time series data in a standard format (pick an existing open standard).
+- Make use of libraries for formula parsing, time series generation, plotting, and persistence in image formats.
+- Generate SVG and PNG plots from the time series data and save these as files.
+- Variations on this example: `node run start -- --expression "y=sin(x)" --range "x=-1:-1,y=-1:-1" --file output.svg` .
+- Showcase all the features of the library via a CLI by dry running tp generate example commands and output in the README.md file.
 
-- `parseCron(expression)` — parse a cron expression (standard 5-field, or 6-field with seconds) into a structured object. Supports ranges (`1-5`), lists (`1,3,5`), steps (`*/15`), and wildcards (`*`).
-- `nextRun(expression, after?)` — compute the next run time after the given date (default: now). Returns a `Date`.
-- `nextRuns(expression, count, after?)` — compute the next N run times. Returns an array of `Date`.
-- `matches(expression, date)` — check if a date matches a cron expression. Returns boolean.
-- `toString(parsed)` — convert a parsed cron object back to a cron string.
-
-## Special Strings
-
-Support these shortcuts: `@yearly` (`0 0 1 1 *`), `@monthly` (`0 0 1 * *`), `@weekly` (`0 0 * * 0`), `@daily` (`0 0 * * *`), `@hourly` (`0 * * * *`).
-
-## Requirements
-
-- Handle edge cases: DST transitions, month-end boundaries (e.g. "30th of February"), leap years.
-- Validate expressions: throw on invalid syntax with a descriptive error message.
-- No external dependencies required (but allowed if beneficial).
-- Export all functions as named exports from `src/lib/main.js`.
-- Comprehensive unit tests covering field combinations, special strings, edge cases, and invalid input.
-- README with usage examples.
+`plot-code-lib` facilitate the creation of plots from mathematical expressions and time series data. It will take a
+mathematical expression and a range of values and generate a plot in SVG or PNG format.
 
 ## Acceptance Criteria
 
-- [ ] `parseCron("*/15 * * * *")` returns a valid parsed object
-- [ ] `nextRun("0 9 * * 1")` returns the next Monday at 09:00
-- [ ] `matches("0 0 25 12 *", new Date("2025-12-25"))` returns `true`
-- [ ] `nextRuns("@daily", 7)` returns 7 consecutive daily dates
-- [ ] DST transitions handled correctly (no skipped or duplicated runs)
-- [ ] Invalid expressions throw descriptive errors
+- [ ] Library parses mathematical expressions (e.g. `y=sin(x)`)
+- [ ] Generates time series data from expression and range
+- [ ] Produces SVG output files
+- [ ] Produces PNG output files
+- [ ] CLI interface works with `--expression`, `--range`, `--file` flags
+- [ ] README showcases example commands and output
 - [ ] All unit tests pass
-- [ ] README documents usage with examples

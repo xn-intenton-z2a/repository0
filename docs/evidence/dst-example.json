@@ -1,9 +1,0 @@
-{
-  "schedule": "30 1 * * *",
-  "start": "2021-11-07T00:00:00-04:00",
-  "runs": [
-    "2021-11-07T05:30:00.000Z",
-    "2021-11-07T06:30:00.000Z"
-  ],
-  "notes": "The two ISO instants correspond to local 01:30 in the repeated hour across fall-back (EDT then EST)."
-}
