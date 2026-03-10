@@ -357,3 +357,92 @@ Created a consolidated CRON_ENGINE library document extracting cron/Quartz synta
 Maintained library (0 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-10T05:13:04.518Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 65206 (in: 61412, out: 3794)
+**Duration:** 57s (~0.9 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22888162931](https://github.com/xn-intenton-z2a/repository0/actions/runs/22888162931)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 9/32 | 23 remaining |  |
+| max-feature-issues | 2/2 | 0 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 0/32 | 32 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 2 open issue(s) remain. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 2 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 9/32 | < 32 | OK |
+| Cumulative transforms | 9 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+max-feature-issues at capacity (2/2) — actions will be blocked.
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Added CLI requirements and broadened the human-readable schedule feature to make it demonstrable and testable via library API and a minimal CLI.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-10T05:14:33.204Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 43697 (in: 36935, out: 6762)
+**Duration:** 88s (~1.5 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22888162931](https://github.com/xn-intenton-z2a/repository0/actions/runs/22888162931)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 10/32 | 22 remaining |  |
+| max-feature-issues | 2/2 | 0 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 0/32 | 32 remaining |  |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 2 open issue(s) remain. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 2 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 10/32 | < 32 | OK |
+| Cumulative transforms | 10 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+max-feature-issues at capacity (2/2) — actions will be blocked.
+
+### Narrative
+Created a consolidated CRON_SPECS document draft and attempted to write it to library/, but the file already exists so an edit is required to finalize the update.
+
+Maintained library (0 docs, limit 32)
+
+---
