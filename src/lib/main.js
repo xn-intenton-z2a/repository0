@@ -29,6 +29,7 @@ export function main(args) {
 
 /**
  * Compute the Hamming distance between two strings, comparing Unicode code points.
+ * Uses Array.from to iterate code points so surrogate pairs are treated as single code points.
  * @param {string} a
  * @param {string} b
  * @returns {number}
@@ -51,7 +52,7 @@ export function hammingDistance(a, b) {
 
 /**
  * Compute the Hamming distance between two non-negative integers (count differing bits).
- * Accepts Number (integer >= 0) or BigInt.
+ * Accepts Number (integer >= 0) or BigInt. Returns a Number.
  * @param {number|bigint} x
  * @param {number|bigint} y
  * @returns {number}
@@ -75,6 +76,7 @@ export function hammingDistanceBits(x, y) {
   if (isBigInt(x) && x < 0n) throw new RangeError('Arguments must be non-negative');
   if (isBigInt(y) && y < 0n) throw new RangeError('Arguments must be non-negative');
 
+  // normalize to BigInt for bitwise operations
   let bx = isBigInt(x) ? x : BigInt(x);
   let by = isBigInt(y) ? y : BigInt(y);
 
