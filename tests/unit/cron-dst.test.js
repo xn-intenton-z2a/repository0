@@ -51,7 +51,8 @@ describe('cron DST-aware behaviour', () => {
   });
 
   it('matches semantics: leap day and boundaries', () => {
-    const schedule = '0 0 29 2 *'; // Feb 29th at 00:00
+    const schedule = '0 0 29 2 *'; // Feb 29th at 00:00 (local)
+    // Use explicit local offset so the date's local components reflect Feb 29
     const d = new Date('2024-02-29T00:00:00-05:00');
     expect(matches(schedule, d)).toBe(true);
     const wrong = new Date('2023-02-28T00:00:00-05:00');
