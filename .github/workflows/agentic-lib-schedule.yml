@@ -35,11 +35,12 @@ on:
   workflow_dispatch:
     inputs:
       frequency:
-        description: "How often the workflow should run"
+        description: "How often the workflow should run (maintenance = weekly + remove mission-complete + unlimited budget)"
         required: true
         type: choice
         options:
           - "off"
+          - "maintenance"
           - "weekly"
           - "daily"
           - "hourly"
@@ -95,6 +96,9 @@ jobs:
             const workflowPath = '.github/workflows/agentic-lib-workflow.yml';
             const tomlPath = 'agentic-lib.toml';
 
+            const isMaintenance = frequency === 'maintenance';
+            const effectiveFrequency = isMaintenance ? 'weekly' : frequency;
+
             const SCHEDULE_MAP = {
               off: null,
               weekly: '15 6 * * 1',
@@ -105,11 +109,11 @@ jobs:
 
             // Update agentic-lib-workflow.yml schedule
             let content = fs.readFileSync(workflowPath, 'utf8');
-            const cron = SCHEDULE_MAP[frequency];
+            const cron = SCHEDULE_MAP[effectiveFrequency];
 
-            // Check if the frequency is already set — skip if no-op
+            // Check if the frequency is already set — skip if no-op (but never skip maintenance)
             const supervisorRegex2 = /^\s*supervisor\s*=\s*"([^"]*)"/m;
-            if (fs.existsSync(tomlPath)) {
+            if (!isMaintenance && fs.existsSync(tomlPath)) {
               const currentToml = fs.readFileSync(tomlPath, 'utf8');
               const currentMatch = currentToml.match(supervisorRegex2);
               const currentFreq = currentMatch ? currentMatch[1] : '';
@@ -144,7 +148,17 @@ jobs:
             }
 
             fs.writeFileSync(workflowPath, content);
-            core.info(`Updated workflow schedule to: ${frequency} (cron: ${cron || 'none'})`);
+            core.info(`Updated workflow schedule to: ${effectiveFrequency} (cron: ${cron || 'none'})`);
+
+            // Maintenance mode: remove mission-complete/failed signals
+            if (isMaintenance) {
+              for (const f of ['MISSION_COMPLETE.md', 'MISSION_FAILED.md']) {
+                if (fs.existsSync(f)) {
+                  fs.unlinkSync(f);
+                  core.info(`Maintenance mode: removed ${f}`);
+                }
+              }
+            }
 
             // Update agentic-lib.toml with model and supervisor settings
             if (fs.existsSync(tomlPath)) {
@@ -174,6 +188,15 @@ jobs:
                 }
               }
 
+              // Maintenance mode: set transformation-budget to 0 (unlimited)
+              if (isMaintenance) {
+                const budgetRegex = /^(\s*transformation-budget\s*=\s*)\d+/m;
+                if (budgetRegex.test(toml)) {
+                  toml = toml.replace(budgetRegex, '$10');
+                  core.info('Maintenance mode: set transformation-budget = 0 (unlimited)');
+                }
+              }
+
               fs.writeFileSync(tomlPath, toml);
               core.info(`Updated agentic-lib.toml: model=${model}, supervisor=${frequency}${profile ? ', profile=' + profile : ''}`);
             } else {
@@ -192,8 +215,14 @@ jobs:
           FREQUENCY="${{ inputs.frequency }}"
           MODEL="${{ inputs.model }}"
           git add .github/workflows/agentic-lib-workflow.yml agentic-lib.toml
+          # Stage removed mission files if maintenance mode deleted them
+          git rm --ignore-unmatch MISSION_COMPLETE.md MISSION_FAILED.md 2>/dev/null || true
           git diff --cached --quiet && echo "No changes to commit" && exit 0
-          git commit -m "schedule: set to ${FREQUENCY}, model ${MODEL:-gpt-5-mini}"
+          if [ "$FREQUENCY" = "maintenance" ]; then
+            git commit -m "schedule: switch to maintenance mode (weekly, unlimited budget, mission reset)"
+          else
+            git commit -m "schedule: set to ${FREQUENCY}, model ${MODEL:-gpt-5-mini}"
+          fi
           for attempt in 1 2 3; do
             git push origin main && break
             echo "Push failed (attempt $attempt) — pulling and retrying"
