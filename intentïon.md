@@ -181,13 +181,13 @@ Created a single normalized library document (PLOT_STACK) consolidating APIs, im
 Maintained library (0 docs, limit 32)
 
 ---
-## fix-code at 2026-03-10T21:39:32.841Z
+## maintain-features at 2026-03-10T21:34:40.584Z
 
-**Outcome:** fix-applied
+**Outcome:** features-maintained
 **Model:** gpt-5-mini
 **Profile:** recommended
-**Token Count:** 274133 (in: 270617, out: 3516)
-**Duration:** 75s (~1.3 GitHub Actions min)
+**Token Count:** 44024 (in: 39761, out: 4263)
+**Duration:** 64s (~1.1 GitHub Actions min)
 **agentic-lib transformation cost:** 1
 **Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22925266040](https://github.com/xn-intenton-z2a/repository0/actions/runs/22925266040)
 
@@ -195,20 +195,20 @@ Maintained library (0 docs, limit 32)
 | Limit | Value | Capacity | Status |
 |---|---|---|---|
 | transformation-budget | 5/32 | 27 remaining |  |
-| max-feature-issues | 0/2 | 2 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
 | max-maintenance-issues | 0/1 | 1 remaining |  |
 | max-attempts-per-issue | ?/2 | ? remaining | n/a |
-| max-attempts-per-branch | ?/3 | ? remaining |  |
-| features | 2/4 | 2 remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
 | library | 0/32 | 32 remaining | n/a |
 
 ### Mission-Complete Readiness
-Mission complete conditions are NOT met. No issues have been resolved yet.
+Mission complete conditions are NOT met. 1 open issue(s) remain. No issues have been resolved yet.
 
 ### Mission Metrics
 | Metric | Value | Target | Status |
 |--------|-------|--------|--------|
-| Open issues | 0 | 0 | MET |
+| Open issues | 1 | 0 | NOT MET |
 | Open PRs | 0 | 0 | MET |
 | Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
 | Transformation budget used | 5/32 | < 32 | OK |
@@ -217,11 +217,143 @@ Mission complete conditions are NOT met. No issues have been resolved yet.
 | Mission failed declared | NO | — | — |
 
 ### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Added two feature specification files (range parsing and time series IO) to complete a minimal, testable feature set supporting expression parsing, series generation, plotting, and data interchange.
+
+Maintained features (2 existing, limit 4)
+
+---
+## maintain-library at 2026-03-10T21:36:55.592Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 97302 (in: 88784, out: 8518)
+**Duration:** 134s (~2.2 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22925266040](https://github.com/xn-intenton-z2a/repository0/actions/runs/22925266040)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 6/32 | 26 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 0/32 | 32 remaining |  |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 1 open issue(s) remain. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 1 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 6/32 | < 32 | OK |
+| Cumulative transforms | 6 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
 All limits within normal range.
 
 ### Narrative
-Replaced the PNG signature construction in src/lib/main.js with an explicit byte array to ensure the correct 8-byte PNG signature is produced so tests expecting '\x89PNG\r\n\x1a\n' pass.
+Created library documents from the crawled sources to capture concrete API usage, grammar, and configuration needed for implementation.
 
-Applied fix for broken main build (run 22924732251)
+Maintained library (0 docs, limit 32)
+
+---
+## maintain-features at 2026-03-10T21:52:31.305Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 21946 (in: 19352, out: 2594)
+**Duration:** 47s (~0.8 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22925917788](https://github.com/xn-intenton-z2a/repository0/actions/runs/22925917788)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 7/32 | 25 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 0/32 | 32 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 1 open issue(s) remain. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 1 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 7/32 | < 32 | OK |
+| Cumulative transforms | 7 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Added AXES_GRID feature spec to describe deterministic axis, tick and grid rendering for SVG outputs so plots are immediately readable and testable.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-10T21:55:20.197Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 54279 (in: 44480, out: 9799)
+**Duration:** 168s (~2.8 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22925917788](https://github.com/xn-intenton-z2a/repository0/actions/runs/22925917788)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 8/32 | 24 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 0/32 | 32 remaining |  |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 1 open issue(s) remain. No issues have been resolved yet.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 1 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 1 | NOT MET |
+| Transformation budget used | 8/32 | < 32 | OK |
+| Cumulative transforms | 8 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Created normalized library entries from fetched sources and added a placeholder document for expr-eval where the fetch returned 403 to preserve the source and plan re-fetching.
+
+Maintained library (0 docs, limit 32)
 
 ---

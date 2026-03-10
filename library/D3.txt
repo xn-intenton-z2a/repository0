@@ -1,0 +1,29 @@
+D3
+
+Table of Contents:
+1. Purpose and capabilities (as presented)
+2. Data-driven approach and workflow notes
+3. Typical usage patterns and integration notes
+4. Supplementary details and attribution
+5. Source digest and metadata
+
+1. Purpose and capabilities
+- D3.js provides low-level SVG plotting primitives and utilities to bind data to DOM/SVG and compute visual encodings.
+- Promotes building custom visualizations rather than providing high-level chart components.
+
+2. Data-driven approach and workflow notes
+- Connects to data sources, files, and databases; enables live data-driven updates.
+- Designed for rapid iteration, versioning, and collaborative exploration according to site copy.
+
+3. Typical usage patterns and integration notes
+- Use D3 for direct DOM/SVG manipulation, scales, axes, shapes, and data transforms.
+- Often combined with higher-level grammars (e.g., Vega-Lite) when authoring concise specs is desired.
+
+4. Supplementary details and attribution
+- Source promotional text emphasizes instant connection to data, team collaboration, and fast development workflows.
+
+5. Source digest and metadata
+- Source: https://d3js.org/
+- Retrieved: 2026-03-10
+- Source excerpt used: promotional site copy about instant data connection and building charts and data apps.
+- Attribution: D3.js project. Data size retrieved: not recorded by crawler API.

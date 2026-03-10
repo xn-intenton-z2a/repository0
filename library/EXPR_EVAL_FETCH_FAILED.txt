@@ -1,0 +1,23 @@
+EXPR_EVAL_FETCH_FAILED
+
+TABLE OF CONTENTS:
+1. Source URL and fetch status
+2. Intended content (from SOURCES.md) and minimal actionable notes
+3. Next steps to obtain full technical extract
+4. Detailed digest and attribution
+
+1. Source URL and fetch status
+Source URL: https://www.npmjs.com/package/expr-eval
+Fetch status: 403 Forbidden from web_fetch; page content not retrieved.
+
+2. Intended content and minimal actionable notes
+- expr-eval is a lightweight JavaScript expression parser/evaluator intended for parsing mathematical expressions (e.g., y=sin(x)).
+- Typical API (from common knowledge): Parser.parse(expression) => AST/CompiledExpression; Parser.evaluate(scope) or CompiledExpression.evaluate(scope) => number; Parser.evaluate(expression, scope?) => number. (Fetch failed; verify against official npm package README.)
+
+3. Next steps to obtain full technical extract
+- Re-fetch the source via npm registry API or GitHub repository (if available), or use unpkg.com/unpkg CDN to fetch package README: https://unpkg.com/expr-eval/README.md
+- Once fetched, extract exact method signatures, options and examples and replace this placeholder.
+
+4. Detailed digest and attribution
+Retrieved: 2026-03-10
+Data obtained: fetch failed with HTTP 403; placeholder notes created. Attribution: intended source expr-eval npm package page; full extraction pending successful fetch.

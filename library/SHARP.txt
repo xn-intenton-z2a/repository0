@@ -1,0 +1,49 @@
+SHARP
+
+Table of Contents:
+1. Overview and use cases
+2. Supported input/output formats and platforms
+3. Performance and implementation notes
+4. Common operations and API patterns
+5. Streams and buffer usage
+6. Supplementary details (libvips, Node-API)
+7. Reference details (install, important constraints)
+8. Source digest and metadata
+
+1. Overview and use cases
+- High-speed Node-API image processing module built on libvips for converting and resizing large images to web-friendly formats (JPEG, PNG, WebP, GIF, AVIF).
+- Typical tasks: resizing, rotation, extraction, compositing, gamma correction, format conversion, image pyramids (Deep Zoom).
+
+2. Supported input/output formats and platforms
+- Supports reading JPEG, PNG, WebP, GIF, AVIF, TIFF and SVG inputs.
+- Output can be JPEG, PNG, WebP, GIF, AVIF, TIFF and raw pixel data.
+- Runs on runtimes supporting Node-API v9 (Node.js >= 18.17.0, Deno, Bun).
+
+3. Performance and implementation notes
+- Uses libvips for efficient processing; resizing typically 4-5x faster than ImageMagick/GraphicsMagick.
+- Processes small regions of uncompressed data and uses multiple CPU cores; non-blocking via libuv; no child processes.
+- Lanczos resampling used for quality; color spaces, ICC profiles and alpha channels handled correctly.
+
+4. Common operations and API patterns (operational guidance from source)
+- Install: npm install sharp
+- Typical pipeline: sharp(input).resize(width, height).toFormat('png').toBuffer()/toFile()
+- Deep Zoom tiling: generate image pyramids for slippy map viewers.
+
+5. Streams and buffer usage
+- Accepts Streams, Buffer objects, and filesystem paths for inputs and outputs.
+- A single input stream can be split into multiple processing pipelines and multiple output streams.
+
+6. Supplementary details (libvips and optional optimisers)
+- Powered by libvips (fast, low memory footprint).
+- Integrations: mozjpeg and pngquant features can be used via Sharp to optimize outputs without external processes.
+
+7. Reference details (literal actionable items from source)
+- npm install sharp
+- Node-API requirement: Node-API v9; Node.js >= 18.17.0 recommended.
+- Use pipeline patterns: sharp(Buffer|path|Stream).resize(...).toBuffer()/toFile()/toFormat(...)
+
+8. Source digest and metadata
+- Source: https://sharp.pixelplumbing.com/
+- Retrieved: 2026-03-10
+- Source excerpts used: supported formats, performance claims, Node-API and libvips notes, pipeline examples.
+- Attribution: Sharp (Lovell Fuller et al.). Data size retrieved: not recorded by crawler API.
