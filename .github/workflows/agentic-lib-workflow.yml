@@ -500,11 +500,11 @@ jobs:
             const summary = JSON.stringify(telemetry);
             core.setOutput('telemetry', summary.slice(0, maxTelemetryChars));
 
-      - name: Output telemetry
-        shell: bash
-        run: |
-          echo "Telemetry data:"
-          echo '${{ steps.gather.outputs.telemetry }}'
+      #- name: Output telemetry
+      #  shell: bash
+      #  run: |
+      #    echo "Telemetry data:"
+      #    echo '${{ steps.gather.outputs.telemetry }}'
 
     outputs:
       telemetry: ${{ steps.gather.outputs.telemetry }}
