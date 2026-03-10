@@ -1,74 +1,78 @@
 # UNICODE_HAMMING
 
 ## Summary
-Add a feature specification to ensure the library implements and documents Unicode-aware Hamming distance behavior for strings and bitwise Hamming distance for integers. This feature consolidates validation rules, precise behaviour for Unicode code points, and the test matrix required to meet the mission.
+This feature specifies a Unicode-aware Hamming distance API and test matrix for the repository. It defines precise validation, behaviour for Unicode code points, bitwise distance semantics for integers, and the unit tests and README examples required to meet the mission.
 
 ## Motivation
-The mission is to provide a small JavaScript library that exports Hamming distance functions. Correct handling of Unicode strings is crucial because naive UTF-16 code unit comparisons produce incorrect results for astral and composed characters. This feature makes Unicode handling explicit and testable.
+The library must correctly compare strings at the Unicode code point level so that astral characters and composed sequences are treated as distinct code points rather than UTF-16 code units. Clear validation rules and exhaustive unit tests prevent regressions and make behaviour explicit for library consumers.
 
 ## Scope
-Change targets (one or more of these will be updated together):
-- src/lib/main.js: implement or refine hammingDistance and hammingDistanceBits and ensure Unicode code point comparison.
-- tests/unit/main.test.js: add comprehensive unit tests for normal, edge and error cases described below.
-- README.md: document the API, validation rules, and examples that demonstrate Unicode handling and bit distances.
-- src/web/: small demo showing interactive examples of both functions (optional but recommended for visibility).
+Update the following files within this repository only:
+- src/lib/main.js: export named functions hammingDistance and hammingDistanceBits with the behaviour described below.
+- tests/unit/main.test.js: add unit tests covering normal cases, edge cases, and error cases.
+- README.md: add API documentation and short examples demonstrating Unicode and bitwise behaviour.
+- src/web/: optionally add or update a minimal interactive demo that exercises both functions.
 
-All work must remain achievable within this repository and use the existing test runner.
+Changes must be small and focused to keep the feature implementable in a single pull request.
 
-## Detailed Behavior
+## Behaviour Specification
 - hammingDistance(a, b)
-  - Accepts two string arguments representing sequences of Unicode code points.
-  - Compare by Unicode code points, not UTF-16 code units. Characters outside the Basic Multilingual Plane count as one position each.
-  - If either argument is not a string, throw TypeError.
-  - If the two strings have different numbers of code points, throw RangeError.
-  - Return the number of positions where corresponding code points differ as a non-negative integer.
+  - Parameters: two values a and b.
+  - Type validation: if either a or b is not of type string, throw TypeError.
+  - Length validation: measure length in Unicode code points (use the string iterator or Array.from to obtain code points). If the two strings have different code point counts, throw RangeError.
+  - Comparison: compare corresponding code points (not UTF-16 code units). Each code point position is counted once, so characters outside the BMP count as one position.
+  - Return: a non-negative integer equal to the number of positions where corresponding code points differ.
+  - Normalisation and grapheme clusters: do not attempt to perform Unicode normalization or grapheme cluster segmentation; treat combining marks and clusters as sequences of code points and compare per code point.
 
 - hammingDistanceBits(x, y)
-  - Accepts two non-negative integers.
-  - If either argument is not a number or not an integer, throw TypeError.
-  - If either integer is negative, throw RangeError.
-  - Return the count of differing bits in the binary representations of the two integers.
+  - Parameters: two values x and y.
+  - Type validation: if either x or y is not a number or not an integer, throw TypeError.
+  - Range validation: if either integer is negative, throw RangeError.
+  - Comparison: compute the bitwise XOR of the two integers and count set bits (population count).
+  - Return: a non-negative integer equal to the number of differing bits.
 
-## Validation and Errors
-- TypeError for invalid argument types: non-string for hammingDistance, non-integer for hammingDistanceBits.
-- RangeError when string lengths (measured in Unicode code points) differ, or when integers are negative.
-- No silent coercion: callers must pass correct types.
+## Errors and Validation
+- hammingDistance throws TypeError for non-string arguments and RangeError when code point lengths differ.
+- hammingDistanceBits throws TypeError for non-integer or non-number arguments and RangeError for negative integers.
+- The functions must not coerce inputs silently; callers are required to pass correctly typed arguments.
 
 ## Testing and Acceptance Criteria
-Include unit tests that assert the following (exact values and error types):
-- hammingDistance(karolin, kathrin) returns 3
-- hammingDistance(, ) returns 0 for two empty strings
-- hammingDistance(a, bb) throws RangeError when code point counts differ
-- hammingDistance with astral symbols: e.g., two strings each containing a single emoji or astral character compare as length 1 and differ when different code points
+Add unit tests that assert the following behaviour exactly:
+- hammingDistance("karolin", "kathrin") returns 3
+- hammingDistance("", "") returns 0
+- hammingDistance("a", "bb") throws RangeError
+- hammingDistance("😃", "😄") compares as two single-position strings and returns 1 when code points differ
+- hammingDistance handles astral characters: each astral code point counts as one position
+- hammingDistance treats combining marks as separate code points (do not normalise)
 - hammingDistanceBits(1, 4) returns 2 (binary 001 vs 100)
 - hammingDistanceBits(0, 0) returns 0
-- hammingDistanceBits large integers and zero behave as expected (e.g., 2^32 and 0)
-- Type and Range error tests for negative and non-integer inputs
+- hammingDistanceBits on large integers and zero behaves correctly (include a test for a 32-bit boundary case)
+- Appropriate TypeError and RangeError tests for invalid inputs
 
-Add tests for edge cases: combining marks, grapheme clusters are considered a sequence of code points and therefore each code point must be compared; do not attempt to normalize or fold grapheme clusters automatically.
+All tests must be runnable with the existing test script and pass under the repository Node engine constraint.
 
-## Examples
-Provide usage examples in README demonstrating:
-- Basic string example that returns 3
-- Empty strings returning 0
-- Emoji example showing a single-position comparison for an astral character
-- Bitwise example showing two differing bits
+## README Examples
+Supply short, copy-pasteable examples (no code fences) that demonstrate:
+- String example: hammingDistance("karolin", "kathrin") -> 3
+- Empty strings: hammingDistance("", "") -> 0
+- Emoji/astral example: hammingDistance("😃", "😄") -> 1
+- Bitwise example: hammingDistanceBits(1, 4) -> 2
 
 ## Deliverables
-- Feature spec file (this document) in features/
-- Implementation changes to src/lib/main.js exporting named functions hammingDistance and hammingDistanceBits
-- Unit tests added or updated in tests/unit/main.test.js
-- README updated with documentation and examples
+- Updated features/UNICODE_HAMMING.md (this file) describing the feature and acceptance criteria.
+- Implementation in src/lib/main.js exporting named functions hammingDistance and hammingDistanceBits.
+- Unit tests in tests/unit/main.test.js that cover all acceptance criteria.
+- README.md updated with concise API docs and examples.
 
-## Acceptance Criteria (explicit)
+## Acceptance Checklist
 1. hammingDistance("karolin", "kathrin") returns 3
 2. hammingDistance("", "") returns 0
 3. hammingDistance("a", "bb") throws RangeError
-4. hammingDistance handles astral characters as single positions when counting and comparing code points
+4. Astral characters count as single positions when comparing code points
 5. hammingDistanceBits(1, 4) returns 2
 6. hammingDistanceBits(0, 0) returns 0
-7. All unit tests pass using npm test
+7. All unit tests pass with npm test
 
 ## Notes
-- The implementation should prefer clarity over micro-optimizations; correct Unicode code point iteration can be achieved using the JavaScript iterator for strings.
-- Do not change repository-wide configuration or add new top-level files; modify only the allowed files when implementing this feature.
+- Prefer clear, idiomatic JavaScript (use for..of or Array.from for code points).
+- Keep the implementation and tests minimal and focused so the feature can be completed in a single PR.
