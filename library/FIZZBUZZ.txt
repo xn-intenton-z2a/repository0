@@ -1,0 +1,170 @@
+DOCUMENT: FIZZBUZZ
+
+TABLE OF CONTENTS
+1. FIZZBUZZ_ALGORITHM
+2. USAGE_EXPORTS_ESM
+3. NODE_ESM_CONFIGURATION
+4. NUMBER_VALIDATION
+5. ERROR_TYPES_AND_MESSAGES
+6. VITEST_TESTING_GUIDELINES
+7. NPM_PACKAGE_API_SPEC
+
+NORMALISED EXTRACT
+1. FIZZBUZZ_ALGORITHM
+Specification and implementation details:
+- Function signature: fizzbuzz(n: number) -> string[]
+- Behavior: For each integer i in the inclusive range 1..n produce a string according to these rules evaluated in order:
+  - if (i % 15 === 0) produce "FizzBuzz"
+  - else if (i % 3 === 0) produce "Fizz"
+  - else if (i % 5 === 0) produce "Buzz"
+  - else produce String(i)
+- Output shape: an array of length n where index 0 corresponds to i=1, index n-1 corresponds to i=n.
+- Complexity: O(n) time, O(n) memory for returned array. Use integer arithmetic and modulo operations; avoid repeated string concatenation in loops for performance.
+- Edge behavior: n == 0 -> return [] (explicitly allowed) or throw RangeError per API choice; documentation below specifies chosen behavior.
+
+2. USAGE_EXPORTS_ESM
+Exact export patterns for ESM-compliant packages (Node >= 12 with type: module or .mjs):
+- Named export pattern:
+  export function fizzbuzz(n) { ... }
+  usage: import { fizzbuzz } from 'pkg'
+- Default export pattern:
+  export default function fizzbuzz(n) { ... }
+  usage: import fizzbuzz from 'pkg'
+- Re-export/aggregation pattern:
+  export { fizzbuzz as default } from './fizz.js'
+- package.json must contain: "type": "module" to use .js files as ESM; otherwise use .mjs file extension.
+
+3. NODE_ESM_CONFIGURATION
+Concrete Node.js ESM implementation options and effects:
+- package.json: { "type": "module" } enables ESM imports using .js files.
+- Importing CommonJS from ESM: use dynamic import() or create named/compat wrappers; avoid require() in ESM modules.
+- Exporting for both CJS and ESM consumers: recommend providing dual entry points ("exports" field) or publish both cjs and esm builds with "exports": {"import":"./dist/esm/index.js","require":"./dist/cjs/index.js"}.
+- When writing tests with Vitest running under ESM, ensure test runner is invoked with Node that supports ESM and package.json type is correct.
+
+4. NUMBER_VALIDATION
+Validation rules and API behaviors:
+- Use Number.isInteger(value) to test that input is an integer; this returns false for NaN, Infinity, floats, and non-number types.
+- Explicit checks recommended before core logic:
+  - if (!Number.isInteger(n)) throw new TypeError('n must be an integer')
+  - if (!Number.isFinite(n)) throw new RangeError('n must be finite')  // optional as Number.isInteger already implies finite
+  - if (n < 0) throw new RangeError('n must be >= 0') or other lower bound per API
+  - if (n > MAX_N) throw new RangeError('n too large') where MAX_N is a documented cap (e.g., 1000000) to prevent memory exhaustion; document exact cap and rationale.
+- Input coercion: Do not coerce strings implicitly; require callers to supply a number. If supporting coercion, perform explicit parse and validate afterwards.
+
+5. ERROR_TYPES_AND_MESSAGES
+Canonical error types and example messages to ensure predictable programmatic handling:
+- TypeError: thrown when input type is incorrect.
+  - message: 'n must be an integer'
+- RangeError: thrown when numeric value is out of allowed range or non-finite.
+  - message: 'n must be >= 0 and <= 1000000' (adjust upper limit as chosen)
+- Use Error.prototype.name and instanceof checks in tests and consumer code to detect the specific error types.
+
+6. VITEST_TESTING_GUIDELINES
+Concrete test patterns and signatures:
+- Import style under ESM tests: import { describe, it, expect } from 'vitest'
+- Unit test cases to include:
+  - basic outputs: fizzbuzz(1) => ['1']; fizzbuzz(3) => ['1','2','Fizz']
+  - multiples: verify positions 3 -> 'Fizz', 5 -> 'Buzz', 15 -> 'FizzBuzz'
+  - array length: expect(fizzbuzz(n)).toHaveLength(n)
+  - input validation: expect(() => fizzbuzz(2.5)).toThrow(TypeError) and message match
+  - boundary tests: n = 0, n = 1, n = MAX_N, and n > MAX_N should throw RangeError
+  - property-based or randomized sanity checks: for random integer i in 1..n, assert according to the rules
+- Use --run for CI consistency and --coverage when validating test completeness.
+
+7. NPM_PACKAGE_API_SPEC
+Concrete API specification for a published fizzbuzz package:
+- Package entrypoint exports:
+  - Named export: export function fizzbuzz(n: number): string[]
+  - Default export: (optional) export default fizzbuzz
+- Method signature:
+  - Name: fizzbuzz
+  - Parameters: (n: number)
+  - Returns: string[] where each element is exactly one of: 'Fizz', 'Buzz', 'FizzBuzz', or a decimal base-10 representation of i (no leading zeros)
+  - Throws: TypeError for non-integer inputs; RangeError for out-of-range integers or non-finite values
+- Configuration options: none by default. If exposing options, use second parameter options?: {start?: number, end?: number, includeZero?: boolean, max?: number}
+  - Example expanded signature: fizzbuzz(n:number, options?: { start?: number, base?: number }) -> string[]
+  - Documented defaults: start=1, base=10
+- Performance note: for very large n, prefer streaming generator API to reduce memory: function* fizzbuzzGenerator(n) yields strings lazily. If implemented, provide both array-returning and generator APIs.
+
+SUPPLEMENTARY DETAILS
+- Implementation pattern (minimal, correct):
+  - Validate input per NUMBER_VALIDATION
+  - Allocate result = new Array(n)
+  - For i from 1 to n:
+    - let idx = i - 1
+    - if (i % 15 === 0) result[idx] = 'FizzBuzz'
+    - else if (i % 3 === 0) result[idx] = 'Fizz'
+    - else if (i % 5 === 0) result[idx] = 'Buzz'
+    - else result[idx] = String(i)
+  - return result
+- Alternative micro-optimizations:
+  - Precompute string representations for small ranges if heavy reuse expected
+  - Use local variables for modulus checks to reduce property lookup cost
+  - For generator-based API: yield in the same conditional order to preserve deterministic output
+- Distribution recommendations:
+  - Provide ESM and CJS builds, specify "exports" field in package.json
+  - Document Node engine versions and add engines field: "node": ">=14" or newer depending on ESM usage
+- Security/robustness:
+  - Avoid accepting unbounded n from user input without caps to prevent OOM
+  - Use explicit Number.isInteger checks to avoid accepting '123' strings accidentally
+
+REFERENCE DETAILS (API SIGNATURES, CONFIG, ERRORS, EXAMPLES)
+- API signatures (exact):
+  - function fizzbuzz(n: number): string[]
+  - function fizzbuzzGenerator(n: number): Generator<string, void, unknown>
+- Parameter semantics:
+  - n: integer, inclusive upper bound of sequence, corresponds to last produced item
+  - If options object present: options.start (default 1) - inclusive start index; options.end is ignored when n present in simple API
+- Return types:
+  - string[] where index 0 => i = start (default 1)
+  - Generator yields strings in ascending i order
+- Thrown errors and exact messages (recommended canonical text):
+  - TypeError('n must be an integer')
+  - RangeError('n must be >= 0 and <= 1000000')
+- Package.json exports snippet (exact JSON form):
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  }
+- ESM export examples (exact source lines to include):
+  export function fizzbuzz(n) { /* implementation */ }
+  export default fizzbuzz
+- Vitest example assertions (exact forms):
+  import { it, expect } from 'vitest'
+  it('returns fizz for 3', () => {
+    expect(fizzbuzz(3)[2]).toBe('Fizz')
+  })
+
+TROUBLESHOOTING (step-by-step)
+1) Tests fail to import fizzbuzz with SyntaxError: Unexpected token 'export'
+  - Cause: package.json may not have "type":"module" or file extension mismatch
+  - Fix: add "type":"module" to package.json or build CJS target and adjust tests to import via require or import default interop
+2) Consumers get TypeError for numeric input that is an integer string
+  - Cause: implicit coercion not performed; strings are not accepted
+  - Fix: document behaviour and, if desired, add explicit parseInt with validation
+3) Memory exhaustion for large n
+  - Cause: returning a full array for huge n
+  - Fix: offer stream/generator API or impose documented MAX_N and throw RangeError beyond it
+4) Vitest ESM issues in CI
+  - Ensure Node in CI supports ESM and package.json has type: module; if using transpilers, configure vitest to use proper environment
+
+DETAILED DIGEST (extracted from SOURCES.md)
+- List of source URLs crawled (retrieved 2026-03-10):
+  - https://en.wikipedia.org/wiki/Fizz_buzz
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
+  - https://nodejs.org/api/esm.html
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError
+  - https://vitest.dev/guide/
+  - https://www.npmjs.com/package/fizzbuzz
+- Retrieval date: 2026-03-10
+- Data size obtained during crawling: 732 bytes (SOURCES.md content length)
+
+ATTRIBUTION
+Source list: entries taken verbatim from project SOURCES.md. Individual authoritative sources: Wikipedia (Fizz Buzz), MDN Web Docs (export statement, Number.isInteger, RangeError, TypeError), Node.js docs (ESM), Vitest guide, npm package registry.
+Data size obtained from repository SOURCES.md: 732 bytes
+
+END OF DOCUMENT
