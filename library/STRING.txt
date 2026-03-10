@@ -1,0 +1,108 @@
+NORMALISED EXTRACT
+
+Table of contents:
+1. Overview and representations
+2. UTF-16, code units, code points, surrogate pairs, grapheme clusters
+3. Core String primitives and object distinction
+4. Common methods and signatures
+5. Comparison and locale-aware comparison
+6. Coercion rules
+
+1. Overview and representations
+Strings are sequences of UTF-16 code units. Each element accessed by index refers to a UTF-16 code unit, not necessarily a full Unicode character (code point). Use \u{hhhhhh} for code point escapes (1-6 hex digits). Template literals allow interpolation and multiline text.
+
+2. UTF-16, code units, code points, surrogate pairs, grapheme clusters
+- UTF-16 stores characters as 16-bit code units. BMP characters use one code unit; supplementary code points use surrogate pairs (two 16-bit units).
+- High surrogates range: 0xD800-0xDBFF; low surrogates: 0xDC00-0xDFFF.
+- Lone surrogates are invalid Unicode characters and can cause URI encoding errors. Validate with isWellFormed() and sanitize with toWellFormed().
+- Grapheme clusters are user-perceived characters and may be multiple code points joined by ZWJ (U+200D); iterating by code points requires Symbol.iterator; iterating by grapheme clusters requires custom logic or Intl.Segmenter.
+
+3. Core String primitives and object distinction
+- String literal vs new String(): primitives should be used; String objects are wrappers and typeof returns "object" for new String(). Use valueOf() to get the primitive. Prefer primitive strings.
+
+4. Common methods and signatures (exact forms and effects)
+- String.prototype.length : number; returns count of UTF-16 code units.
+- String.prototype.charAt(index: number): string; returns single UTF-16 code unit as string or empty string for out-of-range.
+- String.prototype.charCodeAt(index: number): number; returns UTF-16 code unit value (0-65535) or NaN.
+- String.prototype.codePointAt(pos: number): number | undefined; returns Unicode code point value; consumes surrogate pairs correctly.
+- String.prototype.concat(...strings: string[]): string; concatenates arguments.
+- String.prototype.slice(begin?: number, end?: number): string; extracts by UTF-16 indices; negative indices count from end.
+- String.prototype.substring(indexStart: number, indexEnd?: number): string; swaps indices if start > end; treats negatives as 0.
+- String.prototype.split(separator?: string | RegExp, limit?: number): string[]; splits string into array.
+- String.prototype.indexOf(searchValue: string, fromIndex?: number): number; returns -1 if not found.
+- String.prototype.lastIndexOf(searchValue: string, fromIndex?: number): number.
+- String.prototype.includes(searchString: string, position?: number): boolean.
+- String.prototype.startsWith(searchString: string, position?: number): boolean.
+- String.prototype.endsWith(searchString: string, length?: number): boolean.
+- String.prototype.repeat(count: number): string; throws RangeError for negative or infinite counts.
+- String.prototype.trim(): string; trimStart/trimEnd analogous.
+- String.prototype.padStart(targetLength: number, padString?: string): string.
+- String.prototype.padEnd(targetLength: number, padString?: string): string.
+- String.prototype.replace(searchValue: string | RegExp, replaceValue: string | (substring: string, ...args) => string): string; use replaceAll for literal global replacements.
+- String.prototype.match(regexp: RegExp | string): RegExpMatchArray | null; matchAll(regexp: RegExp): Iterator with groups.
+- String.prototype.normalize(form?: "NFC" | "NFD" | "NFKC" | "NFKD"): string; specify normalization form.
+- String.prototype.localeCompare(other: string, locales?: string | string[], options?: Intl.CollatorOptions): number; returns negative/0/positive as comparison result.
+
+5. Comparison and locale-aware comparison
+- String comparison operators (<, >, ===) are case-sensitive and use UTF-16 code unit order.
+- Use localeCompare or Intl.Collator with sensitivity set to "base" or "accent" for robust locale-aware comparisons.
+- toLocaleLowerCase/toLocaleUpperCase accept locale; use when locale-specific casing is required (e.g., Turkish dotted/dotless i).
+
+6. Coercion rules
+- String(x) follows ToString conversion: undefined -> "undefined", null -> "null", symbols throw TypeError in some conversions; String() returns "Symbol(desc)" for symbols when used as function; template literal and String() behave slightly differently for symbols.
+
+SUPPLEMENTARY DETAILS
+
+- Iteration: for (const ch of str) iterates Unicode code points (handles surrogate pairs). [...str] yields array of code points.
+- To iterate grapheme clusters: use Intl.Segmenter if available: new Intl.Segmenter(locale, {granularity: "grapheme"}).segment(str) to iterate grapheme clusters.
+- Well-formed checks: String.isWellFormed() and String.prototype.toWellFormed() (where available) or polyfill strategy: replace lone surrogates with replacement character U+FFFD.
+
+REFERENCE DETAILS (API signatures, options, effects)
+
+- charAt(index:number):string
+- charCodeAt(index:number):number
+- codePointAt(pos:number):number | undefined
+- concat(...strings:string[]):string
+- slice(begin?:number,end?:number):string
+- substring(indexStart:number,indexEnd?:number):string
+- split(separator?:string|RegExp,limit?:number):string[]
+- indexOf(searchValue:string,fromIndex?:number):number
+- lastIndexOf(searchValue:string,fromIndex?:number):number
+- includes(searchString:string,position?:number):boolean
+- startsWith(searchString:string,position?:number):boolean
+- endsWith(searchString:string,length?:number):boolean
+- repeat(count:number):string throws RangeError if count < 0 or infinite
+- padStart(targetLength:number,padString?:string):string
+- padEnd(targetLength:number,padString?:string):string
+- replace(searchValue:string|RegExp,replaceValue:string|Function):string
+- replaceAll(searchValue:string|RegExp,replaceValue:string|Function):string (literal global replacements preferred)
+- normalize(form?:"NFC"|"NFD"|"NFKC"|"NFKD"):string
+- localeCompare(other:string,locales?:string|string[],options?:Intl.CollatorOptions):number
+
+BEST PRACTICES
+
+- Use primitives, not String objects. Avoid new String().
+- For Unicode-safe iteration use for..of or codePointAt and manual index increments when needed.
+- Use normalize before comparisons when canonical equivalence matters (e.g., user input normalization).
+- Use Intl.Collator for sorting and case-insensitive comparisons in locales.
+- Use padStart/padEnd for fixed-width display; ensure padString is not empty.
+
+TROUBLESHOOTING
+
+- If encodeURI throws URIError, check for lone surrogates; sanitize input with toWellFormed or remove surrogates.
+- If split("") separates surrogate pairs, use Array.from(str) or [...str] to split by code points instead.
+- If case conversion fails culturally (Turkish), use toLocaleLowerCase("tr") or Intl.Collator.
+
+DIGEST
+
+Source: MDN Web Docs: String reference (developer.mozilla.org)
+Retrieved: 2026-03-10
+Content used: partial extract from MDN String reference pages; fetch truncated in places by crawler tools.
+Attribution: MDN contributors; license: MDN content. Data size obtained during crawl: partial response (truncated) - exact byte count unavailable.
+
+ATTRIBUTION
+
+Source URLs:
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String
+
+END

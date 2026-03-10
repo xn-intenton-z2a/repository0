@@ -1,0 +1,75 @@
+NORMALISED EXTRACT
+
+Table of contents:
+1. Definition and properties
+2. Recursive definition
+3. Dynamic programming matrix algorithm (full matrix)
+4. Memory-optimized algorithm (two-row)
+5. Weighted operations and variants
+6. Complexity and performance notes
+
+1. Definition and properties
+- Levenshtein distance between strings a and b is the minimum number of single-character edits (insertions, deletions, substitutions) required to change a into b.
+- Basic bounds: at least abs(|a|-|b|), at most max(|a|,|b|). If equal length Hamming distance upper-bounds the Levenshtein distance.
+
+2. Recursive definition
+- If either string is empty, distance = length of the other string.
+- If head(a) == head(b) then lev(tail(a), tail(b))
+- Else 1 + min(lev(tail(a), b), lev(a, tail(b)), lev(tail(a), tail(b))) corresponding to insertion, deletion, substitution.
+- Pure recursive implementation is exponential; avoid without memoization.
+
+3. Dynamic programming matrix algorithm (full matrix)
+- Allocate matrix M with size (m+1) x (n+1) where m = |a|, n = |b|.
+- Initialize M[i][0] = i for i=0..m and M[0][j] = j for j=0..n.
+- For i from 1..m: for j from 1..n: cost = (a[i-1] == b[j-1]) ? 0 : 1; M[i][j] = min(M[i-1][j] + 1, M[i][j-1] + 1, M[i-1][j-1] + cost).
+- Final distance = M[m][n].
+- Time complexity: O(m*n). Space complexity: O(m*n).
+
+4. Memory-optimized algorithm (two-row)
+- Keep only two rows: previous and current. Initialize previous[j] = j.
+- For each i in 1..m: current[0] = i; for j in 1..n: compute cost and set current[j] = min(previous[j] + 1, current[j-1] + 1, previous[j-1] + cost). After row, swap previous and current.
+- Space complexity: O(n). Final result in previous[n] after loop.
+
+5. Weighted operations and variants
+- Allow non-uniform costs: insertionCost, deletionCost, substitutionCost; replace cost formula accordingly.
+- Damerau–Levenshtein extends operations to include transposition of adjacent characters; requires additional bookkeeping (e.g., last row/column indices) or full dynamic programming with transposition handling.
+
+6. Complexity and performance notes
+- For short needle vs long haystack approximate matching, consider banded DP or Ukkonen's algorithm limiting max distance k to reduce complexity to O(k * min(m,n)).
+- For large-scale fuzzy searching, use trigram or n-gram indexing to prefilter candidates before computing exact Levenshtein.
+
+SUPPLEMENTARY DETAILS
+
+- Use codePoint-aware indexing for Unicode strings; convert strings to arrays of code points when multi-code-unit characters present to avoid splitting surrogate pairs; this increases m and n to code point counts.
+- For real-time spellcheck with small k, implement early exit when minimum row value exceeds k.
+
+REFERENCE DETAILS (function signatures and pseudocode)
+
+- LevenshteinDistance(a:string, b:string) -> number
+- Implementation (iterative full matrix): described in section 3.
+- Memory-optimized signature: LevenshteinDistanceOptimized(a:string,b:string) -> number; uses O(min(n,m)) space by swapping to ensure n <= m.
+
+BEST PRACTICES
+
+- Use the two-row algorithm when only distance is needed; use full matrix when you require edit script reconstruction (backtrace) to compute operations.
+- Convert strings to arrays of Unicode code points when inputs can contain non-BMP characters.
+- When the acceptable maximum distance k is small, use banded DP or Ukkonen's algorithm to limit computation.
+
+TROUBLESHOOTING
+
+- Mismatch counts for multibyte characters: ensure code point conversion before computing indices.
+- Excessive memory for large strings: switch to optimized two-row algorithm or prefilter candidates.
+
+DIGEST
+
+Source: Wikipedia: Levenshtein distance
+Retrieved: 2026-03-10
+Content used: definition, recursive formula, full matrix DP and optimizations; fetch truncated in places; more detail available on the full Wikipedia article.
+Attribution: Wikipedia contributors. Data size obtained during crawl: partial response (truncated) - exact byte count unavailable.
+
+ATTRIBUTION
+
+Source URL:
+https://en.wikipedia.org/wiki/Levenshtein_distance
+
+END
