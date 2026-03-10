@@ -6,7 +6,7 @@
   "main": "src/lib/main.js",
   "scripts": {
     "build": "npm run build:web",
-    "build:web": "mkdir -p docs && touch docs/.nojekyll && cp -r src/web/* docs/ 2>/dev/null || true && node --input-type=commonjs -p \"var p=require('./package.json');['name','version','description'].map(function(k){return 'export const '+k+' = '+JSON.stringify(p[k])+';'}).join('\\n')\" > docs/lib-meta.js",
+    "build:web": "mkdir -p docs && touch docs/.nojekyll && cp -r src/web/* docs/ 2>/dev/null || true && cp src/lib/main.js docs/lib/main.js 2>/dev/null || true && node --input-type=commonjs -p \"var p=require('./package.json');['name','version','description'].map(function(k){return 'export const '+k+' = '+JSON.stringify(p[k])+';'}).join('\\n')\" > docs/lib-meta.js",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
     "test:behaviour": "npm run build:web && node tests/behaviour/run-behaviour.js",

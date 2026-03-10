@@ -1,39 +1,39 @@
-# repo — FizzBuzz library
+# repository0
 
-This repository implements a small FizzBuzz library and demonstrates it on a lightweight website.
+A small JavaScript library demonstrating FizzBuzz functionality and a browser demo.
 
-Features
+## Library API
 
-- fizzBuzz(n): returns an array of strings for 1..n where multiples of 3 are "Fizz", multiples of 5 are "Buzz", and multiples of both are "FizzBuzz".
-- fizzBuzzSingle(n): returns the FizzBuzz string for a single positive integer.
+Import from src/lib/main.js (or use the packaged entry):
 
-Usage
+import { fizzBuzz, fizzBuzzSingle, getIdentity } from './src/lib/main.js';
 
-Node library:
+Examples:
 
-```js
-import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js';
+- fizzBuzz(15) returns an array of 15 strings with Fizz/Buzz substitutions.
+- fizzBuzzSingle(3) returns 'Fizz'.
 
-console.log(fizzBuzzSingle(3)); // 'Fizz'
-console.log(fizzBuzz(15)); // ['1','2','Fizz','4','Buzz',...,'FizzBuzz']
-```
+Edge cases:
 
-Website demo
+- fizzBuzz(0) returns an empty array []
+- Passing a non-integer throws TypeError with message 'n must be an integer'
+- Passing negative numbers throws RangeError with messages as documented
 
-Run:
+## Web demo
 
-```bash
+Open the demo:
+
 npm run build:web
 npm start
-```
 
-Open http://localhost:5000 (or the address printed by serve) to see the demo; the page displays fizzBuzz(15).
+Then visit http://localhost:5000 (or the port served by `serve`) to see the demo. The demo uses the core library exports.
 
-API behaviour
+## Tests
 
-- fizzBuzz(0) => []
-- fizzBuzz(n) with n < 0 => throws RangeError
-- fizzBuzz(n) with non-integer => throws TypeError
-- fizzBuzzSingle(n) requires integer > 0, non-integer => TypeError, <=0 => RangeError
+Run unit tests:
 
-License: MIT
+npm test
+
+Run behaviour tests (requires Playwright):
+
+npm run test:behaviour

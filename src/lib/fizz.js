@@ -1,3 +1,4 @@
+// src/lib/fizz.js
 export function fizzBuzzSingle(n) {
   if (typeof n !== 'number' || !Number.isInteger(n)) {
     throw new TypeError('n must be an integer');
