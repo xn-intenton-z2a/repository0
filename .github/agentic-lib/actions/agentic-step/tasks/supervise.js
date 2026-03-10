@@ -829,7 +829,7 @@ export async function supervise(context) {
       const resolvedCount = ctx.recentlyClosedSummary.filter((s) => s.includes("RESOLVED")).length;
       const hasNoOpenIssues = ctx.issuesSummary.length === 0;
       const hasNoOpenPRs = ctx.prsSummary.length === 0;
-      if (hasNoOpenIssues && hasNoOpenPRs && resolvedCount >= 2) {
+      if (hasNoOpenIssues && hasNoOpenPRs && resolvedCount >= 1) {
         core.info(`Deterministic mission-complete: 0 open issues, 0 open PRs, ${resolvedCount} recently resolved — LLM did not detect completion`);
         try {
           const autoResult = await executeMissionComplete(octokit, repo,
