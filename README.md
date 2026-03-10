@@ -1,79 +1,133 @@
-# repo
+# Hamming Distance Library
 
-This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests on a schedule.
+![Screenshot](SCREENSHOT_INDEX.png)
 
-## Getting Started
+A JavaScript library for computing Hamming distances between strings and integers with comprehensive input validation and Unicode support.
 
-1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
-2. **Configure GitHub** — see [Setup](#setup) below
-3. **Push to main** — the autonomous workflows take over from here
-
-The system will create issues from your mission, generate code to resolve them, run tests, and open PRs. A supervisor agent orchestrates the pipeline, and you can interact through GitHub Discussions.
-
-## Setup
-
-### Required Secrets
-
-Add these in your repository: **Settings → Secrets and variables → Actions → New repository secret**
-
-| Secret | How to create | Purpose |
-|--------|---------------|---------|
-| `COPILOT_GITHUB_TOKEN` | [Fine-grained PAT](https://github.com/settings/tokens?type=beta) with **GitHub Copilot** → Read permission | Authenticates with the Copilot SDK for all agentic tasks |
-| `WORKFLOW_TOKEN` | [Classic PAT](https://github.com/settings/tokens) with **workflow** scope | Allows `init.yml` to update workflow files (GITHUB_TOKEN cannot modify `.github/workflows/`) |
-
-### Repository Settings
-
-| Setting | Where | Value |
-|---------|-------|-------|
-| GitHub Actions | Settings → Actions → General | Allow all actions |
-| Workflow permissions | Settings → Actions → General | Read and write permissions |
-| Allow GitHub Actions to create PRs | Settings → Actions → General | Checked |
-| GitHub Discussions | Settings → General → Features | Enabled (for the discussions bot) |
-
-### Optional: Branch Protection
-
-For production repositories, consider adding branch protection on `main`:
-- Require pull request reviews before merging
-- Require status checks to pass (select the `test` workflow)
-
-## How It Works
-
-```
-MISSION.md → [supervisor] → dispatch workflows → Issue → Code → Test → PR → Merge
-                                                    ↑                          |
-                                                    +——————————————————————————+
-```
-
-The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context (issues, PRs, workflow runs, features) and strategically dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
-
-## Configuration
-
-Edit `agentic-lib.toml` to tune the system:
-
-```toml
-[schedule]
-supervisor = "daily"    # off | weekly | daily | hourly | continuous
-
-[paths]
-mission = "MISSION.md"
-source = "src/lib/"
-tests = "tests/unit/"
-
-[limits]
-max-feature-issues = 2      # max concurrent feature issues
-max-attempts-per-issue = 2   # max retries per issue
-```
-
-## Updating
-
-The `init.yml` workflow runs daily and updates the agentic infrastructure automatically. To update manually:
+## Installation
 
 ```bash
-npx @xn-intenton-z2a/agentic-lib@latest init
+npm install repo
 ```
 
-## Links
+## Usage
 
-- [MISSION.md](MISSION.md) — your project goals
-- [agentic-lib documentation](https://github.com/xn-intenton-z2a/agentic-lib) — full SDK docs
-- [intentïon website](https://xn--intenton-z2a.com)
+### String Hamming Distance
+
+Compare two strings of equal length and count the positions where characters differ:
+
+```javascript
+import { hammingDistance } from 'repo';
+
+// Basic usage
+hammingDistance("karolin", "kathrin"); // Returns: 3
+hammingDistance("hello", "world");     // Returns: 4
+hammingDistance("", "");               // Returns: 0
+
+// Unicode support
+hammingDistance("café", "cave");       // Returns: 2
+hammingDistance("🎉🎊", "🎉🌟");        // Returns: 1
+```
+
+### Bits Hamming Distance
+
+Compare two non-negative integers and count the differing bits:
+
+```javascript
+import { hammingDistanceBits } from 'repo';
+
+// Basic usage
+hammingDistanceBits(1, 4);   // Returns: 2 (binary: 001 vs 100)
+hammingDistanceBits(5, 3);   // Returns: 2 (binary: 101 vs 011)  
+hammingDistanceBits(0, 0);   // Returns: 0
+```
+
+## API Reference
+
+### `hammingDistance(a, b)`
+
+Computes the Hamming distance between two strings of equal length.
+
+**Parameters:**
+- `a` (string): First string
+- `b` (string): Second string
+
+**Returns:** `number` - Number of positions where characters differ
+
+**Throws:**
+- `TypeError` - If arguments are not strings
+- `RangeError` - If strings have different lengths
+
+### `hammingDistanceBits(x, y)`
+
+Computes the Hamming distance between two non-negative integers (counts differing bits).
+
+**Parameters:**
+- `x` (number): First integer (must be non-negative)
+- `y` (number): Second integer (must be non-negative)
+
+**Returns:** `number` - Number of differing bits
+
+**Throws:**
+- `TypeError` - If arguments are not integers
+- `RangeError` - If arguments are negative
+
+## Features
+
+- ✅ **Unicode Support**: Correctly handles Unicode code points, not just UTF-16 code units
+- ✅ **Input Validation**: Comprehensive type checking and error handling  
+- ✅ **Zero Dependencies**: Pure JavaScript implementation
+- ✅ **ESM Support**: Native ES modules with proper exports
+- ✅ **Comprehensive Testing**: Full unit test coverage including edge cases
+- ✅ **Interactive Demo**: Live web interface at [GitHub Pages](https://xn-intenton-z2a.github.io/repository0/)
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+npm run test:unit      # Unit tests with coverage
+npm run test:behaviour # End-to-end browser tests
+
+# Build and serve website
+npm run build:web
+npm start
+```
+
+## Examples
+
+### Error Handling
+
+```javascript
+// Type errors
+hammingDistance(123, "abc");        // TypeError: First argument must be a string
+hammingDistance("abc", 123);        // TypeError: Second argument must be a string
+
+// Range errors  
+hammingDistance("short", "longer"); // RangeError: Strings must have equal length
+hammingDistanceBits(-1, 5);        // RangeError: First argument must be non-negative
+```
+
+### Unicode Examples
+
+```javascript
+// Proper Unicode handling
+hammingDistance("résumé", "resume");    // Returns: 2
+hammingDistance("🌟⭐", "🌟🌙");         // Returns: 1
+
+// Handles surrogate pairs correctly
+const str1 = "𝐀𝐁𝐂";  // Mathematical bold letters
+const str2 = "𝐀𝐁𝐃";  
+hammingDistance(str1, str2);           // Returns: 1
+```
+
+## License
+
+MIT
+
+---
+
+An autonomous repository powered by [agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib).
