@@ -170,7 +170,7 @@ export function producePNG(series, { width = 600, height = 300 } = {}) {
   }
   const compressed = zlib.deflateSync(scanlines);
   const parts = [];
-  parts.push(Buffer.from("\x89PNG\r\n\x1a\n"));
+  parts.push(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]));
   // IHDR
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(w, 0);
