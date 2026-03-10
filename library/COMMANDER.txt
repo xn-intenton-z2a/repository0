@@ -1,0 +1,51 @@
+COMMANDER
+
+Table of Contents:
+1. Purpose and core concepts
+2. Program and Command objects
+3. Options and types
+4. Commands and arguments
+5. Help and configuration
+6. Advanced option patterns
+7. Reference details (methods and usage patterns)
+8. Source digest and metadata
+
+1. Purpose and core concepts
+- Commander.js is a complete solution for Node.js CLIs, handling argument parsing, help, subcommands, and option validation.
+- Define options via .option() and retrieve parsed options via program.opts() or program.optsWithGlobals().
+
+2. Program and Command objects
+- Global quick usage: const { program } = require('commander'); program.option(...)
+- For modular programs and tests: const { Command } = require('commander'); const program = new Command();
+
+3. Options and types
+- Option forms: boolean, value (angle brackets), optional value (square brackets), variadic (value...)
+- Default values: .option('-c, --cheese <type>', 'desc', 'blue') provides default 'blue'.
+- Negatable booleans: define a long name with leading no- to set false; options may be boolean|value.
+
+4. Commands and arguments
+- Subcommands defined with .command(), support action handlers via .action()
+- Command arguments declared by .argument('<string>') etc.; parse with program.parse()
+
+5. Help and configuration
+- Automated help produced; .version() adds -V/--version handling; .helpOption(flags, description) to customize help flag.
+- .parse() and .parseAsync() available for parsing flows.
+
+6. Advanced option patterns
+- Variadic options: .option('-n, --number <numbers...>') yields array values.
+- Required options: .requiredOption('-c, --cheese <type>') enforces presence.
+- Custom processing: .option('-f, --float <number>', 'desc', parseFloat) or provide parser function returning coerced value or accumulate values.
+- addOption(new Option(...)) for fine-grained configuration: .env(), .choices(), .preset(), .conflicts(), .implies().
+
+7. Reference details (direct call patterns from source)
+- program.option(flags: string, description: string, defaultValue?)
+- program.parse(argv?)
+- const options = program.opts()
+- program.command('split').argument('<string>').option('-s, --separator <char>').action((str, options) => { ... })
+- Option custom parser signature: function parseFn(value, previous) => newValue
+
+8. Source digest and metadata
+- Source: https://github.com/tj/commander.js
+- Retrieved: 2026-03-10
+- Source excerpts used: option types, examples for .option(), .command(), .requiredOption(), .addOption(), custom parsers, and parsing behavior.
+- Attribution: Commander.js (TJ Holowaychuk et al.). Data size retrieved: truncated by crawler; full README content used as referenced.

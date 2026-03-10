@@ -1,0 +1,23 @@
+EXPR_EVAL
+
+Table of Contents:
+1. Summary from SOURCES.md
+2. Intended use and scope
+3. Notes about crawl status
+4. Source digest and metadata
+
+1. Summary from SOURCES.md (literal)
+- expr-eval: lightweight JavaScript expression parser/evaluator suitable for parsing y=sin(x) and similar formulas.
+
+2. Intended use and scope
+- Use for lightweight parsing and evaluation of mathematical expressions in JS when full-featured math libraries (e.g., mathjs) are unnecessary.
+
+3. Notes about crawl status
+- Direct crawl failed with HTTP 403; repository/site content not retrieved by crawler in this session.
+- Because of 403, only the SOURCES.md description was used; authoritative API signatures were not fetched.
+
+4. Source digest and metadata
+- Source listed in SOURCES.md: https://www.npmjs.com/package/expr-eval
+- Retrieved: 2026-03-10
+- Crawl result: HTTP 403 (forbidden) from web fetch; data size: 0 bytes retrieved by crawler for this URL.
+- Attribution: expr-eval (npm package).
