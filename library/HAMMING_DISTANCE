@@ -1,0 +1,161 @@
+HAMMING_DISTANCE
+
+TABLE OF CONTENTS
+1. Definition
+2. Binary formula (XOR + popcount)
+3. String handling and Unicode (code points vs. UTF-16 code units)
+4. Algorithms and implementations
+   4.1 Wegner loop (x &= x - 1)
+   4.2 Tree-based popcount (masks m1,m2,m4,...)
+   4.3 Multiply-and-shift popcount (h01 technique)
+   4.4 Lookup-table popcount
+   4.5 Compiler intrinsics and hardware popcount
+   4.6 Hamming distance via popcount of XOR
+5. JavaScript specifics
+   5.1 String.prototype.codePointAt signature and behavior
+   5.2 Iterating strings by code points (for...of, spread)
+   5.3 Bitwise operators behavior and 32-bit coercion
+   5.4 Implementing popcount/hamming for JS (32-bit and BigInt)
+6. Complexity and performance notes
+7. Best practices and troubleshooting
+
+NORMALISED EXTRACT (direct technical content)
+
+1. Definition
+The Hamming distance between two equal-length strings or vectors is the number of positions at which corresponding symbols differ. For binary words a and b, HammingDistance(a,b) = popcount(a XOR b).
+Time complexity for a linear per-symbol algorithm is O(n) (n = length); space complexity O(1) for streaming comparisons.
+
+2. Binary formula (XOR + popcount)
+Compute XOR of the two bit-vectors; the number of 1 bits in the XOR is the Hamming distance. For integers: distance32(x,y) = popcount32(x ^ y); distance64(x,y) = popcount64(x ^ y).
+
+3. String handling and Unicode
+JavaScript strings are UTF-16 sequences of code units. Code points above 0xFFFF are encoded as surrogate pairs. Iteration by numeric index visits UTF-16 code units, which may split surrogate pairs; iteration by for...of or String's iterator visits Unicode code points. To compare textual characters for Hamming distance at grapheme or code point level, iterate by code points (for...of or [...str]) and use codePointAt(0) on each element if numeric code is needed.
+
+4. Algorithms and implementations
+4.1 Wegner loop (bit-clearing loop)
+Procedure: val = x ^ y; count = 0; while (val != 0) { val = val & (val - 1); count++; } Returns number of 1 bits in val. This costs O(k) where k = number of 1 bits (useful when k is small).
+
+4.2 Tree-based popcount (parallel add / pairwise sums)
+Use masks and shifts to add bit counts in progressively larger groups:
+- m1  = 0x5555555555555555  (0101...)
+- m2  = 0x3333333333333333  (00110011...)
+- m4  = 0x0f0f0f0f0f0f0f0f  (00001111...)
+- m8  = 0x00ff00ff00ff00ff
+- m16 = 0x0000ffff0000ffff
+- m32 = 0x00000000ffffffff
+Algorithm (64-bit):
+x = (x & m1) + ((x >> 1) & m1)
+x = (x & m2) + ((x >> 2) & m2)
+x = (x & m4) + ((x >> 4) & m4)
+x = (x & m8) + ((x >> 8) & m8)
+x = (x & m16) + ((x >> 16) & m16)
+x = (x & m32) + ((x >> 32) & m32)
+Return x (contains count) or extract lower bits as needed.
+
+4.3 Multiply-and-shift popcount (Harley-Seal / multiply trick)
+After reducing counts to 8-bit lanes, multiply by h01 = 0x0101010101010101 and shift right by 56 to accumulate byte sums into the high byte: result = (x * h01) >> 56.
+
+4.4 Lookup-table popcount
+Precompute popcount for 16-bit values in an array wordbits[65536]; popcount32(x) = wordbits[x & 0xFFFF] + wordbits[x >> 16]. Requires memory but gives O(1) per word with 2 reads.
+
+4.5 Compiler intrinsics and hardware popcount
+GCC/Clang provide __builtin_popcount(unsigned) and __builtin_popcountll(unsigned long long) which compile to POPCNT hardware instruction when available. C++20 offers std::popcount(unsigned) in <bit>.
+
+4.6 Hamming distance via popcount of XOR
+For integers: int hamming_distance(unsigned x, unsigned y) { return popcount(x ^ y); }
+For strings of equal length: iterate positions i, increment counter when s1[i] != s2[i]. For Unicode-aware comparisons use code point iteration; lengths must be equal in chosen unit (code units vs code points vs grapheme clusters).
+
+5. JavaScript specifics
+5.1 String.prototype.codePointAt(index) signature and behavior
+Signature: String.prototype.codePointAt(index) -> non-negative integer or undefined.
+Parameters: index coerced to integer; undefined becomes 0. Returns full code point when index addresses a UTF-16 lead surrogate followed by a valid trail surrogate; if index points to a trailing surrogate, returns the trailing surrogate code unit only.
+Specification reference: ECMAScript String.prototype.codePointAt.
+
+5.2 Iterating strings by code points
+Use for (const ch of str) { ... } or [...str] to iterate by Unicode code points. For each element from the iterator, element.codePointAt(0) yields the numeric code point.
+
+5.3 Bitwise operators behavior
+JavaScript bitwise operators coerce operands to signed 32-bit integers. Expressions like a ^ b operate on 32-bit values; for values >32 bits use BigInt and BigInt bit operations. Unsigned right shift >>> coerces to unsigned 32-bit.
+
+5.4 Implementing popcount/hamming in JS
+For 32-bit integers: use val = x ^ y | 0 (ensure 32-bit), then apply efficient integer popcount implementations (Wegner loop or tree-based masks). For values that require >32 bits, use BigInt: compute (xBig ^ yBig) and implement popcount on BigInt via repeated x &= x - 1 (works with BigInt) or split into 64-bit chunks and use lookup.
+
+6. Complexity and performance
+- Per-symbol string comparison: O(n) time, O(1) space.
+- Integer Hamming via popcount: cost proportional to word-size or number of set bits depending on algorithm. Wegner loop cost O(k) where k = popcount; tree/multiply algorithms cost O(log W) arithmetic ops where W = word size; hardware POPCNT executes in constant cycles.
+
+7. Best practices and troubleshooting
+- Verify length equality in chosen unit before computing string Hamming distance.
+- For Unicode text, decide whether distance should count code points or grapheme clusters; grapheme clusters require libraries (Intl.Segmenter or third-party).
+- Prefer compiler intrinsics or hardware popcount for large-scale bit counting.
+- In JS, prefer for...of when comparing user-visible characters; avoid index-based loops over UTF-16 if surrogate pairs matter.
+- When npm registry pages are required for package-specific API, handle HTTP 403 by using npm CLI or registry API (registry.npmjs.org) for metadata retrieval.
+
+SUPPLEMENTARY DETAILS (implementation specifications and constants)
+- Masks for 64-bit tree popcount:
+  m1  = 0x5555555555555555
+  m2  = 0x3333333333333333
+  m4  = 0x0f0f0f0f0f0f0f0f
+  m8  = 0x00ff00ff00ff00ff
+  m16 = 0x0000ffff0000ffff
+  m32 = 0x00000000ffffffff
+  h01 = 0x0101010101010101
+- Wegner loop: while (x) { x &= x - 1; ++count; }
+- Tree-based 32-bit variant uses the same masks truncated to 32 bits and fewer steps.
+- Lookup table: wordbits[0..65535] where wordbits[i] = popcount(i).
+
+REFERENCE DETAILS (APIs, method signatures, exact patterns)
+- String.prototype.codePointAt(index) -> number | undefined
+  Parameters: index: integer (coerced). Returns: Unicode code point (0..0x10FFFF) when index addresses a full character or leading surrogate pair, undefined for out-of-range index.
+- String iteration:
+  for (const ch of str) { /* ch is a string representing one Unicode code point (may be surrogate pair) */ }
+  Spread operator: [...str] produces array of code-point strings.
+- JavaScript bitwise operator behavior:
+  All bitwise operators operate on 32-bit signed integers (ToInt32 coercion). Use >>> for unsigned right shift.
+- C intrinsics:
+  int __builtin_popcount(unsigned int x)
+  int __builtin_popcountl(unsigned long x)
+  int __builtin_popcountll(unsigned long long x)
+- C function prototypes (implementation pattern):
+  int hamming_distance(unsigned x, unsigned y) {
+      unsigned val = x ^ y;
+      int dist = 0;
+      while (val) { val &= val - 1; ++dist; }
+      return dist;
+  }
+  int hamming_distance32(unsigned int x, unsigned int y) { return __builtin_popcount(x ^ y); }
+  int hamming_distance64(unsigned long long x, unsigned long long y) { return __builtin_popcountll(x ^ y); }
+- Popcount tree-based function (64-bit):
+  uint64_t popcount64(uint64_t x) {
+      x = (x & m1) + ((x >> 1) & m1);
+      x = (x & m2) + ((x >> 2) & m2);
+      x = (x & m4) + ((x >> 4) & m4);
+      x = (x & m8) + ((x >> 8) & m8);
+      x = (x & m16) + ((x >> 16) & m16);
+      x = (x & m32) + ((x >> 32) & m32);
+      return x;
+  }
+- JavaScript 32-bit popcount pattern (tree-based masks):
+  // use 0x55555555, 0x33333333, 0x0f0f0f0f, 0x00ff00ff, 0x0000ffff and shifts
+
+DETAILED DIGEST (sources and retrieval)
+Content extracted from the following sources on 2026-03-10:
+- https://en.wikipedia.org/wiki/Hamming_distance  (retrieved 2026-03-10) — definitions, examples, Python and C patterns, XOR+popcount relation, error-correction d_min rules, complexity notes.
+- https://en.wikipedia.org/wiki/Hamming_weight    (retrieved 2026-03-10) — popcount algorithms, Wegner loop, tree-based masks, multiply-and-shift, lookup-table approach, compiler intrinsic references.
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt  (retrieved 2026-03-10) — codePointAt signature, surrogate handling, return semantics, ECMAScript spec link.
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#iterating_strings  (retrieved 2026-03-10) — string iteration semantics, surrogate pairs, for...of and spread behavior, grapheme cluster note.
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators  (retrieved 2026-03-10) — JS bitwise operators coerce to 32-bit ints, operator list, shift semantics, unsigned right shift.
+- https://www.npmjs.com/package/hamming-distance  (access failed: HTTP 403 during fetch on 2026-03-10) — package page unavailable by direct fetch; recommend using registry.npmjs.org or npm CLI for metadata.
+- https://hackersdelight.org/  (retrieved 2026-03-10) — canonical bit-twiddling techniques and background; site contains detailed bit-manipulation articles; specific algorithms align with tree-based and multiply strategies.
+
+Attribution and crawl data
+- Retrieval date: 2026-03-10
+- Sources covered: 7 URLs (one returned HTTP 403). Two large Wikipedia pages and three MDN pages fetched successfully; HackersDelight homepage fetched (partial). The npm package page returned 403; use registry API as fallback.
+- Data fetched (approximate): 75 KB total raw HTML/text across successful fetches; several results were truncated due to max_length limits during fetch.
+
+USAGE NOTES
+- Use these exact masks and patterns for high-performance popcount and Hamming distance implementations in C/C++.
+- In JavaScript, choose code-point vs code-unit semantics before computing distances; for visible-character distance use for...of and codePointAt(0).
+- For large integer widths prefer compiler intrinsics or break values into machine-word sized chunks for popcount.
+
+[End of HAMMING_DISTANCE document]
