@@ -62,3 +62,55 @@ Users of the library frequently need to display schedules in UI or logs. A singl
 - The repository contains a simple interactive web demo specification in src/web/demo.html that shows parsed JSON, describeSchedule output, next-runs preview, and a timezone toggle for demonstration purposes.
 - Unit tests cover at least 6 representative expressions and assert exact describer outputs.
 - No new runtime dependencies are added and the CLI and demo use only the exported library API.
+
+# ICAL_EXPORT
+
+# Summary
+
+Add lightweight iCalendar export capabilities so schedules can be exported as ICS files for calendar import and interop. Provide an exported function exportToICal(expression, count, options?) that returns a string containing a valid ICS calendar with count VEVENT entries representing the next count occurrences computed by nextRuns.
+
+# Motivation
+
+Many consumers want to allow users to subscribe to or import scheduled events into calendar applications. Exporting cron schedules to the widely-supported iCalendar format increases the library's practical utility and provides a deterministic, testable output that can be used in examples, the CLI, and the web demo.
+
+# Specification
+
+1. API
+   - Export exportToICal(expression, count, options?) from src/lib/main.js. Options is optional and may include:
+     - timezone?: string  // optional IANA timezone string, if supported by TIMEZONE_SUPPORT
+     - uidPrefix?: string // optional prefix used to generate stable UIDs for events in tests/examples
+   - The function accepts the same cron expression shorthand and special strings supported by the library and uses nextRuns(expression, count, { timezone }) to compute event instants.
+   - Return value is a string containing a minimal but valid iCalendar file with these constraints:
+     - Begins with BEGIN:VCALENDAR and ends with END:VCALENDAR.
+     - Contains VERSION:2.0 and PRODID set to the package name/version.
+     - Includes exactly count VEVENT blocks, each with DTSTART (in UTC as Z or with a TZID if timezone semantics are implemented), DTSTAMP set to the generation instant, SUMMARY set to a brief human description (for example "Scheduled event"), UID unique per event (stable when uidPrefix is provided), and END:VEVENT.
+
+2. Timezone handling
+   - If options.timezone is omitted, DTSTART values should be rendered in UTC (with trailing Z) derived from the JS Date objects returned by nextRuns.
+   - If options.timezone is provided and TIMEZONE_SUPPORT is implemented, prefer rendering DTSTART with a TZID parameter; if timezone-aware calendar VTIMEZONE generation is out of scope, still include TZID in DTSTART and document the limitation.
+
+3. CLI and examples
+   - Add a CLI subcommand export-ical <expression> <count> [--tz=<zone>] that prints the ICS to stdout. The CLI must reuse exportToICal and not spawn other processes.
+   - Add an example in examples/ical-example.js that prints an ICS for a weekly schedule and writes it to stdout when invoked with node.
+   - Update README examples section to show how to call exportToICal and how to import the generated ICS into a calendar application.
+
+4. Tests
+   - Unit tests assert that exportToICal("@daily", 3) returns a string starting with BEGIN:VCALENDAR and containing exactly 3 BEGIN:VEVENT sections.
+   - Tests assert that DTSTART values in the ICS match the ISO timestamps produced by nextRuns for the same expression (comparing normalized UTC instants).
+   - Tests assert that providing uidPrefix results in predictable UIDs (useful for deterministic snapshots).
+   - Tests cover both default (UTC) output and the branch where options.timezone is provided; where TIMEZONE_SUPPORT is not present the test should still accept UTC output but document expectations.
+
+# Acceptance Criteria
+
+- exportToICal is exported from src/lib/main.js and returns a valid ICS string containing the requested number of VEVENTs.
+- CLI supports export-ical and prints the ICS to stdout.
+- examples/ includes a runnable ical-example.js demonstrating export and references README.
+- Unit tests verify the number of VEVENTs and that DTSTART entries correspond to nextRuns instants.
+- No new runtime dependencies are added and the exporter composes output using plain string generation.
+
+# Implementation notes
+
+- Keep the ICS generator intentionally simple: generate RFC5545-like text with CRLF line endings where practical, but tests may accept LF for simplicity.
+- Use nextRuns to compute instants; format dates using toISOString() and adapt to Z suffix for UTC DTSTART.
+- Do not attempt full VTIMEZONE generation; document the limitation and produce TZID parameters only when options.timezone is present.
+- Ensure exportToICal is pure (no filesystem writes) so unit tests can call it directly.

@@ -1,0 +1,101 @@
+NORMALISED EXTRACT
+
+Table of contents
+1. Field definitions (Unix cron)
+2. Field values and ranges
+3. Special characters and semantics
+4. Special strings (macros)
+5. Evaluation semantics and interactions
+6. Quartz Cron differences (7-field syntax)
+7. DST and timezone considerations
+
+1. Field definitions (Unix cron)
+- A standard Unix crontab entry contains five space-separated scheduling fields followed by the command: minute hour day-of-month month day-of-week command
+- Fields order and index: 0: minute, 1: hour, 2: day-of-month (DOM), 3: month, 4: day-of-week (DOW). Some system crontabs (e.g., /etc/crontab) include an additional "user" field after the schedule and before the command.
+
+2. Field values and ranges
+- minute: integer 0-59
+- hour: integer 0-23
+- day-of-month: integer 1-31 (subject to month length rules)
+- month: integer 1-12 or JAN-DEC (case-insensitive abbreviations allowed)
+- day-of-week: integer 0-7 where 0 and 7 both mean Sunday; or SUN-SAT abbreviations
+- All numeric values are decimal, no leading zeros are required except for readability.
+
+3. Special characters and semantics
+- * : wildcard — matches all legal values for the field
+- , : list separator — e.g., "1,15,30" matches any of the listed values
+- - : range — inclusive range e.g., "1-5" means 1,2,3,4,5
+- / : step/increment — used as "X/Y" meaning "every Y starting at X" (e.g., "*/15" in minutes = 0,15,30,45)
+- Ranges and steps may be combined (e.g., "1-10/2")
+- Names (JAN, FEB, etc.) map to numeric values; short forms accepted by many crons
+
+4. Special strings (macros)
+- @reboot — run once at system startup
+- @yearly or @annually — equivalent to "0 0 1 1 *"
+- @monthly — "0 0 1 * *"
+- @weekly — "0 0 * * 0"
+- @daily or @midnight — "0 0 * * *"
+- @hourly — "0 * * * *"
+- Implementations should accept these macros and expand them to the canonical numeric expression when parsing.
+
+5. Evaluation semantics and interactions
+- Day-of-month and day-of-week fields: In traditional Vixie cron, if both DOM and DOW are restricted (not "*"), the job is executed when either field matches (logical OR). Many users expect AND behavior; when implementing a scheduler, make this behavior configurable or document it.
+- Order of evaluation: Fields are considered atomically per minute tick; the scheduler evaluates which cron entries match the current time instant using field-specific match rules.
+- If a specified day does not exist in a particular month (e.g., 31 in April), the time does not match that month occurrence.
+- Percent-signs (%) in the command portion of crontab entries are interpreted as newline by some cron implementations; commands often need escaping of % or should be wrapped in a shell script.
+
+6. Quartz Cron differences (7-field syntax)
+- Quartz cron expressions have 6 or 7 fields: seconds minutes hours day-of-month month day-of-week [year]
+- Quartz supports these additional special tokens and semantics:
+  - ? (no specific value) — used for either DOM or DOW when the other is specified
+  - L (last) — in DOM or DOW meaning last day of month or last specified weekday (e.g., "5L" = last Thursday)
+  - W (weekday) — used with DOM to find the nearest weekday to a given day (e.g., "15W")
+  - LW — last weekday of the month
+  - # (nth) — "5#3" means the 3rd Thursday of the month (DOW#n syntax)
+- Quartz interprets DOM/DOW differently: use "?" on one field when the other is specifically constrained; DOM/DOW matching is mutually exclusive in many Quartz-trigger configurations.
+- Years field is optional and, when present, is four-digit year support allowing ranges and lists.
+
+7. DST, timezone and system interactions
+- Traditional cron uses system local time (the system timezone) unless the scheduler explicitly supports a per-job timezone.
+- Implementations that support IANA timezones should accept TZ identifiers (formatted like "America/Los_Angeles") and perform schedule calculations in that timezone.
+- DST transitions: when clocks move forward, some local times do not exist — scheduler must decide whether to skip, fire at the next valid instant, or shift; when clocks move backward, the same local time can occur twice — scheduler must decide whether to fire once or twice. Document and provide configuration for DST handling (skip, duplicate, or normalize to UTC).
+
+SUPPLEMENTARY DETAILS
+
+Technical specifications and implementation details
+- Parsing strategy: tokenize on whitespace to extract the five or seven scheduling fields (ignore multiple spaces and leading/trailing whitespace). Support expansion of macros before parsing.
+- Field parsing: for each field, parse comma-separated items; for each item handle ranges (A-B), single values (N), and steps (A/B or */B). Convert named months and weekdays to numeric values.
+- Normalization: convert inputs like "@daily", names, and mixed-case tokens to canonical numeric 5- or 7-field arrays for internal scheduling.
+- Validation: check numeric ranges per field; verify that day-of-month values are valid for the target month when performing next-fire calculations.
+- Storage: store normalized expressions as compact arrays or bitsets for efficient matching per tick. For example minute bitset 0-59, hour 0-23, month 1-12, dom 1-31, dow 0-6.
+- Matching algorithm: on each scheduler tick (preferably at start of each minute for secondless Unix cron) compute candidate times by iterating fields and testing bitsets; for Quartz-style seconds resolution, tick at seconds granularity.
+
+REFERENCE DETAILS
+
+Field indexes and allowed values (exact)
+- Unix 5-field expression: [minute:0-59] [hour:0-23] [dom:1-31] [month:1-12|JAN-DEC] [dow:0-7|SUN-SAT where 0|7=SUN]
+- Quartz 6/7-field expression: [second:0-59] [minute:0-59] [hour:0-23] [dom:1-31|?|L|W|LW] [month:1-12|JAN-DEC] [dow:1-7|SUN-SAT|L|#] [year:empty|1970-2099]
+
+Exact implementation patterns
+- Expand macros: map @reboot => special scheduling metadata; map @yearly => "0 0 1 1 *"
+- Parsing pipeline: trim -> expandMacros -> splitFields -> validateFieldCount -> for each field run parseFieldTokens -> map names -> createBitsets
+- Next-fire calculation pattern (Unix-style): given a current Date (with timezone applied), increment minute-by-minute (or use arithmetic math to compute next matching minute using bitsets), checking each field in order with carry handling (when minute overflows adjust hour, etc.). For performance, compute next matching value per field using precomputed sorted lists or next-set-bit searches.
+
+Best practices
+- Expose configuration options: timezone (IANA string), allowQuartz (boolean), treatDomDowAsAND (boolean to override OR behavior), dstHandling: ["skip","duplicate","normalize"], startOfMinuteAlignment (boolean)
+- Validate and fail fast on malformed expressions with clear error messages listing offending field and token.
+- For large schedules, provide iterator-based APIs so consumers can stream next fire times without materializing long lists.
+
+Troubleshooting
+- If a job does not fire on expected date: check system timezone, DST policy, and whether DOM/DOW logic caused an OR match miss.
+- If expression parses but never matches: check for out-of-range values (e.g., month 0) or contradictory tokens (e.g., "31" in February).
+
+DETAILED DIGEST
+
+Sources (extracted sections): Wikipedia Cron; crontab.guru; harrisiirak/cron-parser README; npm cron-parser; Quartz CronTrigger tutorial; IANA time zones; MDN Intl. DateTimeFormat
+Date retrieved: 2026-03-10T05:41:56.438Z
+Approx data obtained per source (bytes): Wikipedia: 48,000; crontab.guru: 6,500; cron-parser repo: 12,000; npm package page: 4,200; Quartz docs: 20,000; IANA tz: 3,500; MDN Intl: 8,000. Total approx: 102,200 bytes
+
+ATTRIBUTION
+- Source list: https://en.wikipedia.org/wiki/Cron; https://crontab.guru/; https://github.com/harrisiirak/cron-parser; https://www.npmjs.com/package/cron-parser; https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html; https://www.iana.org/time-zones; https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl
+- Data size: approx 102,200 bytes
