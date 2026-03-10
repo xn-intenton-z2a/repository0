@@ -1,8 +1,0 @@
-{
-  "examples": [
-    { "n": 1994, "roman": "MCMXCIV" },
-    { "n": 4, "roman": "IV" },
-    { "n": 1, "roman": "I" },
-    { "n": 3999, "roman": "MMMCMXCIX" }
-  ]
-}

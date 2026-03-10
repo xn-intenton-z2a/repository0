@@ -1,50 +1,79 @@
-# Roman Numerals Library (repo)
+# repo
 
-This repository provides a small JavaScript library to convert between integers and Roman numerals.
+This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests on a schedule.
 
-Features
+## Getting Started
 
-- toRoman(n): Convert integer (1..3999) to canonical Roman numeral using subtractive notation (IV, IX, XL, XC, CD, CM).
-- fromRoman(s): Convert a Roman numeral string back to an integer; invalid or non-canonical strings throw TypeError (see note on "IIII").
+1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
+2. **Configure GitHub** — see [Setup](#setup) below
+3. **Push to main** — the autonomous workflows take over from here
 
-Getting started (Node)
+The system will create issues from your mission, generate code to resolve them, run tests, and open PRs. A supervisor agent orchestrates the pipeline, and you can interact through GitHub Discussions.
 
-import { toRoman, fromRoman, getIdentity } from './src/lib/main.js';
+## Setup
 
-console.log(toRoman(1994)); // MCMXCIV
-console.log(fromRoman('MCMXCIV')); // 1994
-console.log(getIdentity()); // { name, version, description }
+### Required Secrets
 
-API
+Add these in your repository: **Settings → Secrets and variables → Actions → New repository secret**
 
-- toRoman(n: number): string — Throws RangeError for values outside 1..3999, TypeError for non-integer input.
-- fromRoman(s: string): number — Throws TypeError for invalid or non-canonical Roman numeral strings.
-- getIdentity(): object — Returns library metadata (name, version, description).
+| Secret | How to create | Purpose |
+|--------|---------------|---------|
+| `COPILOT_GITHUB_TOKEN` | [Fine-grained PAT](https://github.com/settings/tokens?type=beta) with **GitHub Copilot** → Read permission | Authenticates with the Copilot SDK for all agentic tasks |
+| `WORKFLOW_TOKEN` | [Classic PAT](https://github.com/settings/tokens) with **workflow** scope | Allows `init.yml` to update workflow files (GITHUB_TOKEN cannot modify `.github/workflows/`) |
 
-Notes on non-canonical input
+### Repository Settings
 
-This library enforces canonical Roman numerals using standard subtractive notation. For example,
-- "IIII" is considered non-canonical and will throw TypeError. The library chooses strict validation to
-  preserve a reversible round-trip property: fromRoman(toRoman(n)) === n for n in 1..3999.
+| Setting | Where | Value |
+|---------|-------|-------|
+| GitHub Actions | Settings → Actions → General | Allow all actions |
+| Workflow permissions | Settings → Actions → General | Read and write permissions |
+| Allow GitHub Actions to create PRs | Settings → Actions → General | Checked |
+| GitHub Discussions | Settings → General → Features | Enabled (for the discussions bot) |
 
-Conversion table (selected)
+### Optional: Branch Protection
 
-1  -> I
-4  -> IV
-5  -> V
-9  -> IX
-10 -> X
-40 -> XL
-50 -> L
-90 -> XC
-100 -> C
-400 -> CD
-500 -> D
-900 -> CM
-1000 -> M
+For production repositories, consider adding branch protection on `main`:
+- Require pull request reviews before merging
+- Require status checks to pass (select the `test` workflow)
 
-Website demo
+## How It Works
 
-Run `npm run build:web` and then `npm run start` to build the demo and serve docs/ on localhost. The site demonstrates examples and a round-trip check.
+```
+MISSION.md → [supervisor] → dispatch workflows → Issue → Code → Test → PR → Merge
+                                                    ↑                          |
+                                                    +——————————————————————————+
+```
 
-Documentation, examples and evidence are available under docs/ (docs/examples, docs/evidence, docs/reports).
+The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context (issues, PRs, workflow runs, features) and strategically dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
+
+## Configuration
+
+Edit `agentic-lib.toml` to tune the system:
+
+```toml
+[schedule]
+supervisor = "daily"    # off | weekly | daily | hourly | continuous
+
+[paths]
+mission = "MISSION.md"
+source = "src/lib/"
+tests = "tests/unit/"
+
+[limits]
+max-feature-issues = 2      # max concurrent feature issues
+max-attempts-per-issue = 2   # max retries per issue
+```
+
+## Updating
+
+The `init.yml` workflow runs daily and updates the agentic infrastructure automatically. To update manually:
+
+```bash
+npx @xn-intenton-z2a/agentic-lib@latest init
+```
+
+## Links
+
+- [MISSION.md](MISSION.md) — your project goals
+- [agentic-lib documentation](https://github.com/xn-intenton-z2a/agentic-lib) — full SDK docs
+- [intentïon website](https://xn--intenton-z2a.com)

@@ -1,30 +1,36 @@
 # Mission
 
-A JavaScript library for converting between integers and Roman numeral strings.
+A JavaScript library of string utility functions. This is a bag-of-functions problem — each function is independent.
 
 ## Core Functions
 
-- `toRoman(n)` — convert an integer (1–3999) to its Roman numeral representation using subtractive notation (IV, IX, XL, XC, CD, CM).
-- `fromRoman(s)` — convert a Roman numeral string back to an integer.
+Export each as a named function from `src/lib/main.js`:
+
+- `slugify(str)` — convert to URL-friendly slug (lowercase, hyphens, strip non-alphanumeric)
+- `truncate(str, maxLength, suffix?)` — truncate with suffix (default "…"), don't break mid-word
+- `camelCase(str)` — convert to camelCase
+- `kebabCase(str)` — convert to kebab-case
+- `titleCase(str)` — capitalise first letter of each word
+- `wordWrap(str, width)` — wrap text at word boundaries to given width
+- `stripHtml(str)` — remove HTML tags, decode common entities
+- `escapeRegex(str)` — escape special regex characters
+- `pluralize(word, count)` — basic English pluralisation (add "s", handle "y"→"ies", "s"→"ses", etc.)
+- `levenshteinDistance(a, b)` — compute edit distance between two strings
 
 ## Requirements
 
-- Throw `RangeError` for numbers outside 1–3999.
-- Throw `TypeError` for invalid Roman numeral strings.
-- Handle subtractive notation correctly (e.g. IV = 4, not IIII).
-- The round-trip property must hold: `fromRoman(toRoman(n)) === n` for all valid n.
-- Export both functions as named exports from `src/lib/main.js`.
-- Comprehensive unit tests including boundary values (1, 3999), subtractive cases, and invalid inputs.
-- README with usage examples and conversion table.
+- Handle edge cases: empty strings, null/undefined (return empty string), Unicode characters.
+- No external dependencies required (but allowed if beneficial).
+- Comprehensive unit tests for each function including edge cases.
+- README with usage examples for each function.
 
 ## Acceptance Criteria
 
-- [ ] `toRoman(1994)` returns `"MCMXCIV"`
-- [ ] `fromRoman("MCMXCIV")` returns `1994`
-- [ ] `toRoman(4)` returns `"IV"`
-- [ ] `fromRoman(toRoman(n)) === n` for all n in 1–3999
-- [ ] `toRoman(0)` throws `RangeError`
-- [ ] `toRoman(4000)` throws `RangeError`
-- [ ] `fromRoman("IIII")` throws or returns `4` (accept either; document the choice)
+- [ ] All 10 functions are exported and work correctly
+- [ ] `slugify("Hello World!")` returns `"hello-world"`
+- [ ] `truncate("Hello World", 8)` returns `"Hello…"`
+- [ ] `camelCase("foo-bar-baz")` returns `"fooBarBaz"`
+- [ ] `levenshteinDistance("kitten", "sitting")` returns `3`
+- [ ] Edge cases (empty string, null, Unicode) handled gracefully
 - [ ] All unit tests pass
-- [ ] README documents usage with examples
+- [ ] README documents all functions with examples
