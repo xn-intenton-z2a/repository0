@@ -35,6 +35,10 @@ on:
         type: string
         required: false
         default: "true"
+      skipMaintain:
+        type: string
+        required: false
+        default: "false"
       config-path:
         type: string
         required: false
@@ -98,6 +102,11 @@ on:
         type: string
         required: false
         default: ""
+      skipMaintain:
+        description: "Skip maintain job (for testing fix-stuck in isolation)"
+        type: boolean
+        required: false
+        default: false
       dry-run:
         description: "Skip all push/PR/merge operations"
         type: boolean
@@ -480,7 +489,8 @@ jobs:
     if: |
       !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'maintain-only') &&
-      needs.params.result == 'success'
+      needs.params.result == 'success' &&
+      inputs.skipMaintain != 'true' && inputs.skipMaintain != true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -657,7 +667,7 @@ jobs:
             echo "mission-complete=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Find and fix stuck PRs or broken main build
+      - name: Find stuck PRs or broken main build
         if: steps.fix-mission-check.outputs.mission-complete != 'true'
         uses: actions/github-script@v8
         env:
@@ -673,10 +683,11 @@ jobs:
             if (prNumber) {
               core.info(`Specific PR requested: #${prNumber}`);
               core.exportVariable('FIX_PR_NUMBER', prNumber);
+              core.exportVariable('FIX_REASON', 'requested');
               return;
             }
 
-            // Find PRs with failing checks or merge conflicts on agentic branches
+            // Find automerge PRs on agentic branches — always attempt to sync with main
             const { data: openPRs } = await github.rest.pulls.list({
               owner, repo, state: 'open', per_page: 10,
             });
@@ -687,35 +698,20 @@ jobs:
               if (!hasAutomerge) continue;
               if (!pr.head.ref.startsWith('agentic-lib-') && !pr.head.ref.startsWith('copilot/')) continue;
 
-              // Check for merge conflicts
-              const { data: fullPr } = await github.rest.pulls.get({
-                owner, repo, pull_number: pr.number,
+              // Check fix attempt count via PR comments with marker
+              const { data: comments } = await github.rest.issues.listComments({
+                owner, repo, issue_number: pr.number, per_page: 100,
               });
-              const hasConflicts = fullPr.mergeable_state === 'dirty' || fullPr.mergeable === false;
-
-              // Check if checks are failing
-              const { data: checkRuns } = await github.rest.checks.listForRef({
-                owner, repo, ref: pr.head.sha,
-              });
-              const hasFailing = checkRuns.check_runs.some(c => c.conclusion === 'failure');
-
-              if (!hasFailing && !hasConflicts) continue;
-
-              // Check fix attempt count
-              const { data: fixRuns } = await github.rest.actions.listWorkflowRuns({
-                owner, repo, workflow_id: 'agentic-lib-workflow.yml',
-                branch: pr.head.ref, per_page: maxFixAttempts + 1,
-              });
-              if (fixRuns.total_count >= maxFixAttempts) {
-                core.info(`PR #${pr.number} exceeded fix attempts. Removing automerge.`);
+              const fixAttempts = comments.filter(c => c.body && c.body.includes('<!-- fix-stuck-attempt -->')).length;
+              if (fixAttempts >= maxFixAttempts) {
+                core.info(`PR #${pr.number} exceeded ${maxFixAttempts} fix attempts (${fixAttempts} markers). Removing automerge.`);
                 try { await github.rest.issues.removeLabel({ owner, repo, issue_number: pr.number, name: 'automerge' }); } catch (e) {}
                 continue;
               }
 
-              const reason = hasConflicts ? 'merge conflicts' : 'failing checks';
-              core.info(`Will attempt to fix PR #${pr.number} (${reason})`);
+              core.info(`Will sync PR #${pr.number} with main (attempt ${fixAttempts + 1}/${maxFixAttempts})`);
               core.exportVariable('FIX_PR_NUMBER', String(pr.number));
-              core.exportVariable('FIX_REASON', reason);
+              core.exportVariable('FIX_REASON', 'sync');
               foundPR = true;
               break;
             }
@@ -732,7 +728,6 @@ jobs:
                 if (testRuns.workflow_runs.length > 0) {
                   const latestTest = testRuns.workflow_runs[0];
                   if (latestTest.conclusion === 'failure') {
-                    // Check we haven't already opened a fix branch for this
                     const { data: existingPRs } = await github.rest.pulls.list({
                       owner, repo, state: 'open', head: `${owner}:agentic-lib-fix-main-build`, per_page: 1,
                     });
@@ -759,47 +754,128 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Record fix-stuck attempt on PR
+        if: env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment "${{ env.FIX_PR_NUMBER }}" --body "<!-- fix-stuck-attempt -->
+          **fix-stuck** attempting to resolve: ${{ env.FIX_REASON }} (run [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}))"
+
       - name: Create fix branch for broken main build
         if: env.FIX_MAIN_BUILD == 'true' && steps.fix-mission-check.outputs.mission-complete != 'true'
         run: |
           git checkout -b agentic-lib-fix-main-build
 
-      - name: "Tier 1: Auto-resolve trivial merge conflicts"
-        if: env.FIX_PR_NUMBER != '' && env.FIX_REASON == 'merge conflicts' && steps.fix-mission-check.outputs.mission-complete != 'true'
+      - name: "Sync PR branch with main (incremental conflict resolution)"
+        if: env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
         id: trivial-resolve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
+          git config user.email 'action@github.com'
+          git config user.name 'GitHub Actions[bot]'
           git fetch origin main
-          if git merge origin/main --no-edit 2>/dev/null; then
-            echo "resolved=clean" >> $GITHUB_OUTPUT
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          RESOLVED=false
+
+          # --- Tier 1: Simple merge (no conflicts) ---
+          echo "=== Tier 1: Simple merge ==="
+          if git merge origin/main --no-edit 2>&1; then
+            echo "Tier 1: merge clean, pushing..."
+            git push origin HEAD:"$BRANCH" 2>&1 && RESOLVED=true || echo "Tier 1: push failed"
           else
-            CONFLICTED=$(git diff --name-only --diff-filter=U)
-            TRIVIAL_PATTERN='intentïon\.md|intention\.md|package-lock\.json'
-            NON_TRIVIAL=$(echo "$CONFLICTED" | grep -vE "$TRIVIAL_PATTERN" || true)
-            if [ -z "$NON_TRIVIAL" ]; then
-              echo "All conflicts are trivial — auto-resolving"
-              for f in $CONFLICTED; do
-                git checkout --theirs "$f"
-                git add "$f"
-              done
-              npm install 2>/dev/null || true
-              git add package-lock.json 2>/dev/null || true
-              git commit --no-edit
-              echo "resolved=trivial" >> $GITHUB_OUTPUT
-            else
-              git merge --abort
-              echo "resolved=none" >> $GITHUB_OUTPUT
-              echo "non_trivial<<EOF" >> $GITHUB_OUTPUT
-              echo "$NON_TRIVIAL" >> $GITHUB_OUTPUT
-              echo "EOF" >> $GITHUB_OUTPUT
+            echo "Tier 1: conflicts detected, aborting..."
+            git merge --abort 2>/dev/null || true
+          fi
+
+          # Check
+          if [ "$RESOLVED" = "true" ]; then
+            sleep 5
+            MERGEABLE=$(gh pr view "${{ env.FIX_PR_NUMBER }}" --json mergeable --jq '.mergeable')
+            echo "After Tier 1: mergeable=$MERGEABLE"
+            if [ "$MERGEABLE" = "CONFLICTING" ]; then
+              echo "Tier 1 pushed but PR still conflicting — continuing"
+              RESOLVED=false
             fi
           fi
 
-      - name: "Tier 2: LLM fix (conflicts or failing checks)"
+          # --- Tier 2: Merge preferring main for conflicts (-X theirs) ---
+          if [ "$RESOLVED" != "true" ]; then
+            echo "=== Tier 2: Merge with -X theirs ==="
+            git reset --hard HEAD 2>/dev/null || true
+            if git merge origin/main -X theirs --no-edit 2>&1; then
+              npm install 2>/dev/null || true
+              git add package-lock.json 2>/dev/null || true
+              git diff --cached --quiet || git commit --amend --no-edit
+              echo "Tier 2: merge succeeded, pushing..."
+              git push origin HEAD:"$BRANCH" 2>&1 || git push --force-with-lease origin HEAD:"$BRANCH" 2>&1
+              RESOLVED=true
+            else
+              echo "Tier 2: merge -X theirs failed, aborting..."
+              git merge --abort 2>/dev/null || true
+            fi
+          fi
+
+          # Check
+          if [ "$RESOLVED" = "true" ]; then
+            sleep 5
+            MERGEABLE=$(gh pr view "${{ env.FIX_PR_NUMBER }}" --json mergeable --jq '.mergeable')
+            echo "After Tier 2: mergeable=$MERGEABLE"
+            if [ "$MERGEABLE" = "CONFLICTING" ]; then
+              echo "Tier 2 pushed but PR still conflicting — continuing"
+              RESOLVED=false
+            fi
+          fi
+
+          # --- Tier 3: Save source files, reset to main, copy back, force-push ---
+          if [ "$RESOLVED" != "true" ]; then
+            echo "=== Tier 3: Nuclear — save files, reset to main, copy back ==="
+            TMPDIR=$(mktemp -d)
+            for dir in src tests; do
+              [ -d "$dir" ] && cp -r "$dir" "$TMPDIR/" || true
+            done
+            cp package.json "$TMPDIR/" 2>/dev/null || true
+
+            git reset --hard origin/main
+            for dir in src tests; do
+              [ -d "$TMPDIR/$dir" ] && cp -r "$TMPDIR/$dir" ./ || true
+            done
+            cp "$TMPDIR/package.json" . 2>/dev/null || true
+            npm install 2>/dev/null || true
+
+            git add -A
+            if ! git diff --cached --quiet; then
+              git commit -m "fix-stuck: sync with main (resolve conflicts)"
+              git push --force-with-lease origin HEAD:"$BRANCH" 2>&1 && RESOLVED=true
+            else
+              echo "Tier 3: no differences after reset — branch identical to main"
+              RESOLVED=true
+            fi
+            rm -rf "$TMPDIR"
+          fi
+
+          # --- Final check: HARD FAIL if still not resolved ---
+          sleep 5
+          MERGEABLE=$(gh pr view "${{ env.FIX_PR_NUMBER }}" --json mergeable --jq '.mergeable')
+          echo "Final PR mergeable status: $MERGEABLE"
+          if [ "$MERGEABLE" = "CONFLICTING" ]; then
+            echo "::error::PR #${{ env.FIX_PR_NUMBER }} is STILL CONFLICTING after all 3 resolution tiers"
+            exit 1
+          fi
+          if [ "$RESOLVED" != "true" ]; then
+            echo "::error::All 3 tiers failed to resolve PR #${{ env.FIX_PR_NUMBER }}"
+            exit 1
+          fi
+          echo "PR #${{ env.FIX_PR_NUMBER }} successfully synced with main"
+          echo "resolved=true" >> $GITHUB_OUTPUT
+
+      - name: "Tier 2: LLM fix (only for explicitly requested PRs with failing checks)"
         if: |
           env.FIX_PR_NUMBER != '' &&
           steps.fix-mission-check.outputs.mission-complete != 'true' &&
-          (env.FIX_REASON != 'merge conflicts' ||
-           steps.trivial-resolve.outputs.resolved == 'none')
+          env.FIX_REASON == 'requested'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -838,9 +914,17 @@ jobs:
 
       - name: Commit and push fixes
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
-        uses: ./.github/agentic-lib/actions/commit-if-changed
-        with:
-          commit-message: "agentic-step: fix failing tests / resolve conflicts"
+        run: |
+          git config user.email 'action@github.com'
+          git config user.name 'GitHub Actions[bot]'
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "agentic-step: fix failing tests / resolve conflicts"
+            git push origin HEAD:"$BRANCH" 2>&1 || git push --force-with-lease origin HEAD:"$BRANCH" 2>&1
+          else
+            echo "No additional changes to push"
+          fi
 
       - name: Commit, push, and open PR for main build fix
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.FIX_MAIN_BUILD == 'true' && steps.fix-mission-check.outputs.mission-complete != 'true'

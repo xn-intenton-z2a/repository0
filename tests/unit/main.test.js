@@ -1,26 +1,44 @@
-// SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
-import { describe, test, expect } from "vitest";
-import { main, getIdentity, name, version, description } from "../../src/lib/main.js";
+import { describe, it, expect } from 'vitest';
+import { fizzBuzz, fizzBuzzSingle } from '../../src/lib/main.js';
 
-describe("Main Output", () => {
-  test("should terminate without error", () => {
-    process.argv = ["node", "src/lib/main.js"];
-    main();
+describe('fizzBuzzSingle', () => {
+  it('returns Fizz for 3', () => {
+    expect(fizzBuzzSingle(3)).toBe('Fizz');
+  });
+  it('returns Buzz for 5', () => {
+    expect(fizzBuzzSingle(5)).toBe('Buzz');
+  });
+  it('returns FizzBuzz for 15', () => {
+    expect(fizzBuzzSingle(15)).toBe('FizzBuzz');
+  });
+  it('returns number string for non-multiple', () => {
+    expect(fizzBuzzSingle(7)).toBe('7');
+  });
+  it('throws TypeError for non-integers', () => {
+    expect(() => fizzBuzzSingle(3.5)).toThrow(TypeError);
+  });
+  it('throws RangeError for non-positive integers', () => {
+    expect(() => fizzBuzzSingle(0)).toThrow(RangeError);
+    expect(() => fizzBuzzSingle(-1)).toThrow(RangeError);
   });
 });
 
-describe("Library Identity", () => {
-  test("exports name, version, and description", () => {
-    expect(typeof name).toBe("string");
-    expect(typeof version).toBe("string");
-    expect(typeof description).toBe("string");
-    expect(name.length).toBeGreaterThan(0);
-    expect(version).toMatch(/^\d+\.\d+\.\d+/);
+describe('fizzBuzz', () => {
+  it('returns empty array for 0', () => {
+    expect(fizzBuzz(0)).toEqual([]);
   });
-
-  test("getIdentity returns correct structure", () => {
-    const identity = getIdentity();
-    expect(identity).toEqual({ name, version, description });
+  it('returns correct 1..15 sequence', () => {
+    const out = fizzBuzz(15);
+    expect(out.length).toBe(15);
+    expect(out[14]).toBe('FizzBuzz');
+    expect(out[0]).toBe('1');
+    expect(out[2]).toBe('Fizz');
+    expect(out[4]).toBe('Buzz');
+  });
+  it('throws TypeError for non-integers', () => {
+    expect(() => fizzBuzz(2.2)).toThrow(TypeError);
+  });
+  it('throws RangeError for negative numbers', () => {
+    expect(() => fizzBuzz(-5)).toThrow(RangeError);
   });
 });

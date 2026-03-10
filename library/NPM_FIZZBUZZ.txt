@@ -1,0 +1,31 @@
+NORMALISED EXTRACT
+
+Table of Contents:
+1. Package metadata (limited)
+2. Access failure note
+3. Implementation guidance fallback
+
+1. Package metadata (limited)
+- Package name: fizzbuzz (as listed in SOURCES.md). Direct page fetch failed with HTTP 403 from npmjs.com.
+
+2. Access failure note
+- NPM package page could not be retrieved due to access restriction (HTTP 403). Manual review required by network/permissions or alternate registry mirror.
+
+3. Implementation guidance fallback
+- For implementation, follow canonical fizz buzz algorithm (see FIZZ_BUZZ document).
+- If using existing npm package, prefer inspecting package source locally via npm pack or installing in isolated environment and reading package.json and index files.
+
+SUPPLEMENTARY DETAILS
+
+Troubleshooting npm fetch:
+- Use npm view fizzbuzz --registry=https://registry.npmjs.org/ locally to fetch metadata.
+- Use curl with appropriate user-agent or API key if required by registry policies.
+
+DETAILED DIGEST
+
+Source: https://www.npmjs.com/package/fizzbuzz
+Retrieved: 2026-03-09
+Data size: fetch failed (403). No content obtained.
+
+Attribution
+- npm package page for fizzbuzz (access blocked during crawl).

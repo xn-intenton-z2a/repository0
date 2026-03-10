@@ -1,0 +1,56 @@
+NORMALISED EXTRACT
+
+Table of Contents:
+1. Rules
+2. Variants and edge cases
+3. Implementation considerations
+
+1. Rules
+- For an integer sequence starting at 1, for each integer n:
+  - If n % 3 === 0 and n % 5 === 0, output: "fizzbuzz".
+  - Else if n % 3 === 0, output: "fizz".
+  - Else if n % 5 === 0, output: "buzz".
+  - Else output: the decimal representation of n.
+- Typical implementations iterate from 1 to N inclusive using a loop and conditional checks in the above order.
+
+2. Variants and edge cases
+- Digit-based rule variant: trigger rules when numbers contain digits 3 or 5 (e.g., 52 triggers "buzz").
+- Additional divisibility rules: can add other divisors (e.g., 7) with independent outputs.
+- Typical interview constraint: minimal, clear implementation; handle N up to typical language integer limits; avoid heavy memory use.
+- Presentation: outputs are plain strings; case-insensitive conventions vary but commonly lower-case "fizz", "buzz", "fizzbuzz".
+
+3. Implementation considerations
+- Use integer modulo operations; ensure input is integer and within safe integer range when using IEEE-754 Number in JS.
+- For performance when N is large, avoid concatenating large strings repeatedly; stream outputs or write incremental lines.
+- For testability, separate pure function fizzBuzz(n) -> string from driver loop producing sequence.
+
+SUPPLEMENTARY DETAILS
+
+Technical specifications and implementation details:
+- Function signature (language-agnostic): string fizzBuzz(int n)
+  - Precondition: n is integer within allowed range (for JS Number, |n| <= Number.MAX_SAFE_INTEGER recommended for integer semantics).
+  - Postcondition: returns "fizz", "buzz", "fizzbuzz", or decimal string.
+- Example algorithm (pseudocode):
+  - if (n % 15 === 0) return "fizzbuzz"
+  - else if (n % 3 === 0) return "fizz"
+  - else if (n % 5 === 0) return "buzz"
+  - else return String(n)
+- Error handling: if input is non-integer, throw TypeError or coerce/validate depending on API contract.
+
+REFERENCE DETAILS
+
+Exact patterns, configuration and best practices:
+- Correct check ordering: test for common multiple first (3 and 5) or test combined condition (n % 3 === 0 && n % 5 === 0), otherwise "fizz" or "buzz" will match earlier.
+- For JS implementations, to validate integer: use Number.isInteger(value).
+- For safety when accepting user input, parseInt and validate with Number.isInteger, then range-check against Number.MAX_SAFE_INTEGER.
+- Testing: create unit tests for: 1->"1", 3->"fizz", 5->"buzz", 15->"fizzbuzz", 52->depends-on-variant.
+- Example test vectors: {1:"1",2:"2",3:"fizz",4:"4",5:"buzz",15:"fizzbuzz"}.
+
+DETAILED DIGEST
+
+Source: https://en.wikipedia.org/wiki/Fizz_buzz
+Retrieved: 2026-03-09
+Data size: source fetch provided truncated HTML/text; size unavailable due to crawler truncation.
+
+Attribution
+- Wikipedia: "Fizz buzz" article; content licensed under appropriate Wikimedia terms. Data obtained via crawling.

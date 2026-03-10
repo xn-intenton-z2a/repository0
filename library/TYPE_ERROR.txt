@@ -1,0 +1,41 @@
+NORMALISED EXTRACT
+
+Table of Contents:
+1. Definition and when to throw
+2. Constructor and properties
+3. Handling and examples
+
+1. Definition and when to throw
+- TypeError is an Error subtype thrown when an operation is performed on a value of an inappropriate type (e.g., calling a non-function, accessing property of null).
+
+2. Constructor and properties
+- Constructor: new TypeError([message]) or TypeError([message]).
+- Instance properties: name ("TypeError"), message, stack, constructor (inherited from Error).
+
+3. Handling and examples
+- Catching TypeError:
+  try { null.f() } catch (e) { if (e instanceof TypeError) { /* handle */ } }
+- Creating TypeError for API validation: throw new TypeError('expected function')
+
+SUPPLEMENTARY DETAILS
+
+Implementation guidance:
+- Use TypeError for incorrect types; use RangeError for out-of-range numeric values.
+- Use instanceof checks in catch blocks to discriminate error handling paths.
+
+REFERENCE DETAILS
+
+Exact constructor signature:
+- TypeError([message: string]) -> TypeError instance
+
+Best practices:
+- Provide clear messages and avoid swallowing TypeErrors silently. Prefer validating inputs and throwing TypeError early.
+
+DETAILED DIGEST
+
+Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError
+Retrieved: 2026-03-09
+Data size: page content retrieved; exact bytes not recorded.
+
+Attribution
+- MDN Web Docs: TypeError reference, last modified Jul 10, 2025.

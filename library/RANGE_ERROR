@@ -1,0 +1,44 @@
+NORMALISED EXTRACT
+
+Key technical points (implementation-ready):
+- RangeError is a built-in Error subclass signifying that a numeric (or enumerated) value is outside the allowed range.
+- Constructor signature: new RangeError([message]) -> RangeError instance with name property 'RangeError' and message string if provided.
+- Common throwing scenarios: illegal array length, numeric formatting methods receiving out-of-range parameters, invalid numeric arguments for APIs.
+
+Table of contents
+1. Constructor and instance properties
+2. When to throw RangeError vs TypeError
+3. Serialization and cloning
+4. Examples and handling patterns
+
+Details
+1. Constructor and instance properties
+- Syntax: RangeError([message])
+- Instance properties inherited from Error: name ('RangeError'), message, stack. RangeError.prototype.constructor references the RangeError constructor.
+
+2. When to throw RangeError vs TypeError
+- Use RangeError when a numeric argument is outside a function's allowed range (e.g., precision/length parameters).
+- Use TypeError when the argument has incorrect type (e.g., expecting a number but receiving a string).
+- Example policy: if typeof arg !== 'number' -> throw TypeError; else if arg < min || arg > max -> throw RangeError.
+
+3. Serialization and cloning
+- RangeError is serializable via structuredClone and can be passed between workers using postMessage; cloning preserves name/message but stack is implementation-dependent.
+
+4. Examples and handling patterns
+- Defensive API design: perform type-checks then range-checks; provide clear message text for RangeError to assist debugging and automated error handling.
+
+Supplementary details
+- For libraries: document exact numeric bounds and include tests asserting that API throws RangeError for out-of-range inputs and TypeError for wrong types.
+
+Reference details (exact API)
+- RangeError([message?: string]) -> RangeError instance
+- Inheritance: RangeError.prototype instanceof Error
+
+Detailed digest (source: MDN RangeError) — retrieved 2026-03-09
+- Extracted material: description of RangeError, examples (numeric and non-numeric), constructor behavior, and spec link.
+
+Attribution and crawl metadata
+- Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError
+- Retrieved: 2026-03-09T22:22:33.635Z
+- Data size obtained during crawling: ~2.0 KB (rendered page text)
+- Attribution: MDN Web Docs contributors (Mozilla).
