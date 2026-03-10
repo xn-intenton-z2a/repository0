@@ -6,8 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "maintenance"              # off | weekly | daily | hourly | continuous
-model = "gpt-5-mini"
+supervisor = "off"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -72,7 +71,7 @@ infinite-sessions = false        # set to true for long sessions with compaction
 # ~10% of gpt-4.1 context (128K). Fast, cheap — CI testing, quick validation.
 reasoning-effort = "low"                # low | medium | high | none
 infinite-sessions = false               # enable session compaction for long runs
-transformation-budget = 0             # max code-changing cycles per run
+transformation-budget = 16             # max code-changing cycles per run
 max-feature-files = 3                      # max feature files included in prompts
 max-source-files = 3                        # max source files included in prompts
 max-source-chars = 4000                  # max chars of each source file's content included in prompts
@@ -135,7 +134,7 @@ library-limit = 64                     # max library entries in library/ directo
 log-file = "intentïon.md"
 
 [init]
-timestamp = "2026-03-09T22:12:11.561Z"
+timestamp = "2026-03-10T02:15:09.024Z"
 mode = "purge"
-mission = "fizz-buzz"
-version = "7.1.102"
+mission = "hamming-distance"
+version = "7.2.1"

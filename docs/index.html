@@ -15,8 +15,6 @@
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
-    label { display:block; margin-top:1rem }
-    input[type="number"] { width:6rem }
   </style>
 </head>
 <body>
@@ -29,46 +27,23 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
-  <h2>FizzBuzz Demo</h2>
-  <label>
-    N: <input id="demo-n" type="number" value="15" min="0" />
-  </label>
-  <button id="run-demo">Run</button>
   <h2>Output</h2>
   <div id="demo-output">Loading library...</div>
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
-    (async () => {
-      try {
-        const meta = await import('./lib-meta.js');
-        const lib = await import('./browser-lib.js');
-        const { name, version, description } = meta;
-        document.getElementById('lib-name').textContent = name;
-        document.getElementById('lib-version').textContent = version;
-        document.getElementById('lib-description').textContent = description || '(no description)';
-        document.title = name + ' v' + version;
-
-        const run = () => {
-          const n = Number(document.getElementById('demo-n').value);
-          try {
-            const out = lib.fizzBuzz(n);
-            document.getElementById('demo-output').textContent = out.join(', ');
-          } catch (e) {
-            document.getElementById('demo-output').textContent = String(e);
-          }
-        };
-
-        document.getElementById('run-demo').addEventListener('click', run);
-        // run initial
-        run();
-      } catch (e) {
-        document.getElementById('lib-version').textContent = '(build required)';
-        document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
-        document.getElementById('demo-output').textContent = 'Library not yet built. Run: npm run build:web';
-        console.error(e);
-      }
-    })();
+    try {
+      const { name, version, description } = await import('./lib-meta.js');
+      document.getElementById('lib-name').textContent = name;
+      document.getElementById('lib-version').textContent = version;
+      document.getElementById('lib-description').textContent = description || '(no description)';
+      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
+      document.title = name + ' v' + version;
+    } catch (e) {
+      document.getElementById('lib-version').textContent = '(build required)';
+      document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
+      document.getElementById('demo-output').textContent = 'Library not yet built. Run: npm run build:web';
+    }
   </script>
 </body>
 </html>
