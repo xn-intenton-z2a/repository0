@@ -1,7 +1,7 @@
 {
   "name": "repo",
   "version": "0.1.0",
-  "description": "A JavaScript library for computing Hamming distances between strings and integers",
+  "description": "",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
@@ -13,7 +13,7 @@
     "start": "npm run build:web && npx serve docs",
     "start:cli": "node src/lib/main.js"
   },
-  "keywords": ["hamming", "distance", "string", "bits", "unicode", "validation"],
+  "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
