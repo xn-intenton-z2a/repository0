@@ -86,20 +86,20 @@ function buildMissionMetrics(config, result, limitsStatus, cumulativeCost, featu
   const srcRoot = sourceDir.includes("/") ? sourceDir.split("/").slice(0, -1).join("/") || "src" : "src";
   const todoCount = countSourceTodos(srcRoot);
 
-  // W3: Check for dedicated test files
-  const hasDedicatedTests = result.hasDedicatedTests ?? false;
+  // W3: Count dedicated test files
+  const dedicatedTestCount = result.dedicatedTestCount ?? 0;
 
   // W11: Thresholds from config
   const thresholds = config.missionCompleteThresholds || {};
   const minResolved = thresholds.minResolvedIssues ?? 3;
-  const requireTests = thresholds.requireDedicatedTests ?? true;
+  const minTests = thresholds.minDedicatedTests ?? 1;
   const maxTodos = thresholds.maxSourceTodos ?? 0;
 
   const metrics = [
     { metric: "Open issues", value: String(openIssues), target: "0", status: openIssues === 0 ? "MET" : "NOT MET" },
     { metric: "Open PRs", value: String(openPrs), target: "0", status: openPrs === 0 ? "MET" : "NOT MET" },
     { metric: "Issues resolved (review or PR merge)", value: String(resolvedCount), target: `>= ${minResolved}`, status: resolvedCount >= minResolved ? "MET" : "NOT MET" },
-    { metric: "Dedicated test files", value: hasDedicatedTests ? "YES" : "NO", target: requireTests ? "YES" : "—", status: !requireTests || hasDedicatedTests ? "MET" : "NOT MET" },
+    { metric: "Dedicated test files", value: String(dedicatedTestCount), target: `>= ${minTests}`, status: dedicatedTestCount >= minTests ? "MET" : "NOT MET" },
     { metric: "Source TODO count", value: String(todoCount), target: `<= ${maxTodos}`, status: todoCount <= maxTodos ? "MET" : "NOT MET" },
     { metric: "Transformation budget used", value: `${cumulativeCost}/${budgetCap}`, target: budgetCap > 0 ? `< ${budgetCap}` : "unlimited", status: budgetCap > 0 && cumulativeCost >= budgetCap ? "EXHAUSTED" : "OK" },
     { metric: "Cumulative transforms", value: String(cumulativeCost), target: ">= 1", status: cumulativeCost >= 1 ? "MET" : "NOT MET" },
@@ -117,7 +117,7 @@ function buildMissionReadiness(metrics) {
   const openIssues = parseInt(metrics.find((m) => m.metric === "Open issues")?.value || "0", 10);
   const openPrs = parseInt(metrics.find((m) => m.metric === "Open PRs")?.value || "0", 10);
   const resolved = parseInt(metrics.find((m) => m.metric === "Issues resolved (review or PR merge)")?.value || "0", 10);
-  const hasDedicatedTests = metrics.find((m) => m.metric === "Dedicated test files")?.value === "YES";
+  const dedicatedTests = parseInt(metrics.find((m) => m.metric === "Dedicated test files")?.value || "0", 10);
   const todoCount = parseInt(metrics.find((m) => m.metric === "Source TODO count")?.value || "0", 10);
   const missionComplete = metrics.find((m) => m.metric === "Mission complete declared")?.value === "YES";
   const missionFailed = metrics.find((m) => m.metric === "Mission failed declared")?.value === "YES";
@@ -136,7 +136,7 @@ function buildMissionReadiness(metrics) {
 
   if (allMet) {
     parts.push("Mission complete conditions ARE met.");
-    parts.push(`0 open issues, 0 open PRs, ${resolved} issue(s) resolved, dedicated tests: ${hasDedicatedTests ? "yes" : "no"}, TODOs: ${todoCount}.`);
+    parts.push(`0 open issues, 0 open PRs, ${resolved} issue(s) resolved, ${dedicatedTests} dedicated test(s), TODOs: ${todoCount}.`);
   } else {
     parts.push("Mission complete conditions are NOT met.");
     if (openIssues > 0) parts.push(`${openIssues} open issue(s) remain.`);
@@ -262,9 +262,9 @@ async function run() {
       ? readdirSync(libraryPath).filter((f) => f.endsWith(".md")).length
       : 0;
 
-    // W3/W10: Detect dedicated test files (centrally, for all tasks)
-    let hasDedicatedTests = result.hasDedicatedTests ?? false;
-    if (!hasDedicatedTests) {
+    // W3/W10: Count dedicated test files (centrally, for all tasks)
+    let dedicatedTestCount = result.dedicatedTestCount ?? 0;
+    if (dedicatedTestCount === 0) {
       try {
         const { scanDirectory: scanDir } = await import("./copilot.js");
         const testDirs = ["tests", "__tests__"];
@@ -275,17 +275,14 @@ async function run() {
               if (/^(main|web|behaviour)\.test\.[jt]s$/.test(tf.name)) continue;
               const content = readFileSync(tf.path, "utf8");
               if (/from\s+['"].*src\/lib\//.test(content) || /require\s*\(\s*['"].*src\/lib\//.test(content)) {
-                hasDedicatedTests = true;
-                break;
+                dedicatedTestCount++;
               }
             }
-            if (hasDedicatedTests) break;
           }
         }
       } catch { /* ignore — scanDirectory not available in test environment */ }
     }
-    // Inject hasDedicatedTests into result for buildMissionMetrics
-    result.hasDedicatedTests = hasDedicatedTests;
+    result.dedicatedTestCount = dedicatedTestCount;
 
     // Count open automated issues (feature vs maintenance)
     let featureIssueCount = 0;

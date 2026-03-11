@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
-# push-to-logs.sh — Push log/screenshot files to the .logs orphan branch.
+# push-to-logs.sh — Push log/screenshot files to the agentic-lib-logs orphan branch.
 #
 # Usage: bash .github/agentic-lib/scripts/push-to-logs.sh [file ...]
 #   e.g. bash .github/agentic-lib/scripts/push-to-logs.sh "intentïon.md" SCREENSHOT_INDEX.png
 #
-# Creates the .logs branch if it doesn't exist. Uses rebase/retry for
+# Creates the agentic-lib-logs branch if it doesn't exist. Uses rebase/retry for
 # concurrent pushes (same strategy as commit-if-changed).
 
 set -euo pipefail
 
-BRANCH=".logs"
+BRANCH="agentic-lib-logs"
 MAX_RETRIES=3
 
 # Collect files that actually exist in the workspace
@@ -39,12 +39,12 @@ for f in "${FILES[@]}"; do
   cp "$f" "${TMPDIR}/$(basename "$f")"
 done
 
-# Fetch the .logs branch (may not exist yet)
+# Fetch the agentic-lib-logs branch (may not exist yet)
 REMOTE_EXISTS=""
 git fetch origin "${BRANCH}" 2>/dev/null && REMOTE_EXISTS="true" || true
 
 if [ "$REMOTE_EXISTS" = "true" ]; then
-  # Check out existing .logs branch into a detached worktree-like state
+  # Check out existing agentic-lib-logs branch into a detached worktree-like state
   git checkout "origin/${BRANCH}" -- . 2>/dev/null || true
   git checkout -B "${BRANCH}" "origin/${BRANCH}"
 else

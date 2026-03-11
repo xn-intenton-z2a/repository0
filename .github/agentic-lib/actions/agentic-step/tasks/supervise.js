@@ -312,9 +312,9 @@ async function gatherContext(octokit, repo, config, t) {
     }
   } catch { /* ignore */ }
 
-  // Check for dedicated test files (not just seed tests)
+  // Count dedicated test files (not just seed tests)
   // A dedicated test imports from the source directory (src/lib/) rather than being a seed test
-  let hasDedicatedTests = false;
+  let dedicatedTestCount = 0;
   let dedicatedTestFiles = [];
   try {
     const testDirs = ["tests", "__tests__"];
@@ -327,7 +327,7 @@ async function gatherContext(octokit, repo, config, t) {
           const content = readFileSync(tf.path, "utf8");
           // Check if it imports from src/lib/ (mission-specific code)
           if (/from\s+['"].*src\/lib\//.test(content) || /require\s*\(\s*['"].*src\/lib\//.test(content)) {
-            hasDedicatedTests = true;
+            dedicatedTestCount++;
             dedicatedTestFiles.push(tf.name);
           }
         }
@@ -395,7 +395,7 @@ async function gatherContext(octokit, repo, config, t) {
     cumulativeTransformationCost,
     recentlyClosedSummary,
     sourceExports,
-    hasDedicatedTests,
+    dedicatedTestCount,
     dedicatedTestFiles,
     sourceTodoCount,
   };
@@ -434,8 +434,8 @@ function buildPrompt(ctx, agentInstructions, config) {
         ]
       : []),
     `### Test Coverage`,
-    ctx.hasDedicatedTests
-      ? `Dedicated test files: ${ctx.dedicatedTestFiles.join(", ")}`
+    ctx.dedicatedTestCount > 0
+      ? `Dedicated test files (${ctx.dedicatedTestCount}): ${ctx.dedicatedTestFiles.join(", ")}`
       : "**No dedicated test files found.** Only seed tests (main.test.js, web.test.js) exist. Mission-complete requires dedicated tests that import from src/lib/.",
     "",
     `### Source TODO Count: ${ctx.sourceTodoCount}`,
@@ -447,7 +447,7 @@ function buildPrompt(ctx, agentInstructions, config) {
       // W10: Build mission-complete metrics inline for the LLM
       const thresholds = config?.missionCompleteThresholds || {};
       const minResolved = thresholds.minResolvedIssues ?? 3;
-      const requireTests = thresholds.requireDedicatedTests ?? true;
+      const minTests = thresholds.minDedicatedTests ?? 1;
       const maxTodos = thresholds.maxSourceTodos ?? 0;
       const resolvedCount = ctx.recentlyClosedSummary.filter((s) => s.includes("RESOLVED")).length;
       const rows = [
@@ -457,7 +457,7 @@ function buildPrompt(ctx, agentInstructions, config) {
         `| Open issues | ${ctx.issuesSummary.length} | 0 | ${ctx.issuesSummary.length === 0 ? "MET" : "NOT MET"} |`,
         `| Open PRs | ${ctx.prsSummary.length} | 0 | ${ctx.prsSummary.length === 0 ? "MET" : "NOT MET"} |`,
         `| Issues resolved (RESOLVED) | ${resolvedCount} | >= ${minResolved} | ${resolvedCount >= minResolved ? "MET" : "NOT MET"} |`,
-        `| Dedicated test files | ${ctx.hasDedicatedTests ? "YES" : "NO"} | ${requireTests ? "YES" : "—"} | ${!requireTests || ctx.hasDedicatedTests ? "MET" : "NOT MET"} |`,
+        `| Dedicated test files | ${ctx.dedicatedTestCount} | >= ${minTests} | ${ctx.dedicatedTestCount >= minTests ? "MET" : "NOT MET"} |`,
         `| Source TODO count | ${ctx.sourceTodoCount} | <= ${maxTodos} | ${ctx.sourceTodoCount <= maxTodos ? "MET" : "NOT MET"} |`,
         `| Budget used | ${ctx.cumulativeTransformationCost}/${ctx.transformationBudget} | < ${ctx.transformationBudget || "unlimited"} | ${ctx.transformationBudget > 0 && ctx.cumulativeTransformationCost >= ctx.transformationBudget ? "EXHAUSTED" : "OK"} |`,
         "",

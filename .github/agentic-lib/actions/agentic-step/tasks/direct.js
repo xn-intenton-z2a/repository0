@@ -40,7 +40,6 @@ function countTodos(dir) {
  * Detect dedicated test files that import from src/lib/.
  */
 function detectDedicatedTests() {
-  let hasDedicatedTests = false;
   const dedicatedTestFiles = [];
   const testDirs = ["tests", "__tests__"];
   for (const dir of testDirs) {
@@ -51,14 +50,13 @@ function detectDedicatedTests() {
           if (/^(main|web|behaviour)\.test\.[jt]s$/.test(tf.name)) continue;
           const content = readFileSync(tf.path, "utf8");
           if (/from\s+['"].*src\/lib\//.test(content) || /require\s*\(\s*['"].*src\/lib\//.test(content)) {
-            hasDedicatedTests = true;
             dedicatedTestFiles.push(tf.name);
           }
         }
       } catch { /* ignore */ }
     }
   }
-  return { hasDedicatedTests, dedicatedTestFiles };
+  return { dedicatedTestCount: dedicatedTestFiles.length, dedicatedTestFiles };
 }
 
 /**
@@ -68,14 +66,14 @@ function detectDedicatedTests() {
 function buildMetricAssessment(ctx, config) {
   const thresholds = config.missionCompleteThresholds || {};
   const minResolved = thresholds.minResolvedIssues ?? 3;
-  const requireTests = thresholds.requireDedicatedTests ?? true;
+  const minTests = thresholds.minDedicatedTests ?? 1;
   const maxTodos = thresholds.maxSourceTodos ?? 0;
 
   const metrics = [
     { metric: "Open issues", value: ctx.issuesSummary.length, target: 0, met: ctx.issuesSummary.length === 0 },
     { metric: "Open PRs", value: ctx.prsSummary.length, target: 0, met: ctx.prsSummary.length === 0 },
     { metric: "Issues resolved", value: ctx.resolvedCount, target: minResolved, met: ctx.resolvedCount >= minResolved },
-    { metric: "Dedicated tests", value: ctx.hasDedicatedTests ? "YES" : "NO", target: requireTests ? "YES" : "—", met: !requireTests || ctx.hasDedicatedTests },
+    { metric: "Dedicated tests", value: ctx.dedicatedTestCount, target: minTests, met: ctx.dedicatedTestCount >= minTests },
     { metric: "Source TODOs", value: ctx.sourceTodoCount, target: maxTodos, met: ctx.sourceTodoCount <= maxTodos },
     { metric: "Budget", value: ctx.cumulativeTransformationCost, target: ctx.transformationBudget || "unlimited", met: !(ctx.transformationBudget > 0 && ctx.cumulativeTransformationCost >= ctx.transformationBudget) },
   ];
@@ -86,7 +84,7 @@ function buildMetricAssessment(ctx, config) {
   const table = [
     "| Metric | Value | Target | Status |",
     "|--------|-------|--------|--------|",
-    ...metrics.map((m) => `| ${m.metric} | ${m.value} | ${typeof m.target === "number" ? (m.metric.includes("TODO") ? `<= ${m.target}` : m.metric.includes("resolved") ? `>= ${m.target}` : `${m.target}`) : m.target} | ${m.met ? "MET" : "NOT MET"} |`),
+    ...metrics.map((m) => `| ${m.metric} | ${m.value} | ${typeof m.target === "number" ? (m.metric.includes("TODO") ? `<= ${m.target}` : `>= ${m.target}`) : m.target} | ${m.met ? "MET" : "NOT MET"} |`),
   ].join("\n");
 
   let assessment;
@@ -134,8 +132,8 @@ function buildPrompt(ctx, agentInstructions, metricAssessment) {
         ]
       : []),
     `### Test Coverage`,
-    ctx.hasDedicatedTests
-      ? `Dedicated test files: ${ctx.dedicatedTestFiles.join(", ")}`
+    ctx.dedicatedTestCount > 0
+      ? `Dedicated test files (${ctx.dedicatedTestCount}): ${ctx.dedicatedTestFiles.join(", ")}`
       : "**No dedicated test files found.**",
     "",
     `### Source TODO Count: ${ctx.sourceTodoCount}`,
@@ -348,7 +346,7 @@ export async function direct(context) {
   } catch { /* ignore */ }
 
   // Dedicated tests
-  const { hasDedicatedTests, dedicatedTestFiles } = detectDedicatedTests();
+  const { dedicatedTestCount, dedicatedTestFiles } = detectDedicatedTests();
 
   // TODO count
   const sourcePath = config.paths.source?.path || "src/lib/";
@@ -365,7 +363,7 @@ export async function direct(context) {
     resolvedCount,
     prsSummary,
     sourceExports,
-    hasDedicatedTests,
+    dedicatedTestCount,
     dedicatedTestFiles,
     sourceTodoCount,
     cumulativeTransformationCost,
@@ -424,7 +422,7 @@ export async function direct(context) {
     narrative: `Director: ${reason}`,
     metricAssessment: metricAssessment.assessment,
     directorAnalysis: analysis,
-    hasDedicatedTests,
+    dedicatedTestCount,
     resolvedCount,
     changes: outcome === "mission-complete"
       ? [{ action: "mission-complete", file: "MISSION_COMPLETE.md", sizeInfo: reason.substring(0, 100) }]

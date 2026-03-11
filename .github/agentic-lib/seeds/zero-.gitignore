@@ -20,7 +20,7 @@ Thumbs.db
 *.swp
 *.swo
 
-# Activity log and screenshot (live on .logs branch, not main)
+# Activity log and screenshot (live on agentic-lib-logs branch, not main)
 /intentïon.md
 /intention.md
 /SCREENSHOT_INDEX.png

@@ -428,21 +428,21 @@ jobs:
             const missionComplete = fs.existsSync('MISSION_COMPLETE.md');
             const missionFailed = fs.existsSync('MISSION_FAILED.md');
 
-            // Activity log stats (fetched from .logs branch)
+            // Activity log stats (fetched from agentic-lib-logs branch)
             let activityStats = null;
             try {
-              // Try .logs branch first (new location), fall back to local file (legacy)
+              // Try agentic-lib-logs branch first (new location), fall back to local file (legacy)
               let log = null;
               for (const logFile of ['intenti\u00F6n.md', 'intention.md']) {
                 try {
                   const { data } = await github.rest.repos.getContent({
-                    owner, repo, path: logFile, ref: '.logs',
+                    owner, repo, path: logFile, ref: 'agentic-lib-logs',
                   });
                   log = Buffer.from(data.content, 'base64').toString('utf8');
                   break;
                 } catch { /* try next */ }
               }
-              // Fall back to local file (for repos not yet using .logs branch)
+              // Fall back to local file (for repos not yet using agentic-lib-logs branch)
               if (!log) {
                 const logPath = fs.existsSync('intenti\u00F6n.md') ? 'intenti\u00F6n.md' : (fs.existsSync('intention.md') ? 'intention.md' : null);
                 if (logPath) log = fs.readFileSync(logPath, 'utf8');
@@ -540,10 +540,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch log from .logs branch
+      - name: Fetch log from agentic-lib-logs branch
         run: |
           for f in "intentïon.md" "intention.md"; do
-            git show "origin/.logs:${f}" > "$f" 2>/dev/null || true
+            git show "origin/agentic-lib-logs:${f}" > "$f" 2>/dev/null || true
           done
 
       - name: Check mission-complete signal
@@ -642,7 +642,7 @@ jobs:
           commit-message: "agentic-step: maintain features and library"
           push-ref: ${{ github.ref_name }}
 
-      - name: Push log to .logs branch
+      - name: Push log to agentic-lib-logs branch
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         run: bash .github/agentic-lib/scripts/push-to-logs.sh "intentïon.md" "intention.md"
 
@@ -662,10 +662,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch log from .logs branch
+      - name: Fetch log from agentic-lib-logs branch
         run: |
           for f in "intentïon.md" "intention.md"; do
-            git show "origin/.logs:${f}" > "$f" 2>/dev/null || true
+            git show "origin/agentic-lib-logs:${f}" > "$f" 2>/dev/null || true
           done
 
       - uses: actions/setup-node@v6
@@ -693,7 +693,7 @@ jobs:
           instructions: ".github/agentic-lib/agents/agent-director.md"
           model: ${{ needs.params.outputs.model }}
 
-      - name: Push log to .logs branch
+      - name: Push log to agentic-lib-logs branch
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         run: bash .github/agentic-lib/scripts/push-to-logs.sh "intentïon.md" "intention.md"
 
@@ -712,10 +712,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch log from .logs branch
+      - name: Fetch log from agentic-lib-logs branch
         run: |
           for f in "intentïon.md" "intention.md"; do
-            git show "origin/.logs:${f}" > "$f" 2>/dev/null || true
+            git show "origin/agentic-lib-logs:${f}" > "$f" 2>/dev/null || true
           done
 
       - uses: actions/setup-node@v6
@@ -743,7 +743,7 @@ jobs:
           instructions: ".github/agentic-lib/agents/agent-supervisor.md"
           model: ${{ needs.params.outputs.model }}
 
-      - name: Push log to .logs branch
+      - name: Push log to agentic-lib-logs branch
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         run: bash .github/agentic-lib/scripts/push-to-logs.sh "intentïon.md" "intention.md"
 
@@ -1127,10 +1127,10 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fetch log from .logs branch
+      - name: Fetch log from agentic-lib-logs branch
         run: |
           for f in "intentïon.md" "intention.md"; do
-            git show "origin/.logs:${f}" > "$f" 2>/dev/null || true
+            git show "origin/agentic-lib-logs:${f}" > "$f" 2>/dev/null || true
           done
 
       - uses: actions/setup-node@v6
@@ -1293,7 +1293,7 @@ jobs:
           commit-message: "agentic-step: transform issue #${{ steps.issue.outputs.issue-number }}"
           push-ref: ${{ steps.branch.outputs.branchName }}
 
-      - name: Push log to .logs branch
+      - name: Push log to agentic-lib-logs branch
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         run: bash .github/agentic-lib/scripts/push-to-logs.sh "intentïon.md" "intention.md"
 

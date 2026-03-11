@@ -28,7 +28,7 @@ runs:
         git add -A
         # Unstage workflow files — GITHUB_TOKEN cannot push workflow changes
         git reset HEAD -- '.github/workflows/' 2>/dev/null || true
-        # Unstage log/screenshot files — these live on the .logs branch
+        # Unstage log/screenshot files — these live on the agentic-lib-logs branch
         git reset HEAD -- 'intentïon.md' 'intention.md' 'SCREENSHOT_INDEX.png' 2>/dev/null || true
         if git diff --cached --quiet; then
           echo "No changes to commit"
