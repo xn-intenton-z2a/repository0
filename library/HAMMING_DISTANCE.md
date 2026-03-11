@@ -1,165 +1,159 @@
-DOCUMENT: HAMMINGING_DISTANCE
+DOCUMENT: HAMMING_DISTANCE
 
 TABLE OF CONTENTS
 1. Normalised Extract
   1.1 Definitions
-  1.2 Unicode string handling (JS)
-  1.3 String-based Hamming distance (code-point aware)
-  1.4 Bitwise Hamming distance (integer/BigInt)
-  1.5 Popcount algorithms
+  1.2 Unicode string handling (JavaScript specifics)
+  1.3 String-based Hamming distance (code-point aware algorithm)
+  1.4 Integer/BigInt Hamming distance (bitwise XOR + popcount)
+  1.5 Popcount algorithms and tradeoffs
 2. Supplementary Details
-  2.1 Implementation notes and performance
-  2.2 Memory considerations
-3. Reference Details (API signatures, parameters, returns, errors)
-  3.1 Function signatures
-  3.2 Exact thrown errors and messages
-  3.3 Implementation patterns (code-level operations)
-  3.4 Configuration and environment effects
-  3.5 Troubleshooting procedures
+  2.1 Implementation notes and performance guidance
+  2.2 Memory and security considerations
+3. Reference Details (API signatures, parameter checks, exact thrown errors)
+  3.1 hammingDistance(a, b)
+  3.2 hammingDistanceBits(x, y)
+  3.3 Popcount implementations (signatures)
+  3.4 JavaScript bitwise semantics and conversion rules
 4. Detailed Digest and Provenance
-5. Attribution and Data Size
+5. Attribution and Crawl Data
+
 
 1. NORMALISED EXTRACT
 
 1.1 Definitions
-Hamming distance: for two equal-length sequences, the count of positions where corresponding symbols differ.
-Hamming weight (popcount): number of 1-bits in a binary representation.
-For binary/integer inputs: distance(a,b) = popcount(xor(a,b)).
+Hamming distance: For two equal-length sequences, the count of positions where corresponding symbols differ.
+Hamming weight (population count / popcount): Number of 1-bits in a binary representation. For binary strings a and b: distance(a, b) = popcount(a XOR b).
+Complexity: Basic character-by-character or bit-by-bit algorithms are O(n) time; popcount variants trade time vs number-of-set-bits or word-parallelism.
 
-1.2 Unicode string handling (JS)
-- JavaScript String.length reports UTF-16 code unit count; to treat Unicode code points (surrogate pairs) use the string iterator or Array.from.
-- Use Array.from(string) or for (const cp of string) to obtain entries where each entry is a complete Unicode code point (surrogate pairs preserved).
-- When using codePointAt(index) manually, advance index by 1 for single-unit code points or by 2 when a surrogate pair was consumed. codePointAt returns undefined when index out of range.
+1.2 Unicode string handling (JavaScript specifics)
+- JavaScript String.length returns UTF-16 code unit count, not Unicode code points. Surrogate pairs occupy two code units.
+- Use Array.from(str) or the string iterator (str[Symbol.iterator]() or for...of) to iterate by Unicode code points; each yielded element is a complete code point (surrogate pairs preserved).
+- String.prototype.codePointAt(index): returns the code point at an index. If index points to a leading surrogate it returns the combined code point; if index points to trailing surrogate it returns the trailing code unit value. When iterating manually by index, advance index by 1 for single-unit code points, 2 when a surrogate pair is consumed.
+- When comparing strings for Hamming distance in terms of characters, convert both strings to code-point arrays via Array.from or iterate both with their Symbol.iterator and compare values; lengths must match in code points.
 
-1.3 String-based Hamming distance (code-point aware)
-Preconditions:
-- Inputs: a and b must be strings. Validate types before processing.
-- Compute code-point arrays: ra = Array.from(a); rb = Array.from(b).
-- If ra.length !== rb.length then computation is invalid; throw RangeError('Strings must have the same length in code points').
-Algorithm (operational steps):
-1. ra = Array.from(a); rb = Array.from(b).
-2. If ra.length !== rb.length throw RangeError.
-3. let count = 0.
-4. For i = 0..ra.length-1: if ra[i] !== rb[i] then count++.
-5. Return count as a non-negative integer.
-Complexity: O(n) time, O(n) extra if arrays are allocated; alternative streaming simultaneous iteration can achieve O(1) extra memory and still O(n) time.
+1.3 String-based Hamming distance (code-point aware algorithm)
+Preconditions and validation:
+- Inputs must be strings; if not, throw TypeError.
+- Must compare sequences of equal code-point length; if lengths differ, throw RangeError('Strings must have the same length in code points').
+Operational algorithm (Array.from variant):
+1. ra = Array.from(a); rb = Array.from(b);
+2. if (ra.length !== rb.length) throw RangeError('Strings must have the same length in code points');
+3. count = 0; for i from 0 to ra.length-1: if ra[i] !== rb[i] then count++;
+4. return count (non-negative integer).
+Space/time: O(n) time, O(n) extra memory for arrays. Use iterator-based simultaneous iteration to reduce extra memory to O(1):
+- Ia = a[Symbol.iterator](); Ib = b[Symbol.iterator]()
+- loop: na = Ia.next(); nb = Ib.next(); if na.done !== nb.done then throw RangeError; if na.value !== nb.value then count++;
+- return count.
 
-1.4 Bitwise Hamming distance (integer/BigInt)
-Preconditions and types:
-- Accept x,y as Number (integer) or BigInt; do not mix runtime-level Number and BigInt in bitwise ops.
-- Validate Number inputs: Number.isInteger(x) and x >= 0.
-- Convert Number inputs to BigInt for bitwise operations: bx = BigInt(x); by = BigInt(y).
-- After conversion ensure bx >= 0n and by >= 0n, otherwise throw RangeError('Integers must be non-negative').
+1.4 Integer/BigInt Hamming distance (bitwise XOR + popcount)
+Preconditions and validation:
+- Accept Number (integer) or BigInt for x and y; do not mix Number and BigInt in bitwise operations.
+- For Number inputs: assert Number.isInteger(x) and x >= 0, else throw TypeError or RangeError as appropriate.
+- Convert Number inputs to BigInt before performing large-width bitwise operations: bx = BigInt(x); by = BigInt(y); assert bx >= 0n and by >= 0n.
 Core operation:
-- v = bx ^ by  // BigInt XOR
+- v = bx ^ by   // BigInt XOR
 - distance = popcount(v)
-Popcount choices:
-- Kernighan's algorithm (recommended for sparse set bits):
-  count = 0
-  while (v !== 0n) { v &= v - 1n; count++ }
-  return count
-  Complexity: O(k) where k = number of set bits in v.
-- Naive bit-shift loop:
-  count = 0
-  while (v !== 0n) { count += Number(v & 1n); v >>= 1n }
-  return count
-  Complexity: O(b) where b = bit-width.
-- Lookup table (byte-wise): precompute table[0..255]; split v into 8-bit chunks and sum table entries. Complexity O(b/8).
-Notes:
-- Avoid Number-based bitwise operators for inputs > 32-bit signed range because Number operands are coerced to 32-bit signed ints.
-- BigInt bitwise ops require both operands be BigInt; explicit conversion is mandatory.
+Return type: JavaScript Number (non-negative integer) or BigInt count if implementation chooses; canonical implementations return Number for distances within safe range.
 
-1.5 Popcount algorithms (concise)
-- Kernighan/Wegner: while (x) { x &= x-1; ++count } — iterate one time per set bit.
-- Parallel-add / multiply-and-shift: sequence of masks and additions yielding O(log w) arithmetic operations for fixed-width integers; use when hardware popcnt not available and values are dense.
-- Lookup table: precompute popcounts for a byte or 16-bit word and sum chunks, memory vs speed tradeoff.
+1.5 Popcount algorithms and tradeoffs
+- Kernighan (Wegner) algorithm (iterate per set bit):
+  count = 0; while (v !== 0n) { v &= v - 1n; count++; } return count;
+  Complexity O(k) where k = number of set bits. Best when v is sparse.
+- Bit-shift loop (naive):
+  count = 0; while (v !== 0n) { count += Number(v & 1n); v >>= 1n; } return count;
+  Complexity O(b) where b = bit-width of v. Simpler but slower for wide values with few bits set.
+- Lookup table (byte-wise): precompute table[0..255] then process v in 8-bit chunks and sum table entries. Memory small (256 bytes) and gives O(b/8) operations.
+- Parallel-add / multiply-and-shift methods: use masks and arithmetic to compute popcount in O(log w) operations for fixed-width integers; exemplary constants and masks exist for 64-bit (m1, m2, m4, m8, m16, m32, h01) to implement popcount64 variants. Use when vectorized or when target supports fast arithmetic.
+- Hardware intrinsic: use processor popcnt instruction or language intrinsics (GCC/Clang __builtin_popcount / __builtin_popcountll, C++ std::popcount, Java Integer.bitCount / Long.bitCount, BigInteger.bitCount).
+
 
 2. SUPPLEMENTARY DETAILS
 
-2.1 Implementation notes and performance
-- Prefer Array.from for clarity and correctness when inputs are moderate sized; for very long strings and tight memory budgets implement simultaneous iterators:
-  - Create iterators Ia = a[Symbol.iterator](), Ib = b[Symbol.iterator]() and loop: for (;;) { let na = Ia.next(); let nb = Ib.next(); if (na.done || nb.done) break; if (na.value !== nb.value) count++; }
-  - After loop, if na.done !== nb.done then lengths differ -> throw RangeError.
-- For BigInt popcount, Kernighan's algorithm yields minimal iterations when v has few set bits; if v has many set bits and fixed maximal width, use lookup or parallel-add variants.
-- For performance on Node.js and modern platforms, prefer BigInt-based Kernighan for simplicity; benchmark with representative workloads.
+2.1 Implementation notes and performance guidance
+- For moderately sized strings, choose Array.from for clarity and correctness; for extremely long strings or constrained memory, use simultaneous iterators to avoid O(n) temporary memory allocation.
+- For integer distances where numbers may exceed 32 bits, always use BigInt for correctness; JavaScript Number bitwise operators coerce operands to 32-bit signed integers and will yield incorrect results for values outside that range.
+- For BigInt popcount, prefer Kernighan when typical differences are sparse; prefer byte-wise lookup or parallel-add for dense bit patterns or when repeatedly computing popcounts on many values.
+- If runtime exposes hardware popcount or library intrinsics, prefer those for performance.
 
-2.2 Memory considerations
-- Array.from duplicates string into an array of substring elements; memory ~= O(n) extra where n is code-point count.
-- Iterator-based approach uses O(1) extra memory and avoids temporary arrays.
-- Lookup table (256 entries) uses negligible memory (256 integers) and reduces BigInt chunk processing overhead.
+2.2 Memory and security considerations
+- Avoid building large intermediate arrays from untrusted input without bounds checks to prevent memory exhaustion; when inputs may be extremely long, stream via iterators and enforce maximum allowable lengths.
+- When converting Number to BigInt, ensure values are within expected domain (non-negative) to avoid unexpected RangeErrors documented in reference API.
 
-3. REFERENCE DETAILS
 
-3.1 Function signatures (exact)
-- hammingDistance(a: string, b: string) -> number
-- hammingDistanceBits(x: number|bigint, y: number|bigint) -> number
+3. REFERENCE DETAILS (API signatures, parameter checks, exact thrown errors)
 
-3.2 Exact thrown errors and messages (must match implementation)
-- hammingDistance:
-  - if (typeof a !== 'string' || typeof b !== 'string') throw new TypeError('Both arguments must be strings')
-  - if (ra.length !== rb.length) throw new RangeError('Strings must have the same length in code points')
-- hammingDistanceBits:
-  - if (!isBigIntX && typeof x !== 'number') throw new TypeError('x must be a number or bigint')
-  - if (!isBigIntY && typeof y !== 'number') throw new TypeError('y must be a number or bigint')
-  - if (!isBigIntX && !Number.isInteger(x)) throw new TypeError('x must be an integer')
-  - if (!isBigIntY && !Number.isInteger(y)) throw new TypeError('y must be an integer')
-  - if (!isBigIntX && x < 0) throw new RangeError('Integers must be non-negative')
-  - if (!isBigIntY && y < 0) throw new RangeError('Integers must be non-negative')
-  - after conversion if (bx < 0n || by < 0n) throw new RangeError('Integers must be non-negative')
-
-3.3 Implementation patterns (exact operational steps)
-- String variant (exact):
-  const ra = Array.from(a);
-  const rb = Array.from(b);
+3.1 hammingDistance(a, b)
+Signature:
+  hammingDistance(a: string, b: string) -> number
+Parameter validation and exact errors (canonical JS implementation):
+  if (typeof a !== 'string' || typeof b !== 'string') throw new TypeError('Both arguments must be strings');
+  const ra = Array.from(a); const rb = Array.from(b);
   if (ra.length !== rb.length) throw new RangeError('Strings must have the same length in code points');
-  let count = 0;
-  for (let i = 0; i < ra.length; i++) { if (ra[i] !== rb[i]) count++; }
-  return count;
-- Bitwise variant (exact, BigInt-safe):
-  const isBigIntX = typeof x === 'bigint';
-  const isBigIntY = typeof y === 'bigint';
-  if (!isBigIntX && typeof x !== 'number') throw new TypeError('x must be a number or bigint');
-  if (!isBigIntY && typeof y !== 'number') throw new TypeError('y must be a number or bigint');
-  if (!isBigIntX) { if (!Number.isInteger(x)) throw new TypeError('x must be an integer'); if (x < 0) throw new RangeError('Integers must be non-negative'); }
-  if (!isBigIntY) { if (!Number.isInteger(y)) throw new TypeError('y must be an integer'); if (y < 0) throw new RangeError('Integers must be non-negative'); }
-  const bx = isBigIntX ? x : BigInt(x);
-  const by = isBigIntY ? y : BigInt(y);
-  if (bx < 0n || by < 0n) throw new RangeError('Integers must be non-negative');
-  let v = bx ^ by;
-  let count = 0;
-  while (v) { v &= v - 1n; count++; }
-  return count;
+Behavior:
+  Counts code-point-wise differences using strict inequality (===/!== comparison on code-point strings). Returns integer count >= 0.
+Complexity: O(n) time, O(n) extra memory. Iterator variant reduces memory to O(1).
 
-3.4 Configuration and environment effects
-- Node/JS version: BigInt and String iterator behavior require modern JS engines (Node >= 10 for bigints? but Node >= 24 per package.json engines). For consistent behavior use Node >= 24.0.0 as declared.
-- Number bitwise operators coerce to 32-bit signed integers; avoid Number bitwise ops for integers outside 32-bit signed range.
+3.2 hammingDistanceBits(x, y)
+Signature:
+  hammingDistanceBits(x: number|bigint, y: number|bigint) -> number
+Parameter validation and exact errors (canonical JS implementation):
+  - If typeof x !== 'bigint' and typeof x !== 'number' => throw TypeError('x must be a number or bigint')
+  - If typeof y !== 'bigint' and typeof y !== 'number' => throw TypeError('y must be a number or bigint')
+  - If x is Number and not Number.isInteger(x) => throw TypeError('x must be an integer')
+  - If y is Number and not Number.isInteger(y) => throw TypeError('y must be an integer')
+  - If x < 0 or y < 0 => throw RangeError('Integers must be non-negative')
+Conversion and core logic:
+  const bx = (typeof x === 'bigint') ? x : BigInt(x);
+  const by = (typeof y === 'bigint') ? y : BigInt(y);
+  if (bx < 0n || by < 0n) throw RangeError('Integers must be non-negative');
+  let v = bx ^ by; // BigInt XOR
+  // canonical provided implementation (naive bit loop):
+  let count = 0;
+  while (v) { count += Number(v & 1n); v = v >> 1n; }
+  return count;
+Notes and tradeoffs:
+  - The canonical implementation uses a bit-shift loop. Replace with Kernighan loop for performance on sparse differences, or lookup/parallel-add for dense or width-limited workloads.
+  - Never mix Number and BigInt directly in bitwise operators; explicit BigInt conversion is required.
 
-3.5 Troubleshooting procedures (step-by-step)
-- Unicode mismatch results:
-  1. Verify both inputs were converted using Array.from or iterators; check for accidental use of String.length.
-  2. If using codePointAt with manual index, ensure index increments by 1 or 2 depending on the returned code point and that indices are integer.
-- Unexpected negative or truncated bit counts:
-  1. Confirm Number inputs were converted to BigInt before bitwise ops.
-  2. Check for accidental use of >> vs >>>; >>> is not defined for BigInt.
-- Performance problems with large integers:
-  1. If Kernighan loop iterates many times, measure set bit density; if high, switch to byte-wise lookup or parallel-add algorithm.
+3.3 Popcount implementations (signatures)
+- popcountKernighan(v: bigint) -> number
+  let count = 0; while (v !== 0n) { v &= v - 1n; count++; } return count;
+- popcountShift(v: bigint) -> number
+  let count = 0; while (v !== 0n) { count += Number(v & 1n); v >>= 1n; } return count;
+- popcountLookup(v: bigint, table: Uint8Array[256]) -> number
+  while (v !== 0n) { chunk = Number(v & 0xffn); sum += table[chunk]; v >>= 8n; } return sum;
+- popcountParallel64(x: number|bigint) -> number
+  Use fixed-width constants (m1, m2, m4, m8, m16, m32, h01) for 64-bit arithmetic variant and return final masked sum; signature depends on fixed integer type.
+
+3.4 JavaScript bitwise semantics and conversion rules
+- All Number bitwise operators operate on 32-bit signed integers: inputs are coerced by ToInt32 (wraps/mods), so values above 2^31-1 or negative values will be truncated and may yield incorrect Hamming distances for larger integers.
+- BigInt bitwise operators (^, &, |, <<, >>) require both operands to be BigInt; using a Number will throw a TypeError. Use explicit BigInt(x) conversion.
+- Shifts on BigInt are arithmetic and accept BigInt shift amount; right-shift on BigInt is arithmetic (sign-propagating) when negative values present—avoid negative inputs.
+
 
 4. DETAILED DIGEST AND PROVENANCE
-Content extracted from SOURCES.md sections and remote pages on 2026-03-11. Key technical extracts used include definitions of Hamming distance and Hamming weight, MDN API behaviors for String.codePointAt and String[Symbol.iterator], JavaScript bitwise operator semantics, and popcount algorithm descriptions (Wegner/Kernighan, lookup, parallel-add). npm hamming-distance package referenced but page returned HTTP 403 at fetch time and was not retrieved.
+Extracted technical content and exact actionable items were taken from these sources on 2026-03-11:
+- Wikipedia: Hamming distance — definitions, metric properties, relation to popcount via XOR, error detection/correction formulas (d_min, detect up to d-1, correct floor((d-1)/2)). (content partially truncated in fetch)
+- Wikipedia: Hamming weight — popcount definitions, multiple algorithmic implementations including parallel-add masks for 64-bit, Kernighan method, lookup-table approach, and tradeoffs among them. (content partially truncated in fetch)
+- MDN String.codePointAt — exact behavior: returns code point for leading surrogate pair, returns only trailing surrogate for trailing surrogate index, returns undefined for out of range index; recommended to iterate with Symbol.iterator or Array.from for code-point-aware processing.
+- MDN String[Symbol.iterator] — iterator yields Unicode code points as single-string elements; surrogate pairs preserved; example behavioral notes about splitting grapheme clusters.
+- MDN Bitwise Operators — enumerates JS bitwise operator semantics (32-bit coercion for Number bitwise ops, list of operators and shifts) and references to ECMAScript spec for exact operator semantics.
+- npm hamming-distance — fetch failed with HTTP 403; package page content not retrieved. Implementation examples in this repository (docs/lib-browser.js embedded in package.json build script) were used as canonical JS function signatures and error messages.
 
-Retrieved pages and approximate sizes:
-- https://en.wikipedia.org/wiki/Hamming_distance  ~38k chars
-- https://en.wikipedia.org/wiki/Hamming_weight   ~64k chars
-- MDN String.codePointAt                          ~6.5k chars
-- MDN String[Symbol.iterator]                     ~4.2k chars
-- MDN Bitwise operators                           ~12k chars
-- npm hamming-distance                            HTTP 403 (not retrieved)
-Total approx characters retrieved: 124,700
 Retrieval date: 2026-03-11
 
-5. ATTRIBUTION AND DATA SIZE
-- Sources: Wikipedia (Hamming distance, Hamming weight), MDN Web Docs (String.codePointAt, String[Symbol.iterator], Bitwise operators). npm registry entry listed but inaccessible (403) at retrieval.
-- Retrieval date: 2026-03-11
-- Data size retrieved: ~124,700 characters across successfully fetched pages; npm page returned 403.
 
-END OF DOCUMENT
+5. ATTRIBUTION AND CRAWL DATA
+Sources retrieved (successful/failed):
+- https://en.wikipedia.org/wiki/Hamming_distance — fetched (content truncated by fetch tool)
+- https://en.wikipedia.org/wiki/Hamming_weight — fetched (content truncated by fetch tool)
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt — fetched
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/%40%40iterator — fetched
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators — fetched
+- https://www.npmjs.com/package/hamming-distance — fetch failed (HTTP 403)
+
+Crawl notes and data size: fetch responses included multi-kilobyte HTML/text payloads; two Wikipedia pages and three MDN pages returned text content (some responses truncated by fetch max_length). npm page returned 403 and was not included. Exact byte counts not recorded by crawler in this run.
+
+
+[END DOCUMENT]

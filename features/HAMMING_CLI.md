@@ -29,6 +29,22 @@ A CLI makes the library immediately usable from the terminal for ad-hoc checks, 
    - Add unit tests that invoke the CLI via child_process.spawn or a lightweight wrapper and assert stdout, stderr, and exit codes for success and failure cases.
    - Ensure tests cover the core acceptance examples and normalize flag behaviour.
 
+# Examples
+
+Include short, deterministic examples that can be run locally and used in README and CI checks.
+
+- Node CLI examples
+  - node src/lib/main.js --mode string karolin kathrin  # prints 3 and exits 0
+  - node src/lib/main.js --mode string "" ""         # prints 0 and exits 0
+  - node src/lib/main.js --mode string a bb             # prints a RangeError message to stderr and exits 1
+  - node src/lib/main.js --mode bits 1 4               # prints 2 and exits 0
+  - node src/lib/main.js --mode bits 0 0               # prints 0 and exits 0
+
+- Example scripts
+  - examples/compare-strings.js: imports hammingDistance from src/lib/main.js and prints 3 for karolin vs kathrin
+  - examples/compare-normalize.js: demonstrates combining sequence vs precomposed character; prints 1 without normalization and 0 when NFC is specified
+  - examples/compare-bits.js: imports hammingDistanceBits and prints 2 for inputs 1 and 4
+
 # Acceptance Criteria
 
 - Running node src/lib/main.js --mode string karolin kathrin prints 3 and exits 0
@@ -37,3 +53,4 @@ A CLI makes the library immediately usable from the terminal for ad-hoc checks, 
 - Running node src/lib/main.js --mode bits 1 4 prints 2 and exits 0
 - Running node src/lib/main.js --mode bits 0 0 prints 0 and exits 0
 - --help prints usage information and exits 0
+- examples/compare-*.js exist and are deterministic, runnable with node, and print only the expected integer or a single-line error message containing one of the canonical keywords (string, length, non-negative, options, normalize)
