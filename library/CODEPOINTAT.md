@@ -15,44 +15,42 @@ TABLE OF CONTENTS
 1. NORMALISED EXTRACT
 
 1.1 Signature and return semantics
-Method: String.prototype.codePointAt(index)
-- Input: index — converted to integer; undefined converted to 0.
-- Return: a non-negative integer representing the Unicode code point at the specified index, or undefined if index is out of range.
+- Method: String.prototype.codePointAt(index)
+- Parameter: index is converted to integer; undefined -> 0.
+- Return: non-negative integer 0..0x10FFFF for the code point at index, or undefined if index out of range.
 
 1.2 Surrogate-pair behaviour
-- If the UTF-16 code unit at index is a leading surrogate (high surrogate) and followed by a trailing surrogate, codePointAt returns the combined code point of the pair (value in range 0..0x10FFFF).
-- If the code unit at index is a trailing surrogate (low surrogate), codePointAt returns the trailing surrogate's code unit value (0..0xFFFF) — it does not backtrack to the preceding high surrogate.
+- If UTF-16 code unit at index is a high-surrogate and followed by a low-surrogate, returns combined code point (0..0x10FFFF).
+- If code unit at index is a low-surrogate, returns the low-surrogate code unit value (0..0xFFFF) and does not backtrack.
 
 1.3 Index conversion rules
-- index is first coerced to integer per ECMAScript number-to-integer conversions; indices outside 0..str.length-1 yield undefined.
-- Use codePointAt(0) on elements produced by string iteration (for..of or Array.from) to get numeric code points for each yielded code-point string.
+- index coerced via ToInteger; indices <0 or >= str.length -> undefined.
 
 2. SUPPLEMENTARY DETAILS
 
 2.1 Iteration recommendations
-- Avoid looping by numeric indices when dealing with Unicode code points because surrogate pairs span two code units and will be visited twice; instead use for...of or Array.from to iterate by code points and then call codePointAt(0) on each element if numeric value required.
+- Avoid numeric-index loops over strings when needing code points; use for...of or Array.from to iterate by code points and then call codePointAt(0) on each iterated string to get numeric values.
 
 2.2 Edge-cases and interoperability
-- For grapheme-cluster aware processing (user-perceived characters), codePointAt is insufficient because combining marks and ZWJ sequences are split; use Intl.Segmenter or a grapheme segmentation library to obtain grapheme clusters.
-- codePointAt does not perform normalization; comparisons of code points across normalized/unnormalized strings require explicit normalization (String.prototype.normalize).
+- codePointAt is not grapheme-cluster aware; combining marks and ZWJ sequences require Intl.Segmenter or a grapheme library when user-perceived characters are needed.
+- codePointAt does not normalize strings; explicit String.prototype.normalize is required when comparing across normalization forms.
 
-3. REFERENCE DETAILS (API signature, parameters, return types)
+3. REFERENCE DETAILS
 
-ECMAScript canonical signature:
-- String.prototype.codePointAt(index: number | value-convertible) -> number | undefined
+ECMAScript canonical signature
+- String.prototype.codePointAt(index: number|value-convertible) -> number | undefined
 
-Parameter behavior:
-- index: ToInteger(index) as per ECMAScript; undefined -> 0.
+Parameter behaviour
+- index: ToInteger(index); undefined -> 0.
 
-Return behavior:
-- Returns a non-negative integer (0..1114111) if index references a code point (single or surrogate pair).
-- Returns undefined when index < 0 or index >= str.length.
+Return behaviour
+- Returns integer 0..1114111 on success; undefined when index out of range.
 
 4. DETAILED DIGEST AND PROVENANCE
 Source: MDN Web Docs — String.prototype.codePointAt
 URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt
-Retrieved: 2026-03-11T20:55:48.165Z
-Extracted: syntax, parameters, return value, description, usage notes, recommendations to use for...of or spread for iteration.
+Retrieved: 2026-03-11T21:26:25.652Z
+Extracted: syntax, parameter coercion, surrogate-pair handling, iteration guidance and examples.
 
 5. ATTRIBUTION AND CRAWL DATA
-Source: MDN Web Docs, last modified Jul 10, 2025 (MDN metadata). Crawl retrieved ~3KB of page content; fetch returned full page content within max_length constraints.
+Source: MDN Web Docs. Crawl returned full page content. Approximate retrieved content: ~3 KB.

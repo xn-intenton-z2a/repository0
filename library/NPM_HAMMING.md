@@ -8,23 +8,23 @@ TABLE OF CONTENTS
 5. Attribution and Crawl Data
 
 1. NORMALISED EXTRACT (fetch status)
-The npm package page at https://www.npmjs.com/package/hamming-distance returned HTTP 403 when fetched from this environment; page content was not retrieved. No package metadata could be extracted by the crawler.
+- The npm package page at https://www.npmjs.com/package/hamming-distance returned HTTP 403 when fetched from this environment; page content is not available.
 
 2. SUPPLEMENTARY DETAILS
-To obtain authoritative package API and exact method signatures, perform one of the following from a network-enabled environment:
-- curl -sL https://registry.npmjs.org/hamming-distance | jq '.'
-- npm view hamming-distance versions dist-tags description repository
-- Inspect the package's README on the npm page or the package's repository (GitHub) to obtain exported API and usage examples.
+- To retrieve authoritative package API and exact method signatures, use a network-enabled environment to query the npm registry JSON or view the package README/repository.
+- Commands:
+  - curl -sL https://registry.npmjs.org/hamming-distance | jq '.'
+  - npm view hamming-distance versions dist-tags description repository
+  - Visit the package page or repository on GitHub to inspect README and exported module.
 
 3. REFERENCE DETAILS (access guidance)
-Recommended authoritative retrieval steps:
-1. Use npm registry JSON: GET https://registry.npmjs.org/hamming-distance to obtain package.json, versions, and README in machine-readable form.
-2. For code-level extraction: clone or download the package at the desired version and read its main export (package.json "main" field) and README.
+- Registry JSON retrieval (recommended): GET https://registry.npmjs.org/hamming-distance — parse package.json fields (name, version, main, exports, README).
+- Cloning: git clone <repo_url from package.json repository field> && inspect the main export file (package.json "main") and README for examples.
 
 4. DETAILED DIGEST AND PROVENANCE
 Source: https://www.npmjs.com/package/hamming-distance
-Retrieved: 2026-03-11T20:55:48.165Z
-Result: HTTP 403 — fetch blocked; no content available from this environment.
+Retrieved: 2026-03-11T21:26:25.652Z
+Result: HTTP 403 — fetch blocked from this environment; no content extracted.
 
 5. ATTRIBUTION AND CRAWL DATA
-Source: npmjs.com (access blocked). Crawl returned HTTP 403; no byte-count available.
+Source: npmjs.com (access blocked in this environment). Crawl returned HTTP 403.

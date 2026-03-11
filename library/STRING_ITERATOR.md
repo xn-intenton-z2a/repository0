@@ -15,38 +15,33 @@ TABLE OF CONTENTS
 1. NORMALISED EXTRACT
 
 1.1 Purpose and return shape
-String.prototype[Symbol.iterator]() returns an iterable iterator object that yields Unicode code points as strings. Each iteration result is an object matching the iterator protocol: { value: string, done: boolean }.
+- String.prototype[Symbol.iterator]() returns an iterable iterator that yields Unicode code points as strings. Each next() call returns { value: string, done: boolean }.
 
 1.2 Iteration unit: code points vs grapheme clusters
-- Iteration yields code points as strings; surrogate pairs are preserved and yielded as a single string element representing the full code point (length 2 in UTF-16), but grapheme clusters (sequences joined by ZWJ or combining marks) are split into multiple yielded elements.
-- Example behaviours to account for in implementations: skin-tone modifiers (separate code points), sequences joined by ZWJ produce multiple yields, combining marks yield separate yields after base character.
+- The iterator yields code points: surrogate pairs are preserved and yielded as a single string (one element), but grapheme clusters (ZWJ sequences, combining marks) are split across multiple yields.
 
 1.3 Iterator protocol shape
-- The iterator object exposes a next() method: next() -> { value: string, done: boolean }.
-- The string[Symbol.iterator]() has no parameters and returns a fresh iterator on each call.
+- Returns a fresh iterator with next(): { value: string, done: boolean } on each call; no parameters.
 
 2. SUPPLEMENTARY DETAILS
 
-2.1 Examples of splitting (implementation consequences)
-- Spread or Array.from on a string produces an array of code-point strings (usable for code-point-aware Hamming distance).
-- For user-perceived character processing, use Intl.Segmenter or a grapheme segmentation library to create grapheme-cluster arrays before comparing.
+2.1 Examples of splitting
+- Spread/Array.from on "👉🏿" yields ['👉','🏿'] (emoji + skin-tone modifier).
+- Spread/Array.from on "👨‍👦" yields ['👨','?','👦'] (ZWJ sequence parts) — note: exact intermediate ZWJ code unit represented as its own string element.
 
 2.2 Implementation notes for consumers
-- To compute code-point Hamming distance, do: ra = Array.from(a); rb = Array.from(b); if (ra.length !== rb.length) throw length-mismatch; then count differing entries.
-- Do not assume String.length equals number of visual characters; String.length counts UTF-16 code units.
+- For code-point-aware Hamming distance: ra = Array.from(a); rb = Array.from(b); if ra.length !== rb.length throw length-mismatch; count unequal entries.
+- For user-perceived characters use Intl.Segmenter or grapheme library to segment into grapheme clusters before comparing.
 
-3. REFERENCE DETAILS (spec links, iterator object shape)
+3. REFERENCE DETAILS
 
-ECMAScript reference: String.prototype[Symbol.iterator] — returns an iterator per the iterable/iterator protocol in ECMAScript.
-Iterator contract:
-- next(): { value: string, done: boolean }
-- The iterator yields elements of type string representing single Unicode code points (possibly 1 or 2 UTF-16 code units).
+ECMAScript reference: String.prototype[Symbol.iterator] conforms to iterable/iterator protocol. Iterator contract: next() -> { value: string, done: boolean } and yields strings representing single Unicode code points.
 
 4. DETAILED DIGEST AND PROVENANCE
 Source: MDN Web Docs — String.prototype[@@iterator]
 URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/%40%40iterator
-Retrieved: 2026-03-11T20:55:48.165Z
-Extracted: syntax, return value, description emphasising code-point iteration and examples that demonstrate splitting behaviour on emoji sequences and ZWJ.
+Retrieved: 2026-03-11T21:26:25.652Z
+Extracted: iterator semantics, examples showing surrogate-pair preservation and grapheme splitting.
 
 5. ATTRIBUTION AND CRAWL DATA
-Source: MDN Web Docs, last modified Jul 10, 2025. Crawl retrieved ~3KB; content returned by fetch contained iterator examples and spec links.
+Source: MDN Web Docs. Crawl returned full page content. Approximate retrieved content: ~3 KB.
