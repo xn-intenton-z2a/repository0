@@ -10,7 +10,7 @@ TABLE OF CONTENTS
 2. Supplementary Details
   2.1 Implementation notes and performance guidance
   2.2 Memory, numeric and security considerations
-3. Reference Details (API signatures, exact patterns)
+3. Reference Details (API specifications, exact patterns)
   3.1 JavaScript function signatures and parameter validation
   3.2 Popcount method signatures and algorithms
   3.3 Fixed-width masks and constants (64-bit examples)
@@ -108,7 +108,7 @@ Notes: JavaScript Number bitwise operators coerce operands to 32-bit signed inte
 - Avoid using Number-based bitwise operators (| ^ &) on values that may exceed 32 bits.
 
 
-3. REFERENCE DETAILS (API SPECIFICATIONS, SIGNATURES, PATTERNS)
+3. REFERENCE DETAILS (API SPECIFICATIONS, EXACT PATTERNS)
 
 3.1 JavaScript API signatures and parameter validation
 - function hammingDistance(a, b)
@@ -182,12 +182,12 @@ This document extracted technical material from the following sources (retrieved
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
 - https://www.npmjs.com/package/hamming-distance
 
-Content retrieved on: 2026-03-11T17:44:04.038Z
+Content retrieved on: 2026-03-11T17:50:44.347Z
 
 
 5. ATTRIBUTION AND CRAWL DATA
 - Attribution: Source list above; derivative technical extract consolidated into this library document.
-- Crawl data size: SOURCES.md file read was 519 bytes and contained 6 source URLs. (SOURCES.md lines: 10)
+- Crawl data size: SOURCES.md file read was 519 bytes and contained 6 source URLs. (SOURCES.md lines: 6)
 
 
 SUPPLEMENTARY: STEP-BY-STEP TROUBLESHOOTING
@@ -200,5 +200,3 @@ CONCRETE BEST PRACTICES
 - Public API: expose hammingDistance(a: string, b: string): number and hammingDistanceBits(x: number|bigint, y: number|bigint): number with clear runtime checks and documentation of code-point semantics.
 - Defensive coding: avoid implicit coercions, document limits, and throw explicit TypeError/RangeError when preconditions violated.
 - Testing: include unit tests covering surrogate pairs, combining marks, very large BigInt values, zero-length inputs, and invalid types.
-
-
