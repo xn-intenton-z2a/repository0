@@ -5,16 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>repository0</title>
   <meta property="og:title" content="repository0">
-  <meta property="og:description" content="An autonomous repository powered by agentic-lib">
+  <meta property="og:description" content="Hamming distance demo">
   <meta property="og:type" content="website">
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 900px; margin: 0 auto; padding: 2rem; color: #333; }
     h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
     a { color: #0366d6; }
     .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
+    .feature { border: 1px solid #eee; padding: 1rem; border-radius: 6px; margin: 1rem 0; }
+    .feature h3 { margin-top: 0; }
   </style>
 </head>
 <body>
@@ -27,18 +29,34 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
-  <h2>Output</h2>
-  <div id="demo-output">Loading library...</div>
+
+  <div class="feature">
+    <h3>Hamming distance (strings)</h3>
+    <p id="hamming-demo">Loading...</p>
+  </div>
+
+  <div class="feature">
+    <h3>Hamming distance (bits)</h3>
+    <p id="hamming-bits-demo">Loading...</p>
+  </div>
+
   <h2>About</h2>
-  <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
+  <p>This website demonstrates the library identity and showcases Hamming distance examples from the mission.</p>
   <script type="module">
     try {
       const { name, version, description } = await import('./lib-meta.js');
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
+
+      // Demo outputs (static examples sourced from mission)
+      document.getElementById('hamming-demo').textContent = "hammingDistance('karolin', 'kathrin') => 3\n" +
+        "hammingDistance('', '') => 0";
+      document.getElementById('hamming-bits-demo').textContent = "hammingDistanceBits(1, 4) => 2\n" +
+        "hammingDistanceBits(0, 0) => 0";
+
+      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
     } catch (e) {
       document.getElementById('lib-version').textContent = '(build required)';
       document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
