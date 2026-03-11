@@ -5,52 +5,6 @@
 
 ---
 
-## maintain-features at 2026-03-11T03:39:52.970Z
-
-**Outcome:** features-maintained
-**Model:** gpt-5-mini
-**Profile:** recommended
-**Token Count:** 43860 (in: 38482, out: 5378)
-**Duration:** 91s (~1.5 GitHub Actions min)
-**agentic-lib transformation cost:** 1
-**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22935521363](https://github.com/xn-intenton-z2a/repository0/actions/runs/22935521363)
-
-### Limits Status
-| Limit | Value | Capacity | Status |
-|---|---|---|---|
-| transformation-budget | 1/32 | 31 remaining |  |
-| max-feature-issues | 2/2 | 0 remaining |  |
-| max-maintenance-issues | 0/1 | 1 remaining |  |
-| max-attempts-per-issue | ?/2 | ? remaining | n/a |
-| max-attempts-per-branch | ?/3 | ? remaining | n/a |
-| features | 1/4 | 3 remaining |  |
-| library | 0/32 | 32 remaining | n/a |
-
-### Mission-Complete Readiness
-Mission complete conditions are NOT met. 2 open issue(s) remain. Issues resolved (review or PR merge): 0 (target: >= 3). Dedicated test files: NO (target: YES).
-
-### Mission Metrics
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| Open issues | 2 | 0 | NOT MET |
-| Open PRs | 0 | 0 | MET |
-| Issues resolved (review or PR merge) | 0 | >= 3 | NOT MET |
-| Dedicated test files | NO | YES | NOT MET |
-| Source TODO count | 0 | <= 0 | MET |
-| Transformation budget used | 1/32 | < 32 | OK |
-| Cumulative transforms | 1 | >= 1 | MET |
-| Mission complete declared | NO | — | — |
-| Mission failed declared | NO | — | — |
-
-### Closing Notes
-max-feature-issues at capacity (2/2) — actions will be blocked.
-
-### Narrative
-Created a HAMMING_CORE feature specification to define the Hamming functions, validation rules, tests, README updates, and acceptance criteria so implementation can proceed.
-
-Maintained features (0 existing, limit 4)
-
----
 ## maintain-library at 2026-03-11T03:40:22.173Z
 
 **Outcome:** sources-discovered
@@ -1396,6 +1350,101 @@ max-feature-issues at capacity (2/2) — actions will be blocked.
 
 ### Narrative
 Consolidated and verified source-derived technical content into HAMMING_DISTANCE.md to ensure a single, actionable reference document for implementation and provenance.
+
+Maintained library (1 docs, limit 32)
+
+---
+## maintain-features at 2026-03-11T11:48:35.491Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 149555 (in: 142462, out: 7093)
+**Duration:** 126s (~2.1 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22950988043](https://github.com/xn-intenton-z2a/repository0/actions/runs/22950988043)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 31/32 | 1 remaining |  |
+| max-feature-issues | 2/2 | 0 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 1/32 | 31 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 2 open issue(s) remain. Issues resolved (review or PR merge): 0 (target: >= 3). Dedicated test files: NO (target: YES).
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 2 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 3 | NOT MET |
+| Dedicated test files | NO | YES | NOT MET |
+| Source TODO count | 0 | <= 0 | MET |
+| Transformation budget used | 31/32 | < 32 | OK |
+| Cumulative transforms | 31 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+transformation-budget approaching capacity (31/32).
+max-feature-issues at capacity (2/2) — actions will be blocked.
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Updated the HAMMING_CORE feature file to provide a complete, testable specification for hammingDistance and hammingDistanceBits so implementation, CLI, web demo, and TypeScript declarations can be developed against a single canonical contract.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-11T11:49:35.118Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 100633 (in: 97746, out: 2887)
+**Duration:** 59s (~1.0 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22950988043](https://github.com/xn-intenton-z2a/repository0/actions/runs/22950988043)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
+| max-feature-issues | 2/2 | 0 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 1/32 | 31 remaining |  |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 2 open issue(s) remain. Issues resolved (review or PR merge): 0 (target: >= 3). Dedicated test files: NO (target: YES).
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 2 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 3 | NOT MET |
+| Dedicated test files | NO | YES | NOT MET |
+| Source TODO count | 0 | <= 0 | MET |
+| Transformation budget used | 32/32 | < 32 | EXHAUSTED |
+| Cumulative transforms | 32 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+transformation-budget at capacity (32/32) — actions will be blocked.
+max-feature-issues at capacity (2/2) — actions will be blocked.
+
+### Narrative
+Consolidated MDN and Wikipedia technical material into library/HAMMING_DISTANCE.md and recorded retrieval metadata (npm page inaccessible).
 
 Maintained library (1 docs, limit 32)
 
