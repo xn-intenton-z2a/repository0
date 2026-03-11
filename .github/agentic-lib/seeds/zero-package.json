@@ -6,7 +6,7 @@
   "main": "src/lib/main.js",
   "scripts": {
     "build": "npm run build:web",
-    "build:web": "mkdir -p docs && touch docs/.nojekyll && cp -r src/web/* docs/ 2>/dev/null || true && node --input-type=commonjs -p \"var p=require('./package.json');['name','version','description'].map(function(k){return 'export const '+k+' = '+JSON.stringify(p[k])+';'}).join('\\n')\" > docs/lib-meta.js",
+    "build:web": "node .github/agentic-lib/scripts/build-web.cjs",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
     "test:behaviour": "npm run build:web && npx playwright test --config playwright.config.js",
@@ -17,7 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.2.10"
+    "@xn-intenton-z2a/agentic-lib": "^7.2.12"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",

@@ -2,15 +2,12 @@
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-init.yml
 #
-# Self-contained init: update agentic-lib, purge, push to main [skip ci].
-# Does NOT create a PR. Does NOT trigger any other workflow.
-# Closes hanging init PRs before running.
-#
-# In agentic-lib: schedule trigger is commented out.
-# During init:
+# Init: delegates to agentic-lib-update.yml for the update step, then
+# optionally reseeds or purges user content and configures schedule/model.
+# Commits and pushes to main [skip ci].
 
 name: agentic-lib-init
-run-name: "agentic-lib-init [${{ github.ref_name }}]"
+run-name: "agentic-lib-init ${{ inputs.mode || 'update' }} [${{ github.ref_name }}]"
 
 on:
   workflow_call:
@@ -120,49 +117,27 @@ on:
 permissions: write-all
 
 jobs:
-  params:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Normalise params
-        id: normalise
-        shell: bash
-        run: |
-          MODE='${{ inputs.mode }}'
-          echo "mode=${MODE:-update}" >> $GITHUB_OUTPUT
-          DRY_RUN='${{ inputs.dry-run }}'
-          echo "dry-run=${DRY_RUN:-false}" >> $GITHUB_OUTPUT
-          MISSION_SEED='${{ inputs.mission-seed }}'
-          echo "mission-seed=${MISSION_SEED:-hamming-distance}" >> $GITHUB_OUTPUT
-          MISSION_TEXT='${{ inputs.mission-text }}'
-          echo "mission-text=${MISSION_TEXT}" >> $GITHUB_OUTPUT
-          SCHEDULE='${{ inputs.schedule }}'
-          echo "schedule=${SCHEDULE}" >> $GITHUB_OUTPUT
-          MODEL='${{ inputs.model }}'
-          echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
-          PROFILE='${{ inputs.profile }}'
-          echo "profile=${PROFILE}" >> $GITHUB_OUTPUT
-    outputs:
-      mode: ${{ steps.normalise.outputs.mode }}
-      dry-run: ${{ steps.normalise.outputs.dry-run }}
-      mission-seed: ${{ steps.normalise.outputs.mission-seed }}
-      mission-text: ${{ steps.normalise.outputs.mission-text }}
-      schedule: ${{ steps.normalise.outputs.schedule }}
-      model: ${{ steps.normalise.outputs.model }}
-      profile: ${{ steps.normalise.outputs.profile }}
+  # Step 1: Update agentic-lib and infrastructure (commits to main)
+  update:
+    uses: ./.github/workflows/agentic-lib-update.yml
+    with:
+      dry-run: ${{ inputs.dry-run || 'false' }}
+    secrets: inherit
 
+  # Step 2: Reseed/purge and configure (only if mode != update)
   init:
-    needs: params
+    needs: update
+    if: inputs.mode == 'reseed' || inputs.mode == 'purge'
     runs-on: ubuntu-latest
     env:
-      INIT_MODE: ${{ needs.params.outputs.mode }}
-      INIT_DRY_RUN: ${{ needs.params.outputs.dry-run }}
-      INIT_MISSION_SEED: ${{ needs.params.outputs.mission-seed }}
-      INIT_MISSION_TEXT: ${{ needs.params.outputs.mission-text }}
+      INIT_MODE: ${{ inputs.mode }}
+      INIT_MISSION_SEED: ${{ inputs.mission-seed || 'hamming-distance' }}
+      INIT_MISSION_TEXT: ${{ inputs.mission-text }}
     steps:
       - uses: actions/checkout@v6
-        if: needs.params.outputs.dry-run == 'true'
+        if: inputs.dry-run == 'true' || inputs.dry-run == true
       - uses: actions/checkout@v6
-        if: needs.params.outputs.dry-run != 'true'
+        if: inputs.dry-run != 'true' && inputs.dry-run != true
         with:
           ref: main
           token: ${{ secrets.WORKFLOW_TOKEN }}
@@ -172,11 +147,10 @@ jobs:
           node-version: "24"
 
       - name: Close hanging init PRs
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.INIT_MODE == 'purge' && needs.params.outputs.dry-run != 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.INIT_MODE == 'purge' && inputs.dry-run != 'true' && inputs.dry-run != true
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          # Close any open PRs from previous init runs
           gh pr list --state open --json number,headRefName \
             --jq '.[] | select(.headRefName | startswith("agentic-lib-init-")) | .number' \
             | while read -r pr_num; do
@@ -184,18 +158,15 @@ jobs:
                 gh pr close "$pr_num" --delete-branch || true
               done
 
-      - name: Update agentic-lib to latest
-        run: npm update @xn-intenton-z2a/agentic-lib
-
-      - name: Run init
+      - name: Run init (reseed/purge)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           FLAGS="init"
           if [ "$INIT_MODE" = "reseed" ]; then FLAGS="$FLAGS --reseed"; fi
           if [ "$INIT_MODE" = "purge" ]; then FLAGS="$FLAGS --purge --mission $INIT_MISSION_SEED"; fi
-          if [ "$INIT_DRY_RUN" = "true" ]; then FLAGS="$FLAGS --dry-run"; fi
-          # Use local CLI if available (agentic-lib dev), otherwise npx
+          DRY_RUN='${{ inputs.dry-run }}'
+          if [ "$DRY_RUN" = "true" ]; then FLAGS="$FLAGS --dry-run"; fi
           if [ -f "bin/agentic-lib.js" ]; then
             node bin/agentic-lib.js $FLAGS
           else
@@ -203,7 +174,7 @@ jobs:
           fi
 
       - name: Write mission text (if provided, overrides seed)
-        if: env.INIT_MISSION_TEXT != '' && needs.params.outputs.dry-run != 'true'
+        if: env.INIT_MISSION_TEXT != '' && inputs.dry-run != 'true' && inputs.dry-run != true
         run: |
           printf '# Mission\n\n%s\n' "$INIT_MISSION_TEXT" > MISSION.md
           echo "Wrote custom mission text to MISSION.md"
@@ -221,18 +192,16 @@ jobs:
       - run: npm test
 
       - name: Update model and profile (if requested)
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true' && (needs.params.outputs.model != '' || needs.params.outputs.profile != '')
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && inputs.dry-run != 'true' && inputs.dry-run != true && (inputs.model != '' || inputs.profile != '')
         uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
-            const model = '${{ needs.params.outputs.model }}';
-            const profile = '${{ needs.params.outputs.profile }}';
+            const model = '${{ inputs.model }}';
+            const profile = '${{ inputs.profile }}';
             const tomlPath = 'agentic-lib.toml';
             if (!fs.existsSync(tomlPath)) return;
             let toml = fs.readFileSync(tomlPath, 'utf8');
-            // Extract the [tuning] section, then replace within it.
-            // Previous regex [^\[]*? failed when comments contained '[' characters.
             const tuningSectionRegex = /(\[tuning\])([\s\S]*?)(?=\n\[|$)/;
             const tuningMatch = toml.match(tuningSectionRegex);
             if (tuningMatch) {
@@ -256,13 +225,13 @@ jobs:
             fs.writeFileSync(tomlPath, toml);
 
       - name: Update schedule (if requested)
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.schedule != '' && needs.params.outputs.dry-run != 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && inputs.schedule != '' && inputs.dry-run != 'true' && inputs.dry-run != true
         uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
-            const frequency = '${{ needs.params.outputs.schedule }}';
-            const model = '${{ needs.params.outputs.model || 'gpt-5-mini' }}';
+            const frequency = '${{ inputs.schedule }}';
+            const model = '${{ inputs.model || 'gpt-5-mini' }}';
             const workflowPath = '.github/workflows/agentic-lib-workflow.yml';
             const tomlPath = 'agentic-lib.toml';
 
@@ -308,7 +277,7 @@ jobs:
             }
 
       - name: Commit and push to main [skip ci]
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && inputs.dry-run != 'true' && inputs.dry-run != true
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
@@ -334,9 +303,8 @@ jobs:
             fi
           done
 
-      # W8: Create initial seed issues after purge so the pipeline has work to do
       - name: Create initial seed issues
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.INIT_MODE == 'purge' && needs.params.outputs.dry-run != 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.INIT_MODE == 'purge' && inputs.dry-run != 'true' && inputs.dry-run != true
         uses: actions/github-script@v8
         with:
           script: |
@@ -345,7 +313,6 @@ jobs:
               ? fs.readFileSync('MISSION.md', 'utf8')
               : '(no MISSION.md found)';
 
-            // Ensure labels exist
             for (const label of ['automated', 'ready']) {
               try {
                 await github.rest.issues.createLabel({
@@ -356,7 +323,6 @@ jobs:
               } catch (e) { /* label already exists */ }
             }
 
-            // W8a: Initial unit tests issue
             const unitTestBody = [
               'Create a unit test file for each of the major features in the mission ',
               'and put a TODO in a trivial empty passing test in each.',
@@ -373,7 +339,6 @@ jobs:
             });
             core.info(`Created issue #${issue1.number}: Initial unit tests`);
 
-            // W8b: Initial web layout issue
             const webLayoutBody = [
               'Create the home page layout to showcase each of the major features in the mission ',
               'and put a TODO in a trivial empty passing test in each.',
