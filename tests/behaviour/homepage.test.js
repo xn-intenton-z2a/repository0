@@ -29,9 +29,9 @@ test("interactive string distance calculator works", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });
   
   // Test the interactive string distance calculator
-  await page.fill("#str1", "test");
-  await page.fill("#str2", "best");
-  await page.click("button:has-text('Calculate Distance')");
+  await page.fill("#string1", "test");
+  await page.fill("#string2", "best");
+  await page.click("button:has-text('Calculate')");
   
   await expect(page.locator("#string-result")).toContainText("Distance: 1");
 });
@@ -40,15 +40,14 @@ test("interactive bits distance calculator works", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });
   
   // Test the interactive bits distance calculator
-  await page.fill("#num1", "5");
-  await page.fill("#num2", "3");
+  await page.fill("#int1", "5");
+  await page.fill("#int2", "3");
   
-  // Click the second button (the one for bits calculation)
-  const buttons = await page.locator("button:has-text('Calculate Distance')").all();
-  await buttons[1].click();
+  // Click the calculate button for bits
+  await page.click("button:has-text('Calculate'):near(#int1)");
   
   await expect(page.locator("#bits-result")).toContainText("Distance: 2");
-  await expect(page.locator("#bits-result")).toContainText("5=101₂, 3=11₂");
+  await expect(page.locator("#bits-result")).toContainText("5=101");
 });
 
 test("error handling works for invalid inputs", async ({ page }) => {

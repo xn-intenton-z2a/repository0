@@ -11,33 +11,49 @@
     - term [ref=e9]: Description
     - definition [ref=e10]: (no description)
   - heading "Library Output" [level=2] [ref=e11]
-  - generic [ref=e12]: "{ \"library\": { \"name\": \"repo\", \"version\": \"0.1.0\", \"description\": \"\" }, \"demonstrations\": { \"hammingDistance(\\\"karolin\\\", \\\"kathrin\\\")\": 3, \"hammingDistanceBits(1, 4)\": 2 } }"
+  - generic [ref=e12]: "{ \"library\": { \"name\": \"repo\", \"version\": \"0.1.0\" }, \"demonstrations\": { \"hammingDistance(\\\"karolin\\\", \\\"kathrin\\\")\": 3, \"hammingDistanceBits(1, 4)\": 2 } }"
   - generic [ref=e13]:
     - heading "String Hamming Distance" [level=3] [ref=e14]
     - paragraph [ref=e15]: Computes the number of positions where characters differ between two equal-length strings.
     - generic [ref=e16]:
       - strong [ref=e17]: "Example:"
       - text: hammingDistance("karolin", "kathrin")
-      - text: "Result: 3 (positions differ: k≠k, o≠t, l≠h)"
+      - text: "Result: 3"
     - generic [ref=e18]:
-      - textbox "First string" [ref=e19]: hello
-      - textbox "Second string" [ref=e20]: world
-      - button "Calculate Distance" [ref=e21] [cursor=pointer]
+      - textbox "First string" [ref=e19]: karolin
+      - textbox "Second string" [ref=e20]: kathrin
+      - button "Calculate" [ref=e21] [cursor=pointer]
   - generic [ref=e22]:
     - heading "Bit Hamming Distance" [level=3] [ref=e23]
     - paragraph [ref=e24]: Computes the number of differing bits between two non-negative integers.
     - generic [ref=e25]:
       - strong [ref=e26]: "Example:"
       - text: hammingDistanceBits(1, 4)
-      - text: "Result: 2 (1=001₂, 4=100₂, differ in 2 positions)"
+      - text: "Result: 2 (1=001₂, 4=100₂)"
     - generic [ref=e27]:
       - spinbutton [ref=e28]: "1"
       - spinbutton [ref=e29]: "4"
-      - button "Calculate Distance" [ref=e30] [cursor=pointer]
-  - heading "About" [level=2] [ref=e31]
-  - paragraph [ref=e32]:
+      - button "Calculate" [ref=e30] [cursor=pointer]
+  - heading "Features" [level=2] [ref=e31]
+  - generic [ref=e32]:
+    - generic [ref=e33]:
+      - heading "String Hamming Distance" [level=4] [ref=e34]
+      - paragraph [ref=e35]: Compare two equal-length strings and count character differences.
+      - generic [ref=e36]: hammingDistance("karolin", "kathrin")
+    - generic [ref=e37]:
+      - heading "Bits Hamming Distance" [level=4] [ref=e38]
+      - paragraph [ref=e39]: Count differing bits between non-negative integers.
+      - generic [ref=e40]: hammingDistanceBits(1, 4)
+    - generic [ref=e41]:
+      - heading "Input Validation" [level=4] [ref=e42]
+      - paragraph [ref=e43]: Type and range checks with clear error messages.
+    - generic [ref=e44]:
+      - heading "Unicode Support" [level=4] [ref=e45]
+      - paragraph [ref=e46]: Compares Unicode code points, handling emoji and surrogate pairs correctly.
+  - heading "About" [level=2] [ref=e47]
+  - paragraph [ref=e48]:
     - text: This website demonstrates the Hamming distance library. See
-    - link "the repository" [ref=e33] [cursor=pointer]:
+    - link "the repository" [ref=e49] [cursor=pointer]:
       - /url: https://github.com/xn-intenton-z2a/repository0
     - text: for source code and mission details.
 ```
