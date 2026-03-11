@@ -1,7 +1,7 @@
 {
   "name": "repo",
   "version": "0.1.0",
-  "description": "",
+  "description": "A JavaScript library for Hamming distance calculations",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {

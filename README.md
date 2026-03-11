@@ -1,8 +1,176 @@
-# repo
+# Hamming Distance Library
 
-This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests on a schedule.
+A JavaScript library for calculating Hamming distances between strings and integers.
 
-## Getting Started
+## Installation
+
+```bash
+npm install @xn-intenton-z2a/repository0
+```
+
+## Usage
+
+### String Hamming Distance
+
+Calculate the Hamming distance between two strings of equal length:
+
+```javascript
+import { hammingDistance } from '@xn-intenton-z2a/repository0';
+
+// Basic usage
+console.log(hammingDistance('karolin', 'kathrin')); // → 3
+
+// Empty strings
+console.log(hammingDistance('', '')); // → 0
+
+// Identical strings
+console.log(hammingDistance('hello', 'hello')); // → 0
+
+// Unicode support
+console.log(hammingDistance('café', 'care')); // → 2
+console.log(hammingDistance('😀😁', '😀😂')); // → 1
+```
+
+### Bit Hamming Distance
+
+Calculate the Hamming distance between two non-negative integers:
+
+```javascript
+import { hammingDistanceBits } from '@xn-intenton-z2a/repository0';
+
+// Basic usage
+console.log(hammingDistanceBits(1, 4)); // → 2 (binary: 001 vs 100)
+
+// Same numbers
+console.log(hammingDistanceBits(0, 0)); // → 0
+
+// Larger numbers
+console.log(hammingDistanceBits(15, 0)); // → 4 (binary: 1111 vs 0000)
+```
+
+### Library Identity
+
+Get information about the library:
+
+```javascript
+import { getIdentity, name, version } from '@xn-intenton-z2a/repository0';
+
+console.log(name);         // Library name
+console.log(version);      // Library version
+console.log(getIdentity()); // Complete identity object
+```
+
+## API Reference
+
+### `hammingDistance(a, b)`
+
+Computes the Hamming distance between two strings.
+
+**Parameters:**
+- `a` (string): First string
+- `b` (string): Second string
+
+**Returns:** `number` - The number of positions where characters differ
+
+**Throws:**
+- `TypeError`: If either argument is not a string
+- `RangeError`: If strings have different lengths
+
+**Features:**
+- Unicode support (compares code points, not UTF-16 code units)
+- Handles emojis and complex characters correctly
+- Zero-length string support
+
+### `hammingDistanceBits(x, y)`
+
+Computes the Hamming distance between two integers.
+
+**Parameters:**
+- `x` (number): First non-negative integer
+- `y` (number): Second non-negative integer
+
+**Returns:** `number` - The number of differing bits
+
+**Throws:**
+- `TypeError`: If either argument is not an integer
+- `RangeError`: If either argument is negative or not a safe integer
+
+**Features:**
+- Works with integers up to `Number.MAX_SAFE_INTEGER`
+- Efficient bitwise implementation
+- Handles zero and large numbers correctly
+
+## Error Handling
+
+All functions provide detailed error messages:
+
+```javascript
+try {
+  hammingDistance('abc', 'abcd');
+} catch (error) {
+  console.log(error.message); // "Strings must have equal length"
+}
+
+try {
+  hammingDistanceBits(-1, 5);
+} catch (error) {
+  console.log(error.message); // "First argument must be non-negative"
+}
+```
+
+## Web Demo
+
+Visit the [interactive demo](https://xn-intenton-z2a.github.io/repository0/) to try the functions in your browser.
+
+## Examples
+
+### Real-world Applications
+
+**DNA Sequence Comparison:**
+```javascript
+const sequence1 = 'ATCGATCG';
+const sequence2 = 'ATCAATCG';
+console.log(hammingDistance(sequence1, sequence2)); // → 1
+```
+
+**Error Detection in Data Transmission:**
+```javascript
+const original = 0b11010110;
+const received = 0b11110110;
+console.log(hammingDistanceBits(original, received)); // → 1
+```
+
+**Password Similarity:**
+```javascript
+function passwordSimilarity(pwd1, pwd2) {
+  if (pwd1.length !== pwd2.length) return 'Different lengths';
+  const distance = hammingDistance(pwd1, pwd2);
+  return `${distance} character(s) different`;
+}
+```
+
+## Development
+
+```bash
+# Install dependencies
+npm ci
+
+# Run tests
+npm test
+
+# Run behavior tests
+npm run test:behaviour
+
+# Build web demo
+npm run build:web
+
+# Start local server
+npm start
+```
+
+## License
+
+MIT
 
 1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
 2. **Configure GitHub** — see [Setup](#setup) below
