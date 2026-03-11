@@ -2,11 +2,11 @@
 
 # Summary
 
-Provide the core Hamming-distance library API as two named exports from src/lib/main.js: hammingDistance and hammingDistanceBits. The feature specifies strict, testable input validation, correct Unicode code-point handling, BigInt-safe bit counting, and comprehensive unit tests and README documentation so users and automated tests can rely on exact behaviour.
+Provide the canonical Hamming-distance library API as a single, authoritative feature specification in src/lib/main.js: export hammingDistance, hammingDistanceBits, and a small, well-tested popcount helper for BigInt values. The feature specifies strict, testable input validation, correct Unicode code-point handling, BigInt-safe bit counting, an optional normalization option for strings, and comprehensive unit tests and README documentation so users and automated tests can rely on exact behaviour.
 
 # Motivation
 
-Ship a small, dependency-free JavaScript utility that correctly computes Hamming distances for Unicode strings (by code point) and for non-negative integers (by differing bits). This core feature is the library's primary value and underpins the CLI, web demo, and TypeScript declarations already described elsewhere.
+Ship a tiny, dependency-free JavaScript utility that correctly computes Hamming distances for Unicode strings (by code point) and for non-negative integers (by differing bits), and expose a reusable popcount helper for BigInt-based algorithms. Consolidating the core behaviour, error messages, and tests into one feature reduces duplication, makes the public API explicit, and supports the web demo and CLI features.
 
 # Specification
 
@@ -14,80 +14,83 @@ Ship a small, dependency-free JavaScript utility that correctly computes Hamming
    - Export named functions from src/lib/main.js:
      - hammingDistance(a, b, options?)
      - hammingDistanceBits(x, y)
-   - Both functions must be synchronous and pure.
+     - popcount(value)
+   - All functions are synchronous, pure, and use no external dependencies.
 
 2. hammingDistance(a, b, options?)
    - Signature:
      - hammingDistance(a: string, b: string, options?: { normalize?: false | "NFC" | "NFD" }) => number
-   - Validation rules (throwing errors):
+   - Validation (throwing errors):
      - If typeof a !== 'string' or typeof b !== 'string' throw TypeError containing the word string.
      - If options is provided but is not an object (or is null) throw TypeError mentioning options.
-     - If options.normalize is present and not one of false, "NFC", "NFD", throw TypeError mentioning normalize.
+     - If options.normalize is present and not one of false, "NFC", "NFD" throw TypeError mentioning normalize.
    - Unicode handling and length check:
-     - If options.normalize is "NFC" or "NFD", call String.prototype.normalize on both inputs with that form before iteration.
-     - Always iterate code points using Array.from (or [...str]) so surrogate pairs and astral characters are treated as single code points.
-     - If the resulting code-point arrays have different lengths, throw RangeError whose message mentions length or equal.
+     - If options.normalize is "NFC" or "NFD", call String.prototype.normalize on both inputs with that form prior to comparison.
+     - Iterate code points using Array.from or the string iterator so surrogate pairs and astral characters are treated as single code points.
+     - If the resulting code-point sequences have different lengths, throw RangeError whose message mentions length or equal.
    - Behaviour:
      - Compare code points pairwise and return a non-negative integer count of differing positions.
-     - Empty strings are valid and comparing two empty strings returns 0.
-   - Deterministic error messages: keep messages concise and include the keywords used above to make unit tests robust.
+     - Empty strings are valid; comparing two empty strings returns 0.
+   - Deterministic messages: keep messages concise and include canonical keywords (string, options, normalize, length) so unit tests can match substrings reliably.
 
 3. hammingDistanceBits(x, y)
    - Signature:
-     - hammingDistanceBits(x: number | BigInt, y: number | BigInt) => number
-   - Validation rules (throwing errors):
+     - hammingDistanceBits(x: number | bigint, y: number | bigint) => number
+   - Validation (throwing errors):
      - If an argument is neither typeof 'number' nor typeof 'bigint', throw TypeError mentioning number or integer.
      - If an argument is a Number but not Number.isInteger(arg), throw TypeError.
      - If any numeric input is negative (x < 0 or x < 0n), throw RangeError mentioning non-negative or negative.
    - Behaviour:
      - Convert Number inputs to BigInt before bitwise operations: bx = BigInt(x), by = BigInt(y).
-     - Compute v = bx ^ by and count set bits using an efficient algorithm (prefer Kernighan's loop: while (v) { v &= v - 1n; count++; }).
-     - Return the bit count as a standard JavaScript Number (safe for realistic sizes used in tests).
+     - Compute v = bx ^ by and return popcount(v) as a JavaScript Number.
+     - Implementation may use Kernighan's algorithm or the exported popcount helper for counting set bits.
 
-4. Errors and messages
-   - Use TypeError for invalid types and malformed options, RangeError for unequal-length strings and negative integers.
-   - Messages should include one of the canonical keywords: string, options, normalize, length, non-negative to make tests stable.
+4. popcount(value)
+   - Signature:
+     - popcount(value: bigint) => number
+   - Validation (throwing errors):
+     - If value is not typeof 'bigint', throw TypeError mentioning bigint or number.
+     - If value < 0n, throw RangeError mentioning non-negative or negative.
+   - Behaviour:
+     - Return a JavaScript Number equal to the number of set bits in value's binary representation.
+     - Implementation: use a precomputed 8-bit lookup table (length 256) and iterate over 8-bit chunks: while (v !== 0n) { count += table[Number(v & 0xffn)]; v >>= 8n; }
+     - Keep a clear commented fallback (Kernighan loop) for maintainers, but use the LUT for performance in the exported helper.
 
-5. Tests and documentation
-   - Unit tests to add/ensure in tests/unit/:
-     - tests/unit/main.test.js: import both functions and verify normal behaviour, edge cases, and error cases.
-     - tests/unit/hamming.test.js: focused cases: Unicode astral characters (emoji, surrogate pairs), normalization examples (a\u0000 vs a + combining marks), empty strings, and large BigInt arguments.
-   - README.md: update API section with signatures, validation rules, and short usage examples for both string and bit modes including normalization usage.
-   - Ensure package scripts allow running unit tests with npm test and building the demo with npm run build:web.
+5. Errors and messages
+   - TypeError for invalid types and malformed options; RangeError for unequal-length strings and negative integers.
+   - Messages MUST include one of the canonical keywords: string, options, normalize, length, non-negative so tests can match reliably.
+
+6. Tests and documentation
+   - Unit tests (tests/unit/) to cover:
+     - hammingDistance correct results: examples including karolin vs kathrin, empty strings, surrogate-pair characters, combining marks and normalization behaviour (a\u0301 vs á), and unequal-length error cases.
+     - hammingDistanceBits correctness: Number and BigInt inputs, zeros, large BigInt values, and negative / non-integer error cases.
+     - popcount correctness and parity: popcount(0n) === 0, popcount(1n) === 1, popcount(0xffn) === 8, popcount((1n << 100n) - 1n) === 100; error cases for wrong type and negative values; cross-check popcount(bx ^ by) === hammingDistanceBits(bx, by) for representative pairs.
+   - README.md: update API section with signatures, validation rules, and short usage examples for hammingDistance (including normalize option), hammingDistanceBits, and popcount. Keep examples short and one-line where possible to match repo style.
+   - CLI and web demo examples should call the library functions rather than reimplementing validation.
 
 # Acceptance Criteria
 
 - hammingDistance("karolin", "kathrin") returns 3
 - hammingDistance("", "") returns 0
-- hammingDistance("a", "bb") throws RangeError
-- hammingDistance("a\u000301", "á") returns 1 when no normalization is applied and 0 when options.normalize is "NFC" (demonstrates normalization behaviour)
+- hammingDistance("a", "bb") throws RangeError (message contains length or equal)
+- hammingDistance("a\u000301", "á") returns 1 without normalization and 0 with options.normalize set to "NFC"
+- hammingDistance treats surrogate pairs and astral characters as single code points (e.g., "𐐷")
 - hammingDistanceBits(1, 4) returns 2
 - hammingDistanceBits(0, 0) returns 0
-- hammingDistance treats surrogate pairs and astral characters as single code points (e.g., "𐐷" compared correctly)
-- TypeError is thrown for invalid argument types and invalid options (messages include keywords)
-- RangeError is thrown for unequal-length strings and negative integers
+- hammingDistanceBits throws TypeError for non-number/non-bigint, TypeError for non-integer Numbers, and RangeError for negative values (message contains non-negative)
+- popcount(0n) === 0, popcount(0xffn) === 8, popcount((1n << 100n) - 1n) === 100; passing a Number to popcount throws TypeError; negative BigInt throws RangeError
 - Unit tests in tests/unit/ cover the above cases and pass locally
-- README contains API docs and examples demonstrating normalization and bits usage
-
-# Implementation notes
-
-- Implementation should prefer clarity and correctness: use Array.from for code points and BigInt-based XOR + Kernighan for bit counts.
-- Keep runtime footprint tiny and avoid external dependencies.
-- Keep error message texts stable and brief so tests can match substrings (do not rely on full sentence equality).
+- README contains API docs and concise usage examples for hammingDistance, hammingDistanceBits, and popcount
 
 # Files touched (recommended)
 
-- src/lib/main.js — implement and export both functions and CLI entrypoints if present
-- src/lib/main.d.ts — optional TypeScript declaration (see TYPESCRIPT_TYPES feature)
-- tests/unit/main.test.js and tests/unit/hamming.test.js — add/ensure unit tests
+- src/lib/main.js — implement and export hammingDistance, hammingDistanceBits, and popcount; include CLI entrypoint behavior if present
+- tests/unit/main.test.js and tests/unit/hamming.test.js — ensure existing tests align with the deterministic messages and add popcount.test.js
 - README.md — update API and examples
-
-# Related features
-
-- HAMMING_CLI.md — thin CLI wrapper reusing the same validation rules
-- NORMALIZATION_OPTION.md — web demo and examples showing normalization effects
-- TYPESCRIPT_TYPES.md — TypeScript declaration support and verification script
+- docs/lib-browser.js (via build:web) will continue to be generated from the authoritative implementation
 
 # Notes
 
-This feature is the canonical core and must preserve existing behaviours relied upon by the other features; any changes should keep compatibility with the acceptance criteria above.
+- Keep implementation clear: use Array.from for code-points and BigInt-based XOR combined with the LUT popcount for performance and determinism.
+- Keep runtime footprint tiny and avoid external dependencies.
+- Preserve existing behaviour relied upon by other features; do not change function signatures or error classes.

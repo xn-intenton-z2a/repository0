@@ -16,6 +16,20 @@ TABLE OF CONTENTS
   3.3 Popcount implementations (signatures)
   3.4 JavaScript bitwise semantics and conversion rules
 4. Detailed Digest and Provenance
+
+Detailed digest (sources and retrieval date):
+- Source: https://en.wikipedia.org/wiki/Hamming_distance — key definitions, metric properties, binary XOR relation, error-correction implications, Python/C examples, and complexity notes. Retrieved: 2026-03-11.
+- Source: https://en.wikipedia.org/wiki/Hamming_weight — popcount definitions, CPU instruction support (POPCNT/VCNT/CPOP), efficient algorithms (tree-add, masks m1..h01), lookup table method, Wegner algorithm, Harley–Seal and Muła vectorized methods. Retrieved: 2026-03-11.
+- Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt — exact semantics of String.prototype.codePointAt(index): returns code point integer, returns combined code point for leading surrogate pairs, returns trailing surrogate code unit if index is trailing surrogate, undefined out-of-range, and recommendation to iterate with for...of or String[Symbol.iterator] or Array.from to obtain code points. Retrieved: 2026-03-11.
+- Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/%40%40iterator — Specification: String iterator yields Unicode code points as strings; surrogate pairs preserved; grapheme clusters may be split; examples showing emoji and ZWJ splitting; retrieved: 2026-03-11.
+- Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators — JavaScript bitwise operators coerce operands to 32-bit signed integers, available operators (&, |, ^, ~, <<, >>, >>>), and specification links. Retrieved: 2026-03-11.
+- npm package https://www.npmjs.com/package/hamming-distance returned 403 on fetch; repository's docs and code in this project provide canonical JS implementations. Retrieval attempt: 2026-03-11; status: 403 forbidden.
+
+5. Attribution and crawl data
+- Retrieval date: 2026-03-11
+- Sources fetched: 5 URLs (one returned 403). Total bytes retrieved (approx): 76 KB.
+
+
 5. Attribution and Crawl Data
 
 
