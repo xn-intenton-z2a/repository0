@@ -94,6 +94,19 @@ ECMAScript 2026 String.prototype.codePointAt performs these steps:
 
 Returns non-negative integral Number less than or equal to 0x10FFFF that is the numeric value of the UTF-16 encoded code point starting at index pos. If no valid UTF-16 surrogate pair begins at pos, returns the code unit at pos.
 
+### String.prototype.charCodeAt Specification
+
+ECMAScript 2026 String.prototype.charCodeAt performs these steps:
+1. Let O be the this value
+2. Perform ? RequireObjectCoercible(O)
+3. Let S be ? ToString(O)  
+4. Let position be ? ToIntegerOrInfinity(pos)
+5. Let size be the length of S
+6. If position < 0 or position >= size, return NaN
+7. Return the Number value for the numeric value of the code unit at index position within String S
+
+Returns integer between 0 and 65535 representing UTF-16 code unit value at specified index. Returns NaN if index is out of range.
+
 ### Surrogate Pair Conversion Algorithms
 
 UTF-16 to Unicode conversion constants:
@@ -126,7 +139,7 @@ Methods are intentionally generic and do not require this value to be a String o
 
 ## Detailed Digest
 
-Technical documentation extracted from MDN JavaScript String reference and ECMAScript specification covering character access methods, Unicode handling, and UTF-16 encoding specifics. Retrieved 2026-03-10.
+Technical documentation extracted from MDN JavaScript String reference and ECMAScript specification covering character access methods, Unicode handling, and UTF-16 encoding specifics. Retrieved 2026-03-11.
 
 Content provides comprehensive guidance for string character manipulation in JavaScript, emphasizing proper Unicode support and surrogate pair handling for international text processing applications.
 
@@ -137,5 +150,5 @@ Sources:
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt  
 - https://tc39.es/ecma262/multipage/text-processing.html#sec-string.prototype.codepointat
 
-Data size: 35000 characters extracted
-Retrieved: 2026-03-10
+Data size: 40000 characters extracted
+Retrieved: 2026-03-11

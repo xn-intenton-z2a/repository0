@@ -15,9 +15,11 @@ Test suites should cover all function paths, boundary conditions, error scenario
 - Error condition testing verifies all exception scenarios
 - Test names clearly describe what is being tested
 - Test assertions provide meaningful failure messages
-- Code coverage reports show comprehensive coverage
+- Code coverage reports show comprehensive coverage (aim for >95%)
 - Tests run quickly and reliably in CI environment
-- Performance tests verify acceptable execution time for large inputs
+- Behavior tests verify web interface functionality end-to-end
+- Test organization separates concerns (unit, behavior, performance)
+- All tests pass consistently across different environments
 
 ## Testing Strategy
 
