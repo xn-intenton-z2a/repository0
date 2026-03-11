@@ -145,8 +145,14 @@ Retrieved sources (status):
 - MDN: Bitwise operators — fetched, content available (truncated warning present).
 - npmjs: hamming-distance — fetch failed (HTTP 403), not available.
 
-Data size obtained during crawling: exact byte counts unavailable due to fetch tool truncation and response metadata limits; callers should re-run fetch for full page snapshots if exact byte counts are required. The corpus used to create this document contains the portions of the pages returned by the fetch tool on 2026-03-11; where the fetch tool signalled truncation the full page content was not included.
+Supplementary implementation-specific notes extracted from MDN (exact technical behaviour to apply in implementations):
+- JavaScript Number bitwise operators (|, &, ^, ~, <<, >>, >>>) coerce operands to 32-bit signed integers (two's complement) before operation and return a Number in the signed 32-bit range. Use this behaviour only for values that fit in 32-bit signed range; otherwise prefer BigInt-based operations or explicit masking to avoid sign-extension surprises.
+- The unsigned right shift operator >>> performs a zero-fill right shift on 32-bit Number operands and is not defined for BigInt; do not use >>> with BigInt.
+- BigInt bitwise operators (|, &, ^, ~, <<, >>) exist and operate on BigInt operands, returning BigInt results; these operate on infinite-precision two's-complement semantics of BigInt values. Shifts on BigInt are arithmetic shifts for >> and left shifts for <<; >>> is not supported for BigInt.
+- String iteration: String.prototype[Symbol.iterator]() yields Unicode code point strings; surrogate pairs are preserved as single yielded elements, but grapheme clusters (combined sequences using ZWJ or combining marks) are split. Use Intl.Segmenter or a grapheme library when grapheme-aware segmentation is required.
+- String.prototype.codePointAt(index) returns the full Unicode code point when index points to a leading surrogate; when index points to a trailing surrogate it returns the trailing surrogate code unit only. Prefer iterators or Array.from to avoid indexing into surrogate pairs.
 
+Data size obtained during crawling: exact byte counts unavailable due to fetch tool truncation and response metadata limits; callers should re-run fetch for full page snapshots if exact byte counts are required. The corpus used to create this document contains the portions of the pages returned by the fetch tool on 2026-03-11; where the fetch tool signalled truncation the full page content was not included. npmjs page returned HTTP 403 during automated fetch and therefore its content was not captured; consult the package registry manually if that source is required.
 
 ---
 
