@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
 // src/lib/main.js
 
 import { createRequire } from "module";
@@ -19,56 +18,61 @@ export function getIdentity() {
 
 /**
  * Compute the Hamming distance between two strings of equal length.
- * @param {string} a - First string
- * @param {string} b - Second string  
- * @returns {number} Number of positions where characters differ
+ * Compares Unicode code points (Array.from) rather than UTF-16 code units.
+ * @param {string} a
+ * @param {string} b
+ * @returns {number}
  * @throws {TypeError} If arguments are not strings
- * @throws {RangeError} If strings have different lengths
+ * @throws {RangeError} If strings have different lengths (in code points)
  */
 export function hammingDistance(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') {
     throw new TypeError('Both arguments must be strings');
   }
-  
-  if (a.length !== b.length) {
+
+  const aPoints = Array.from(a);
+  const bPoints = Array.from(b);
+
+  if (aPoints.length !== bPoints.length) {
     throw new RangeError('Strings must have equal length');
   }
-  
+
   let distance = 0;
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) {
-      distance++;
-    }
+  for (let i = 0; i < aPoints.length; i++) {
+    if (aPoints[i] !== bPoints[i]) distance++;
   }
-  
+
   return distance;
 }
 
 /**
  * Compute the Hamming distance between two non-negative integers.
- * @param {number} x - First integer
- * @param {number} y - Second integer
- * @returns {number} Number of differing bits
- * @throws {TypeError} If arguments are not integers
+ * Accepts Number (integer) or BigInt values. Uses BigInt internally for bit ops.
+ * @param {number|bigint} x
+ * @param {number|bigint} y
+ * @returns {number}
+ * @throws {TypeError} If arguments are not integers (Number or BigInt)
  * @throws {RangeError} If arguments are negative
  */
 export function hammingDistanceBits(x, y) {
-  if (!Number.isInteger(x) || !Number.isInteger(y)) {
-    throw new TypeError('Both arguments must be integers');
+  const isIntegerLike = (v) => (typeof v === 'number' && Number.isInteger(v)) || typeof v === 'bigint';
+  if (!isIntegerLike(x) || !isIntegerLike(y)) {
+    throw new TypeError('Both arguments must be integers (Number or BigInt)');
   }
-  
-  if (x < 0 || y < 0) {
+
+  const bx = typeof x === 'bigint' ? x : BigInt(x);
+  const by = typeof y === 'bigint' ? y : BigInt(y);
+
+  if (bx < 0n || by < 0n) {
     throw new RangeError('Arguments must be non-negative');
   }
-  
-  let xor = x ^ y;
+
+  let xor = bx ^ by;
   let distance = 0;
-  
-  while (xor > 0) {
-    distance += xor & 1;
-    xor >>>= 1;
+  while (xor) {
+    distance += Number(xor & 1n);
+    xor >>= 1n;
   }
-  
   return distance;
 }
 
