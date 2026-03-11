@@ -54,6 +54,15 @@ export function hammingDistanceBits(x, y) {
     throw new TypeError("y must be a number or bigint");
   }
 
+  if (!isBigIntX) {
+    if (!Number.isInteger(x)) throw new TypeError("x must be an integer");
+    if (x < 0) throw new RangeError("Integers must be non-negative");
+  }
+  if (!isBigIntY) {
+    if (!Number.isInteger(y)) throw new TypeError("y must be an integer");
+    if (y < 0) throw new RangeError("Integers must be non-negative");
+  }
+
   const bx = isBigIntX ? x : BigInt(x);
   const by = isBigIntY ? y : BigInt(y);
 
