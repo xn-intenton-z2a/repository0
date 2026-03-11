@@ -1,0 +1,40 @@
+TABLE OF CONTENTS
+1. Signature and return value
+2. Iteration semantics and Unicode handling
+3. Examples and manual iterator usage
+4. Interaction with grapheme clusters and ZWJ sequences
+5. Specification links
+6. Supplementary details
+7. Reference details
+
+1. Signature and return value
+string[Symbol.iterator]() -> iterable iterator object
+Return: a new iterator object conforming to the iterator protocol; next() returns { value: string, done: boolean } where value is a string representing one Unicode code point.
+
+2. Iteration semantics and Unicode handling
+- Strings are iterated by Unicode code points. Surrogate pairs (UTF-16 high+low) are preserved as a single element yielded by the iterator.
+- The iterator yields code point strings; it does not preserve grapheme clusters. Sequences joined by zero-width joiner (ZWJ) or combining marks will be split across yielded code points.
+
+3. Examples and manual iterator usage
+- Common usage: for (const ch of str) { /* ch is a string containing a single code point */ }
+- Manual usage: const it = str[Symbol.iterator](); it.next() -> { value: 'A', done: false } etc. This enables manual control when parsing or scanning by code points.
+
+4. Interaction with grapheme clusters and ZWJ sequences
+- Note: emoji sequences like "👨‍👦" may yield separate elements for base emoji and ZWJ and constituent emoji: [ '👨', '‍', '👦' ]. Use specialized Unicode grapheme segmentation (Intl.Segmenter or external library) when you need user-perceived characters.
+
+5. Specification links
+- ECMAScript® spec: sec-string.prototype-%symbol.iterator% (text-processing section)
+
+6. Supplementary details
+- Use for...of loops or spread operator to get array of code-point strings: [...str] yields an array of strings, each string being one code point (surrogate pairs combined).
+- This iterator is the reason string is iterable in constructs such as for...of, Array.from(str), and the spread operator.
+
+7. Reference details
+- Signature: String.prototype[Symbol.iterator]() -> Iterator<String>
+- Return value: Iterator that yields strings where each yielded string has length 1 or 2 depending on whether a code point fits in one UTF-16 code unit or uses a surrogate pair; each yielded string represents a Unicode code point.
+
+DETAILED DIGEST
+Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/%40%40iterator
+Retrieved: 2026-03-11
+Data obtained: MDN page content (full within fetch limits).
+Attribution: MDN Web Docs contributors; page last modified July 10, 2025 as noted on MDN.

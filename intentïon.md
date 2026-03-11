@@ -281,3 +281,96 @@ Consolidated Hamming-distance technical material from Wikipedia and MDN into a s
 Maintained library (0 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-11T05:44:15.258Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 62096 (in: 58542, out: 3554)
+**Duration:** 66s (~1.1 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22938656773](https://github.com/xn-intenton-z2a/repository0/actions/runs/22938656773)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 7/32 | 25 remaining |  |
+| max-feature-issues | 2/2 | 0 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 0/32 | 32 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 2 open issue(s) remain. Issues resolved (review or PR merge): 0 (target: >= 3). Dedicated test files: NO (target: YES).
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 2 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 3 | NOT MET |
+| Dedicated test files | NO | YES | NOT MET |
+| Source TODO count | 0 | <= 0 | MET |
+| Transformation budget used | 7/32 | < 32 | OK |
+| Cumulative transforms | 7 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+max-feature-issues at capacity (2/2) — actions will be blocked.
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Added a WEB_DEMO feature spec to provide a minimal interactive examples/hamming-demo.html that demonstrates and verifies the library's Hamming distance behaviours.
+
+Maintained features (3 existing, limit 4)
+
+---
+## maintain-library at 2026-03-11T05:46:45.250Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 275466 (in: 267494, out: 7972)
+**Duration:** 149s (~2.5 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22938656773](https://github.com/xn-intenton-z2a/repository0/actions/runs/22938656773)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 8/32 | 24 remaining |  |
+| max-feature-issues | 2/2 | 0 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 0/32 | 32 remaining |  |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 2 open issue(s) remain. Issues resolved (review or PR merge): 0 (target: >= 3). Dedicated test files: NO (target: YES).
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 2 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 3 | NOT MET |
+| Dedicated test files | NO | YES | NOT MET |
+| Source TODO count | 0 | <= 0 | MET |
+| Transformation budget used | 8/32 | < 32 | OK |
+| Cumulative transforms | 8 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+max-feature-issues at capacity (2/2) — actions will be blocked.
+
+### Narrative
+Created five normalized technical library documents from the fetched MDN and Wikipedia sources to supply direct implementation-ready details for Hamming/popcount and relevant JavaScript string/bitwise APIs.
+
+Maintained library (0 docs, limit 32)
+
+---
