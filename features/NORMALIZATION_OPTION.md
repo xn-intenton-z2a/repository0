@@ -1,63 +1,46 @@
-# NORMALIZATION_OPTION
+# BROWSER_BUILD
 
 ## Summary
 
-Add an optional normalization mode to the hammingDistance API so callers may request Unicode canonicalization before computing Hamming distance. This opt-in feature preserves the original two-argument behaviour when not used and enables canonical equivalence comparison (for example NFC) when requested.
+Provide a small, well-defined browser-friendly build and distribution path for the hamming-distance library so the functions are usable in browser environments, demos, and the docs site. This feature formalises the existing docs/lib-browser.js generation and ensures browser compatibility, minimal API surface, and documentation for running the demo.
 
 ## Motivation
 
-Unicode allows multiple code-point sequences to represent the same user-perceived character (for example a precomposed accented character versus a base character plus combining mark). The library currently compares raw code points; an explicit normalization option improves practical correctness for users who expect canonical equivalence while keeping the default behaviour unchanged for low-level use cases.
+Consumers expect a small, dependency-free browser module for interactive demos and quick in-browser usage. The repository already includes a docs generation step that writes docs/lib-browser.js; this feature formalises tests, docs, and examples that rely on a stable browser build.
 
 ## Specification
 
-1. API
-   - Function signature: hammingDistance(a, b, options)
-   - The third parameter options is optional. When provided it must be an object. Supported property:
-     - normalize: one of false (default), "NFC", or "NFD"
-   - Behaviour when options is omitted or options.normalize is false: exact current behaviour (compare code points without normalization).
+1. Browser module
+   - Provide a browser-compatible ES module at docs/lib-browser.js that exports hammingDistance and hammingDistanceBits with the same validation and behaviour as the Node library.
+   - The browser module must not depend on Node-only APIs and must operate purely in the browser runtime.
 
-2. Behaviour when normalization is requested
-   - If options.normalize is "NFC" or "NFD", call String.prototype.normalize(form) on both a and b before performing code-point splitting and comparison.
-   - After normalization, apply the same validations as before: both inputs must be strings and resulting code-point sequences must have equal lengths; otherwise throw the same error types (TypeError or RangeError).
+2. Build and package script
+   - Ensure npm run build:web writes docs/lib-browser.js (existing package.json script already generates this file). Document the command in README so contributors can reproduce the build locally.
 
-3. Validation rules
-   - If a or b is not a string, throw TypeError mentioning "string".
-   - If options is provided but not an object, throw TypeError.
-   - If options.normalize is provided and is not one of false, "NFC", or "NFD", throw TypeError.
-   - If normalized code-point sequences differ in length, throw RangeError mentioning "length" or "equal".
+3. Demo integration
+   - The examples/hamming-demo.html (existing feature) should import docs/lib-browser.js for the demo UI when served from docs/ or when the user runs npm run start.
 
-4. Design constraints
-   - Do not change existing two-argument behaviour or its error messages beyond adding normalization when requested.
-   - Keep implementation small and dependency-free; use built-in String.prototype.normalize and Array.from for code-point iteration.
+4. Tests
+   - Add a unit test that imports docs/lib-browser.js using Node's ESM loader (or jsdom) to assert the exported functions exist and behave for a small set of acceptance examples (karolin vs kathrin, and 1 vs 4 bits). This ensures the generated browser file is usable programmatically.
 
-## Tests and documentation
-
-- Add unit tests to tests/unit/main.test.js covering:
-  - Comparing precomposed vs combining sequences without normalization (expect non-zero distance)
-  - Same comparison with {normalize: "NFC"} (expect distance 0)
-  - Passing a non-object as options throws TypeError
-  - Passing an invalid normalization value throws TypeError
-  - Existing two-argument behaviour still returns expected results for acceptance examples
-
-- Update README.md: add a short API section showing the options parameter and two examples demonstrating the difference (precomposed vs combining sequences) and the acceptance examples.
+5. Documentation
+   - Update README.md Web demo section to instruct users to run npm run build:web and then open docs/index.html or examples/hamming-demo.html.
 
 ## Acceptance Criteria
 
-- hammingDistance("a\u0301", "á") without options returns a non-zero distance
-- hammingDistance("a\u0301", "á", {normalize: "NFC"}) returns 0
-- Passing a non-object as the third argument throws TypeError
-- Passing invalid normalization value throws TypeError
-- All existing acceptance tests for two-argument calls continue to pass unchanged
+- Running npm run build:web creates docs/lib-browser.js in the docs/ directory
+- docs/lib-browser.js exports functions hammingDistance and hammingDistanceBits usable in a browser environment
+- A unit test exists that imports docs/lib-browser.js (via jsdom or Node ESM) and verifies at least two acceptance examples (string and bits) succeed
+- README contains instructions referencing npm run build:web and where to find docs/lib-browser.js and the examples/hamming-demo.html demo
 
 ## Files to change
 
-- src/lib/main.js: implement optional options argument and normalization behaviour as specified
-- tests/unit/main.test.js: add tests exercising normalization and invalid options
-- README.md: document the new optional parameter and show short examples
+- README.md: add build and browser usage instructions
+- tests/unit/: add a small test that imports docs/lib-browser.js (using jsdom or Node ESM) and verifies exported functions
+- package.json: no behaviour changes required (build:web already exists), but document the command in README
 
 ## Implementation notes
 
-- Use String.prototype.normalize(form) and then Array.from(normalizedString) to create code-point arrays.
-- Perform validation checks after normalization to ensure errors and messages remain consistent with existing rules.
-- Keep the normalization code path small and guarded so the default fast path (no options) is unaffected.
-
+- Reuse the existing docs/lib-browser.js generation present in package.json's build:web script.
+- Keep the browser module small and dependency-free; it should mirror the Node behaviour and error types as closely as possible while remaining browser-safe.
+- Tests should be lightweight and focus on API parity rather than exhaustive coverage.
