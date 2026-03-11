@@ -9,7 +9,8 @@ test("homepage returns 200 and renders", async ({ page }) => {
 
   await expect(page.locator("#lib-name")).toBeVisible({ timeout: 10000 });
   await expect(page.locator("#lib-version")).toBeVisible({ timeout: 10000 });
-  await expect(page.locator("#demo-output")).toBeVisible({ timeout: 10000 });
+  await expect(page.locator("#string-demo")).toBeVisible({ timeout: 10000 });
+  await expect(page.locator("#bit-demo")).toBeVisible({ timeout: 10000 });
 
   await page.screenshot({ path: "SCREENSHOT_INDEX.png", fullPage: true });
 });
