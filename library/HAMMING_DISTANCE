@@ -1,0 +1,209 @@
+HAMMING_DISTANCE
+
+NORMALISED EXTRACT
+
+Table of contents
+1. Definition and formal expression
+2. Integer/binary Hamming distance (XOR + popcount)
+3. Algorithms and complexity (Kernighan's algorithm, popcount intrinsics)
+4. String Hamming distance: code unit vs code point vs grapheme
+5. JavaScript APIs relevant to implementation (signatures and behavior)
+6. Edge cases and pitfalls (length mismatch, surrogate pairs, normalization, numeric limits)
+7. Implementation patterns (exact step-by-step algorithms for JS)
+8. Best practices and troubleshooting steps
+
+Detailed content
+
+1. Definition and formal expression
+- Hamming distance between two equal-length sequences x and y of length n is H(x,y) = sum_{i=0..n-1} [x_i != y_i], i.e., the count of positions at which corresponding symbols differ.
+- For binary strings (bit vectors) a and b the Hamming distance equals the population count (number of 1 bits) of a XOR b.
+- Properties: metric (non-negativity, identity of indiscernibles, symmetry, triangle inequality). Time complexity for direct per-position comparison is O(n).
+
+2. Integer/binary Hamming distance (XOR + popcount)
+- Compute v = x XOR y (bitwise exclusive-or). The Hamming distance is popcount(v), where popcount counts set bits (1s) in v.
+- Popcount via Kernighan's method (loop that clears lowest set bit):
+  - Initialize count = 0
+  - While v != 0: v = v & (v - 1); count = count + 1
+  - Return count
+- Complexity: loop runs once per set bit in v; worst-case O(b) where b = number of bits in representation; average proportional to Hamming distance.
+- Where available, use hardware/popcount intrinsic (e.g., GCC __builtin_popcount / __builtin_popcountll) for constant-time popcount using processor instruction.
+
+3. Algorithms and complexity
+- Per-position string comparison: O(n) time, O(1) extra space.
+- Integer XOR + Kernighan: time O(h) where h is number of differing bits, worst-case O(b).
+- Use fixed-width integer operations where available for predictable cost; for very large integers use big-integer libraries or BigInt and a loop/pairwise chunking approach.
+
+4. String Hamming distance: code unit vs code point vs grapheme
+- UTF-16 representation: JavaScript strings are sequences of UTF-16 code units. length and index-based access operate on UTF-16 code units, not Unicode code points or grapheme clusters.
+- charAt(index) returns exactly one UTF-16 code unit (a string of length 1) or empty string if index out-of-range. It may return a lone surrogate if used inside a surrogate pair.
+- codePointAt(pos) reads a whole Unicode code point starting at pos (surrogate-aware) and returns the numeric code point value.
+- Iterator / spread operator / for...of iterate by Unicode code points: [...str] or for (const ch of str) yields code-point-aware tokens.
+- Grapheme clusters (user-perceived characters) may combine multiple code points (combining marks, emoji ZWJ sequences). Iteration by grapheme clusters requires specialized handling (Intl.Segmenter or external libraries). JavaScript built-ins do not split grapheme clusters automatically.
+- For string Hamming distance, decide the unit explicitly:
+  - unit = 'codeUnit': compare charAt(i) for i in 0..n-1 (fast; n = str.length)
+  - unit = 'codePoint': compare arrays from [...str] or Array.from(str) and require equal codePoint counts
+  - unit = 'grapheme': use Intl.Segmenter (if available) or grapheme-splitter library; equal cluster counts required
+- If strings have unequal lengths in the chosen unit, Hamming distance is undefined; either reject or normalize (pad/truncate) per application rules.
+
+5. JavaScript APIs relevant to implementation (signatures and exact behavior)
+- String.prototype.charAt(index)
+  - Signature: charAt(index?: number) -> string
+  - Parameter: index converted to integer, undefined -> 0
+  - Return: a string containing exactly one UTF-16 code unit; returns empty string when index out of range.
+  - Notes: may return lone surrogates; not surrogate-pair-aware.
+
+- String.prototype.codePointAt(pos)
+  - Signature: codePointAt(pos: number) -> number | undefined
+  - Returns numeric Unicode code point starting at position pos (surrogate-pair-aware). Returns undefined if pos out of range.
+
+- String.prototype.normalize()
+  - Signature: normalize(form?: string) -> string
+  - Behavior: canonical Unicode normalization (NFC/NFD/NFKC/NFKD) used to make visually equivalent sequences comparable.
+
+- String iteration (Symbol.iterator) and spread
+  - [...str] or for (const ch of str) iterate by Unicode code points (surrogate-aware). Use when unit == 'codePoint'.
+
+- Number.prototype.toString(radix?)
+  - Signature: toString(radix?: number) -> string
+  - Parameter: radix integer in 2..36; default 10; throws RangeError if radix <2 or >36.
+  - Behavior: returns textual representation in given base; negative numbers return '-' + positive representation, not two's complement.
+  - Use: (n).toString(2) to get binary string for n (beware Number size/precision limits).
+
+- BigInt and large integers
+  - For integers larger than Number.MAX_SAFE_INTEGER prefer BigInt; use BigInt literals or BigInt() and implement popcount on BigInt with repeated & and >> operations, or split into 32/64-bit chunks.
+
+6. Edge cases and pitfalls
+- Mismatched lengths: Hamming distance is defined only for equal-length sequences. On unequal lengths either throw an error or define a padding policy (explicitly state it).
+- UTF-16 surrogate pairs: charAt and length operate on code units; to compare user-perceived characters use code point iteration or grapheme segmentation.
+- Unicode normalization: visually identical strings may have different code point sequences (composed vs decomposed). Use str.normalize('NFC') (or chosen form) before comparison when normalization is required.
+- Numeric limits in JS: Number is an IEEE-754 double; bitwise operators coerce to 32-bit signed ints before operation. For >32-bit Hamming computations, use BigInt or string-based binary conversions.
+- Negative numbers: Number.toString(2) for negatives yields a prefixed '-' followed by the positive binary digits; do not treat that as two's complement unless explicitly converting to fixed-width two's complement representation.
+- Performance: converting large numeric ranges to binary strings and iterating characters is slower than XOR+popcount on native integers; prefer bitwise Kernighan/popcount when possible.
+
+7. Implementation patterns (explicit, executable algorithm descriptions)
+
+A. Integer Hamming distance using XOR + Kernighan (language-agnostic pattern)
+- Inputs: x, y integers of the same fixed width (or treated as bit vectors).
+- Steps:
+  1. v = x XOR y
+  2. count = 0
+  3. while v != 0:
+     v = v & (v - 1)   # clears lowest-order 1 bit
+     count = count + 1
+  4. return count
+- Complexity: O(popcount(v)); recommended where native integer XOR and bitwise are available.
+
+B. JavaScript integer Hamming distance (32-bit, using bitwise ops)
+- Signature: function hammingDistance32(x: number, y: number): number
+- Steps:
+  1. const v = (x ^ y) >>> 0    // ensure unsigned 32-bit
+  2. let count = 0
+  3. let n = v
+  4. while (n !== 0) { n &= (n - 1); count++; }
+  5. return count
+- Notes: bitwise operations coerce to 32-bit signed integers; use >>> 0 to treat as unsigned where needed.
+- For numbers outside 32-bit range, convert to BigInt or to binary string safely using BigInt.
+
+C. JavaScript BigInt Hamming distance (arbitrary precision)
+- Signature: function hammingDistanceBigInt(a: bigint, b: bigint): number
+- Steps:
+  1. let v = a ^ b  // BigInt XOR supported
+  2. let count = 0n
+  3. while (v !== 0n) { v &= (v - 1n); count++; }
+  4. return Number(count)
+- Notes: convert to Number only if count fits in Number range or return bigint count.
+
+D. String Hamming distance (code-point aware)
+- Signature: function hammingDistanceStrings(a: string, b: string, unit = 'codePoint') -> number
+- Steps (unit == 'codePoint'):
+  1. const A = [...a]; const B = [...b]; // spread operator produces array of code points
+  2. if (A.length !== B.length) throw Error('Strings must have equal code-point length')
+  3. let count = 0
+  4. for (let i = 0; i < A.length; i++) { if (A[i] !== B[i]) count++ }
+  5. return count
+- Steps (unit == 'codeUnit'):
+  1. if (a.length !== b.length) throw Error('Strings must have equal code-unit length')
+  2. let count = 0
+  3. for (let i = 0; i < a.length; i++) { if (a.charAt(i) !== b.charAt(i)) count++ }
+  4. return count
+- Steps (unit == 'grapheme'):
+  1. Use Intl.Segmenter if available: const seg = new Intl.Segmenter(locale, {granularity:'grapheme'})
+  2. const A = Array.from(seg.segment(a), s => s.segment)
+  3. const B = Array.from(seg.segment(b), s => s.segment)
+  4. compare as above (length equality required)
+
+E. Converting numbers to equal-length binary strings (if required for textual comparison)
+- Steps:
+  1. const binA = (a >>> 0).toString(2)  // or BigInt approach for large ints
+  2. const binB = (b >>> 0).toString(2)
+  3. const L = Math.max(binA.length, binB.length)
+  4. const A = binA.padStart(L, '0'); const B = binB.padStart(L, '0')
+  5. count differing chars in A and B
+- Notes: padStart is available on String.prototype; beware sign handling and bit-width choices.
+
+8. Best practices and troubleshooting
+- Prefer native XOR + popcount intrinsics where available; they are fastest and constant-time in many architectures.
+- In JavaScript, for integers within 32-bit range prefer bitwise XOR and Kernighan; for larger integers use BigInt and BigInt bitwise operators.
+- Always decide and document the "unit" (codeUnit, codePoint, grapheme) before computing string Hamming distance; mismatched choices lead to subtle differences.
+- When comparing user-visible characters, use normalization: a.normalize('NFC') to canonicalize composed/decomposed sequences.
+- For grapheme clusters prefer Intl.Segmenter or a well-tested library; manual code-point iteration will split combined glyphs and produce incorrect distances.
+- Troubleshooting steps when results differ from expectation:
+  1. Verify the chosen unit and that both inputs have equal length in that unit.
+  2. If using strings with accented characters, ensure both strings are normalized to the same Unicode normalization form.
+  3. If using numeric conversions, check numeric ranges and whether bitwise coercions truncated values to 32-bit.
+  4. Log intermediate values: XOR result (for binary), arrays used for string comparison, and lengths.
+
+SUPPLEMENTARY DETAILS
+- Time/space
+  - Typical per-position string comparison: O(n) time, O(1) extra space (besides input arrays when using [...str]).
+  - Integer Kernighan method: O(h) time where h = popcount(x ^ y), O(1) space.
+- Numeric representation caveats (JS-specific)
+  - Number uses IEEE-754 double-precision; bitwise ops coerce to 32-bit signed ints before operation. For fidelity beyond 32 bits, use BigInt.
+- Unicode
+  - Surrogate pair ranges: high surrogates 0xD800..0xDBFF, low surrogates 0xDC00..0xDFFF. Lone surrogates may appear if strings are not well-formed.
+  - Normalization forms: NFC, NFD, NFKC, NFKD. Use str.normalize(form) to canonicalize.
+
+REFERENCE DETAILS (API signatures, exact behaviors, patterns)
+- String.prototype.charAt(index?: number) -> string
+  - index coerced to integer; returns exactly one UTF-16 code unit string or '' if out of range.
+- String.prototype.codePointAt(pos: number) -> number | undefined
+  - Returns Unicode code point value starting at pos, surrogate-aware; undefined if pos out of range.
+- String.prototype.normalize(form?: 'NFC'|'NFD'|'NFKC'|'NFKD') -> string
+  - Returns normalized string; default form depends on implementation but specify explicit form for deterministic behavior.
+- String iteration
+  - for (const ch of str) and [...str] iterate code points (surrogate-aware), not grapheme clusters.
+- Number.prototype.toString(radix?: number) -> string
+  - radix integer 2..36; RangeError if out of range; negative numbers return '-' + positive representation; 0 and -0 return "0"; Infinity => "Infinity"; NaN => "NaN".
+- Kernighan popcount pattern (integer)
+  - while (v !== 0) { v &= (v - 1); count++; }
+- JS 32-bit safe integer Hamming distance pattern
+  - const v = (x ^ y) >>> 0; let n = v; while (n) { n &= (n - 1); count++; }
+- BigInt Hamming pattern
+  - Use BigInt XOR and BigInt arithmetic: while (v !== 0n) { v &= (v - 1n); count++; }
+
+DETAILED DIGEST (extracted content from SOURCES.md)
+- Wikipedia Hamming distance (retrieved 2026-03-11): Hamming distance defined as number of differing positions between equal-length sequences; for binary strings Hamming distance = population count of XOR; includes complexity O(n) for per-position comparison; provides C and Python examples showing Kernighan's algorithm and use of built-in popcount intrinsics.
+- MDN String (retrieved 2026-03-11): String fundamentals; character access via charAt and bracket notation; strings are UTF-16 sequences; iteration by for..of or spread yields Unicode code points; explicit mention of UTF-16 surrogate pairs and caution that charAt returns single UTF-16 code unit; mentions normalize(), padStart, padEnd and other methods useful when aligning strings.
+- MDN String.charAt (retrieved 2026-03-11): Syntax charAt(index) -> string; index converted to integer; returns exactly one UTF-16 code unit string or empty string; warns about lone surrogates and recommends codePointAt and String.fromCodePoint or spread operator for surrogate-aware access.
+- javascript.info Unicode (retrieved 2026-03-11): Detailed explanation of surrogate pairs, code point notations (\xXX, \uXXXX, \u{X…XXXXXX}), codePointAt vs charCodeAt, importance of normalization for composed/decomposed sequences, length counts UTF-16 code units, and that grapheme cluster handling requires custom logic.
+- MDN Number.toString (retrieved 2026-03-11): Signature toString([radix]) -> string; radix range 2..36; negative numbers preserved with '-' prefix; use toString(2) to get binary representation; warns about Number.MAX_SAFE_INTEGER and recommends BigInt for large integer precision.
+- GeeksforGeeks "Hamming distance between two integers" (retrieved 2026-03-11): Problem definition: count differing bits between two integers; algorithm: XOR then count set bits; shows approaches using while (xor) { xor &= xor - 1; count++; } and alternative shifting approaches; gives examples and notes on complexity.
+
+ATTRIBUTION
+Sources retrieved and used to build this document (retrieval timestamp: 2026-03-11):
+- https://en.wikipedia.org/wiki/Hamming_distance
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charAt
+- https://javascript.info/unicode
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toString
+- https://www.geeksforgeeks.org/hamming-distance-between-two-integers/
+
+DATA SIZE (approximate)
+- Total retrieved content (all sources combined): ~64,200 characters (~64.2 KB)
+- Per-source approximate: Wikipedia ~18,000 chars; MDN String ~12,000; MDN charAt ~6,000; javascript.info ~9,000; MDN Number.toString ~4,500; GeeksforGeeks raw HTML ~14,700.
+
+USAGE NOTES
+- Place this file in library/ and use it as authoritative, implementation-ready reference for Hamming distance functions in JS and related languages.
+- When implementing, choose unit for string comparisons explicitly and document whether you compare code units, code points or grapheme clusters.
+
+[END OF DOCUMENT]

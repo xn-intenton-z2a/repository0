@@ -1,46 +1,42 @@
 // tests/unit/hamming-distance-bits.test.js
-
 import { describe, test, expect } from 'vitest';
 import { hammingDistanceBits } from '../../src/lib/main.js';
 
 describe('hammingDistanceBits', () => {
-  test('should pass basic validation', () => {
-    expect(true).toBe(true);
-    // TODO: Implement comprehensive tests for hammingDistanceBits function
+  test('1 vs 4 => 2', () => {
+    expect(hammingDistanceBits(1, 4)).toBe(2);
   });
 
-  test('should calculate distance between integers', () => {
-    // TODO: Test hammingDistanceBits(1, 4) returns 2 (binary: 001 vs 100)
-    expect(true).toBe(true);
+  test('0 vs 0 => 0', () => {
+    expect(hammingDistanceBits(0, 0)).toBe(0);
   });
 
-  test('should handle zero values', () => {
-    // TODO: Test hammingDistanceBits(0, 0) returns 0
-    expect(true).toBe(true);
+  test('identical values => 0', () => {
+    expect(hammingDistanceBits(5, 5)).toBe(0);
   });
 
-  test('should handle identical values', () => {
-    // TODO: Test hammingDistanceBits(5, 5) returns 0
-    expect(true).toBe(true);
+  test('throws TypeError for non-integer arguments', () => {
+    // float
+    expect(() => hammingDistanceBits(1.2, 0)).toThrow(TypeError);
+    // string
+    // @ts-ignore - intentional
+    expect(() => hammingDistanceBits('a', 0)).toThrow(TypeError);
   });
 
-  test('should throw TypeError for non-integer arguments', () => {
-    // TODO: Test TypeError for floats, strings, null, undefined
-    expect(true).toBe(true);
+  test('throws RangeError for negative integers', () => {
+    expect(() => hammingDistanceBits(-1, 0)).toThrow(RangeError);
+    expect(() => hammingDistanceBits(0, -2)).toThrow(RangeError);
   });
 
-  test('should throw RangeError for negative integers', () => {
-    // TODO: Test RangeError for negative values
-    expect(true).toBe(true);
+  test('BigInt support and mixing Number/BigInt', () => {
+    expect(hammingDistanceBits(1n, 4n)).toBe(2);
+    expect(hammingDistanceBits(1, 4n)).toBe(2);
   });
 
-  test('should handle large integers', () => {
-    // TODO: Test with large integer values within JavaScript safe range
-    expect(true).toBe(true);
-  });
-
-  test('should handle edge cases', () => {
-    // TODO: Test powers of 2, maximum safe integers, single bit differences
-    expect(true).toBe(true);
+  test('handles large integers correctly', () => {
+    const big = BigInt('0b' + '1'.repeat(100));
+    // difference between big and big with one bit flipped
+    const big2 = big ^ (1n << 5n);
+    expect(hammingDistanceBits(big, big2)).toBe(1);
   });
 });

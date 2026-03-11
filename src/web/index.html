@@ -73,13 +73,17 @@
     <div id="bits-result" class="result">Result will appear here...</div>
   </div>
 
+  <h2>Demo Output</h2>
+  <div id="demo-output" class="result">Result will appear here...</div>
+
   <h2>About</h2>
   <p>This website demonstrates the Hamming distance library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
 
   <script type="module">
-    // Load library metadata
+    // Load library metadata (generated at build time into docs/)
     try {
-      const { name, version, description } = await import('./lib-meta.js');
+      const meta = await import('./lib-meta.js');
+      const { name, version, description } = meta;
       document.getElementById('lib-name').textContent = name || 'Hamming Distance Library';
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || 'JavaScript library for Hamming distance functions';
@@ -89,76 +93,64 @@
       document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
     }
 
-    // Import library functions for demonstration
-    // TODO: Import from built library bundle when available
-    // For now, implement minimal versions for demo purposes
-    
-    function hammingDistance(a, b) {
-      if (typeof a !== 'string' || typeof b !== 'string') {
-        throw new TypeError('Both arguments must be strings');
-      }
-      if (a.length !== b.length) {
-        throw new RangeError('Strings must have equal length');
-      }
-      let distance = 0;
-      for (let i = 0; i < a.length; i++) {
-        if (a[i] !== b[i]) distance++;
-      }
-      return distance;
-    }
-    
-    function hammingDistanceBits(x, y) {
-      if (!Number.isInteger(x) || !Number.isInteger(y)) {
-        throw new TypeError('Both arguments must be integers');
-      }
-      if (x < 0 || y < 0) {
-        throw new RangeError('Arguments must be non-negative');
-      }
-      let xor = x ^ y;
-      let distance = 0;
-      while (xor > 0) {
-        distance += xor & 1;
-        xor >>>= 1;
-      }
-      return distance;
+    // Import library functions from the build artifact (docs/lib.js)
+    let hammingDistanceFn;
+    let hammingDistanceBitsFn;
+    try {
+      const lib = await import('./lib.js');
+      hammingDistanceFn = lib.hammingDistance;
+      hammingDistanceBitsFn = lib.hammingDistanceBits;
+    } catch (err) {
+      console.warn('Could not import built library; demo will attempt to fallback', err);
     }
 
-    // Demo functions
-    window.testStringDistance = function() {
+    function updateResults() {
+      const out = document.getElementById('demo-output');
+
+      // String demo
       const a = document.getElementById('string-a').value;
       const b = document.getElementById('string-b').value;
-      const resultDiv = document.getElementById('string-result');
-      
+      const sDiv = document.getElementById('string-result');
+      let sText = '';
       try {
-        const result = hammingDistance(a, b);
-        resultDiv.textContent = `hammingDistance("${a}", "${b}") = ${result}`;
-        resultDiv.className = 'result success';
-      } catch (error) {
-        resultDiv.textContent = `Error: ${error.message}`;
-        resultDiv.className = 'result error';
+        if (!hammingDistanceFn) throw new Error('library not available');
+        const sres = hammingDistanceFn(a, b);
+        sText = `hammingDistance("${a}", "${b}") = ${sres}`;
+        sDiv.textContent = sText;
+        sDiv.className = 'result success';
+      } catch (err) {
+        sText = `Error: ${err.message}`;
+        sDiv.textContent = sText;
+        sDiv.className = 'result error';
       }
-    };
 
-    window.testBitDistance = function() {
-      const x = parseInt(document.getElementById('bits-x').value);
-      const y = parseInt(document.getElementById('bits-y').value);
-      const resultDiv = document.getElementById('bits-result');
-      
+      // Bits demo
+      const x = parseInt(document.getElementById('bits-x').value, 10);
+      const y = parseInt(document.getElementById('bits-y').value, 10);
+      const bDiv = document.getElementById('bits-result');
+      let bText = '';
       try {
-        const result = hammingDistanceBits(x, y);
+        if (!hammingDistanceBitsFn) throw new Error('library not available');
+        const bres = hammingDistanceBitsFn(x, y);
         const xBinary = x.toString(2).padStart(Math.max(x.toString(2).length, y.toString(2).length), '0');
         const yBinary = y.toString(2).padStart(Math.max(x.toString(2).length, y.toString(2).length), '0');
-        resultDiv.textContent = `hammingDistanceBits(${x}, ${y}) = ${result}\nBinary: ${xBinary} vs ${yBinary}`;
-        resultDiv.className = 'result success';
-      } catch (error) {
-        resultDiv.textContent = `Error: ${error.message}`;
-        resultDiv.className = 'result error';
+        bText = `hammingDistanceBits(${x}, ${y}) = ${bres}\nBinary: ${xBinary} vs ${yBinary}`;
+        bDiv.textContent = bText;
+        bDiv.className = 'result success';
+      } catch (err) {
+        bText = `Error: ${err.message}`;
+        bDiv.textContent = bText;
+        bDiv.className = 'result error';
       }
-    };
+
+      out.textContent = sText + "\n" + bText;
+    }
+
+    window.testStringDistance = updateResults;
+    window.testBitDistance = updateResults;
 
     // Run initial examples
-    testStringDistance();
-    testBitDistance();
+    updateResults();
   </script>
 </body>
 </html>

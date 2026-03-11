@@ -1,41 +1,34 @@
 // tests/unit/hamming-distance.test.js
-
 import { describe, test, expect } from 'vitest';
 import { hammingDistance } from '../../src/lib/main.js';
 
 describe('hammingDistance', () => {
-  test('should pass basic validation', () => {
-    expect(true).toBe(true);
-    // TODO: Implement comprehensive tests for hammingDistance function
+  test('karolin vs kathrin => 3', () => {
+    expect(hammingDistance('karolin', 'kathrin')).toBe(3);
   });
 
-  test('should calculate distance between equal length strings', () => {
-    // TODO: Test hammingDistance("karolin", "kathrin") returns 3
-    expect(true).toBe(true);
+  test('empty strings => 0', () => {
+    expect(hammingDistance('', '')).toBe(0);
   });
 
-  test('should handle empty strings', () => {
-    // TODO: Test hammingDistance("", "") returns 0
-    expect(true).toBe(true);
+  test('unequal lengths throws RangeError', () => {
+    expect(() => hammingDistance('a', 'bb')).toThrow(RangeError);
   });
 
-  test('should throw RangeError for unequal length strings', () => {
-    // TODO: Test hammingDistance("a", "bb") throws RangeError
-    expect(true).toBe(true);
+  test('non-string arguments throw TypeError', () => {
+    // @ts-ignore - intentional
+    expect(() => hammingDistance(123, 'a')).toThrow(TypeError);
   });
 
-  test('should throw TypeError for non-string arguments', () => {
-    // TODO: Test TypeError for invalid argument types
-    expect(true).toBe(true);
+  test('Unicode code points are compared (emoji/surrogates)', () => {
+    const a = 'a\u{1F600}'; // a + 😀
+    const b = 'a\u{1F601}'; // a + 😁
+    expect(hammingDistance(a, b)).toBe(1);
   });
 
-  test('should handle Unicode strings correctly', () => {
-    // TODO: Test Unicode string handling (code points vs UTF-16 code units)
-    expect(true).toBe(true);
-  });
-
-  test('should handle edge cases', () => {
-    // TODO: Test single character strings, long strings, special characters
-    expect(true).toBe(true);
+  test('surrogate pair handling for musical symbol', () => {
+    const s1 = '\u{1D11E}a'; // musical symbol G clef + a
+    const s2 = '\u{1D11E}b';
+    expect(hammingDistance(s1, s2)).toBe(1);
   });
 });

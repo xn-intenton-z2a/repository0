@@ -1,0 +1,122 @@
+STRING_UNICODE
+
+NORMALISED EXTRACT
+
+Table of contents
+1. UTF-16 encoding fundamentals in JavaScript
+2. Character access methods and their behavior differences
+3. Surrogate pairs: detection, handling, and pitfalls
+4. Unicode normalization: forms and implementation
+5. Code unit vs code point vs grapheme cluster comparison
+6. String iteration patterns for different Unicode units
+7. Edge cases and troubleshooting for international text
+
+Detailed content
+
+1. UTF-16 encoding fundamentals in JavaScript
+- JavaScript strings use UTF-16 encoding internally where each string element is a 16-bit code unit
+- Unicode code points range from 0 to 0x10FFFF (1,114,111 decimal)
+- Code points 0-65535 (0x0000-0xFFFF) fit in one UTF-16 code unit (Basic Multilingual Plane)
+- Code points above 65535 require two UTF-16 code units called a surrogate pair
+- High surrogates: 0xD800-0xDBFF, Low surrogates: 0xDC00-0xDFFF
+- String.length returns count of UTF-16 code units, not Unicode code points or grapheme clusters
+
+2. Character access methods and their behavior differences
+- charAt(index) returns exactly one UTF-16 code unit as a string, empty string if out of bounds
+- Bracket notation str[index] returns UTF-16 code unit as string, undefined if out of bounds
+- charCodeAt(index) returns numeric value of UTF-16 code unit at position, NaN if out of bounds
+- codePointAt(pos) returns full Unicode code point value (surrogate-pair-aware), undefined if out of bounds
+- charAt and bracket notation may return lone surrogates (invalid Unicode characters)
+- codePointAt automatically handles surrogate pairs and returns the complete code point
+
+3. Surrogate pairs: detection, handling, and pitfalls
+- Characters requiring surrogate pairs have string length of 2 despite being single glyphs
+- Examples: Mathematical symbols ('𝒳'.length === 2), emoji ('😂'.length === 2), rare CJK characters
+- Splitting strings at arbitrary positions can break surrogate pairs producing garbage characters
+- Detection pattern: check if charCodeAt(i) is in range 0xD800-0xDBFF for high surrogate
+- Safe iteration requires either codePointAt() method or spread operator [...str]
+- Legacy methods like charAt() and charCodeAt() are not surrogate-pair-aware
+
+4. Unicode normalization: forms and implementation
+- Visually identical characters may have different Unicode representations
+- Four normalization forms: NFC (Canonical Decomposition then Canonical Composition), NFD (Canonical Decomposition), NFKC (Compatibility Decomposition then Canonical Composition), NFKD (Compatibility Decomposition)
+- String.prototype.normalize(form) method standardizes representation
+- Default form is typically NFC when no parameter specified
+- Use normalize() before string comparison when handling international text with combining characters
+- Combining marks can be reordered and still produce visually identical results
+
+5. Code unit vs code point vs grapheme cluster comparison
+- Code unit: individual UTF-16 element (what charAt() returns)
+- Code point: complete Unicode character value (what codePointAt() returns)  
+- Grapheme cluster: user-perceived character including combining marks and ZWJ sequences
+- For text processing choose appropriate unit based on requirements
+- Use charAt() for simple ASCII text or when performance is critical
+- Use codePointAt() or spread operator for full Unicode support
+- Use Intl.Segmenter for grapheme cluster iteration (user-visible characters)
+
+6. String iteration patterns for different Unicode units
+- UTF-16 code unit iteration: for (let i = 0; i < str.length; i++) { str.charAt(i) }
+- Unicode code point iteration: for (const codePoint of str) or [...str].forEach()
+- Grapheme cluster iteration: new Intl.Segmenter(locale, {granularity: 'grapheme'}).segment(str)
+- Converting to arrays: [...str] for code points, Array.from(str) for code points
+- Manual surrogate pair handling: check high surrogate then increment by 2 if found
+
+7. Edge cases and troubleshooting for international text
+- String slice, substring, and substr may break surrogate pairs if not used carefully
+- Length mismatches between visual characters and string.length property
+- Comparison failures between visually identical normalized strings
+- Performance implications of normalization and grapheme iteration
+- Browser compatibility differences in Intl.Segmenter support
+- Emoji sequences (ZWJ, variation selectors) affect grapheme boundaries
+
+SUPPLEMENTARY DETAILS
+- Unicode escape sequences: \uXXXX for BMP, \u{XXXXXX} for full range
+- String.fromCodePoint() and String.fromCharCode() for character generation
+- Performance: charAt() fastest, spread operator moderate cost, Intl.Segmenter highest cost
+- Memory: normalized strings may have different memory footprint than original
+
+REFERENCE DETAILS (API signatures, exact behaviors, patterns)
+- String.prototype.charAt(index?: number) -> string
+  - Returns exactly one UTF-16 code unit or empty string
+  - index converted to integer, undefined becomes 0
+  - May return lone surrogates for broken surrogate pairs
+
+- String.prototype.charCodeAt(index: number) -> number
+  - Returns UTF-16 code unit value 0-65535
+  - Returns NaN for out-of-bounds index
+  - Not surrogate-pair-aware
+
+- String.prototype.codePointAt(pos: number) -> number | undefined  
+  - Returns full Unicode code point value
+  - Handles surrogate pairs automatically
+  - Returns undefined for out-of-bounds position
+
+- String.prototype.normalize(form?: 'NFC'|'NFD'|'NFKC'|'NFKD') -> string
+  - Returns Unicode normalized string
+  - Default form may vary by implementation, specify explicitly
+
+- String iteration patterns
+  - for (const char of str): iterates by Unicode code points
+  - [...str]: creates array of Unicode code points
+  - Array.from(str): creates array of Unicode code points
+
+- Intl.Segmenter API (when available)
+  - new Intl.Segmenter(locale, {granularity: 'grapheme'|'word'|'sentence'})
+  - segmenter.segment(text) returns iterator over segments
+
+DETAILED DIGEST (extracted content from SOURCES.md)
+- javascript.info Unicode (retrieved 2026-03-11): Comprehensive coverage of JavaScript Unicode handling including surrogate pairs, normalization, and escape sequences. Details the challenges with string.length counting UTF-16 code units instead of visible characters. Explains codePointAt vs charCodeAt differences and provides examples of combining marks requiring normalization.
+- MDN String charAt (retrieved 2026-03-11): Technical specification of charAt method behavior, parameter handling, and return values. Warns about lone surrogate issues and recommends codePointAt for surrogate-aware access. Provides performance comparison with bracket notation.
+- MDN String overview (retrieved 2026-03-11): Fundamental string concepts, character access methods, and best practices for international text handling. Covers string primitives vs objects, coercion behavior, and comparison methods including locale-aware options.
+
+ATTRIBUTION
+Sources retrieved and used to build this document (retrieval timestamp: 2026-03-11):
+- https://javascript.info/unicode
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charAt
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String
+
+DATA SIZE (approximate)
+- Total retrieved content: ~22,000 characters (~22 KB)
+- Per-source approximate: javascript.info ~8,000 chars; MDN charAt ~6,000; MDN String ~8,000
+
+[END OF DOCUMENT]
