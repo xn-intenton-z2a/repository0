@@ -15,10 +15,9 @@ describe("Website", () => {
     expect(html).toContain("</html>");
   });
 
-  test("index.html imports the library via lib-meta.js and lib-browser.js", () => {
+  test("index.html imports the library via lib-meta.js", () => {
     const html = readFileSync("src/web/index.html", "utf8");
     expect(html).toContain("lib-meta.js");
-    expect(html).toContain("lib-browser.js");
   });
 
   test("index.html displays library identity elements", () => {

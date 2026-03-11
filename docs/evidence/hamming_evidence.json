@@ -1,7 +1,0 @@
-{
-  "report": "hamming examples produced by demo",
-  "results": {
-    "string": { "karolin,kathrin": 3, "empty": 0 },
-    "bits": { "1,4": 2, "0,0": 0 }
-  }
-}
