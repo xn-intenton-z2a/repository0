@@ -36,10 +36,10 @@ describe("Website", () => {
 
   test("index.html has interactive elements for testing", () => {
     const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain('id="str1"');
-    expect(html).toContain('id="str2"');
-    expect(html).toContain('id="num1"');
-    expect(html).toContain('id="num2"');
+    expect(html).toContain('id="string1"');
+    expect(html).toContain('id="string2"');
+    expect(html).toContain('id="int1"');
+    expect(html).toContain('id="int2"');
     expect(html).toContain("calculateStringDistance");
     expect(html).toContain("calculateBitsDistance");
   });

@@ -5,13 +5,13 @@
   - heading "Hamming Distance Library" [level=1] [ref=e2]
   - generic [ref=e4]:
     - term [ref=e5]: Name
-    - definition [ref=e6]: repo
+    - definition [ref=e6]: "@xn-intenton-z2a/repository0"
     - term [ref=e7]: Version
     - definition [ref=e8]: 0.1.0
     - term [ref=e9]: Description
-    - definition [ref=e10]: (no description)
+    - definition [ref=e10]: A JavaScript library for computing Hamming distances between strings and integers with comprehensive input validation and Unicode support.
   - heading "Library Output" [level=2] [ref=e11]
-  - generic [ref=e12]: "{ \"library\": { \"name\": \"repo\", \"version\": \"0.1.0\" }, \"demonstrations\": { \"hammingDistance(\\\"karolin\\\", \\\"kathrin\\\")\": 3, \"hammingDistanceBits(1, 4)\": 2 } }"
+  - generic [ref=e12]: "{ \"library\": { \"name\": \"@xn-intenton-z2a/repository0\", \"version\": \"0.1.0\" }, \"demonstrations\": { \"hammingDistance(\\\"karolin\\\", \\\"kathrin\\\")\": 3, \"hammingDistanceBits(1, 4)\": 2 } }"
   - generic [ref=e13]:
     - heading "String Hamming Distance" [level=3] [ref=e14]
     - paragraph [ref=e15]: Computes the number of positions where characters differ between two equal-length strings.
