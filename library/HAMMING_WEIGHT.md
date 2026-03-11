@@ -86,7 +86,7 @@ Error handling patterns:
 
 4. DETAILED DIGEST AND PROVENANCE
 Source: https://en.wikipedia.org/wiki/Hamming_weight
-Retrieved: 2026-03-11
+Retrieved: 2026-03-11T20:55:48.165Z
 Extracted sections: definition, efficient implementations, algorithmic examples, mask constants, Wegner loop, lookup-table approach, hardware instruction references.
 
 5. ATTRIBUTION AND CRAWL DATA

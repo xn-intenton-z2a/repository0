@@ -56,7 +56,7 @@ Implementation patterns:
 4. DETAILED DIGEST AND PROVENANCE
 Source: MDN Web Docs — Bitwise operators
 URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
-Retrieved: 2026-03-11
+Retrieved: 2026-03-11T20:55:48.165Z
 Extracted: operand conversion rules, operator semantics for AND/OR/XOR/NOT/<< / >> / >>>, shift count masking behavior, and guidance on using >>>0 to coerce to unsigned.
 
 5. ATTRIBUTION AND CRAWL DATA

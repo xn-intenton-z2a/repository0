@@ -23,7 +23,7 @@ Recommended authoritative retrieval steps:
 
 4. DETAILED DIGEST AND PROVENANCE
 Source: https://www.npmjs.com/package/hamming-distance
-Retrieved: 2026-03-11
+Retrieved: 2026-03-11T20:55:48.165Z
 Result: HTTP 403 — fetch blocked; no content available from this environment.
 
 5. ATTRIBUTION AND CRAWL DATA

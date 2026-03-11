@@ -45,7 +45,7 @@ Iterator contract:
 4. DETAILED DIGEST AND PROVENANCE
 Source: MDN Web Docs — String.prototype[@@iterator]
 URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/%40%40iterator
-Retrieved: 2026-03-11
+Retrieved: 2026-03-11T20:55:48.165Z
 Extracted: syntax, return value, description emphasising code-point iteration and examples that demonstrate splitting behaviour on emoji sequences and ZWJ.
 
 5. ATTRIBUTION AND CRAWL DATA

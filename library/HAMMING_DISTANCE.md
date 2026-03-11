@@ -133,7 +133,7 @@ This document normalises and consolidates technical material retrieved from the 
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators — JS bitwise operator semantics, shift, XOR, AND, OR and unsigned shifts; note that bitwise operators treat operands as 32-bit signed integers in JS for standard operators but BigInt bitwise operators exist for arbitrary width when using BigInt.
 - https://www.npmjs.com/package/hamming-distance  — fetch failed (HTTP 403) during crawl; package page could contain distribution API and signature examples but was not retrieved.
 
-Retrieval date: 2026-03-11 (source snapshots pulled during crawl). Some web fetch responses were truncated by the crawler tool and the npmjs page returned HTTP 403, see Attribution and Crawl Data below for fetch status.
+Retrieval date: 2026-03-11T20:55:48.165Z (source snapshots pulled during crawl). Some web fetch responses were truncated by the crawler tool and the npmjs page returned HTTP 403, see Attribution and Crawl Data below for fetch status.
 
 
 5. ATTRIBUTION AND CRAWL DATA

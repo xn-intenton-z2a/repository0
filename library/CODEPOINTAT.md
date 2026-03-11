@@ -51,7 +51,7 @@ Return behavior:
 4. DETAILED DIGEST AND PROVENANCE
 Source: MDN Web Docs — String.prototype.codePointAt
 URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt
-Retrieved: 2026-03-11
+Retrieved: 2026-03-11T20:55:48.165Z
 Extracted: syntax, parameters, return value, description, usage notes, recommendations to use for...of or spread for iteration.
 
 5. ATTRIBUTION AND CRAWL DATA
