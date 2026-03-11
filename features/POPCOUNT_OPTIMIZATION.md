@@ -1,58 +1,54 @@
-# POPCOUNT_OPTIMIZATION
+# EXAMPLES
 
 # Summary
 
-Add a small, well-documented optimization and supporting API for computing the population count (popcount) of BigInt values used by Hamming-distance computations. Provide a compact 8-bit lookup-table implementation exported as a named helper and unit tests that assert parity with the canonical Kernighan algorithm used by hammingDistanceBits. Keep the core hammingDistance and hammingDistanceBits behaviour unchanged.
+Add a small set of deterministic, runnable example scripts to the examples directory that demonstrate the library's public API: hammingDistance, hammingDistanceBits, and popcount. The examples serve both end users and automated tests: each script must produce a single-line, deterministic stdout output on success and a single-line stderr message on validation failure so behaviour tests and CI can assert exact outputs and exit codes.
 
 # Motivation
 
-Counting set bits (popcount) is central to hammingDistanceBits performance when comparing large integers or BigInt values. A byte-wise lookup-table offers a simple, fast, deterministic improvement without changing the public behaviour of the existing distance functions. Exposing a tested popcount helper makes it easy to reuse the optimized implementation in the library, the demo, and future microbenchmarks.
+Runnable examples make it trivial for users to see the library's behaviour without reading source or tests. They also provide stable, runnable artefacts that behaviour tests and README links can reference. Keeping examples minimal and deterministic ensures they remain useful in CI and documentation.
 
 # Specification
 
-1. Public API
-   - Export a new named function from src/lib/main.js:
-     - popcount(value: bigint) => number
-   - Do not change existing hammingDistance(a, b) or hammingDistanceBits(x, y) signatures or thrown errors.
+1. Example scripts (examples/)
+   - compare-strings.js
+     - Imports named export hammingDistance from src/lib/main.js, calls hammingDistance with inputs karolin and kathrin, prints a single integer to stdout followed by a newline, and exits 0 on success.
+     - For validation errors prints a single-line error message to stderr and exits 1.
+   - compare-normalize.js
+     - Imports hammingDistance and calls it twice for a composed vs decomposed example (a with combining acute versus á). When run without normalization, prints the numeric distance for the un-normalized comparison; when provided with normalization set to NFC prints the numeric distance after normalization. Scripts should be deterministic and designed so default invocation prints either 0 or 1 as described in acceptance criteria.
+   - compare-bits.js
+     - Imports hammingDistanceBits from src/lib/main.js, compares 1 and 4 (decimal) and prints a single integer (2) to stdout and exits 0 on success.
+   - Each example is a tiny, dependency-free Node script that imports from src/lib/main.js using the package's main export path.
 
-2. popcount(big) behaviour and validation
-   - Accept a single argument of typeof "bigint"; if an argument is not a bigint, throw TypeError that mentions bigint or number.
-   - If bigint is negative (value < 0n) throw RangeError mentioning non-negative or negative.
-   - Return a JavaScript Number equal to the number of set bits in the absolute binary representation of the value.
+2. Behaviour and output rules
+   - Successful run: print only the integer result and a trailing newline to stdout, exit code 0.
+   - Failure/validation: print a concise single-line error to stderr that contains one of the canonical keywords used by the library (string, length, non-negative, options, normalize), exit code 1.
+   - No multi-line output, no additional logging, no color codes; output must be byte-identical across Node versions supported by the repository.
 
-3. Implementation details
-   - Implement an 8-bit lookup table (array length 256) computed once at module initialization.
-   - For input v (BigInt), iterate by extracting lowest 8-bit chunks: while (v !== 0n) { count += table[Number(v & 0xffn)]; v >>= 8n; }
-   - This approach is deterministic, memory-cheap, and generally faster than bit-by-bit loops for wide values.
-   - Keep a clear, commented fallback algorithm reference (Kernighan) in source for comparison, but do not export it.
+3. Testability
+   - Add unit tests under tests/unit/ that spawn node processes for each script and assert stdout, stderr, and exit code match acceptance criteria. Tests must be deterministic and fast.
+   - Examples must be referenced from README.md with one-line usage examples so CI and users can run them easily.
 
-4. Tests
-   - Add unit tests tests/unit/popcount.test.js verifying:
-     - popcount(0n) === 0
-     - popcount(1n) === 1
-     - popcount(0xffn) === 8
-     - popcount for large BigInt values (e.g., (1n << 100n) - 1n) equals 100
-     - popcount(bx ^ by) === hammingDistanceBits(Number or BigInt versions) when used against the existing hammingDistanceBits implementation; include both Number and BigInt inputs to hammingDistanceBits and validate consistency by converting Numbers to BigInt for the XOR before calling popcount.
-     - Error cases: passing a Number to popcount throws TypeError; passing a negative BigInt throws RangeError.
-   - Ensure tests are deterministic and small in memory.
-
-5. README and examples
-   - Update README.md's API section to list the new exported function popcount and a short sentence showing typical usage (one-line example). Do not include multi-line code blocks; keep examples short and consistent with existing README style.
+4. Documentation
+   - README.md should list the three example scripts with one-line commands showing expected stdout and exit codes. Keep README changes minimal and consistent with project style.
 
 # Acceptance Criteria
 
-- features/POPCOUNT_OPTIMIZATION.md exists with the above specification.
-- src/lib/main.js exports a named popcount function (planned implementation) that accepts bigint and returns a Number.
-- Unit tests tests/unit/popcount.test.js verify correctness for small, large, and error cases and assert parity with existing hammingDistanceBits output derived via BigInt XOR.
-- Documentation updated in README.md to mention popcount and its intended usage.
+- examples/compare-strings.js exists and running node examples/compare-strings.js prints 3 and exits 0.
+- examples/compare-normalize.js exists and running node examples/compare-normalize.js (default invocation) demonstrates the normalization behaviour described: the pair that differs without normalization yields the expected non-zero distance and yields zero when normalization is applied as per README instructions.
+- examples/compare-bits.js exists and running node examples/compare-bits.js prints 2 and exits 0.
+- Each example prints only the expected integer on success or a single-line error containing a canonical keyword on failure, and the behaviour is asserted by unit tests in tests/unit/.
+- README.md contains one-line usage examples referencing the example scripts and their expected outputs.
 
 # Files touched (implementation plan)
 
-- src/lib/main.js — add lookup table and export popcount; keep existing functions untouched.
-- tests/unit/popcount.test.js — new tests as described above.
-- README.md — small API addition describing popcount.
+- examples/compare-strings.js — small script that imports hammingDistance and prints 3 for karolin vs kathrin.
+- examples/compare-normalize.js — small script demonstrating normalization behaviour for composed vs decomposed characters.
+- examples/compare-bits.js — small script that imports hammingDistanceBits and prints 2 for inputs 1 and 4.
+- tests/unit/examples.test.js — unit tests that spawn the example scripts and assert stdout, stderr, and exit codes.
+- README.md — add one-line usage references to the examples.
 
 # Notes
 
-- This feature is intentionally additive and low-risk: it does not change behaviour of existing exports and is achievable in a single source file.
-- If a later performance measurement shows negligible gains, the lookup-table implementation remains a safe, documented alternative.
+- Keep examples minimal: no argument parsing, no external dependencies, and exact output rules so behaviour tests remain stable.
+- The examples intentionally import from src/lib/main.js so they exercise the exported API and its validation rules rather than reimplementing logic.
