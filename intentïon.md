@@ -837,3 +837,96 @@ Created/verified library documents mapping each SOURCES.md URL to a concise, imp
 Maintained library (0 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-11T09:52:32.846Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 215457 (in: 205488, out: 9969)
+**Duration:** 195s (~3.2 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22946555951](https://github.com/xn-intenton-z2a/repository0/actions/runs/22946555951)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 19/32 | 13 remaining |  |
+| max-feature-issues | 2/2 | 0 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 0/32 | 32 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 2 open issue(s) remain. Issues resolved (review or PR merge): 0 (target: >= 3). Dedicated test files: NO (target: YES).
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 2 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 3 | NOT MET |
+| Dedicated test files | NO | YES | NOT MET |
+| Source TODO count | 0 | <= 0 | MET |
+| Transformation budget used | 19/32 | < 32 | OK |
+| Cumulative transforms | 19 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+max-feature-issues at capacity (2/2) — actions will be blocked.
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Replaced the separate normalization feature with a single consolidated CLI_NORMALIZATION spec so the library will gain an options.normalize parameter and an enhanced CLI while keeping the feature list tidy and implementable.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-11T09:53:52.942Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 140036 (in: 134361, out: 5675)
+**Duration:** 80s (~1.3 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22946555951](https://github.com/xn-intenton-z2a/repository0/actions/runs/22946555951)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 20/32 | 12 remaining |  |
+| max-feature-issues | 2/2 | 0 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 0/32 | 32 remaining |  |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 2 open issue(s) remain. Issues resolved (review or PR merge): 0 (target: >= 3). Dedicated test files: NO (target: YES).
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 2 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 3 | NOT MET |
+| Dedicated test files | NO | YES | NOT MET |
+| Source TODO count | 0 | <= 0 | MET |
+| Transformation budget used | 20/32 | < 32 | OK |
+| Cumulative transforms | 20 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+max-feature-issues at capacity (2/2) — actions will be blocked.
+
+### Narrative
+Confirmed and consolidated extracted technical details into library/HAMMING_DISTANCE so implementers have exact algorithms, API signatures, masks/constants, validation rules, and troubleshooting steps.
+
+Maintained library (0 docs, limit 32)
+
+---
