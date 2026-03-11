@@ -46,7 +46,7 @@ profile = "recommended"
 #   gpt-4.1         — High capability, large context. Best for thorough analysis.
 # Note: reasoning-effort only works with gpt-5-mini and o4-mini.
 # For other models it is automatically skipped.
-model = "claude-sonnet-4"
+model = "gpt-5-mini"
 #
 # Override individual knobs below. Omit or comment out to use profile defaults.
 # reasoning-effort = "low"       # low | medium | high | none (none = disable entirely)
