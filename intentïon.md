@@ -5,101 +5,6 @@
 
 ---
 
-## maintain-library at 2026-03-11T12:46:30.827Z
-
-**Outcome:** library-maintained
-**Model:** gpt-5-mini
-**Profile:** recommended
-**Token Count:** 127042 (in: 121433, out: 5609)
-**Duration:** 99s (~1.6 GitHub Actions min)
-**agentic-lib transformation cost:** 1
-**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22953117096](https://github.com/xn-intenton-z2a/repository0/actions/runs/22953117096)
-
-### Limits Status
-| Limit | Value | Capacity | Status |
-|---|---|---|---|
-| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
-| max-feature-issues | 2/2 | 0 remaining |  |
-| max-maintenance-issues | 0/1 | 1 remaining |  |
-| max-attempts-per-issue | ?/2 | ? remaining | n/a |
-| max-attempts-per-branch | ?/3 | ? remaining | n/a |
-| features | 5/4 | 0 remaining | n/a |
-| library | 1/32 | 31 remaining |  |
-
-### Mission-Complete Readiness
-Mission has been declared failed.
-
-### Mission Metrics
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| Open issues | 2 | 0 | NOT MET |
-| Open PRs | 0 | 0 | MET |
-| Issues resolved (review or PR merge) | 0 | >= 3 | NOT MET |
-| Dedicated test files | NO | YES | NOT MET |
-| Source TODO count | 0 | <= 0 | MET |
-| Transformation budget used | 32/32 | < 32 | EXHAUSTED |
-| Cumulative transforms | 32 | >= 1 | MET |
-| Mission complete declared | NO | — | — |
-| Mission failed declared | YES | — | — |
-
-### Closing Notes
-transformation-budget at capacity (32/32) — actions will be blocked.
-max-feature-issues at capacity (2/2) — actions will be blocked.
-
-### Narrative
-Created a consolidated HAMMING_DISTANCE library document summarizing algorithms, JS semantics, API signatures, and source attributions to enable direct implementation.
-
-Maintained library (1 docs, limit 32)
-
----
-## maintain-features at 2026-03-11T12:51:06.437Z
-
-**Outcome:** features-maintained
-**Model:** gpt-5-mini
-**Profile:** recommended
-**Token Count:** 50606 (in: 46305, out: 4301)
-**Duration:** 63s (~1.0 GitHub Actions min)
-**agentic-lib transformation cost:** 1
-**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22953376026](https://github.com/xn-intenton-z2a/repository0/actions/runs/22953376026)
-
-### Limits Status
-| Limit | Value | Capacity | Status |
-|---|---|---|---|
-| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
-| max-feature-issues | 2/2 | 0 remaining |  |
-| max-maintenance-issues | 0/1 | 1 remaining |  |
-| max-attempts-per-issue | ?/2 | ? remaining | n/a |
-| max-attempts-per-branch | ?/3 | ? remaining | n/a |
-| features | 5/4 | 0 remaining |  |
-| library | 1/32 | 31 remaining | n/a |
-
-### Mission-Complete Readiness
-Mission has been declared failed.
-
-### Mission Metrics
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| Open issues | 2 | 0 | NOT MET |
-| Open PRs | 0 | 0 | MET |
-| Issues resolved (review or PR merge) | 0 | >= 3 | NOT MET |
-| Dedicated test files | NO | YES | NOT MET |
-| Source TODO count | 0 | <= 0 | MET |
-| Transformation budget used | 32/32 | < 32 | EXHAUSTED |
-| Cumulative transforms | 32 | >= 1 | MET |
-| Mission complete declared | NO | — | — |
-| Mission failed declared | YES | — | — |
-
-### Closing Notes
-transformation-budget at capacity (32/32) — actions will be blocked.
-max-feature-issues at capacity (2/2) — actions will be blocked.
-features at capacity (5/4) — actions will be blocked.
-
-### Narrative
-Removed a deprecated feature file and added a new POPCOUNT_OPTIMIZATION feature spec to introduce a tested, lookup-table popcount helper for BigInt to improve integer Hamming-distance performance.
-
-Maintained features (5 existing, limit 4)
-
----
 ## maintain-library at 2026-03-11T12:51:41.643Z
 
 **Outcome:** library-maintained
@@ -1453,6 +1358,99 @@ transformation-budget at capacity (32/32) — actions will be blocked.
 
 ### Narrative
 Wrote a consolidated HAMMING_DISTANCE document extracting technical details and references from SOURCES.md for implementers.
+
+Maintained library (1 docs, limit 32)
+
+---
+## maintain-features at 2026-03-11T18:00:05.670Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 23697 (in: 21456, out: 2241)
+**Duration:** 48s (~0.8 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22967001640](https://github.com/xn-intenton-z2a/repository0/actions/runs/22967001640)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 1/32 | 31 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission has been declared failed.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 1 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 3 | NOT MET |
+| Dedicated test files | NO | YES | NOT MET |
+| Source TODO count | 0 | <= 0 | MET |
+| Transformation budget used | 32/32 | < 32 | EXHAUSTED |
+| Cumulative transforms | 32 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | YES | — | — |
+
+### Closing Notes
+transformation-budget at capacity (32/32) — actions will be blocked.
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Added a concise EXAMPLES feature spec defining deterministic example scripts, tests, and README updates so usage is reproducible and testable.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-11T18:01:59.946Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 275507 (in: 271949, out: 3558)
+**Duration:** 114s (~1.9 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22967001640](https://github.com/xn-intenton-z2a/repository0/actions/runs/22967001640)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 1/32 | 31 remaining |  |
+
+### Mission-Complete Readiness
+Mission has been declared failed.
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 1 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 3 | NOT MET |
+| Dedicated test files | NO | YES | NOT MET |
+| Source TODO count | 0 | <= 0 | MET |
+| Transformation budget used | 32/32 | < 32 | EXHAUSTED |
+| Cumulative transforms | 32 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | YES | — | — |
+
+### Closing Notes
+transformation-budget at capacity (32/32) — actions will be blocked.
+
+### Narrative
+Updated the existing HAMMING_DISTANCE library document with precise MDN and Wikipedia technical details and a current retrieval timestamp so the library matches the SOURCES.md references.
 
 Maintained library (1 docs, limit 32)
 

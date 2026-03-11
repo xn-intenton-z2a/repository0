@@ -59,7 +59,7 @@ Core operation (BigInt-safe):
 1. let v = bx ^ by  // BigInt XOR
 2. distance = popcount(v) // use a BigInt-capable popcount implementation
 3. return distance as Number (or BigInt if counts may exceed Number.MAX_SAFE_INTEGER)
-Notes: JavaScript Number bitwise operators coerce operands to 32-bit signed integers and are unsuitable for widths beyond 32 bits; use BigInt for arbitrary-width integer bit operations.
+Notes: JavaScript Number bitwise operators coerce operands to 32-bit signed integers (ToInt32) and return Number results; BigInt bitwise operators (&, |, ^, ~, <<, >>) operate only on BigInt operands and preserve arbitrary width, but the unsigned right-shift (>>>) is not supported for BigInt. Use BigInt for arbitrary-width integer bit operations and prefer hardware popcount intrinsics where available.
 
 1.5 Popcount implementations and tradeoffs
 - popcountKernighan (per-set-bit):
@@ -182,7 +182,7 @@ This document extracted technical material from the following sources (retrieved
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
 - https://www.npmjs.com/package/hamming-distance
 
-Content retrieved on: 2026-03-11T17:50:44.347Z
+Content retrieved on: 2026-03-11T18:00:07.978Z
 
 
 5. ATTRIBUTION AND CRAWL DATA
