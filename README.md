@@ -7,7 +7,7 @@ A JavaScript library for computing Hamming distances between strings and integer
 ## Installation
 
 ```bash
-npm install repo
+npm install @xn-intenton-z2a/repository0
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ npm install repo
 Compare two strings of equal length and count the positions where characters differ:
 
 ```javascript
-import { hammingDistance } from 'repo';
+import { hammingDistance } from '@xn-intenton-z2a/repository0';
 
 // Basic usage
 hammingDistance("karolin", "kathrin"); // Returns: 3
@@ -34,7 +34,7 @@ hammingDistance("🎉🎊", "🎉🌟");        // Returns: 1
 Compare two non-negative integers and count the differing bits:
 
 ```javascript
-import { hammingDistanceBits } from 'repo';
+import { hammingDistanceBits } from '@xn-intenton-z2a/repository0';
 
 // Basic usage
 hammingDistanceBits(1, 4);   // Returns: 2 (binary: 001 vs 100)

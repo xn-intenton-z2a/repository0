@@ -54,9 +54,9 @@ test("error handling works for invalid inputs", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });
   
   // Test string length mismatch error
-  await page.fill("#str1", "short");
-  await page.fill("#str2", "longer string");
-  await page.click("button:has-text('Calculate Distance')");
+  await page.fill("#string1", "short");
+  await page.fill("#string2", "longer string");
+  await page.click("button:has-text('Calculate')");
   
   await expect(page.locator("#string-result")).toContainText("Error:");
   await expect(page.locator("#string-result")).toContainText("equal length");

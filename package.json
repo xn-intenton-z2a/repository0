@@ -1,7 +1,7 @@
 {
-  "name": "repo",
+  "name": "@xn-intenton-z2a/repository0",
   "version": "0.1.0",
-  "description": "",
+  "description": "A JavaScript library for computing Hamming distances between strings and integers with comprehensive input validation and Unicode support.",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
