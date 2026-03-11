@@ -24,6 +24,10 @@ The function is exported as a named export from the main library module. It foll
 
 Comprehensive unit tests verify normal operation with ASCII strings, Unicode strings, empty strings, and error conditions. Tests confirm the exact error types and messages for invalid inputs.
 
+## Web Integration
+
+The web interface at src/web/index.html has placeholder functionality that will use this function via the calculateStringDistance function. The web demo provides real-time calculation with visual feedback.
+
 ## Examples
 
 Basic usage includes comparing simple ASCII strings like "karolin" and "kathrin" which should return 3. Unicode examples demonstrate proper handling of characters like "café" and "care" or emoji sequences.
@@ -37,3 +41,5 @@ Basic usage includes comparing simple ASCII strings like "karolin" and "kathrin"
 - [ ] Function throws `TypeError` for non-string arguments
 - [ ] Function is exported as named export from `src/lib/main.js`
 - [ ] Comprehensive unit tests cover all cases
+- [ ] Web interface calculateStringDistance function uses the library function
+- [ ] Behaviour tests verify web integration works correctly

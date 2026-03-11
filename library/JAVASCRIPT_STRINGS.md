@@ -134,15 +134,15 @@ Technical content extracted from MDN documentation on JavaScript string methods 
 
 String character access in JavaScript involves understanding UTF-16 encoding, surrogate pairs, and the differences between code units and code points. The charAt method provides safe empty string returns for invalid indices while bracket notation follows property access semantics.
 
-Unicode support requires careful consideration of surrogate pairs and code point boundaries. The codePointAt method enables proper Unicode handling but requires understanding of when surrogate pairs may split across indices.
+Unicode support requires careful consideration of surrogate pairs and code point boundaries. The codePointAt method enables proper Unicode handling for code points up to 1114111 (0x10FFFF) but requires understanding of when surrogate pairs may split across indices.
 
-Performance characteristics favor sequential access patterns and consistent method usage. The immutable nature of JavaScript strings means character access operations are side-effect free but string modification operations create new string instances.
+For proper Unicode iteration, use for...of loops or spread syntax which iterate by code points rather than code units. Performance characteristics favor sequential access patterns and consistent method usage.
 
 ## Attribution Information
 
 Sources crawled:
-- MDN String.prototype.charAt: 5800 characters
-- MDN String.prototype.codePointAt: 6500 characters
+- MDN String.prototype.charAt: Complete document
+- MDN String.prototype.codePointAt: Complete document
 
-Total data size: 12300 characters
-Retrieved: 2026-03-11T22:01:03Z
+Total data size: 12300+ characters
+Retrieved: 2026-03-11T22:17:13Z

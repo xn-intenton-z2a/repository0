@@ -28,6 +28,10 @@ The function is exported as a named export alongside the string Hamming distance
 
 Unit tests cover basic bit operations, edge cases with zero, large numbers within safe integer bounds, and all error conditions with appropriate error types and messages.
 
+## Web Integration
+
+The web interface at src/web/index.html has placeholder functionality that will use this function via the calculateBitDistance function. The web demo displays binary representations with visual highlighting of differing bits.
+
 ## Examples
 
 Basic usage includes comparing integers like 1 and 4 which have binary representations 001 and 100, resulting in a Hamming distance of 2. Examples also demonstrate zero cases and larger integer comparisons.
@@ -41,3 +45,5 @@ Basic usage includes comparing integers like 1 and 4 which have binary represent
 - [ ] Function works correctly with large integers within JavaScript safe integer range
 - [ ] Function is exported as named export from `src/lib/main.js`
 - [ ] Comprehensive unit tests cover normal cases, edge cases, and error cases
+- [ ] Web interface calculateBitDistance function uses the library function
+- [ ] Behaviour tests verify web integration works correctly

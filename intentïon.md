@@ -193,3 +193,97 @@ I successfully extracted technical documentation from 6 web sources related to H
 Maintained library (0 docs, limit 64)
 
 ---
+## maintain-features at 2026-03-11T22:17:10.379Z
+
+**Outcome:** features-maintained
+**Model:** claude-sonnet-4
+**Profile:** max
+**Token Count:** 410601 (in: 400514, out: 10087)
+**Model Invocations:** 11
+**Duration:** 138s (~2.3 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22976992893](https://github.com/xn-intenton-z2a/repository0/actions/runs/22976992893)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 5/128 | 123 remaining |  |
+| max-feature-issues | 1/4 | 3 remaining |  |
+| max-maintenance-issues | 0/2 | 2 remaining |  |
+| max-attempts-per-issue | ?/4 | ? remaining | n/a |
+| max-attempts-per-branch | ?/5 | ? remaining | n/a |
+| features | 8/8 | 0 remaining |  |
+| library | 4/64 | 60 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 1 open issue(s) remain. Issues resolved (review or PR merge): 0 (target: >= 3). Dedicated test files: NO (target: YES).
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 1 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 3 | NOT MET |
+| Dedicated test files | NO | YES | NOT MET |
+| Source TODO count | 0 | <= 0 | MET |
+| Transformation budget used | 5/128 | < 128 | OK |
+| Cumulative transforms | 5 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+features at capacity (8/8) — actions will be blocked.
+
+### Narrative
+I reviewed the 8 existing features, removed 3 that didn't align with the core mission (API docs, performance optimization, and utility functions), updated 5 existing features to integrate with the current web interface and CLI needs, and added 3 new focused features (CLI interface, examples, and error handling) to create a cohesive set of 8 features that directly support implementing the Hamming distance library mission.
+
+Maintained features (8 existing, limit 8)
+
+---
+## maintain-library at 2026-03-11T22:18:09.493Z
+
+**Outcome:** library-maintained
+**Model:** claude-sonnet-4
+**Profile:** max
+**Token Count:** 178425 (in: 174195, out: 4230)
+**Model Invocations:** 4
+**Duration:** 58s (~1.0 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22976992893](https://github.com/xn-intenton-z2a/repository0/actions/runs/22976992893)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 6/128 | 122 remaining |  |
+| max-feature-issues | 1/4 | 3 remaining |  |
+| max-maintenance-issues | 0/2 | 2 remaining |  |
+| max-attempts-per-issue | ?/4 | ? remaining | n/a |
+| max-attempts-per-branch | ?/5 | ? remaining | n/a |
+| features | 8/8 | 0 remaining | n/a |
+| library | 4/64 | 60 remaining |  |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 1 open issue(s) remain. Issues resolved (review or PR merge): 0 (target: >= 3). Dedicated test files: NO (target: YES).
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 1 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 3 | NOT MET |
+| Dedicated test files | NO | YES | NOT MET |
+| Source TODO count | 0 | <= 0 | MET |
+| Transformation budget used | 6/128 | < 128 | OK |
+| Cumulative transforms | 6 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+I crawled the six source URLs and updated the four existing library documents with fresh technical content, maintaining comprehensive coverage while updating attribution information and timestamps.
+
+Maintained library (4 docs, limit 64)
+
+---

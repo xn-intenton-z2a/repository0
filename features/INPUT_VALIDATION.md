@@ -24,6 +24,14 @@ All validation follows the same pattern across functions to provide a consistent
 
 Special validation handles edge cases like NaN, Infinity, and non-integer numbers for the bits function. String validation properly handles null and undefined inputs with appropriate error messages.
 
+## Web Interface Integration
+
+The web interface at src/web/index.html captures and displays validation errors in user-friendly format within the demo sections, maintaining consistency with library error messages.
+
+## CLI Error Support
+
+The CLI interface catches validation errors and formats them appropriately for terminal display with helpful suggestions for correct usage patterns.
+
 ## Testing Requirements
 
 Comprehensive test coverage validates all error conditions with exact error type checking and message verification. Tests confirm that valid inputs pass through validation without issues.
@@ -41,3 +49,6 @@ Error conditions are clearly documented in function JSDoc comments and README ex
 - [ ] Validation follows consistent patterns across all functions
 - [ ] Special cases like NaN, Infinity, null, undefined are handled appropriately
 - [ ] Unit tests verify all error conditions with exact error type checking
+- [ ] Web interface displays validation errors clearly
+- [ ] CLI provides helpful error messages with correct exit codes
+- [ ] JSDoc comments document all validation requirements

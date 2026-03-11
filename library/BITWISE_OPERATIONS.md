@@ -155,15 +155,15 @@ Technical content extracted from Wikipedia bitwise operations article and MDN Ja
 
 Bitwise operations enable efficient manipulation of binary data at the bit level. The XOR operation specifically provides a way to detect differences between bit patterns, making it fundamental for applications like Hamming distance calculation.
 
-JavaScript's implementation follows standard bitwise operation semantics but includes specific behaviors for type coercion, BigInt support, and 32-bit integer truncation. Understanding these implementation details is crucial for correct usage in performance-critical code.
+JavaScript's implementation follows standard bitwise operation semantics but includes specific behaviors for type coercion, BigInt support, and 32-bit integer truncation. The XOR operator is overloaded for numbers and BigInts, performing appropriate conversions while throwing TypeError when mixing types.
 
-The mathematical properties of bitwise operators enable optimization opportunities and elegant algorithmic solutions. XOR's self-inverse property and its role in detecting bit differences make it particularly valuable for error detection and cryptographic applications.
+The mathematical properties of bitwise operators enable optimization opportunities and elegant algorithmic solutions. XOR's self-inverse property (a ^ a = 0) and commutative nature make it particularly valuable for error detection and cryptographic applications.
 
 ## Attribution Information
 
 Sources crawled:
-- Wikipedia Bitwise Operation: 15000 characters
-- MDN Bitwise XOR: 4200 characters
+- Wikipedia Bitwise Operations: 20000+ characters (truncated)
+- MDN Bitwise XOR: Complete document
 
-Total data size: 19200 characters  
-Retrieved: 2026-03-11T22:01:03Z
+Total data size: 20000+ characters  
+Retrieved: 2026-03-11T22:17:13Z

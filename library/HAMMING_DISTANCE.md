@@ -114,23 +114,18 @@ Bit counting techniques:
 
 ## Detailed Digest
 
-Technical content extracted from Wikipedia Hamming Distance article and supporting JavaScript documentation sources on 2026-03-11.
+Technical content extracted from Wikipedia Hamming Distance article on 2026-03-11.
 
-The Hamming distance is a fundamental concept in information theory measuring the number of differing positions between equal-length strings. Named after Richard Hamming, it has applications in coding theory, telecommunications, and cryptography.
+The Hamming distance is a fundamental concept in information theory measuring the number of differing positions between equal-length strings. Named after Richard Hamming who introduced the concept in 1950, it has applications in coding theory, telecommunications, and cryptography.
 
-The metric properties make it suitable for error detection and correction systems. The relationship to XOR operations enables efficient binary implementations using population count algorithms.
+The metric properties make it suitable for error detection and correction systems. The relationship to XOR operations enables efficient binary implementations using population count algorithms such as Brian Kernighan's method or built-in processor instructions like __builtin_popcount.
 
-For JavaScript implementation, the key considerations are string access methods, character encoding handling, and bitwise operation limitations. The algorithm scales linearly with input size and can be optimized using various bit manipulation techniques.
+Key implementation considerations include handling equal-length string requirements, character encoding for Unicode strings, and performance optimization through bitwise operations for binary data.
 
 ## Attribution Information
 
 Sources crawled:
-- Wikipedia Hamming Distance: 15000 characters
-- MDN String codePointAt: 6500 characters  
-- MDN Bitwise XOR: 4200 characters
-- MDN String charAt: 5800 characters
-- Wikipedia Bitwise Operations: 15000 characters
-- MDN Numbers and Dates Guide: 10000 characters
+- Wikipedia Hamming Distance: 20000 characters (truncated)
 
-Total data size: 56500 characters
-Retrieved: 2026-03-11T22:01:03Z
+Total data size: 20000+ characters
+Retrieved: 2026-03-11T22:17:13Z

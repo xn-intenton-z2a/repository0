@@ -158,16 +158,16 @@ Technical content extracted from MDN JavaScript Numbers and Dates guide on 2026-
 
 JavaScript's number type uses IEEE 754 double-precision floating-point format providing good range and precision for most applications. The unified number type simplifies language design but requires understanding of floating-point limitations.
 
-Numeric literals support multiple formats including binary, octal, hexadecimal, and scientific notation. The addition of numeric separators improves readability for large numbers.
+Numeric literals support multiple formats including binary (0b), octal (0o), hexadecimal (0x), and scientific notation. Numeric separators using underscore (_) improve readability for large numbers across all literal syntaxes.
 
 The Math object provides comprehensive mathematical functionality with functions for basic arithmetic, trigonometry, logarithms, and rounding. All trigonometric functions expect arguments in radians rather than degrees.
 
-Safe integer operations are guaranteed within the ±2^53-1 range, beyond which precision loss may occur. For applications requiring larger integers, BigInt provides arbitrary precision arithmetic.
+Safe integer operations are guaranteed within the ±2^53-1 range (±9007199254740991), beyond which precision loss may occur. For applications requiring larger integers, BigInt provides arbitrary precision arithmetic but cannot represent floating-point numbers.
 
 ## Attribution Information
 
 Sources crawled:
-- MDN JavaScript Guide Numbers and Dates: 10000 characters
+- MDN JavaScript Guide Numbers and Dates: 20000+ characters (truncated)
 
-Total data size: 10000 characters
-Retrieved: 2026-03-11T22:01:03Z
+Total data size: 20000+ characters
+Retrieved: 2026-03-11T22:17:13Z

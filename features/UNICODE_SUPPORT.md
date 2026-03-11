@@ -2,7 +2,7 @@
 
 ## Overview
 
-Ensure the hammingDistance function correctly handles Unicode strings by comparing code points rather than UTF-16 code units, supporting proper internationalization and emoji handling.
+Ensure the hammingDistance function correctly handles Unicode strings by comparing code points rather than UTF-16 code units, supporting proper internationalization and emoji handling across the library and web interface.
 
 ## Code Point Comparison
 
@@ -24,9 +24,17 @@ The function handles Unicode normalization consistently, though it does not perf
 
 Full support for international text including right-to-left languages, combining characters, and complex scripts ensures the library works correctly in global applications.
 
+## Web Interface Integration
+
+The web interface at src/web/index.html properly handles Unicode input and displays Unicode strings correctly in both input fields and result visualizations.
+
 ## Testing Requirements
 
 Comprehensive tests validate Unicode handling with strings containing emojis, accented characters, mathematical symbols, and mixed Unicode content. Tests verify consistent behavior across different Unicode scenarios.
+
+## CLI Support
+
+The CLI interface properly handles Unicode arguments from command line input and displays Unicode strings correctly in terminal output across different platforms.
 
 ## Performance Considerations
 
@@ -41,3 +49,6 @@ Unicode handling maintains reasonable performance while ensuring correctness, us
 - [ ] International text including right-to-left languages works correctly
 - [ ] Performance remains reasonable for typical Unicode string lengths
 - [ ] Unit tests validate Unicode scenarios with emojis, accented characters, and complex scripts
+- [ ] Web interface displays Unicode strings correctly in inputs and outputs
+- [ ] CLI properly handles Unicode command line arguments and output
+- [ ] Visual diff highlighting works correctly with Unicode characters
