@@ -1,0 +1,7 @@
+{
+  "examples": [
+    { "input": ["karolin", "kathrin"], "output": 3 },
+    { "input": ["", ""], "output": 0 },
+    { "input": [1, 4], "output": 2 }
+  ]
+}
