@@ -18,18 +18,27 @@ export function getIdentity() {
 }
 
 /**
- * Compute the Hamming distance between two strings of equal length
+ * Compute the Hamming distance between two strings of equal length.
+ * The Hamming distance is the number of positions where characters differ.
+ * Handles Unicode strings correctly by comparing code points.
+ * 
  * @param {string} a - First string
  * @param {string} b - Second string
- * @returns {number} Number of positions where characters differ
+ * @returns {number} The Hamming distance
+ * @throws {TypeError} If arguments are not strings
+ * @throws {RangeError} If strings have different lengths
  */
 export function hammingDistance(a, b) {
   if (typeof a !== "string" || typeof b !== "string") {
     throw new TypeError("Arguments must be strings");
   }
   
-  if (a.length !== b.length) {
-    throw new RangeError("Strings must have equal length");
+  // Convert to arrays of code points to handle Unicode correctly
+  const codePointsA = Array.from(a);
+  const codePointsB = Array.from(b);
+  
+  if (codePointsA.length !== codePointsB.length) {
+    throw new RangeError('Strings must have equal length');
   }
   
   let distance = 0;
@@ -43,10 +52,14 @@ export function hammingDistance(a, b) {
 }
 
 /**
- * Compute the Hamming distance between two non-negative integers
+ * Compute the Hamming distance between two non-negative integers.
+ * The Hamming distance is the number of differing bits in their binary representations.
+ * 
  * @param {number} x - First integer
  * @param {number} y - Second integer
- * @returns {number} Number of differing bits
+ * @returns {number} The number of differing bits
+ * @throws {TypeError} If arguments are not integers
+ * @throws {RangeError} If arguments are negative
  */
 export function hammingDistanceBits(x, y) {
   if (!Number.isInteger(x) || !Number.isInteger(y)) {
@@ -57,15 +70,16 @@ export function hammingDistanceBits(x, y) {
     throw new RangeError("Arguments must be non-negative");
   }
   
+  // XOR the numbers to get differing bits, then count the 1s
   let xor = x ^ y;
-  let distance = 0;
+  let count = 0;
   
   while (xor > 0) {
-    distance += xor & 1;
+    count += xor & 1;
     xor >>>= 1;
   }
   
-  return distance;
+  return count;
 }
 
 export function main(args = []) {

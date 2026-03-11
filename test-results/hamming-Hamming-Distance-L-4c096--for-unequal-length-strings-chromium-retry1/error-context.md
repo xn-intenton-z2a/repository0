@@ -1,71 +1,43 @@
 # Page snapshot
 
 ```yaml
-- generic [ref=e1]:
-  - heading "repo" [level=1] [ref=e2]
+- generic [active] [ref=e1]:
+  - heading "Hamming Distance Library" [level=1] [ref=e2]
   - generic [ref=e4]:
     - term [ref=e5]: Name
     - definition [ref=e6]: repo
     - term [ref=e7]: Version
     - definition [ref=e8]: 0.1.0
     - term [ref=e9]: Description
-    - definition [ref=e10]: A JavaScript library exporting Hamming distance functions
-  - heading "String Hamming Distance" [level=2] [ref=e11]
-  - generic [ref=e12]:
-    - generic [ref=e13]:
-      - generic [ref=e14]: "First String:"
-      - textbox "First String:" [ref=e15]:
-        - /placeholder: Enter first string
-        - text: short
+    - definition [ref=e10]: (no description)
+  - heading "Library Output" [level=2] [ref=e11]
+  - generic [ref=e12]: "{ \"library\": { \"name\": \"repo\", \"version\": \"0.1.0\", \"description\": \"\" }, \"demonstrations\": { \"hammingDistance(\\\"karolin\\\", \\\"kathrin\\\")\": 3, \"hammingDistanceBits(1, 4)\": 2 } }"
+  - generic [ref=e13]:
+    - heading "String Hamming Distance" [level=3] [ref=e14]
+    - paragraph [ref=e15]: Computes the number of positions where characters differ between two equal-length strings.
     - generic [ref=e16]:
-      - generic [ref=e17]: "Second String:"
-      - textbox "Second String:" [active] [ref=e18]:
-        - /placeholder: Enter second string
-        - text: verylongstring
-    - button "Calculate String Distance" [ref=e19] [cursor=pointer]
-    - generic [ref=e20]:
-      - strong [ref=e21]: "Result:"
-      - text: "3"
-      - text: Comparing "karolin" and "kathrin"
+      - strong [ref=e17]: "Example:"
+      - text: hammingDistance("karolin", "kathrin")
+      - text: "Result: 3 (positions differ: k≠k, o≠t, l≠h)"
+    - generic [ref=e18]:
+      - textbox "First string" [ref=e19]: hello
+      - textbox "Second string" [ref=e20]: world
+      - button "Calculate Distance" [ref=e21] [cursor=pointer]
   - generic [ref=e22]:
-    - heading "String Examples:" [level=4] [ref=e23]
-    - paragraph [ref=e24]:
-      - code [ref=e25]: hammingDistance("karolin", "kathrin")
-      - text: → 3
-    - paragraph [ref=e26]:
-      - code [ref=e27]: hammingDistance("1011101", "1001001")
-      - text: → 2
-    - paragraph [ref=e28]:
-      - code [ref=e29]: hammingDistance("", "")
-      - text: → 0
-  - heading "Bitwise Hamming Distance" [level=2] [ref=e30]
-  - generic [ref=e31]:
-    - generic [ref=e32]:
-      - generic [ref=e33]: "First Integer:"
-      - spinbutton "First Integer:" [ref=e34]: "1"
-    - generic [ref=e35]:
-      - generic [ref=e36]: "Second Integer:"
-      - spinbutton "Second Integer:" [ref=e37]: "4"
-    - button "Calculate Bit Distance" [ref=e38] [cursor=pointer]
-    - generic [ref=e39]:
-      - strong [ref=e40]: "Result:"
-      - text: "2"
-      - text: Comparing 1 (1) and 4 (100)
-  - generic [ref=e41]:
-    - heading "Integer Examples:" [level=4] [ref=e42]
-    - paragraph [ref=e43]:
-      - code [ref=e44]: hammingDistanceBits(1, 4)
-      - text: "→ 2 (binary: 001 vs 100)"
-    - paragraph [ref=e45]:
-      - code [ref=e46]: hammingDistanceBits(7, 4)
-      - text: "→ 2 (binary: 111 vs 100)"
-    - paragraph [ref=e47]:
-      - code [ref=e48]: hammingDistanceBits(0, 0)
-      - text: → 0
-  - heading "About" [level=2] [ref=e49]
-  - paragraph [ref=e50]:
+    - heading "Bit Hamming Distance" [level=3] [ref=e23]
+    - paragraph [ref=e24]: Computes the number of differing bits between two non-negative integers.
+    - generic [ref=e25]:
+      - strong [ref=e26]: "Example:"
+      - text: hammingDistanceBits(1, 4)
+      - text: "Result: 2 (1=001₂, 4=100₂, differ in 2 positions)"
+    - generic [ref=e27]:
+      - spinbutton [ref=e28]: "1"
+      - spinbutton [ref=e29]: "4"
+      - button "Calculate Distance" [ref=e30] [cursor=pointer]
+  - heading "About" [level=2] [ref=e31]
+  - paragraph [ref=e32]:
     - text: This website demonstrates the Hamming distance library. See
-    - link "the repository" [ref=e51] [cursor=pointer]:
+    - link "the repository" [ref=e33] [cursor=pointer]:
       - /url: https://github.com/xn-intenton-z2a/repository0
     - text: for source code and mission details.
 ```

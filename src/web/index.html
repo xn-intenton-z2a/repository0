@@ -3,29 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hamming Distance Library</title>
-  <meta property="og:title" content="Hamming Distance Library">
+  <title>repository0</title>
+  <meta property="og:title" content="repository0">
   <meta property="og:description" content="A JavaScript library for computing Hamming distances">
   <meta property="og:type" content="website">
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
     h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
-    h2 { color: #0366d6; margin-top: 2rem; }
+    h2 { margin-top: 2rem; color: #444; }
     a { color: #0366d6; }
     .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-    .demo-section { background: #f8f9fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; }
-    .input-group { margin: 0.5rem 0; }
-    .input-group label { display: block; font-weight: bold; margin-bottom: 0.25rem; }
-    .input-group input { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; }
-    button { background: #0366d6; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; }
-    button:hover { background: #0256cc; }
-    .result { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; margin: 1rem 0; min-height: 1.5rem; }
-    .error { background: #ff6b6b; color: white; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; }
-    .examples { background: #e8f5e8; padding: 1rem; border-radius: 6px; margin: 1rem 0; }
-    .examples h4 { margin-top: 0; color: #2d5a2d; }
-    .examples code { background: #d4d4d4; padding: 0.2rem 0.4rem; border-radius: 3px; }
+    #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
+    .demo-section { background: #f8f9fa; padding: 1.5rem; border-radius: 6px; margin: 1rem 0; }
+    .demo-section h3 { margin-top: 0; color: #0366d6; }
+    .example { margin: 1rem 0; padding: 1rem; background: #fff; border-left: 4px solid #0366d6; border-radius: 0 4px 4px 0; }
+    .result { font-weight: bold; color: #28a745; }
+    .error-demo { color: #dc3545; font-style: italic; }
+    input, button { padding: 0.5rem; margin: 0.25rem; border-radius: 4px; border: 1px solid #ddd; font-family: monospace; }
+    button { background: #0366d6; color: white; cursor: pointer; }
+    button:hover { background: #0256d1; }
+    .interactive { margin: 1rem 0; }
   </style>
 </head>
 <body>
@@ -33,44 +32,48 @@
   <div class="identity">
     <dl>
       <dt>Name</dt>
-      <dd id="lib-name-val">loading...</dd>
+      <dd id="lib-package">loading...</dd>
       <dt>Version</dt>
       <dd id="lib-version">loading...</dd>
       <dt>Description</dt>
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
+  
+  <h2>Library Output</h2>
+  <div id="demo-output">Loading library...</div>
 
-  <h2>String Hamming Distance</h2>
   <div class="demo-section">
-    <div class="input-group">
-      <label for="string1">First String:</label>
-      <input type="text" id="string1" value="karolin" placeholder="Enter first string">
+    <h3>String Hamming Distance</h3>
+    <p>Computes the number of positions where characters differ between two equal-length strings.</p>
+    
+    <div class="example">
+      <strong>Example:</strong> hammingDistance("karolin", "kathrin")<br>
+      <span class="result" id="string-demo-1">Computing...</span>
     </div>
-    <div class="input-group">
-      <label for="string2">Second String:</label>
-      <input type="text" id="string2" value="kathrin" placeholder="Enter second string">
+
+    <div class="interactive">
+      <input type="text" id="str1" placeholder="First string" value="hello">
+      <input type="text" id="str2" placeholder="Second string" value="world">
+      <button onclick="calculateStringDistance()">Calculate Distance</button>
+      <div id="string-result"></div>
     </div>
-    <button onclick="calculateStringDistance()">Calculate String Distance</button>
-    <div id="string-result" class="result"></div>
   </div>
 
-  <div class="examples">
-    <h4>String Examples:</h4>
-    <p><code>hammingDistance("karolin", "kathrin")</code> → 3</p>
-    <p><code>hammingDistance("1011101", "1001001")</code> → 2</p>
-    <p><code>hammingDistance("", "")</code> → 0</p>
-  </div>
-
-  <h2>Bitwise Hamming Distance</h2>
   <div class="demo-section">
-    <div class="input-group">
-      <label for="int1">First Integer:</label>
-      <input type="number" id="int1" value="1" placeholder="Enter first integer" min="0" step="1">
+    <h3>Bit Hamming Distance</h3>
+    <p>Computes the number of differing bits between two non-negative integers.</p>
+    
+    <div class="example">
+      <strong>Example:</strong> hammingDistanceBits(1, 4)<br>
+      <span class="result" id="bits-demo-1">Computing...</span>
     </div>
-    <div class="input-group">
-      <label for="int2">Second Integer:</label>
-      <input type="number" id="int2" value="4" placeholder="Enter second integer" min="0" step="1">
+
+    <div class="interactive">
+      <input type="number" id="num1" placeholder="First number" value="1" min="0">
+      <input type="number" id="num2" placeholder="Second number" value="4" min="0">
+      <button onclick="calculateBitsDistance()">Calculate Distance</button>
+      <div id="bits-result"></div>
     </div>
     <button onclick="calculateBitDistance()">Calculate Bit Distance</button>
     <div id="bit-result" class="result"></div>
@@ -90,25 +93,29 @@
     let hammingDistance, hammingDistanceBits;
 
     try {
+      // Import library metadata
       const { name, version, description } = await import('./lib-meta.js');
-      document.getElementById('lib-name').textContent = name;
-      document.getElementById('lib-name-val').textContent = name;
+      document.getElementById('lib-package').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
       document.title = name + ' v' + version;
 
-      // Import the actual library functions (they should be available via a build step)
-      // For now, we'll implement them locally for the demo
+      // Import library functions (this would be from a bundled version in a real app)
+      // For demo purposes, we'll recreate the functions here
       hammingDistance = function(a, b) {
-        if (typeof a !== "string" || typeof b !== "string") {
-          throw new TypeError("Arguments must be strings");
+        if (typeof a !== 'string') throw new TypeError('First argument must be a string');
+        if (typeof b !== 'string') throw new TypeError('Second argument must be a string');
+        
+        const codePointsA = Array.from(a);
+        const codePointsB = Array.from(b);
+        
+        if (codePointsA.length !== codePointsB.length) {
+          throw new RangeError('Strings must have equal length');
         }
-        if (a.length !== b.length) {
-          throw new RangeError("Strings must have equal length");
-        }
+        
         let distance = 0;
-        for (let i = 0; i < a.length; i++) {
-          if (a[i] !== b[i]) {
+        for (let i = 0; i < codePointsA.length; i++) {
+          if (codePointsA[i] !== codePointsB[i]) {
             distance++;
           }
         }
@@ -116,58 +123,76 @@
       };
 
       hammingDistanceBits = function(x, y) {
-        if (!Number.isInteger(x) || !Number.isInteger(y)) {
-          throw new TypeError("Arguments must be integers");
-        }
-        if (x < 0 || y < 0) {
-          throw new RangeError("Arguments must be non-negative");
-        }
+        if (!Number.isInteger(x)) throw new TypeError('First argument must be an integer');
+        if (!Number.isInteger(y)) throw new TypeError('Second argument must be an integer');
+        if (x < 0) throw new RangeError('First argument must be non-negative');
+        if (y < 0) throw new RangeError('Second argument must be non-negative');
+        
         let xor = x ^ y;
-        let distance = 0;
+        let count = 0;
+        
         while (xor > 0) {
-          distance += xor & 1;
+          count += xor & 1;
           xor >>>= 1;
         }
-        return distance;
+        
+        return count;
       };
 
+      // Demo the library functions
+      const demos = {
+        stringDemo1: () => hammingDistance("karolin", "kathrin"),
+        bitsDemo1: () => hammingDistanceBits(1, 4),
+      };
+
+      document.getElementById('string-demo-1').textContent = `Result: ${demos.stringDemo1()} (positions differ: k≠k, o≠t, l≠h)`;
+      document.getElementById('bits-demo-1').textContent = `Result: ${demos.bitsDemo1()} (1=001₂, 4=100₂, differ in 2 positions)`;
+
+      // Display library identity and demo results
+      const output = {
+        library: { name, version, description },
+        demonstrations: {
+          'hammingDistance("karolin", "kathrin")': demos.stringDemo1(),
+          'hammingDistanceBits(1, 4)': demos.bitsDemo1(),
+        }
+      };
+      document.getElementById('demo-output').textContent = JSON.stringify(output, null, 2);
+
     } catch (e) {
+      document.getElementById('lib-package').textContent = '(build required)';
       document.getElementById('lib-version').textContent = '(build required)';
       document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
-      console.error('Failed to load library:', e);
+      document.getElementById('demo-output').textContent = 'Library not yet built. Run: npm run build:web';
+      document.getElementById('string-demo-1').textContent = 'Library not loaded';
+      document.getElementById('bits-demo-1').textContent = 'Library not loaded';
     }
 
+    // Interactive functions
     window.calculateStringDistance = function() {
-      const string1 = document.getElementById('string1').value;
-      const string2 = document.getElementById('string2').value;
+      const str1 = document.getElementById('str1').value;
+      const str2 = document.getElementById('str2').value;
       const resultDiv = document.getElementById('string-result');
-      
+
       try {
-        const distance = hammingDistance(string1, string2);
-        resultDiv.innerHTML = `<strong>Result:</strong> ${distance}<br>
-                              <small>Comparing "${string1}" and "${string2}"</small>`;
-        resultDiv.className = 'result';
+        const result = hammingDistance(str1, str2);
+        resultDiv.innerHTML = `<div class="result">Distance: ${result}</div>`;
       } catch (error) {
-        resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
-        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `<div class="error-demo">Error: ${error.message}</div>`;
       }
     };
 
-    window.calculateBitDistance = function() {
-      const int1 = parseInt(document.getElementById('int1').value);
-      const int2 = parseInt(document.getElementById('int2').value);
-      const resultDiv = document.getElementById('bit-result');
-      
+    window.calculateBitsDistance = function() {
+      const num1 = parseInt(document.getElementById('num1').value);
+      const num2 = parseInt(document.getElementById('num2').value);
+      const resultDiv = document.getElementById('bits-result');
+
       try {
-        const distance = hammingDistanceBits(int1, int2);
-        const bin1 = int1.toString(2);
-        const bin2 = int2.toString(2);
-        resultDiv.innerHTML = `<strong>Result:</strong> ${distance}<br>
-                              <small>Comparing ${int1} (${bin1}) and ${int2} (${bin2})</small>`;
-        resultDiv.className = 'result';
+        const result = hammingDistanceBits(num1, num2);
+        const binary1 = num1.toString(2);
+        const binary2 = num2.toString(2);
+        resultDiv.innerHTML = `<div class="result">Distance: ${result}</div><small>${num1}=${binary1}₂, ${num2}=${binary2}₂</small>`;
       } catch (error) {
-        resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
-        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `<div class="error-demo">Error: ${error.message}</div>`;
       }
     };
 
