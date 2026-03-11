@@ -2,11 +2,11 @@
 
 # Summary
 
-Provide the canonical Hamming-distance library API as a single, authoritative feature specification in src/lib/main.js: export hammingDistance, hammingDistanceBits, and a small, well-tested popcount helper for BigInt values. The feature specifies strict, testable input validation, correct Unicode code-point handling, BigInt-safe bit counting, an optional normalization option for strings, and comprehensive unit tests and README documentation so users and automated tests can rely on exact behaviour.
+Provide the canonical Hamming-distance library API as a single, authoritative feature specification implemented in src/lib/main.js and exercised by unit tests and the website demo. The feature exports hammingDistance, hammingDistanceBits, and a popcount helper; enforces strict, testable validation rules; correctly handles Unicode code points and BigInt-safe bit counting; and includes concise, deterministic error messages that unit tests and examples can match.
 
 # Motivation
 
-Ship a tiny, dependency-free JavaScript utility that correctly computes Hamming distances for Unicode strings (by code point) and for non-negative integers (by differing bits), and expose a reusable popcount helper for BigInt-based algorithms. Consolidating the core behaviour, error messages, and tests into one feature reduces duplication, makes the public API explicit, and supports the web demo and CLI features.
+Ship a tiny, dependency-free JavaScript utility that correctly computes Hamming distances for Unicode strings (by code point) and for non-negative integers (by differing bits). Consolidating the core behaviour, error messages, and tests into one feature reduces duplication, makes the public API explicit, and supports the web demo, CLI, and examples.
 
 # Specification
 
@@ -31,7 +31,8 @@ Ship a tiny, dependency-free JavaScript utility that correctly computes Hamming 
    - Behaviour:
      - Compare code points pairwise and return a non-negative integer count of differing positions.
      - Empty strings are valid; comparing two empty strings returns 0.
-   - Deterministic messages: keep messages concise and include canonical keywords (string, options, normalize, length) so unit tests can match substrings reliably.
+   - Error messages and determinism:
+     - Keep messages concise and include canonical keywords (string, options, normalize, length) so unit tests can reliably match substrings.
 
 3. hammingDistanceBits(x, y)
    - Signature:
@@ -43,7 +44,7 @@ Ship a tiny, dependency-free JavaScript utility that correctly computes Hamming 
    - Behaviour:
      - Convert Number inputs to BigInt before bitwise operations: bx = BigInt(x), by = BigInt(y).
      - Compute v = bx ^ by and return popcount(v) as a JavaScript Number.
-     - Implementation may use Kernighan's algorithm or the exported popcount helper for counting set bits.
+     - Use the exported popcount helper for counting set bits.
 
 4. popcount(value)
    - Signature:
@@ -54,7 +55,7 @@ Ship a tiny, dependency-free JavaScript utility that correctly computes Hamming 
    - Behaviour:
      - Return a JavaScript Number equal to the number of set bits in value's binary representation.
      - Implementation: use a precomputed 8-bit lookup table (length 256) and iterate over 8-bit chunks: while (v !== 0n) { count += table[Number(v & 0xffn)]; v >>= 8n; }
-     - Keep a clear commented fallback (Kernighan loop) for maintainers, but use the LUT for performance in the exported helper.
+     - Include a commented fallback (Kernighan loop) for maintainers, but use the LUT for performance in the exported helper.
 
 5. Errors and messages
    - TypeError for invalid types and malformed options; RangeError for unequal-length strings and negative integers.
@@ -65,7 +66,7 @@ Ship a tiny, dependency-free JavaScript utility that correctly computes Hamming 
      - hammingDistance correct results: examples including karolin vs kathrin, empty strings, surrogate-pair characters, combining marks and normalization behaviour (a\u0301 vs á), and unequal-length error cases.
      - hammingDistanceBits correctness: Number and BigInt inputs, zeros, large BigInt values, and negative / non-integer error cases.
      - popcount correctness and parity: popcount(0n) === 0, popcount(1n) === 1, popcount(0xffn) === 8, popcount((1n << 100n) - 1n) === 100; error cases for wrong type and negative values; cross-check popcount(bx ^ by) === hammingDistanceBits(bx, by) for representative pairs.
-   - README.md: update API section with signatures, validation rules, and short usage examples for hammingDistance (including normalize option), hammingDistanceBits, and popcount. Keep examples short and one-line where possible to match repo style.
+   - README.md: update API section with signatures, validation rules, and short usage examples for hammingDistance (including normalize option), hammingDistanceBits, and popcount. Keep examples short and one-line where possible.
    - CLI and web demo examples should call the library functions rather than reimplementing validation.
 
 # Acceptance Criteria
@@ -85,12 +86,12 @@ Ship a tiny, dependency-free JavaScript utility that correctly computes Hamming 
 # Files touched (recommended)
 
 - src/lib/main.js — implement and export hammingDistance, hammingDistanceBits, and popcount; include CLI entrypoint behavior if present
-- tests/unit/main.test.js and tests/unit/hamming.test.js — ensure existing tests align with the deterministic messages and add popcount.test.js
+- tests/unit/main.test.js and tests/unit/hamming.test.js — ensure tests align with deterministic messages and add popcount.test.js
 - README.md — update API and examples
 - docs/lib-browser.js (via build:web) will continue to be generated from the authoritative implementation
 
 # Notes
 
-- Keep implementation clear: use Array.from for code-points and BigInt-based XOR combined with the LUT popcount for performance and determinism.
+- Use Array.from for code-point iteration and BigInt-based XOR combined with the LUT popcount for performance and determinism.
 - Keep runtime footprint tiny and avoid external dependencies.
 - Preserve existing behaviour relied upon by other features; do not change function signatures or error classes.
