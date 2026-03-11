@@ -28,20 +28,10 @@ runs:
         git add -A
         # Unstage workflow files — GITHUB_TOKEN cannot push workflow changes
         git reset HEAD -- '.github/workflows/' 2>/dev/null || true
-        # Unstage log files on non-default branches to avoid merge conflicts
-        REF="${{ inputs.push-ref }}"
-        if [ -n "$REF" ] && [ "$REF" != "main" ] && [ "$REF" != "master" ]; then
-          git reset HEAD -- 'intentïon.md' 'intention.md' 2>/dev/null || true
-        fi
+        # Unstage log/screenshot files — these live on the .logs branch
+        git reset HEAD -- 'intentïon.md' 'intention.md' 'SCREENSHOT_INDEX.png' 2>/dev/null || true
         if git diff --cached --quiet; then
           echo "No changes to commit"
-        elif git diff --cached --name-only | grep -qvE '(intentïon\.md|intention\.md)$'; then
-          # At least one non-log file changed — proceed with commit
-          true
-        else
-          echo "Only log files changed — skipping commit"
-          git reset HEAD -- . > /dev/null 2>&1
-          exit 0
         fi
         if ! git diff --cached --quiet; then
           git commit -m "${{ inputs.commit-message }}"

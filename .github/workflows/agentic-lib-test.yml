@@ -122,29 +122,12 @@ jobs:
           path: SCREENSHOT_INDEX.png
           if-no-files-found: ignore
 
-      - name: Push screenshot on main
+      - name: Push screenshot to .logs branch
         if: |
           github.ref == 'refs/heads/main' &&
+          github.repository != 'xn-intenton-z2a/agentic-lib' &&
           (github.event_name == 'schedule' || inputs.push-screenshot == 'true' || inputs.push-screenshot == true)
-        run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add SCREENSHOT_INDEX.png
-          git diff --cached --quiet && echo "No screenshot changes" && exit 0
-          git commit -m "test: update SCREENSHOT_INDEX.png [skip ci]"
-          for attempt in 1 2 3; do
-            git push origin HEAD:main && break
-            echo "Push failed (attempt $attempt) — pulling and retrying"
-            git pull --rebase origin main || {
-              echo "Rebase conflict — aborting rebase and retrying"
-              git rebase --abort 2>/dev/null || true
-            }
-            sleep $((attempt * 2))
-            if [ "$attempt" -eq 3 ]; then
-              echo "::warning::Failed to push screenshot after 3 attempts"
-            fi
-          done
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh SCREENSHOT_INDEX.png
 
   # ─── Dispatch fix workflow when unit tests fail on main ─────────────
   dispatch-fix:

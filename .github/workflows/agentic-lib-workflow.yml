@@ -428,12 +428,26 @@ jobs:
             const missionComplete = fs.existsSync('MISSION_COMPLETE.md');
             const missionFailed = fs.existsSync('MISSION_FAILED.md');
 
-            // Activity log stats
+            // Activity log stats (fetched from .logs branch)
             let activityStats = null;
             try {
-              const logPath = fs.existsSync('intenti\u00F6n.md') ? 'intenti\u00F6n.md' : (fs.existsSync('intention.md') ? 'intention.md' : null);
-              if (logPath) {
-                const log = fs.readFileSync(logPath, 'utf8');
+              // Try .logs branch first (new location), fall back to local file (legacy)
+              let log = null;
+              for (const logFile of ['intenti\u00F6n.md', 'intention.md']) {
+                try {
+                  const { data } = await github.rest.repos.getContent({
+                    owner, repo, path: logFile, ref: '.logs',
+                  });
+                  log = Buffer.from(data.content, 'base64').toString('utf8');
+                  break;
+                } catch { /* try next */ }
+              }
+              // Fall back to local file (for repos not yet using .logs branch)
+              if (!log) {
+                const logPath = fs.existsSync('intenti\u00F6n.md') ? 'intenti\u00F6n.md' : (fs.existsSync('intention.md') ? 'intention.md' : null);
+                if (logPath) log = fs.readFileSync(logPath, 'utf8');
+              }
+              if (log) {
                 const entries = log.split('\n## ').length - 1;
                 const costMatches = [...log.matchAll(/\*\*agentic-lib transformation cost:\*\* (\d+)/g)];
                 const totalCost = costMatches.reduce((sum, m) => sum + parseInt(m[1], 10), 0);
@@ -525,6 +539,12 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
+      - name: Fetch log from .logs branch
+        run: |
+          for f in "intentïon.md" "intention.md"; do
+            git show "origin/.logs:${f}" > "$f" 2>/dev/null || true
+          done
 
       - name: Check mission-complete signal
         id: mission-check
@@ -622,6 +642,10 @@ jobs:
           commit-message: "agentic-step: maintain features and library"
           push-ref: ${{ github.ref_name }}
 
+      - name: Push log to .logs branch
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "intentïon.md" "intention.md"
+
   # ─── Director: LLM evaluates mission status (complete/failed/in-progress) ──
   director:
     needs: [params, telemetry, maintain]
@@ -635,6 +659,14 @@ jobs:
       analysis: ${{ steps.director.outputs.director-analysis }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Fetch log from .logs branch
+        run: |
+          for f in "intentïon.md" "intention.md"; do
+            git show "origin/.logs:${f}" > "$f" 2>/dev/null || true
+          done
 
       - uses: actions/setup-node@v6
         with:
@@ -661,6 +693,10 @@ jobs:
           instructions: ".github/agentic-lib/agents/agent-director.md"
           model: ${{ needs.params.outputs.model }}
 
+      - name: Push log to .logs branch
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "intentïon.md" "intention.md"
+
   # ─── Supervisor: LLM decides what to do (after director evaluates) ──
   supervisor:
     needs: [params, pr-cleanup, telemetry, maintain, director]
@@ -673,6 +709,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Fetch log from .logs branch
+        run: |
+          for f in "intentïon.md" "intention.md"; do
+            git show "origin/.logs:${f}" > "$f" 2>/dev/null || true
+          done
 
       - uses: actions/setup-node@v6
         with:
@@ -698,6 +742,10 @@ jobs:
           config: ${{ needs.params.outputs.config-path }}
           instructions: ".github/agentic-lib/agents/agent-supervisor.md"
           model: ${{ needs.params.outputs.model }}
+
+      - name: Push log to .logs branch
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "intentïon.md" "intention.md"
 
   # ─── Fix stuck PRs with failing checks ─────────────────────────────
   fix-stuck:
@@ -1079,6 +1127,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Fetch log from .logs branch
+        run: |
+          for f in "intentïon.md" "intention.md"; do
+            git show "origin/.logs:${f}" > "$f" 2>/dev/null || true
+          done
+
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
@@ -1238,6 +1292,10 @@ jobs:
         with:
           commit-message: "agentic-step: transform issue #${{ steps.issue.outputs.issue-number }}"
           push-ref: ${{ steps.branch.outputs.branchName }}
+
+      - name: Push log to .logs branch
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "intentïon.md" "intention.md"
 
       - name: Create PR and attempt merge
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true' && steps.pre-commit-behaviour-test.outputs.tests-passed != 'false'
