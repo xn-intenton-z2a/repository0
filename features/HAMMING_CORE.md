@@ -2,68 +2,92 @@
 
 # Summary
 
-Provide the canonical, authoritative Hamming-distance feature that implements the library's core functions in src/lib/main.js and documents their behaviour, validation rules, and examples. This feature consolidates the popcount helper, Unicode-aware string comparison, integer/BigInt bit comparisons, deterministic error messages, and example usage suitable for unit tests and the web demo.
+HAMMING_CORE specifies the canonical core feature that implements Unicode-aware Hamming distance for strings and bitwise Hamming distance for non-negative integers in src/lib/main.js. It defines precise validation rules, deterministic error keywords, a performant popcount helper, unit-test obligations, and the minimal docs and examples required for acceptance.
 
 # Motivation
 
-A single, well-specified core feature prevents duplication across the codebase and ensures consistent, testable behaviour for the library, CLI, web demo, examples, and TypeScript declarations. It sets deterministic error message keywords so unit tests and examples can reliably assert outcomes.
+A compact, authoritative core feature ensures a single source of truth for the library API used by the CLI, web demo, examples, TypeScript declarations, and unit/behaviour tests. Tests must be able to assert behaviour using deterministic error message keywords and exact numeric outputs.
 
 # Specification
 
-1. Public API
-   - Export the following named synchronous functions from src/lib/main.js:
-     - hammingDistance(a: string, b: string, options?: { normalize?: false | "NFC" | "NFD" }) => number
-     - hammingDistanceBits(x: number | bigint, y: number | bigint) => number
-     - popcount(value: bigint) => number
-   - Each function is pure, has no side effects, and uses no external dependencies.
+## Public API
 
-2. hammingDistance(a, b, options?)
-   - Validation:
-     - If typeof a !== 'string' or typeof b !== 'string', throw TypeError whose message includes the keyword string.
-     - If options is provided and is not a non-null object, throw TypeError including options.
-     - If options.normalize is present and not one of false, "NFC", "NFD", throw TypeError including normalize.
-   - Unicode handling and normalization:
-     - When options.normalize is "NFC" or "NFD", call String.prototype.normalize on both inputs with that form prior to comparison.
-     - Iterate over code points using Array.from or the string iterator so surrogate pairs and astral characters count as single code points.
-     - If code-point sequence lengths differ, throw RangeError whose message contains length or equal.
-   - Behaviour:
-     - Compare code points pairwise using strict equality and return the count of differing positions as a non-negative integer.
-     - Empty strings are valid and return 0 when equal.
-   - Determinism:
-     - Error messages must contain canonical keywords (string, options, normalize, length) so tests can match substrings reliably.
+- Export named synchronous functions from src/lib/main.js:
+  - hammingDistance(a: string, b: string, options?: { normalize?: false | "NFC" | "NFD" }): number
+  - hammingDistanceBits(x: number | bigint, y: number | bigint): number
+  - popcount(value: bigint): number
+- No external dependencies; functions are pure and side-effect free.
 
-3. hammingDistanceBits(x, y)
-   - Validation:
-     - If an argument is neither typeof 'number' nor typeof 'bigint', throw TypeError mentioning number or integer.
-     - If an argument is a Number but not Number.isInteger(arg), throw TypeError.
-     - If any numeric argument is negative, throw RangeError mentioning non-negative or negative.
-   - Behaviour:
-     - Convert Number inputs to BigInt: bx = BigInt(x); by = BigInt(y). Validate bx >= 0n and by >= 0n.
-     - Compute v = bx ^ by and return popcount(v) coerced to a JavaScript Number.
-     - Use the exported popcount helper for counting set bits.
+## hammingDistance(a, b, options?)
 
-4. popcount(value)
-   - Validation:
-     - If value is not typeof 'bigint', throw TypeError mentioning bigint or number.
-     - If value < 0n, throw RangeError mentioning non-negative or negative.
-   - Behaviour:
-     - Return the number of set bits in value as a JavaScript Number.
-     - Implementation guidance: use a precomputed 256-entry byte lookup table and iterate over 8-bit chunks: while (v !== 0n) { count += table[Number(v & 0xffn)]; v >>= 8n; }.
-     - Include a commented fallback (Kernighan loop) for maintainers but keep the LUT for performance.
+Validation
+- If typeof a !== 'string' or typeof b !== 'string' throw TypeError with message containing the substring string.
+- If options is supplied but is not an object (or is null) throw TypeError mentioning options.
+- If options.normalize is present and is not one of false, "NFC", "NFD", throw TypeError mentioning normalize.
 
-5. Errors
-   - Use TypeError for malformed types and options, RangeError for negative numbers and unequal-length strings.
-   - Error messages must include one of the canonical keywords: string, options, normalize, length, non-negative so tests can match reliably.
+Unicode handling
+- When options.normalize is "NFC" or "NFD", call String.prototype.normalize(form) on both inputs before comparison.
+- Compare by Unicode code points (use Array.from or the string iterator) so surrogate pairs and astral code points count as single positions.
+- If the resulting code-point sequences differ in length, throw RangeError with a message containing length or equal.
+
+Behaviour
+- Compare corresponding code points by strict equality and return the number of differing positions as a non-negative Number.
+- Empty strings are valid; identical empty strings return 0.
+- Implementation may use Array.from(a) / Array.from(b) for clarity.
+
+Deterministic error keywords: string, options, normalize, length (must appear in relevant errors)
+
+## hammingDistanceBits(x, y)
+
+Validation
+- Accept Number (integer) or BigInt for each argument; otherwise throw TypeError that mentions number or integer.
+- If an argument is typeof 'number' but not Number.isInteger(arg), throw TypeError.
+- If any numeric value is negative, throw RangeError mentioning non-negative.
+
+Behaviour
+- Convert Number inputs to BigInt: bx = BigInt(x); by = BigInt(y). Reject negative BigInts (< 0n).
+- Compute v = bx ^ by and return popcount(v) as a Number.
+- Use popcount helper for the bit count.
+
+## popcount(value)
+
+Validation
+- Require typeof value === 'bigint'; otherwise throw TypeError mentioning bigint or number.
+- If value < 0n, throw RangeError mentioning non-negative.
+
+Behaviour
+- Return the count of set bits in value as a JavaScript Number.
+- Recommended implementation: 256-entry byte lookup table and iterate over 8-bit slices until v === 0n. Include (commented) Kernighan fallback for maintainability.
+
+## Errors
+
+- TypeError for malformed types and option shapes.
+- RangeError for unequal-length code-point sequences and negative integers.
+- Error messages must include canonical substrings so tests can match reliably (string, options, normalize, length, non-negative).
 
 # Tests and Documentation
 
-- Unit tests in tests/unit/ must cover:
-  - hammingDistance examples: karolin vs kathrin => 3; empty strings => 0; unequal-length strings throw RangeError; composed vs decomposed sequences demonstrating normalization (a\u0301 versus á) with and without options.normalize set to NFC.
-  - hammingDistance must treat surrogate pairs and astral characters as single code points.
-  - hammingDistanceBits examples: 1 vs 4 => 2; 0 vs 0 => 0; Number and BigInt inputs; negative and non-integer Number validation errors.
-  - popcount tests: popcount(0n) === 0; popcount(0xffn) === 8; popcount((1n << 100n) - 1n) === 100; type and negative value errors; cross-check popcount(bx ^ by) === hammingDistanceBits(bx, by) for representative pairs.
-- README.md: include API signatures, validation rules, and short one-line usage examples for hammingDistance (with normalize option), hammingDistanceBits, and popcount.
-- examples/ scripts and web demo should import these named exports rather than reimplementing validation.
+Unit tests (tests/unit/) must cover:
+- hammingDistance:
+  - hammingDistance("karolin", "kathrin") === 3
+  - hammingDistance("", "") === 0
+  - hammingDistance("a", "bb") throws RangeError (message contains length or equal)
+  - Normalization: hammingDistance("a\u0301", "á") === 1 without normalization and === 0 when options.normalize = "NFC"
+  - Surrogate/astral characters: treat each astral code point as one position (e.g., emoji pairs)
+- hammingDistanceBits:
+  - hammingDistanceBits(1, 4) === 2
+  - hammingDistanceBits(0, 0) === 0
+  - Accept Number and BigInt inputs; throw TypeError for non-number/non-bigint; throw TypeError for non-integer Numbers; throw RangeError for negative values
+- popcount:
+  - popcount(0n) === 0
+  - popcount(0xffn) === 8
+  - popcount((1n << 100n) - 1n) === 100
+  - popcount throws TypeError for Number input and RangeError for negative BigInt
+- Cross-checks: for sampled pairs bx, by (Number or BigInt), assert popcount(bx ^ by) === hammingDistanceBits(bx, by)
+
+README and examples
+- README.md must document the three exports with signatures, validation rules, and one-line examples for hammingDistance (including normalize option), hammingDistanceBits, and popcount.
+- examples/ scripts should import the named exports and be deterministic (used by unit tests and web demo). The CLI and web demo must import these functions rather than duplicating validation logic.
 
 # Acceptance Criteria
 
@@ -71,23 +95,23 @@ A single, well-specified core feature prevents duplication across the codebase a
 - hammingDistance("", "") returns 0
 - hammingDistance("a", "bb") throws RangeError (message contains length or equal)
 - hammingDistance("a\u0301", "á") returns 1 without normalization and 0 with options.normalize set to "NFC"
-- hammingDistance treats surrogate pairs and astral characters as single code points
+- Surrogate pairs and astral code points count as single positions
 - hammingDistanceBits(1, 4) returns 2
 - hammingDistanceBits(0, 0) returns 0
 - hammingDistanceBits throws TypeError for non-number/non-bigint, TypeError for non-integer Numbers, and RangeError for negative values (message contains non-negative)
 - popcount(0n) === 0, popcount(0xffn) === 8, popcount((1n << 100n) - 1n) === 100; passing a Number to popcount throws TypeError; negative BigInt throws RangeError
-- Unit tests in tests/unit/ cover the above cases and pass locally
+- Unit tests in tests/unit/ exercise and assert the above behaviours and pass locally
 - README contains API docs and concise usage examples for hammingDistance, hammingDistanceBits, and popcount
 
-# Files touched (recommended)
+# Files to change (minimal set)
 
-- src/lib/main.js — implement and export hammingDistance, hammingDistanceBits, and popcount; include CLI entrypoint elsewhere if present
-- tests/unit/main.test.js and tests/unit/hamming.test.js — ensure tests align with deterministic messages and include popcount tests
-- README.md — update API and examples
-- examples/ and src/web/ demos should import from the canonical implementation
+- src/lib/main.js — implement the three exports and CLI entrypoint if present
+- tests/unit/* — add or update unit tests to match deterministic error keywords and cases above
+- README.md — document API and examples
+- examples/* — deterministic example scripts that import and demonstrate behaviour
 
 # Notes
 
-- Prefer Array.from for clarity when iterating code points and BigInt XOR + LUT popcount for bit counting.
-- Keep runtime footprint small and avoid external dependencies.
-- Maintain deterministic, concise error messages so tests and examples can assert substrings.
+- Keep implementation small and dependency-free: use Array.from for code points and BigInt XOR + LUT popcount for performance.
+- Ensure error messages include canonical keywords so unit tests can rely on substring matching.
+- Do not alter other unrelated files in the repository.
