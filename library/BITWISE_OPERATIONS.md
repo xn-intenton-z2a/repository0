@@ -128,12 +128,15 @@ Optimization opportunities:
 ## Reference Details
 
 JavaScript XOR operator (^) specifications:
-- Syntax: x ^ y
+- Syntax: x ^ y  
 - Precedence: Higher than equality, lower than shift operators
 - Associativity: Left-to-right
 - Type coercion: ToInt32 for Number operands
-- BigInt handling: ToBigInt for BigInt operands
+- BigInt handling: ToBigInt for BigInt operands  
 - Error conditions: TypeError for mixed Number/BigInt
+- Truth table: 0^0=0, 0^1=1, 1^0=1, 1^1=0
+- 32-bit truncation: Numbers > 32 bits get most significant bits discarded
+- Warning: Avoid using ^ 0 for integer truncation, use Math.trunc() instead
 
 Bit manipulation utility functions:
 - Population count: Count number of set bits
@@ -166,4 +169,4 @@ Sources crawled:
 - MDN Bitwise XOR: Complete document
 
 Total data size: 20000+ characters  
-Retrieved: 2026-03-11T22:17:13Z
+Retrieved: 2026-03-11T22:32:38Z

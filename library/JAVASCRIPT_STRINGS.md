@@ -138,6 +138,8 @@ Unicode support requires careful consideration of surrogate pairs and code point
 
 For proper Unicode iteration, use for...of loops or spread syntax which iterate by code points rather than code units. Performance characteristics favor sequential access patterns and consistent method usage.
 
+The charAt method always returns single UTF-16 code units and may return invalid surrogate characters for Unicode. The codePointAt method handles surrogate pairs correctly and returns undefined for out-of-range indices. Both methods use zero-based indexing with different behavior for bounds checking.
+
 ## Attribution Information
 
 Sources crawled:
@@ -145,4 +147,4 @@ Sources crawled:
 - MDN String.prototype.codePointAt: Complete document
 
 Total data size: 12300+ characters
-Retrieved: 2026-03-11T22:17:13Z
+Retrieved: 2026-03-11T22:32:38Z
