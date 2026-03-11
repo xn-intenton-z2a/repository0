@@ -23,21 +23,34 @@
       - textbox "First string" [ref=e19]: hello
       - textbox "Second string" [ref=e20]: world
       - button "Calculate Distance" [ref=e21] [cursor=pointer]
-  - generic [ref=e22]:
-    - heading "Bit Hamming Distance" [level=3] [ref=e23]
-    - paragraph [ref=e24]: Computes the number of differing bits between two non-negative integers.
-    - generic [ref=e25]:
-      - strong [ref=e26]: "Example:"
+      - generic [ref=e23]: "Distance: 4"
+  - generic [ref=e24]:
+    - heading "Bit Hamming Distance" [level=3] [ref=e25]
+    - paragraph [ref=e26]: Computes the number of differing bits between two non-negative integers.
+    - generic [ref=e27]:
+      - strong [ref=e28]: "Example:"
       - text: hammingDistanceBits(1, 4)
       - text: "Result: 2 (1=001₂, 4=100₂, differ in 2 positions)"
-    - generic [ref=e27]:
-      - spinbutton [ref=e28]: "1"
-      - spinbutton [ref=e29]: "4"
-      - button "Calculate Distance" [ref=e30] [cursor=pointer]
-  - heading "About" [level=2] [ref=e31]
-  - paragraph [ref=e32]:
+    - generic [ref=e29]:
+      - spinbutton [ref=e30]: "1"
+      - spinbutton [ref=e31]: "4"
+      - button "Calculate Distance" [ref=e32] [cursor=pointer]
+    - button "Calculate Bit Distance" [ref=e33] [cursor=pointer]
+  - generic [ref=e34]:
+    - heading "Integer Examples:" [level=4] [ref=e35]
+    - paragraph [ref=e36]:
+      - code [ref=e37]: hammingDistanceBits(1, 4)
+      - text: "→ 2 (binary: 001 vs 100)"
+    - paragraph [ref=e38]:
+      - code [ref=e39]: hammingDistanceBits(7, 4)
+      - text: "→ 2 (binary: 111 vs 100)"
+    - paragraph [ref=e40]:
+      - code [ref=e41]: hammingDistanceBits(0, 0)
+      - text: → 0
+  - heading "About" [level=2] [ref=e42]
+  - paragraph [ref=e43]:
     - text: This website demonstrates the Hamming distance library. See
-    - link "the repository" [ref=e33] [cursor=pointer]:
+    - link "the repository" [ref=e44] [cursor=pointer]:
       - /url: https://github.com/xn-intenton-z2a/repository0
     - text: for source code and mission details.
 ```
