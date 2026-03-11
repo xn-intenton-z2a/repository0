@@ -1,0 +1,30 @@
+TABLE OF CONTENTS
+1. API signature
+2. Return value semantics
+3. Unicode iteration rules (code points vs grapheme clusters)
+4. Examples and iteration patterns
+5. Spec reference
+
+1. API signature
+string[Symbol.iterator]() -> iterable iterator
+
+2. Return value semantics
+Returns an iterator object that yields Unicode code points of the string value as individual strings. The iterator yields code-point-sized string elements; surrogate pairs are preserved as a single yielded element.
+
+3. Unicode iteration rules
+- Iteration is by Unicode code points: surrogate pairs (high+low) are treated as a single code-point element and yielded once.
+- Grapheme clusters may still be split (e.g., sequences joined by ZWJ or combined marks); the iterator does not yield grapheme clusters, it yields code point units as per ECMAScript string iteration rules.
+
+4. Examples and iteration patterns
+- Use for...of or spread operator to iterate by code points: for (const ch of str) { /* ch is a string containing one code point */ }
+- Manual iterator control: const iter = str[Symbol.iterator](); iter.next() returns { value: <code-point-string>, done: boolean }.
+
+5. Spec reference
+ECMAScript® 2026 Language Specification — sec-string.prototype-%symbol.iterator%
+
+DIGEST
+Source: MDN String.prototype[@@iterator] (retrieved 2026-03-11)
+Extracted: iterator yields Unicode code points as strings, surrogate pairs preserved, grapheme clusters may be split; usage examples and spec pointer.
+
+ATTRIBUTION
+Source: MDN Web Docs — String.prototype[Symbol.iterator]. Retrieved 2026-03-11. Approx. fetched text size: ~2 KB.

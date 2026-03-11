@@ -1,0 +1,44 @@
+TABLE OF CONTENTS
+1. Overview and semantics
+2. Operand coercion and bit width
+3. Operators list and behavior
+4. Shift operators details and unsigned right shift
+5. Common usage patterns with integers and masks
+6. Reference signatures and examples
+
+1. Overview and semantics
+Bitwise operators treat operands as sets of 32 bits (zeros and ones) and return numeric values. Operands are coerced to 32-bit signed integers for most bitwise ops; results are standard JavaScript Numbers (IEEE-754 double) representing 32-bit integer results.
+
+2. Operand coercion and bit width
+- Before bitwise operation, values are converted to 32-bit integers (ToInt32). For unsigned right shift >>>, ToUint32 conversion is used.
+- Bitwise operations operate on 32-bit values; large integers are truncated to low 32 bits.
+
+3. Operators list and behavior
+- Bitwise AND &: returns 1 where both bits are 1.
+- Bitwise OR |: returns 1 where either bit is 1.
+- Bitwise XOR ^: returns 1 where bits differ.
+- Bitwise NOT ~: flips bits (result = -x - 1 for two's complement 32-bit representation).
+
+4. Shift operators
+- Left shift <<: shifts left, discarding high bits, filling with zeros on the right; operates on 32-bit signed int.
+- Signed right shift >>: preserves sign bit (arithmetic shift), fills left with sign bit.
+- Unsigned right shift >>>: fills left with zeros (logical shift), uses ToUint32.
+
+5. Common usage patterns
+- Creating masks: (1 << n) can be used to create single-bit mask for 0 <= n < 32.
+- Clearing/setting bits: x |= mask sets bits; x &= ~mask clears bits; x ^= mask toggles bits.
+- Combining with popcount/xor for Hamming distance: popcount(x ^ y).
+
+6. Reference signatures and examples
+- Operators are infix and follow JS operator precedence rules. Example idioms:
+  * mask = (1 << k)
+  * set: x = x | mask
+  * clear: x = x & ~mask
+  * toggle: x = x ^ mask
+
+DIGEST
+Source: MDN Bitwise Operators (retrieved 2026-03-11)
+Extracted: coercion rules (ToInt32/ToUint32), list of operators (&,|,^,~,<<,>>,>>>), semantics of signed vs unsigned shifts, and practical mask idioms.
+
+ATTRIBUTION
+Source: MDN Web Docs — Bitwise Operators. Retrieved 2026-03-11. Approx. fetched text size: ~6 KB.
