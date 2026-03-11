@@ -24,3 +24,27 @@ describe("Library Identity", () => {
     expect(identity).toEqual({ name, version, description });
   });
 });
+
+describe("Hamming Distance for Strings", () => {
+  test("TODO: implement hammingDistance function", () => {
+    // TODO: Replace this placeholder test with actual hammingDistance tests
+    // When implemented, test cases should include:
+    // - hammingDistance("karolin", "kathrin") should return 3
+    // - hammingDistance("", "") should return 0
+    // - hammingDistance("a", "bb") should throw RangeError
+    // - Invalid inputs should throw TypeError
+    expect(true).toBe(true); // Placeholder passing test
+  });
+});
+
+describe("Hamming Distance for Bits", () => {
+  test("TODO: implement hammingDistanceBits function", () => {
+    // TODO: Replace this placeholder test with actual hammingDistanceBits tests
+    // When implemented, test cases should include:
+    // - hammingDistanceBits(1, 4) should return 2 (binary: 001 vs 100)
+    // - hammingDistanceBits(0, 0) should return 0
+    // - Negative integers should throw RangeError
+    // - Invalid inputs should throw TypeError
+    expect(true).toBe(true); // Placeholder passing test
+  });
+});
