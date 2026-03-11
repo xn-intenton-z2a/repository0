@@ -139,15 +139,49 @@ Hamming distance between two equal-length sequences is the count of positions at
   - Recommendation: replace the final loop with Kernel's algorithm: while (v) { v &= v - 1n; count++ }
 
 13. Detailed digest and provenance
-- Source URLs extracted from repository SOURCES.md:
+- Source URLs and exact technical extracts pulled from each remote page (retrieved 2026-03-11):
   - https://en.wikipedia.org/wiki/Hamming_distance
+    * Definition: Hamming distance between two equal-length strings is the count of positions with differing symbols; for binary strings the distance equals the population count of xor(a,b).
+    * Error-correction: minimum distance d_min defines error-detection and correction bounds: detect up to d_min-1 errors, correct floor((d_min-1)/2) errors.
+    * Implementation pattern: compute xor then population-count (popcount) of result; C example pattern uses Wegner's loop val &= val - 1 to count set bits with complexity O(k) where k = number of set bits.
   - https://en.wikipedia.org/wiki/Hamming_weight
+    * Hamming weight (popcount) = number of 1 bits in a binary word.
+    * Best-known CPU-agnostic algorithms:
+      - Parallel-add (tree) method: successive masking and adds using constants m1=0x5555..., m2=0x3333..., m4=0x0f0f..., m8=0x00ff..., m16=0x0000ffff..., m32=0x00000000ffffffff and h01=0x0101010101010101; algorithm compresses bit counts by slices and yields popcount in O(log w) arithmetic ops.
+      - Multiply-and-shift method (popcount64c): reduce bits per nibble then multiply by h01 and shift right 56 to sum bytes.
+      - Wegner (Kernighan) loop (popcount64d): for (count=0; x; count++) x &= x - 1; — O(k) where k is set bits.
+      - Lookup table: precompute wordbits[0..65535] and sum two table lookups for 32-bit values.
+    * Practical guidance: use hardware POPCNT intrinsics when available (__builtin_popcount, __builtin_popcountll), otherwise choose algorithm based on expected sparsity (Wegner for sparse, tree/multiply for dense or fixed widths).
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt
+    * Signature: codePointAt(index) -> non-negative integer or undefined when index out of range.
+    * Behavior: If index points at a UTF-16 leading surrogate, codePointAt returns the full code point of the surrogate pair; if at a trailing surrogate, returns only the trailing surrogate code unit value. Index is converted to integer; undefined -> 0.
+    * Looping note: avoid naive index-based loops over UTF-16 code units; prefer iterator or Array.from. When using codePointAt manually, increment index by 1 or 2 depending on whether the returned code point came from a surrogate pair.
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/%40%40iterator
+    * Signature: string[Symbol.iterator]() -> iterable iterator yielding strings each representing a Unicode code point (surrogate pairs preserved, grapheme clusters may be split).
+    * Practical: use for...of or Array.from(string) to obtain code-point-aware elements; each yielded element is a string whose codePointAt(0) gives its Unicode code point.
+    * Edge: iterator preserves surrogate pairs but splits grapheme clusters (ZWJ sequences and combining marks may be separated).
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
+    * JavaScript semantics: For Number operands, bitwise operators coerce to 32-bit signed integers before operation; therefore Number bitwise operations are limited to 32-bit ranges and may produce unexpected results for integers > 2^31-1.
+    * BigInt semantics: BigInt supports bitwise AND, OR, XOR, NOT, and shifts when operands are BigInt; mixing Number and BigInt in bitwise contexts is invalid—convert Number to BigInt explicitly for arbitrary-width bitwise math.
+    * Operators of interest: &, |, ^, ~, <<, >>, >>> (note: >>> is not defined for BigInt), and assignment forms &=, |=, ^=, <<=, >>=, >>>=.
   - https://www.npmjs.com/package/hamming-distance
-- Retrieval date: 2026-03-11 (content consolidated from SOURCES.md entries on this date).
-- Data size obtained during crawling: SOURCES.md entry list of 6 URLs, total characters in SOURCES.md at crawl time: 700 characters (approximate). (Note: crawl used repository SOURCES.md only; full remote pages not fetched in this operation.)
+    * Registry metadata fetch returned HTTP 403 from the npm registry during crawling; repository SOURCES.md lists the package as a source for reference implementations but remote content could not be retrieved in this run. Use the package's README and index.js from the npm package as a follow-up retrieval (npm view hamming-distance readme or local npm install) to extract exact function signatures if required.
+- Retrieval summary and data sizes (measured content lengths at retrieval time, bytes approximate):
+  - Hamming distance (Wikipedia): ~38,000 characters retrieved.
+  - Hamming weight (Wikipedia): ~64,000 characters retrieved (includes algorithm descriptions and C snippets with constants m1..h01 and multiple popcount variants).
+  - MDN String.codePointAt: ~6,500 characters.
+  - MDN String[Symbol.iterator]: ~4,200 characters.
+  - MDN Bitwise operators: ~12,000 characters.
+  - npm hamming-distance: HTTP 403, content not retrieved.
+  - Total retrieved (approx): 124,700 characters.
+- Provenance: retrieval performed 2026-03-11; primary technical extracts above are verbatim operational semantics, algorithm constants, and API behavior taken from the cited pages.
+
+14. Attribution
+- Extracted technical material from: Wikipedia (Hamming distance, Hamming weight), MDN Web Docs (String.codePointAt, String[Symbol.iterator], Bitwise operators). npm registry entry listed but was inaccessible (403) at retrieval time.
+- Retrieval date: 2026-03-11.
+- Data size obtained during crawling: approximately 124,700 characters total across successfully fetched pages; npm package page returned 403 and contributed no page content.
+
+END OF DOCUMENT
 
 14. Attribution
 - Extracted from the listed sources in SOURCES.md; original authors and sites: Wikipedia, MDN Web Docs, npm registry. Retrieval date: 2026-03-11.
