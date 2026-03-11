@@ -35,3 +35,13 @@ Include performance benchmarks in the test suite to verify optimization effectiv
 ## Trade-off Documentation
 
 Document any trade-offs between performance and other qualities like readability or memory usage, helping future maintainers understand optimization decisions.
+
+## Acceptance Criteria
+
+- [ ] String comparison uses single-pass iteration with minimal memory allocation
+- [ ] Bit counting uses efficient algorithms like Brian Kernighan's method or built-in operations
+- [ ] Functions scale linearly with input size as expected
+- [ ] Memory allocation during computation is minimized
+- [ ] Performance is consistent across different input sizes within reasonable bounds
+- [ ] Micro-optimizations provide meaningful improvements without sacrificing maintainability
+- [ ] Performance benchmarks verify optimization effectiveness

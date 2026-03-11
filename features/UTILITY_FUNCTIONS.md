@@ -35,3 +35,14 @@ All utility functions follow the same naming conventions, parameter patterns, an
 ## Optional Functionality
 
 Utility functions are designed as optional enhancements that don't complicate the core API but provide value for users who need extended functionality.
+
+## Acceptance Criteria
+
+- [ ] Batch processing functions handle arrays of string pairs and integer pairs efficiently
+- [ ] Similarity scoring converts distances to normalized scores between 0 and 1
+- [ ] Threshold checking functions provide boolean results for distance comparisons
+- [ ] Distance matrix computation works for sets of strings or integers
+- [ ] Helper predicates like `areHammingSimilar` encapsulate common patterns
+- [ ] Format utilities provide human-readable output options
+- [ ] All utility functions follow consistent naming and error handling patterns
+- [ ] Optional functions don't affect core API simplicity

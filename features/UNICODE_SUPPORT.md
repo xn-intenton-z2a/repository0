@@ -31,3 +31,13 @@ Comprehensive tests validate Unicode handling with strings containing emojis, ac
 ## Performance Considerations
 
 Unicode handling maintains reasonable performance while ensuring correctness, using efficient iteration methods that avoid unnecessary string conversions or multiple passes through the data.
+
+## Acceptance Criteria
+
+- [ ] Function correctly handles strings with emojis and multi-byte Unicode characters
+- [ ] String length calculation counts actual characters, not UTF-16 code units
+- [ ] Character iteration handles surrogate pairs properly
+- [ ] Unicode normalization is handled consistently
+- [ ] International text including right-to-left languages works correctly
+- [ ] Performance remains reasonable for typical Unicode string lengths
+- [ ] Unit tests validate Unicode scenarios with emojis, accented characters, and complex scripts

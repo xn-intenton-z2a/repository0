@@ -27,3 +27,13 @@ Comprehensive unit tests verify normal operation with ASCII strings, Unicode str
 ## Examples
 
 Basic usage includes comparing simple ASCII strings like "karolin" and "kathrin" which should return 3. Unicode examples demonstrate proper handling of characters like "café" and "care" or emoji sequences.
+
+## Acceptance Criteria
+
+- [ ] `hammingDistance("karolin", "kathrin")` returns `3`
+- [ ] `hammingDistance("", "")` returns `0` 
+- [ ] `hammingDistance("a", "bb")` throws `RangeError`
+- [ ] Function handles Unicode strings correctly (compare code points, not UTF-16 code units)
+- [ ] Function throws `TypeError` for non-string arguments
+- [ ] Function is exported as named export from `src/lib/main.js`
+- [ ] Comprehensive unit tests cover all cases

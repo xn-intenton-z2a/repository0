@@ -31,3 +31,13 @@ Unit tests cover basic bit operations, edge cases with zero, large numbers withi
 ## Examples
 
 Basic usage includes comparing integers like 1 and 4 which have binary representations 001 and 100, resulting in a Hamming distance of 2. Examples also demonstrate zero cases and larger integer comparisons.
+
+## Acceptance Criteria
+
+- [ ] `hammingDistanceBits(1, 4)` returns `2` (binary: 001 vs 100)
+- [ ] `hammingDistanceBits(0, 0)` returns `0`
+- [ ] Function throws `TypeError` for non-integer arguments  
+- [ ] Function throws `RangeError` for negative integers
+- [ ] Function works correctly with large integers within JavaScript safe integer range
+- [ ] Function is exported as named export from `src/lib/main.js`
+- [ ] Comprehensive unit tests cover normal cases, edge cases, and error cases

@@ -35,3 +35,14 @@ Behavior tests verify that the web interface correctly calls the library functio
 ## User Experience
 
 Clean, intuitive design makes it easy for users to experiment with different inputs and understand the results. Clear labeling and helpful hints guide users toward successful interactions.
+
+## Acceptance Criteria
+
+- [ ] Web interface provides input forms for both string and integer Hamming distance functions
+- [ ] Real-time calculation displays results as user types
+- [ ] Visual highlighting shows character differences in string comparisons
+- [ ] Binary representation visualization shows bit differences for integers
+- [ ] Error messages match library function error behavior
+- [ ] Interface works on both desktop and mobile devices
+- [ ] Behavior tests verify web interface calls library functions correctly
+- [ ] Examples and educational content explain Hamming distance concepts
