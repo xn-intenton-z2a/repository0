@@ -33,16 +33,16 @@
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
     try {
-      const { name, version, description } = await import('./lib-meta.js');
+      const { name, version, description } = await import('./lib.js');
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
       document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
     } catch (e) {
-      document.getElementById('lib-version').textContent = '(build required)';
-      document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
-      document.getElementById('demo-output').textContent = 'Library not yet built. Run: npm run build:web';
+      document.getElementById('lib-version').textContent = '(error)';
+      document.getElementById('lib-description').textContent = e.message;
+      document.getElementById('demo-output').textContent = 'Failed to load library: ' + e.message;
     }
   </script>
 </body>

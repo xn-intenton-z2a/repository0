@@ -18,9 +18,9 @@ A fix is never just one file. These layers form a single unit — if you change 
 
 - **Library source** (`src/lib/main.js`) — the core implementation
 - **Unit tests** (`tests/unit/`) — test every function at the API level with exact values and edge cases
-- **Website** (`src/web/index.html` and related files) — imports and calls the library to demonstrate features.
-  **NEVER duplicate library functions inline in the web page** — use the build pipeline (`lib-meta.js`, or
-  a generated browser module) to share code. Inline copies cause behaviour tests to test a simulation, not the real library.
+- **Website** (`src/web/index.html` and `src/web/lib.js`) — `lib.js` re-exports from `../lib/main.js`, so the
+  page imports the **real library** directly. **NEVER duplicate library functions inline in the web page** —
+  add exports to `main.js` and they are automatically available via `lib.js`.
 - **Website unit tests** (`tests/unit/web.test.js`) — verify HTML structure and library wiring
 - **Behaviour tests** (`tests/behaviour/`) — Playwright tests that load the website in a real browser
   and verify features work at a high navigational level (demo output visible, interactive elements work).

@@ -21,7 +21,7 @@ on:
         description: "Copilot SDK model to use"
         required: false
         type: string
-        default: "gpt-5-mini"
+        default: ""
       profile:
         description: "Tuning profile"
         required: false
@@ -46,11 +46,12 @@ on:
           - "hourly"
           - "continuous"
       model:
-        description: "Copilot SDK model to use"
+        description: "Copilot SDK model to use (empty = read from agentic-lib.toml)"
         required: false
         type: choice
-        default: "gpt-5-mini"
+        default: ""
         options:
+          - ""
           - gpt-5-mini
           - claude-sonnet-4
           - gpt-4.1
@@ -91,10 +92,16 @@ jobs:
           script: |
             const fs = require('fs');
             const frequency = '${{ inputs.frequency }}';
-            const model = '${{ inputs.model || 'gpt-5-mini' }}';
-            const profile = '${{ inputs.profile }}';
             const workflowPath = '.github/workflows/agentic-lib-workflow.yml';
             const tomlPath = 'agentic-lib.toml';
+            let model = '${{ inputs.model }}';
+            if (!model && fs.existsSync(tomlPath)) {
+              const toml = fs.readFileSync(tomlPath, 'utf8');
+              const m = toml.match(/^\s*model\s*=\s*"([^"]*)"/m);
+              if (m) model = m[1];
+            }
+            if (!model) model = 'gpt-5-mini';
+            const profile = '${{ inputs.profile }}';
 
             const isMaintenance = frequency === 'maintenance';
             const effectiveFrequency = isMaintenance ? 'weekly' : frequency;

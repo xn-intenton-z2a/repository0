@@ -9,7 +9,7 @@
     "build:web": "node .github/agentic-lib/scripts/build-web.cjs",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
-    "test:behaviour": "npm run build:web && npx playwright test --config playwright.config.js",
+    "test:behaviour": "npx playwright test --config playwright.config.js",
     "start": "npm run build:web && npx serve docs",
     "start:cli": "node src/lib/main.js"
   },
@@ -17,7 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.2.12"
+    "@xn-intenton-z2a/agentic-lib": "^7.2.15"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",

@@ -39,7 +39,7 @@ on:
       model:
         type: string
         required: false
-        default: "gpt-5-mini"
+        default: ""
   workflow_dispatch:
     inputs:
       discussion-url:
@@ -53,11 +53,12 @@ on:
         required: false
         default: ""
       model:
-        description: "Copilot SDK model to use"
+        description: "Copilot SDK model to use (empty = read from agentic-lib.toml)"
         type: choice
         required: false
-        default: "gpt-5-mini"
+        default: ""
         options:
+          - ""
           - gpt-5-mini
           - claude-sonnet-4
           - gpt-4.1
@@ -80,11 +81,19 @@ jobs:
   params:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: ${{ env.configPath }}
+          sparse-checkout-cone-mode: false
       - name: Normalise params
         id: normalise
         shell: bash
         run: |
           MODEL='${{ inputs.model }}'
+          if [ -z "$MODEL" ] && [ -f "${{ env.configPath }}" ]; then
+            TOML_MODEL=$(grep '^\s*model' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/')
+            MODEL="${TOML_MODEL}"
+          fi
           echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
           DRY_RUN='${{ inputs.dry-run }}'
           echo "dry-run=${DRY_RUN:-true}" >> $GITHUB_OUTPUT

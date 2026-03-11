@@ -3,11 +3,21 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // src/lib/main.js
 
-import { createRequire } from "module";
-import { fileURLToPath } from "url";
+const isNode = typeof process !== "undefined" && !!process.versions?.node;
 
-const require = createRequire(import.meta.url);
-const pkg = require("../../package.json");
+let pkg;
+if (isNode) {
+  const { createRequire } = await import("module");
+  const requireFn = createRequire(import.meta.url);
+  pkg = requireFn("../../package.json");
+} else {
+  try {
+    const resp = await fetch(new URL("../../package.json", import.meta.url));
+    pkg = await resp.json();
+  } catch {
+    pkg = { name: document.title, version: "0.0.0", description: "" };
+  }
+}
 
 export const name = pkg.name;
 export const version = pkg.version;
@@ -29,7 +39,10 @@ export function main(args) {
   console.log(`${name}@${version}`);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2);
-  main(args);
+if (isNode) {
+  const { fileURLToPath } = await import("url");
+  if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    const args = process.argv.slice(2);
+    main(args);
+  }
 }

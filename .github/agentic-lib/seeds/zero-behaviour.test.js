@@ -4,7 +4,7 @@ import { test, expect } from "@playwright/test";
 import { getIdentity } from "../../src/lib/main.js";
 
 test("homepage returns 200 and renders", async ({ page }) => {
-  const response = await page.goto("/", { waitUntil: "networkidle" });
+  const response = await page.goto("./", { waitUntil: "networkidle" });
   expect(response.status()).toBe(200);
 
   await expect(page.locator("#lib-name")).toBeVisible({ timeout: 10000 });
@@ -16,7 +16,7 @@ test("homepage returns 200 and renders", async ({ page }) => {
 
 test("page displays the library version from src/lib/main.js", async ({ page }) => {
   const { version } = getIdentity();
-  await page.goto("/", { waitUntil: "networkidle" });
+  await page.goto("./", { waitUntil: "networkidle" });
   const pageVersion = await page.locator("#lib-version").textContent();
   expect(pageVersion).toContain(version);
 });
