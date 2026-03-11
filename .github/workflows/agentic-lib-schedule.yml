@@ -101,10 +101,10 @@ jobs:
 
             const SCHEDULE_MAP = {
               off: null,
-              weekly: '15 6 * * 1',
-              daily: '15 6 * * *',
-              hourly: '15 * * * *',
-              continuous: '5,15,25,35,45,55 * * * *',
+              weekly: '25 6 * * 1',
+              daily: '25 6 * * *',
+              hourly: '25 * * * *',
+              continuous: '5,25,45 * * * *',
             };
 
             // Update agentic-lib-workflow.yml schedule

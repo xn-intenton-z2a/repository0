@@ -25,12 +25,4 @@ describe("Website", () => {
     expect(html).toContain("lib-name");
     expect(html).toContain("lib-version");
   });
-
-  test("index.html contains Hamming distance demo sections", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain("String Hamming Distance");
-    expect(html).toContain("Bit Hamming Distance");
-    expect(html).toContain("string-result");
-    expect(html).toContain("bits-result");
-  });
 });

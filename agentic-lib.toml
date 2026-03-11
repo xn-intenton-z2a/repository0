@@ -7,7 +7,6 @@
 
 [schedule]
 supervisor = "continuous"              # off | weekly | daily | hourly | continuous
-model = "claude-sonnet-4"
 
 [paths]
 mission = "MISSION.md"
@@ -39,7 +38,7 @@ test = "npm ci && npm test"
 [tuning]
 # Profile sets defaults for all tuning and limit knobs: min | recommended | max
 # Profile definitions live in [profiles.*] sections below.
-profile = "max"
+profile = "recommended"
 #
 # Model selection — each has different strengths:
 #   gpt-5-mini      — Fast, cheap, supports reasoning-effort. Best for CI and iteration.
@@ -142,7 +141,7 @@ max-source-todos = 0               # max TODO comments allowed in ./src (0 = non
 log-file = "intentïon.md"
 
 [init]
-timestamp = "2026-03-11T01:21:16.573Z"
+timestamp = "2026-03-11T02:39:21.916Z"
 mode = "purge"
 mission = "hamming-distance"
-version = "7.2.7"
+version = "7.2.10"

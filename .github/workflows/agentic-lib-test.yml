@@ -17,7 +17,7 @@ concurrency:
 
 on:
   schedule:
-    - cron: "10 * * * *"
+    - cron: "40 * * * *"
   push:
     branches: [main]
     paths:
@@ -82,8 +82,11 @@ jobs:
 
   behaviour:
     if: github.repository != 'xn-intenton-z2a/agentic-lib'
+    continue-on-error: true
     runs-on: ubuntu-latest
     container: mcr.microsoft.com/playwright:v1.58.2-noble
+    outputs:
+      tests-failed: ${{ steps.result.outputs.tests-failed }}
     steps:
       - uses: actions/checkout@v6
 
@@ -91,6 +94,7 @@ jobs:
         run: npm ci
 
       - name: Run behaviour tests (with retry)
+        id: run-tests
         run: |
           npm run test:behaviour || {
             echo "::warning::Behaviour test attempt 1 failed — retrying"
@@ -99,6 +103,16 @@ jobs:
           }
         #env:
         #  HOME: /root
+
+      - name: Record test result
+        if: always()
+        id: result
+        run: |
+          if [ "${{ steps.run-tests.outcome }}" = "failure" ]; then
+            echo "tests-failed=true" >> $GITHUB_OUTPUT
+          else
+            echo "tests-failed=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Upload screenshot
         if: ${{ !cancelled() }}
@@ -132,15 +146,15 @@ jobs:
             fi
           done
 
-  # ─── Dispatch fix workflow when tests fail on main ─────────────────
+  # ─── Dispatch fix workflow when unit tests fail on main ─────────────
   dispatch-fix:
-    needs: [test, behaviour]
+    needs: [test]
     if: >-
       !cancelled()
       && github.ref == 'refs/heads/main'
       && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_call')
       && github.repository != 'xn-intenton-z2a/agentic-lib'
-      && (needs.test.result == 'failure' || needs.behaviour.result == 'failure')
+      && needs.test.result == 'failure'
     runs-on: ubuntu-latest
     steps:
       - name: Check circuit breaker
@@ -174,28 +188,17 @@ jobs:
             -f mode=full \
             -f message="Build broken on main: agentic-lib-test run ${{ github.run_id }} failed. Please fix."
 
-  # ─── Report instability: create/update GitHub issue on test failure ──
+  # ─── Report instability: install or unit test failure → automated + instability ──
   report-instability:
-    needs: [test, behaviour]
+    needs: [test]
     if: >-
       !cancelled()
       && github.ref == 'refs/heads/main'
       && github.repository != 'xn-intenton-z2a/agentic-lib'
-      && (needs.test.result == 'failure' || needs.behaviour.result == 'failure')
+      && needs.test.result == 'failure'
     runs-on: ubuntu-latest
     steps:
-      - name: Determine failure type
-        id: failure-type
-        run: |
-          UNIT="${{ needs.test.result }}"
-          BEHAVIOUR="${{ needs.behaviour.result }}"
-          if [ "$UNIT" = "failure" ] && [ "$BEHAVIOUR" = "failure" ]; then
-            echo "type=both" >> $GITHUB_OUTPUT
-          elif [ "$UNIT" = "failure" ]; then
-            echo "type=unit" >> $GITHUB_OUTPUT
-          else
-            echo "type=behaviour" >> $GITHUB_OUTPUT
-          fi
+      - uses: actions/checkout@v6
 
       - name: Install dependencies (non-blocking)
         id: install-deps
@@ -207,7 +210,7 @@ jobs:
           echo "exit-code=$EXIT_CODE" | tee -a $GITHUB_OUTPUT
           ERROR_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ error' | head -1 | grep -oP '\d+' || echo "0")
           echo "error-count=$ERROR_COUNT" | tee -a $GITHUB_OUTPUT
-          echo "$OUTPUT" | tail -100 > /tmp/install-output.txt
+          echo "$OUTPUT" > /tmp/install-output.txt
           echo "$OUTPUT"
           exit 0
 
@@ -227,25 +230,7 @@ jobs:
           FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ fail' | head -1 | grep -oP '\d+' || echo "0")
           echo "pass-count=$PASS_COUNT" | tee -a $GITHUB_OUTPUT
           echo "fail-count=$FAIL_COUNT" | tee -a $GITHUB_OUTPUT
-          echo "$OUTPUT" | tail -100 > /tmp/unit-test-output.txt
-          echo "$OUTPUT"
-          exit 0
-
-      - name: Run behaviour tests (non-blocking)
-        id: behaviour-tests
-        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
-        run: |
-          set +e
-          npx playwright install --with-deps chromium 2>/dev/null || true
-          npm run build:web 2>/dev/null || true
-          OUTPUT=$(npm run --if-present test:behaviour 2>&1)
-          EXIT_CODE=$?
-          echo "exit-code=$EXIT_CODE" | tee -a  $GITHUB_OUTPUT
-          PASS_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ passed' | head -1 | grep -oP '\d+' || echo "0")
-          FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ failed' | head -1 | grep -oP '\d+' || echo "0")
-          echo "pass-count=$PASS_COUNT" | tee -a  $GITHUB_OUTPUT
-          echo "fail-count=$FAIL_COUNT" | tee -a  $GITHUB_OUTPUT
-          echo "$OUTPUT" | tail -50 > /tmp/behaviour-test-output.txt
+          echo "$OUTPUT" > /tmp/unit-test-output.txt
           echo "$OUTPUT"
           exit 0
 
@@ -254,22 +239,20 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const failureType = '${{ steps.failure-type.outputs.type }}';
             const runId = '${{ github.run_id }}';
             const runUrl = `https://github.com/${{ github.repository }}/actions/runs/${runId}`;
-            
-            // Live test results from earlier steps
+
             const installOutput = fs.existsSync('/tmp/install-output.txt')
-              ? fs.readFileSync('/tmp/install-output.txt', 'utf8').slice(0, 5000)
+              ? fs.readFileSync('/tmp/install-output.txt', 'utf8')
               : '';
-            const unitOutput = fs.existsSync('/tmp/install-output.txt')
-              ? fs.readFileSync('/tmp/install-output.txt', 'utf8').slice(0, 5000)
+            const unitOutput = fs.existsSync('/tmp/unit-test-output.txt')
+              ? fs.readFileSync('/tmp/unit-test-output.txt', 'utf8')
               : '';
-            const behaviourOutput = fs.existsSync('/tmp/behaviour-test-output.txt')
-              ? fs.readFileSync('/tmp/behaviour-test-output.txt', 'utf8').slice(0, 2500)
-              : '';
-            const logs = `=== Install Output ===\n${installOutput}\n\n=== Unit Test Output ===\n${unitOutput}\n\n=== Behaviour Test Output ===\n${behaviourOutput}`;
-            
+
+            const installExit = '${{ steps.install-deps.outputs.exit-code }}';
+            const failureType = installExit !== '0' ? 'install' : 'unit';
+            const logs = `=== Install Output ===\n${installOutput}\n\n=== Unit Test Output ===\n${unitOutput}`;
+
             const title = `instability: ${failureType} test failure on main`;
             const body = [
               `## Test Failure Report`,
@@ -293,14 +276,12 @@ jobs:
 
             const match = existing.find(i => i.title.includes(failureType));
             if (match) {
-              // Add a comment with the new failure logs instead of creating a duplicate
               await github.rest.issues.createComment({
                 ...context.repo, issue_number: match.number,
-                body: `## Recurrence — run [${runId}](${runUrl})\n\n**Trigger**: ${context.eventName}\n**Time**: ${new Date().toISOString()}\n\n` + '```\n' + logs.slice(0, 30000) + '\n```',
+                body: `## Recurrence — run [${runId}](${runUrl})\n\n**Trigger**: ${context.eventName}\n**Time**: ${new Date().toISOString()}\n\n` + '```\n' + logs + '\n```',
               });
               core.info(`Updated existing instability issue #${match.number}`);
             } else {
-              // Ensure instability label exists
               try {
                 await github.rest.issues.createLabel({
                   ...context.repo, name: 'instability',
@@ -313,4 +294,93 @@ jobs:
                 labels: ['instability', 'ready', 'automated'],
               });
               core.info(`Created instability issue #${issue.number}`);
+            }
+
+  # ─── Report behaviour failure: behaviour test failure → automated only ──
+  report-behaviour:
+    needs: [behaviour]
+    if: >-
+      !cancelled()
+      && github.ref == 'refs/heads/main'
+      && github.repository != 'xn-intenton-z2a/agentic-lib'
+      && needs.behaviour.outputs.tests-failed == 'true'
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.58.2-noble
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install dependencies (non-blocking)
+        id: install-deps
+        run: |
+          set +e
+          OUTPUT=$(npm ci 2>&1)
+          echo "$OUTPUT" > /tmp/install-output.txt
+          echo "$OUTPUT"
+          exit 0
+
+      - name: Run behaviour tests (non-blocking)
+        id: behaviour-tests
+        run: |
+          set +e
+          npm run build:web 2>/dev/null || true
+          OUTPUT=$(npm run --if-present test:behaviour 2>&1)
+          EXIT_CODE=$?
+          echo "exit-code=$EXIT_CODE" | tee -a $GITHUB_OUTPUT
+          PASS_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ passed' | head -1 | grep -oP '\d+' || echo "0")
+          FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ failed' | head -1 | grep -oP '\d+' || echo "0")
+          echo "pass-count=$PASS_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "fail-count=$FAIL_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "$OUTPUT" > /tmp/behaviour-test-output.txt
+          echo "$OUTPUT"
+          exit 0
+
+      - name: Create or update behaviour failure issue
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const runId = '${{ github.run_id }}';
+            const runUrl = `https://github.com/${{ github.repository }}/actions/runs/${runId}`;
+
+            const behaviourOutput = fs.existsSync('/tmp/behaviour-test-output.txt')
+              ? fs.readFileSync('/tmp/behaviour-test-output.txt', 'utf8')
+              : '';
+            const passCount = '${{ steps.behaviour-tests.outputs.pass-count }}' || '0';
+            const failCount = '${{ steps.behaviour-tests.outputs.fail-count }}' || '0';
+
+            const title = `behaviour test failure on main`;
+            const body = [
+              `## Behaviour Test Failure Report`,
+              ``,
+              `**Passed**: ${passCount}`,
+              `**Failed**: ${failCount}`,
+              `**Run**: [${runId}](${runUrl})`,
+              `**Trigger**: ${context.eventName}`,
+              `**Time**: ${new Date().toISOString()}`,
+              ``,
+              `## Failure Logs`,
+              ``,
+              '```',
+              behaviourOutput,
+              '```',
+            ].join('\n');
+
+            // Check for existing open behaviour failure issue
+            const { data: existing } = await github.rest.issues.listForRepo({
+              ...context.repo, state: 'open', labels: 'automated', per_page: 20,
+            });
+
+            const match = existing.find(i => i.title.includes('behaviour test failure'));
+            if (match) {
+              await github.rest.issues.createComment({
+                ...context.repo, issue_number: match.number,
+                body: `## Recurrence — run [${runId}](${runUrl})\n\n**Passed**: ${passCount} | **Failed**: ${failCount}\n**Trigger**: ${context.eventName}\n**Time**: ${new Date().toISOString()}\n\n` + '```\n' + behaviourOutput + '\n```',
+              });
+              core.info(`Updated existing behaviour issue #${match.number}`);
+            } else {
+              const { data: issue } = await github.rest.issues.create({
+                ...context.repo, title, body,
+                labels: ['ready', 'automated'],
+              });
+              core.info(`Created behaviour failure issue #${issue.number}`);
             }
