@@ -304,6 +304,45 @@ async function run() {
       }
     } catch (_) { /* API not available */ }
 
+    // Count resolved issues (if not already provided by the task)
+    if (result.resolvedCount == null) {
+      let resolvedCount = 0;
+      try {
+        const initTimestamp = config.init?.timestamp;
+        const { data: closedIssuesRaw } = await context.octokit.rest.issues.listForRepo({
+          ...context.repo, state: "closed", labels: "automated", per_page: 10, sort: "updated", direction: "desc",
+        });
+        const initEpoch = initTimestamp ? new Date(initTimestamp).getTime() : 0;
+        const closedFiltered = closedIssuesRaw.filter((i) =>
+          !i.pull_request && (initEpoch <= 0 || new Date(i.created_at).getTime() >= initEpoch)
+        );
+        for (const ci of closedFiltered) {
+          let isResolved = false;
+          try {
+            const { data: comments } = await context.octokit.rest.issues.listComments({
+              ...context.repo, issue_number: ci.number, per_page: 5, sort: "created", direction: "desc",
+            });
+            if (comments.some((c) => c.body?.includes("Automated Review Result"))) {
+              isResolved = true;
+            } else {
+              const { data: events } = await context.octokit.rest.issues.listEvents({
+                ...context.repo, issue_number: ci.number, per_page: 10,
+              });
+              if (events.some((e) => e.event === "closed" && e.commit_id)) {
+                isResolved = true;
+              }
+            }
+            if (!isResolved) {
+              const issueLabels = ci.labels.map((l) => (typeof l === "string" ? l : l.name));
+              if (issueLabels.includes("merged")) isResolved = true;
+            }
+          } catch { /* ignore */ }
+          if (isResolved) resolvedCount++;
+        }
+      } catch (_) { /* API not available */ }
+      result.resolvedCount = resolvedCount;
+    }
+
     const budgetCap = config.transformationBudget || 0;
     const featCap = config.paths?.features?.limit || 4;
     const libCap = config.paths?.library?.limit || 32;
