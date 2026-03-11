@@ -64,44 +64,94 @@
   <p>This website demonstrates the Hamming distance library functions. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
 
   <script type="module">
+    import { hammingDistance, hammingDistanceBits, getIdentity } from './lib.js';
+
     // Load library metadata
     try {
-      const { name, version, description } = await import('./lib-meta.js');
+      const { name, version, description } = getIdentity();
       document.getElementById('lib-name').textContent = name || 'Hamming Distance Library';
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || 'A JavaScript library for Hamming distance calculations';
       document.title = (name || 'Hamming Distance Library') + ' v' + version;
     } catch (e) {
-      document.getElementById('lib-version').textContent = '(build required)';
-      document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
+      try {
+        const { name, version, description } = await import('./lib-meta.js');
+        document.getElementById('lib-name').textContent = name || 'Hamming Distance Library';
+        document.getElementById('lib-version').textContent = version;
+        document.getElementById('lib-description').textContent = description || 'A JavaScript library for Hamming distance calculations';
+        document.title = (name || 'Hamming Distance Library') + ' v' + version;
+      } catch (e2) {
+        document.getElementById('lib-version').textContent = '(build required)';
+        document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
+      }
     }
 
-    // Demo functions (placeholder - will use actual library functions when implemented)
+    // Demo functions using actual library functions
     window.calculateStringDistance = function() {
       const str1 = document.getElementById('string1').value;
       const str2 = document.getElementById('string2').value;
       const output = document.getElementById('string-demo');
       
       try {
-        // TODO: Replace with actual hammingDistance function when implemented
-        output.textContent = `Inputs: "${str1}", "${str2}"\nResult: [Function not yet implemented]\n\nWhen implemented, this will calculate the Hamming distance between strings.`;
+        const result = hammingDistance(str1, str2);
+        const visual = highlightDifferences(str1, str2);
+        output.textContent = `Inputs: "${str1}", "${str2}"\nResult: ${result}\n\nVisual comparison:\n${visual}`;
       } catch (error) {
         output.textContent = `Error: ${error.message}`;
       }
     };
 
     window.calculateBitDistance = function() {
-      const int1 = parseInt(document.getElementById('int1').value);
-      const int2 = parseInt(document.getElementById('int2').value);
+      const int1 = parseInt(document.getElementById('int1').value) || 0;
+      const int2 = parseInt(document.getElementById('int2').value) || 0;
       const output = document.getElementById('bit-demo');
       
       try {
-        // TODO: Replace with actual hammingDistanceBits function when implemented
-        output.textContent = `Inputs: ${int1}, ${int2}\nBinary: ${int1.toString(2).padStart(8, '0')}, ${int2.toString(2).padStart(8, '0')}\nResult: [Function not yet implemented]\n\nWhen implemented, this will count differing bits.`;
+        const result = hammingDistanceBits(int1, int2);
+        const binary1 = int1.toString(2);
+        const binary2 = int2.toString(2);
+        const maxLength = Math.max(binary1.length, binary2.length, 8);
+        const padded1 = binary1.padStart(maxLength, '0');
+        const padded2 = binary2.padStart(maxLength, '0');
+        const visual = highlightBitDifferences(padded1, padded2);
+        
+        output.textContent = `Inputs: ${int1}, ${int2}\nBinary: ${padded1}, ${padded2}\nResult: ${result}\n\nVisual comparison:\n${visual}`;
       } catch (error) {
         output.textContent = `Error: ${error.message}`;
       }
     };
+
+    // Helper function to highlight character differences
+    function highlightDifferences(str1, str2) {
+      if (str1.length !== str2.length) return 'Strings have different lengths';
+      
+      const chars1 = Array.from(str1);
+      const chars2 = Array.from(str2);
+      let result = '';
+      
+      for (let i = 0; i < chars1.length; i++) {
+        if (chars1[i] === chars2[i]) {
+          result += chars1[i];
+        } else {
+          result += `[${chars1[i]}≠${chars2[i]}]`;
+        }
+      }
+      
+      return result;
+    }
+
+    // Helper function to highlight bit differences
+    function highlightBitDifferences(bin1, bin2) {
+      let result = '';
+      for (let i = 0; i < bin1.length; i++) {
+        if (bin1[i] === bin2[i]) {
+          result += bin1[i];
+        } else {
+          result += `[${bin1[i]}≠${bin2[i]}]`;
+        }
+      }
+      return result;
+    }
   </script>
 </body>
 </html>
