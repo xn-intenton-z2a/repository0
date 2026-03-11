@@ -18,10 +18,13 @@ A fix is never just one file. These layers form a single unit — if you change 
 
 - **Library source** (`src/lib/main.js`) — the core implementation
 - **Unit tests** (`tests/unit/`) — test every function at the API level with exact values and edge cases
-- **Website** (`src/web/index.html` and related files) — imports and calls the library to demonstrate features
+- **Website** (`src/web/index.html` and related files) — imports and calls the library to demonstrate features.
+  **NEVER duplicate library functions inline in the web page** — use the build pipeline (`lib-meta.js`, or
+  a generated browser module) to share code. Inline copies cause behaviour tests to test a simulation, not the real library.
 - **Website unit tests** (`tests/unit/web.test.js`) — verify HTML structure and library wiring
 - **Behaviour tests** (`tests/behaviour/`) — Playwright tests that load the website in a real browser
-  and verify features work at a high navigational level (demo output visible, interactive elements work)
+  and verify features work at a high navigational level (demo output visible, interactive elements work).
+  Includes a coupling test that imports `getIdentity()` from `src/lib/main.js` and asserts the page version matches.
 
 If the failure is in one layer, the fix often requires coordinating changes across multiple layers.
 For example, if a unit test fails because a function signature changed, the website and behaviour tests

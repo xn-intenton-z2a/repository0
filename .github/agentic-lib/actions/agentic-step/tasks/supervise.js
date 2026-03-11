@@ -218,6 +218,13 @@ async function gatherContext(octokit, repo, config, t) {
             closeReason = "RESOLVED";
           }
         }
+        // Check for automerge closure (issue has "merged" label — set by ci-automerge)
+        if (closeReason !== "RESOLVED") {
+          const issueLabels = ci.labels.map((l) => (typeof l === "string" ? l : l.name));
+          if (issueLabels.includes("merged")) {
+            closeReason = "RESOLVED";
+          }
+        }
       } catch (_) { /* ignore */ }
       recentlyClosedSummary.push(`#${ci.number}: ${ci.title} — ${closeReason}`);
     }

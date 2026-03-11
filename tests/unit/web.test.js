@@ -25,22 +25,4 @@ describe("Website", () => {
     expect(html).toContain("lib-name");
     expect(html).toContain("lib-version");
   });
-
-  test("index.html contains Hamming distance demo sections", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain("String Hamming Distance");
-    expect(html).toContain("Bit Hamming Distance");
-    expect(html).toContain("hammingDistance");
-    expect(html).toContain("hammingDistanceBits");
-  });
-
-  test("index.html has interactive elements for testing", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain('id="string1"');
-    expect(html).toContain('id="string2"');
-    expect(html).toContain('id="int1"');
-    expect(html).toContain('id="int2"');
-    expect(html).toContain("calculateStringDistance");
-    expect(html).toContain("calculateBitsDistance");
-  });
 });

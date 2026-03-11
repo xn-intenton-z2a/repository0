@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2025-2026 Polycode Limited
 import { test, expect } from "@playwright/test";
+import { getIdentity } from "../../src/lib/main.js";
 
 test("homepage returns 200 and renders", async ({ page }) => {
   const response = await page.goto("/", { waitUntil: "networkidle" });
@@ -13,51 +14,9 @@ test("homepage returns 200 and renders", async ({ page }) => {
   await page.screenshot({ path: "SCREENSHOT_INDEX.png", fullPage: true });
 });
 
-test("displays Hamming distance demonstrations", async ({ page }) => {
+test("page displays the library version from src/lib/main.js", async ({ page }) => {
+  const { version } = getIdentity();
   await page.goto("/", { waitUntil: "networkidle" });
-  
-  // Check that demo sections are visible
-  await expect(page.locator("text=String Hamming Distance")).toBeVisible();
-  await expect(page.locator("text=Bit Hamming Distance")).toBeVisible();
-  
-  // Check that example results are computed and displayed
-  await expect(page.locator("#string-demo-1")).toContainText("Result: 3");
-  await expect(page.locator("#bits-demo-1")).toContainText("Result: 2");
-});
-
-test("interactive string distance calculator works", async ({ page }) => {
-  await page.goto("/", { waitUntil: "networkidle" });
-  
-  // Test the interactive string distance calculator
-  await page.fill("#string1", "test");
-  await page.fill("#string2", "best");
-  await page.click("button:has-text('Calculate')");
-  
-  await expect(page.locator("#string-result")).toContainText("Distance: 1");
-});
-
-test("interactive bits distance calculator works", async ({ page }) => {
-  await page.goto("/", { waitUntil: "networkidle" });
-  
-  // Test the interactive bits distance calculator
-  await page.fill("#int1", "5");
-  await page.fill("#int2", "3");
-  
-  // Click the calculate button for bits
-  await page.click("button:has-text('Calculate'):near(#int1)");
-  
-  await expect(page.locator("#bits-result")).toContainText("Distance: 2");
-  await expect(page.locator("#bits-result")).toContainText("5=101");
-});
-
-test("error handling works for invalid inputs", async ({ page }) => {
-  await page.goto("/", { waitUntil: "networkidle" });
-  
-  // Test string length mismatch error
-  await page.fill("#string1", "short");
-  await page.fill("#string2", "longer string");
-  await page.click("button:has-text('Calculate')");
-  
-  await expect(page.locator("#string-result")).toContainText("Error:");
-  await expect(page.locator("#string-result")).toContainText("equal length");
+  const pageVersion = await page.locator("#lib-version").textContent();
+  expect(pageVersion).toContain(version);
 });
