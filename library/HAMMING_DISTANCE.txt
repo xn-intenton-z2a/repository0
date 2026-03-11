@@ -1,0 +1,69 @@
+NORMALISED EXTRACT
+
+Table of contents
+1. Definition
+2. Binary formula and integer implementation
+3. Time/space complexity
+4. Common implementations and signatures
+5. Best-practice implementation patterns
+
+1. Definition
+The Hamming distance between two equal-length strings (or vectors) is the number of positions at which the corresponding symbols differ. For binary strings a and b of length n: HammingDistance(a,b) = |{ i in [0..n-1] : a[i] != b[i] }|.
+
+2. Binary formula and integer implementation
+For fixed-length binary words represented as integers, hd(x,y) = popcount(x XOR y). Compute XOR of the two integers, then count 1 bits (population count) of the result.
+
+3. Time/space complexity
+Comparing two sequences of length n by symbol-by-symbol yields O(n) time and O(1) auxiliary space. For integer bitwise implementations, complexity is proportional to the number of 1 bits when using Wegner's algorithm (x &= x-1 loop) or O(1) with hardware popcount/intrinsic.
+
+4. Common implementations and signatures (exact technical forms)
+Python (string-mode):
+def hamming_distance(string1: str, string2: str) -> int:
+    if len(string1) != len(string2):
+        raise ValueError("Strings must be of equal length.")
+    dist_counter = 0
+    for n in range(len(string1)):
+        if string1[n] != string2[n]:
+            dist_counter += 1
+    return dist_counter
+
+C integer-mode (Wegner approach):
+int hamming_distance(unsigned x, unsigned y)
+{
+    int dist = 0;
+    for (unsigned val = x ^ y; val > 0; ++dist) {
+        val = val & (val - 1);
+    }
+    return dist;
+}
+
+GCC/Clang intrinsic (32/64-bit):
+int hamming_distance32(unsigned int x, unsigned int y) {
+    return __builtin_popcount(x ^ y);
+}
+
+int hamming_distance64(unsigned long long x, unsigned long long y) {
+    return __builtin_popcountll(x ^ y);
+}
+
+5. Best-practice implementation patterns
+- For binary/integer inputs: compute a ^ b then use a hardware popcount or compiler intrinsic when available for constant-time O(1) popcount.
+- For large bitvectors or arrays: compute XOR per machine word (32/64-bit), accumulate popcount; use word-level parallel algorithms or lookup tables for speed.
+- For strings with Unicode: iterate by code points (not UTF-16 code units) so positions align on logical characters; use for...of or spread to obtain code point elements, then compare code point strings.
+
+SUPPLEMENTARY DETAILS
+- Minimum Hamming distance (d_min) of a code: determines detect/correct capability. Code detects up to d_min-1 errors; corrects floor((d_min-1)/2) errors.
+- Hamming distance is a metric satisfying non-negativity, symmetry, identity-of-indiscernibles, and triangle inequality.
+
+REFERENCE DETAILS (APIs and signatures)
+- Python string API: hamming_distance(string1: str, string2: str) -> int; raises ValueError when len mismatch.
+- C integer API: int hamming_distance(unsigned x, unsigned y) -> number of differing bits; uses x^y then popcount via Wegner algorithm or builtin popcount.
+- Compiler intrinsics:
+  - __builtin_popcount(unsigned) -> int (GCC/Clang)
+  - __builtin_popcountll(unsigned long long) -> int
+
+DETAILED DIGEST
+Source: Wikipedia "Hamming distance" retrieved 2026-03-11. Extracted definitions, integer and string implementations, and code examples (Python, C) demonstrating XOR + popcount and Wegner's algorithm. Content used: definitions, formulas, complexity, error-correction relation, and example function signatures. Note: source content was partially truncated by fetch; full page contains extended history and additional examples.
+
+ATTRIBUTION
+Source: Wikipedia contributors. Page: Hamming distance. Retrieved: 2026-03-11. Data size obtained (approximate): 25 KB. (Exact fetch truncated by tool.)

@@ -2,48 +2,52 @@
 
 ## Summary
 
-Implement the core Hamming-distance feature: two named exports from src/lib/main.js, hammingDistance and hammingDistanceBits, with full input validation, correct Unicode code point handling, and comprehensive unit tests and README examples.
+Provide the core Hamming-distance library API: two named exports from src/lib/main.js — hammingDistance and hammingDistanceBits — with strict input validation, correct Unicode code-point handling, thorough unit tests, and clear README examples.
 
 ## Motivation
 
-This feature completes the library's mission by providing robust, tested, and documented Hamming distance utilities that work correctly for Unicode strings and integer bit comparisons.
+This feature directly fulfils the project mission by delivering small, well-tested utilities for comparing textual and integer data using Hamming distance semantics. The library must behave predictably for Unicode strings and non-negative integers and be easy to verify via unit tests.
 
 ## Specification
 
-1. Exports
-   - Export hammingDistance(a, b) and hammingDistanceBits(x, y) as named exports from src/lib/main.js.
+1. API
+   - Export named functions: hammingDistance(a, b) and hammingDistanceBits(x, y) from src/lib/main.js.
+   - Each function must be pure and synchronous.
 
 2. hammingDistance(a, b)
-   - Accepts two arguments a and b.
-   - If either argument is not a string, throw TypeError.
-   - Compare strings by Unicode code points (not UTF-16 code units). Use a code-point-aware iteration (for example, Array.from or equivalent) to create comparable sequences of code points.
-   - If the sequences differ in length, throw RangeError.
-   - Return a non-negative integer equal to the number of positions where the corresponding code points differ.
+   - Signature: hammingDistance(a: string, b: string) => number
+   - Validation:
+     - If a or b is not a string, throw TypeError with message containing the word "string".
+     - Compare strings by Unicode code points. Use Array.from or equivalent to iterate code points so surrogate pairs (astral characters) are treated as single positions.
+     - If the code-point sequences have different lengths, throw RangeError with a message mentioning "length" or "equal".
+   - Behaviour:
+     - Return an integer >= 0 equal to the count of positions where corresponding code points differ.
+     - Empty strings are valid and return 0 when both are empty.
+     - The function compares raw code points; it does not perform Unicode normalization.
 
 3. hammingDistanceBits(x, y)
-   - Accepts two arguments x and y.
-   - If either argument is not a number or BigInt representing a non-negative integer, throw TypeError.
-   - If either argument is negative, throw RangeError.
-   - Treat both values as non-negative integers; compute the bitwise XOR and count the number of set bits in the result efficiently (e.g., Kernighan's algorithm or a language builtin) and return that count as a non-negative integer.
+   - Signature: hammingDistanceBits(x: number|BigInt, y: number|BigInt) => number
+   - Validation:
+     - If x or y is not a number or BigInt, throw TypeError with message containing "integer" or "number".
+     - If x or y is negative, throw RangeError mentioning "non-negative" or "negative".
+     - Non-integer numbers (e.g., 1.5) are invalid and should cause TypeError.
+   - Behaviour:
+     - Treat inputs as non-negative integers (Number or BigInt). Compute XOR and count set bits in the result using an efficient method (e.g., Kernighan's algorithm). Return the set-bit count as a non-negative integer.
+     - Support values up to the limits of Number safely for tests; BigInt may be accepted and handled where appropriate.
 
 4. Errors
-   - Type errors must be thrown as TypeError with helpful messages.
-   - Range errors must be thrown as RangeError with helpful messages.
+   - Use TypeError for invalid types and RangeError for invalid numeric ranges or unequal string lengths.
+   - Error messages should be concise but allow tests to assert on error type and presence of a keyword (e.g., "string", "length", "non-negative").
 
-5. Documentation and examples
-   - Update README.md to show import examples and usage for both functions, including the core acceptance examples:
-     - hammingDistance("karolin", "kathrin") -> 3
-     - hammingDistance("", "") -> 0
-     - calling hammingDistance("a", "bb") throws RangeError
-     - hammingDistanceBits(1, 4) -> 2
-     - hammingDistanceBits(0, 0) -> 0
+5. Documentation
+   - Update README.md with a short API section describing both functions, their signatures, validation rules, and short inline examples demonstrating expected results. Examples must include the core acceptance examples.
 
 6. Tests
-   - Add or update tests in tests/unit/main.test.js to cover:
-     - Normal cases (example strings, integers).
-     - Edge cases: empty strings, zero values, large integers, strings containing astral plane characters and combining sequences.
-     - Error cases: non-string inputs, unequal-length strings, negative integers, non-integer numbers when integers are expected.
-   - Tests must assert exact return values and thrown error types.
+   - Update or add tests in tests/unit/main.test.js to cover:
+     - Normal cases: typical strings and integers
+     - Edge cases: empty strings, zero, large integers, astral-plane characters (emoji), combining sequences
+     - Error cases: non-string inputs, unequal-length strings, negative integers, non-integer numbers
+   - Tests must assert exact values or thrown error types (TypeError or RangeError) and check keywords in messages where useful.
 
 ## Acceptance Criteria
 
@@ -52,39 +56,36 @@ This feature completes the library's mission by providing robust, tested, and do
 - hammingDistance("a", "bb") throws RangeError
 - hammingDistanceBits(1, 4) returns 2
 - hammingDistanceBits(0, 0) returns 0
-- Unicode surrogate pairs and astral characters are handled by hammingDistance as single code points
-- TypeError is thrown for non-string or non-integer arguments where specified
+- Unicode surrogate pairs and astral characters are treated as single code points by hammingDistance
+- TypeError is thrown for invalid argument types
 - RangeError is thrown for unequal-length strings and negative integers
-- README contains clear usage examples for both functions
-- Unit tests cover normal, edge, and error cases and pass
+- README contains API docs and examples for both functions
+- Unit tests in tests/unit/main.test.js cover normal, edge, and error cases and pass
 
 ## Implementation notes
 
-- Use Array.from to iterate code points for strings so that surrogate pairs are treated as single code points.
-- For bit counting, use a simple loop over x ^ y with Kernighan's algorithm or Number.prototype.toString(2).split('1').length - 1 if clarity is preferred in tests.
-- Keep error messages concise but specific to aid debugging and test assertions.
+- For string code points, use Array.from(string) or spread into [...string] to iterate code points rather than UTF-16 code units.
+- For bit counting, implement Kernighan's algorithm for clarity and performance when using Number; handle BigInt variants by adapting the same loop logic.
+- Keep implementation small and dependency-free to remain a single-file library export.
 
 ## Files to change
 
-- src/lib/main.js  - implement and export the two functions
-- tests/unit/main.test.js - add/adjust tests to satisfy the acceptance criteria
-- README.md - add usage examples and API documentation
-- examples/ (optional) - add small examples demonstrating both functions for the website
-- package.json - no dependency changes required unless a test helper is necessary
+- src/lib/main.js: implement and export hammingDistance and hammingDistanceBits
+- tests/unit/main.test.js: add unit tests matching the acceptance criteria
+- README.md: document API and show examples
+- examples/: optional small demo for the website, but not required for initial acceptance
 
 ## Test cases (representative)
 
 - hammingDistance("karolin", "kathrin") => 3
 - hammingDistance("1011101", "1001001") => 2
 - hammingDistance("", "") => 0
-- hammingDistance("\u{1F600}", "\u{1F601}") => 1  (two different emoji code points)
-- hammingDistance("a\u0301", "á") => 0 or 1 depending on normalization policy; the implementation must compare code points as-is and tests should assert the chosen behavior; prefer code-point-as-is (so differ unless inputs are pre-normalized)
+- hammingDistance("\u{1F600}", "\u{1F601}") => 1 (different emoji code points; treated as single code points)
+- hammingDistance("a\u0301", "á") => differs (combining sequence vs precomposed) because no normalization is applied
 - hammingDistanceBits(1, 4) => 2
 - hammingDistanceBits(0, 0) => 0
-- hammingDistanceBits(255, 256) => number of differing bits across representation
-- Errors for invalid types and ranges as described above
-
+- hammingDistanceBits(255, 256) => specific integer result asserted in tests
 
 ## Notes on normalization
 
-The feature intentionally compares raw code points; if normalization is desired later, add a follow-up feature NORMALIZATION to offer canonicalization options. For now, document that combining sequences and precomposed characters are treated as distinct code point sequences.
+This feature intentionally compares raw code points. A future NORMALIZATION feature may add optional canonicalization (NFC/NFD) if users request canonical equivalence handling.
