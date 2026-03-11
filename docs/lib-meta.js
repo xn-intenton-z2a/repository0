@@ -1,3 +1,3 @@
 export const name = "repo";
 export const version = "0.1.0";
-export const description = "";
+export const description = "Hamming distance utilities";

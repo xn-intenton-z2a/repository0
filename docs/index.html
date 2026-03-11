@@ -47,24 +47,36 @@
   <pre id="demo-output">Loading...</pre>
 
   <script type="module">
-    // Load generated metadata module and populate the page; avoids fetch parsing issues
-    import('./lib-meta.js').then(({ name, version, description }) => {
+    // Load generated metadata module and browser-compiled library module and populate the page
+    Promise.all([
+      import('./lib-meta.js'),
+      import('./lib-browser.js')
+    ]).then(([meta, lib]) => {
+      const { name, version, description } = meta;
       document.getElementById('lib-name').textContent = name || 'repository0';
       document.getElementById('lib-version').textContent = version || '(build required)';
       document.getElementById('lib-description').textContent = description || '(no description)';
       document.title = name + ' v' + version;
 
-      // Demo outputs (examples from mission)
-      document.getElementById('hamming-demo').textContent = "hammingDistance('karolin', 'kathrin') => 3\n" +
-        "hammingDistance('', '') => 0";
-      document.getElementById('hamming-bits-demo').textContent = "hammingDistanceBits(1, 4) => 2\n" +
-        "hammingDistanceBits(0, 0) => 0";
+      // Use library functions (browser-compatible build) to produce real outputs
+      const s1 = 'karolin';
+      const s2 = 'kathrin';
+      const sd = lib.hammingDistance(s1, s2);
 
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
+      const b1 = 1;
+      const b2 = 4;
+      const bd = lib.hammingDistanceBits(b1, b2);
+
+      document.getElementById('hamming-demo').textContent = `hammingDistance('${s1}', '${s2}') => ${sd}\n` +
+        `hammingDistance('', '') => ${lib.hammingDistance('', '')}`;
+      document.getElementById('hamming-bits-demo').textContent = `hammingDistanceBits(${b1}, ${b2}) => ${bd}\n` +
+        `hammingDistanceBits(0, 0) => ${lib.hammingDistanceBits(0, 0)}`;
+
+      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description, stringDistance: sd, bitDistance: bd }, null, 2);
     }).catch((e) => {
       document.getElementById('lib-version').textContent = '(build required)';
-      document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
-      document.getElementById('demo-output').textContent = 'Library not yet built. Run: npm run build:web';
+      document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata and browser bundle';
+      document.getElementById('demo-output').textContent = 'Library not yet built. Run: npm run build:web\n' + e.stack;
     });
   </script>
 </body>

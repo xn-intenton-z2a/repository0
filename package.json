@@ -1,12 +1,12 @@
 {
   "name": "repo",
   "version": "0.1.0",
-  "description": "",
+  "description": "Hamming distance utilities",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
     "build": "npm run build:web",
-    "build:web": "mkdir -p docs && touch docs/.nojekyll && cp -r src/web/* docs/ 2>/dev/null || true && node --input-type=commonjs -p \"var p=require('./package.json');['name','version','description'].map(function(k){return 'export const '+k+' = '+JSON.stringify(p[k])+';'}).join('\\n')\" > docs/lib-meta.js",
+    "build:web": "mkdir -p docs && touch docs/.nojekyll && cp -r src/web/* docs/ 2>/dev/null || true && node --input-type=commonjs -p \"var p=require('./package.json');['name','version','description'].map(function(k){return 'export const '+k+' = '+JSON.stringify(p[k])+';'}).join('\\n')\" > docs/lib-meta.js && node -e \"const fs=require('fs');const path=require('path');fs.mkdirSync('docs',{recursive:true});fs.writeFileSync(path.join('docs','lib-browser.js'),`// docs/lib-browser.js\n// Generated browser-compatible module exposing the hamming functions.\n\nexport function hammingDistance(a, b) {\n  if (typeof a !== 'string' || typeof b !== 'string') {\n    throw new TypeError('Both arguments must be strings');\n  }\n  const ra = Array.from(a);\n  const rb = Array.from(b);\n  if (ra.length !== rb.length) {\n    throw new RangeError('Strings must have the same length in code points');\n  }\n  let count = 0;\n  for (let i = 0; i < ra.length; i++) {\n    if (ra[i] !== rb[i]) count++;\n  }\n  return count;\n}\n\nexport function hammingDistanceBits(x, y) {\n  const isBigIntX = typeof x === 'bigint';\n  const isBigIntY = typeof y === 'bigint';\n  if (!isBigIntX && typeof x !== 'number') throw new TypeError('x must be a number or bigint');\n  if (!isBigIntY && typeof y !== 'number') throw new TypeError('y must be a number or bigint');\n\n  if (!isBigIntX) {\n    if (!Number.isInteger(x)) throw new TypeError('x must be an integer');\n    if (x < 0) throw new RangeError('Integers must be non-negative');\n  }\n  if (!isBigIntY) {\n    if (!Number.isInteger(y)) throw new TypeError('y must be an integer');\n    if (y < 0) throw new RangeError('Integers must be non-negative');\n  }\n\n  const bx = isBigIntX ? x : BigInt(x);\n  const by = isBigIntY ? y : BigInt(y);\n  if (bx < 0n || by < 0n) throw new RangeError('Integers must be non-negative');\n\n  let v = bx ^ by;\n  let count = 0;\n  while (v) {\n    count += Number(v & 1n);\n    v = v >> 1n;\n  }\n  return count;\n}\n`);\nconsole.log('Wrote docs/lib-browser.js');\"",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
     "test:behaviour": "npm run build:web && npx playwright test --config playwright.config.js",

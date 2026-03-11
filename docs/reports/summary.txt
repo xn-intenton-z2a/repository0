@@ -1,0 +1,4 @@
+Hamming distance demo
+
+String example: karolin vs kathrin => 3
+Bits example: 1 vs 4 => 2
