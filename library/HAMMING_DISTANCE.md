@@ -7,6 +7,7 @@
 3. Error Detection and Correction Capabilities
 4. Performance Characteristics and Complexity Analysis
 5. Implementation Code Examples and Optimizations
+6. JavaScript Implementation Notes
 
 ## Normalised Extract
 
@@ -32,7 +33,7 @@ Basic algorithm steps:
 2. Count the number of 1 bits in the XOR result
 3. Return the count as the Hamming distance
 
-The running time of optimized procedures is proportional to the Hamming distance rather than to the number of bits in the inputs.
+Optimized population-count procedures can run in time proportional to the number of differing bits rather than the full width of the operands.
 
 ### Error Detection and Correction Capabilities
 
@@ -84,6 +85,20 @@ int hamming_distance64(unsigned long long x, unsigned long long y) {
     return __builtin_popcountll(x ^ y);
 }
 
+### JavaScript Implementation Notes
+
+- Unicode-aware string comparison: For character-based Hamming distance treat inputs as sequences of Unicode code points, not UTF-16 code units. Normalize both strings using String.prototype.normalize('NFC') to canonical form before comparison. Iterate by code points using the string iterator (for...of) or manual iterators via Symbol.iterator to compare values in lockstep; if one iterator finishes before the other, report a length-mismatch error.
+
+- Avoid charCodeAt for multi-code-unit characters because charCodeAt returns UTF-16 code units; use codePointAt when you need numeric code point values for a position that may start a surrogate pair.
+
+- Binary/integer inputs (32-bit): JavaScript bitwise XOR (^) coerces operands to ToInt32 (32-bit signed). For two numbers x and y that fit in 32 bits compute v = (x ^ y) >>> 0 to treat as unsigned if needed, then count set bits with Kernighan's method: repeatedly clear the lowest-order 1 bit with v &= v - 1 and increment a counter. This is O(k) where k is population count.
+
+- BigInt support for wide integers: Use BigInt operands exclusively (both must be BigInt or TypeError is thrown). Compute v = a ^ b where a and b are BigInt, then count set bits via the same Kernighan loop using BigInt arithmetic (v &= v - 1n). To count bits within a fixed width use BigInt.asUintN(width, value) to mask before counting.
+
+- Large byte sequences: For long binary buffers use typed arrays (Uint8Array) and a 256-entry lookup table for per-byte popcount; sum table lookups for each byte for best throughput in JS.
+
+- Performance trade-offs: Character-by-character comparisons are simplest and sufficient for typical string sizes. For high-throughput binary comparisons prefer typed arrays and chunked popcount. For cryptographic or large-scale analytics consider native modules or WebAssembly implementing hardware popcount.
+
 ## Supplementary Details
 
 The Hamming distance is named after Richard Hamming, who introduced the concept in his fundamental paper Error detecting and error correcting codes in 1950. It has applications in telecommunications for counting flipped bits as an estimate of transmission error, coding theory for error detection and correction, information theory for measuring information differences, cryptography for analyzing bit patterns, and systematics as a measure of genetic distance.
@@ -107,6 +122,11 @@ Population Count Functions:
 - __builtin_popcount(x) for 32-bit integers
 - __builtin_popcountll(x) for 64-bit integers
 
+JavaScript specifics:
+- Bitwise operators operate on 32-bit signed integers after ToInt32 coercion; use >>> 0 to interpret as unsigned.
+- BigInt bitwise XOR exists when both operands are BigInt; mixing number and BigInt throws TypeError.
+- Use String.prototype.codePointAt and the string iterator to handle surrogate pairs and supplementary characters correctly.
+
 ### Error Correction Mathematics
 
 For minimum distance d:
@@ -124,12 +144,13 @@ The Hamming distance is also used in systematics as a measure of genetic distanc
 
 ## Detailed Digest
 
-Technical content extracted from Wikipedia Hamming Distance article covering algorithmic definition, mathematical properties, error correction theory, implementation methods, and performance characteristics. Retrieved 2026-03-10.
+Technical content extracted from Wikipedia Hamming Distance article and related sources in SOURCES.md covering algorithmic definition, mathematical properties, error correction theory, implementation methods, and performance characteristics. Retrieved 2026-03-11.
 
-The Hamming distance algorithm serves as a fundamental string metric with applications spanning error detection, coding theory, and information processing. The binary implementation using XOR operations provides optimal performance for digital data processing.
+The Hamming distance algorithm serves as a fundamental string metric with applications spanning error detection, coding theory, and information processing. The binary implementation using XOR operations provides optimal performance for digital data processing; JavaScript-specific considerations for code points, big integers, and 32-bit coercion are included for direct implementation guidance.
 
 ## Attribution Information
 
 Source: https://en.wikipedia.org/wiki/Hamming_distance
+Additional sources referenced in SOURCES.md: MDN String.codePointAt, MDN Bitwise XOR, MDN String.charCodeAt, trekhleb/javascript-algorithms hamming-distance, vitest.dev API, Wikipedia Error detection and correction, ECMAScript codePointAt spec
 Data size: 15000 characters extracted
-Retrieved: 2026-03-10
+Retrieved: 2026-03-11
