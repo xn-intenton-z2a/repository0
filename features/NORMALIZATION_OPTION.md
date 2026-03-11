@@ -1,38 +1,39 @@
-# NORMALIZATION_OPTION
+# WEB_DEMO
 
 # Summary
 
-Add an explicit optional normalization option to hammingDistance and extend the CLI to allow callers to request NFC or NFD normalization before comparison. The normalization option is opt-in so existing raw code-point behaviour remains the default.
+Add an interactive web demo that lives in src/web/ and demonstrates the library's hammingDistance and hammingDistanceBits functions. The demo is intended for users and QA: it visualises Unicode code points, shows normalization effects (NFC/NFD), and demonstrates integer/BigInt bit comparisons.
 
 # Motivation
 
-Unicode text can represent the same visible character with different sequences (precomposed vs combining). Providing an explicit normalization option lets callers compare canonical text forms when desired while still allowing raw code-point comparisons for low-level use-cases.
+A live demo helps users and maintainers quickly understand the library's Unicode-aware behaviour and integer bit-difference semantics without reading tests or source. It also provides stable selectors for behaviour tests and an example integration that mirrors real-world usage in browser contexts.
 
 # Specification
 
-1. API
-   - Extend hammingDistance to accept an optional third parameter options where options may be omitted or an object.
-   - options.normalize may be false, "NFC", or "NFD". Default is false.
+1. Scope and integration
+   - The demo will be implemented under src/web/ as a small HTML+JS app that imports the browser-friendly module produced by the existing build:web step (docs/lib-browser.js).
+   - Build step: npm run build:web should copy the demo into docs/ so the demo is available at docs/demo.html.
 
-2. Validation
-   - If options is provided and is not an object (including null), throw TypeError mentioning "options".
-   - If options.normalize is provided and is not one of false, "NFC", or "NFD", throw TypeError mentioning "normalize".
-   - After optional normalization, if the code-point sequences differ in length throw RangeError mentioning "length" or "equal".
+2. UI and features
+   - Mode selector: string or bits.
+   - String mode UI: two textareas for inputA and inputB, a normalization dropdown with options None, NFC, NFD, a Compare button, and a results pane.
+   - String results pane: shows Array.from(code points) for each input, highlights differing positions, and displays the numeric Hamming distance.
+   - Bits mode UI: two text inputs accepting decimal or BigInt literal with trailing n, a Compare button, and a results pane that shows parsed values, XOR display, and bit difference count.
+   - Inline error area: shows concise validation messages matching the library's TypeError and RangeError rules.
 
-3. Behaviour
-   - When options.normalize is "NFC" or "NFD", call String.prototype.normalize(form) on both inputs before converting to code-point arrays via Array.from.
-   - When options.normalize is false or omitted, compare raw code points using Array.from without normalizing.
+3. Behaviour and validation
+   - Use the library functions (hammingDistance and hammingDistanceBits) for computation; do not duplicate validation logic in the demo beyond input parsing and displaying caught errors.
+   - For string mode, when a normalization option other than None is selected, pass options.normalize to hammingDistance as "NFC" or "NFD".
+   - For bits mode accept numeric literals: if input ends with n treat as BigInt; otherwise parse as Number and validate integer-ness and non-negativity before calling the library.
 
-4. CLI
-   - Expose a --normalize flag with values NFC, NFD, or false when running in string mode; pass the value through to hammingDistance options.normalize.
-
-5. Tests and docs
-   - Add unit tests that demonstrate that combining sequences and precomposed characters compare unequal by default but compare equal when options.normalize is "NFC".
-   - Update README.md with examples showing both raw and normalized comparisons.
+4. Testability and automation hooks
+   - Add data-test attributes to key elements: mode selector, inputs, normalization dropdown, Compare buttons, results panes, and inline error elements to support Playwright behaviour tests.
+   - The demo must be deterministic: prefill sample values for quick manual checks (e.g., karolin and kathrin for strings, 1 and 4 for bits).
 
 # Acceptance Criteria
 
-- hammingDistance("a\u0301", "á") without options returns a non-zero distance
-- hammingDistance("a\u0301", "á", { normalize: "NFC" }) returns 0
-- options validation throws TypeError for invalid options and invalid normalize values
-- CLI --normalize NFC produces the same behaviour as passing options.normalize = "NFC" to the API
+- After npm run build:web, the demo is reachable at docs/demo.html and loads without errors in a modern browser.
+- String demo shows the distance 3 for inputs karolin and kathrin and highlights the three differing code points.
+- Normalization demo shows a non-zero distance for a\u0301 vs á with None selected and zero when NFC is selected.
+- Bits demo shows hammingDistanceBits(1, 4) equals 2 and accepts BigInt literals like 1n and 4n.
+- All interactive elements expose stable data-test attributes suitable for automated behaviour tests.
