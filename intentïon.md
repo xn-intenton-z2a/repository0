@@ -99,3 +99,49 @@ I researched Hamming distance documentation and populated SOURCES.md with 6 rele
 Discovered sources for SOURCES.md from mission
 
 ---
+## fix-code at 2026-03-11T01:59:23.442Z
+
+**Outcome:** fix-applied
+**Model:** gpt-5-mini
+**Profile:** max
+**Token Count:** 189583 (in: 186837, out: 2746)
+**Duration:** 69s (~1.2 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22932716854](https://github.com/xn-intenton-z2a/repository0/actions/runs/22932716854)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 3/128 | 125 remaining |  |
+| max-feature-issues | 3/4 | 1 remaining |  |
+| max-maintenance-issues | 0/2 | 2 remaining |  |
+| max-attempts-per-issue | ?/4 | ? remaining | n/a |
+| max-attempts-per-branch | ?/5 | ? remaining |  |
+| features | 8/8 | 0 remaining | n/a |
+| library | 0/64 | 64 remaining | n/a |
+
+### Mission-Complete Readiness
+Mission complete conditions are NOT met. 3 open issue(s) remain. Issues resolved (review or PR merge): 0 (target: >= 3). Dedicated test files: NO (target: YES).
+
+### Mission Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Open issues | 3 | 0 | NOT MET |
+| Open PRs | 0 | 0 | MET |
+| Issues resolved (review or PR merge) | 0 | >= 3 | NOT MET |
+| Dedicated test files | NO | YES | NOT MET |
+| Source TODO count | 0 | <= 0 | MET |
+| Transformation budget used | 3/128 | < 128 | OK |
+| Cumulative transforms | 3 | >= 1 | MET |
+| Mission complete declared | NO | — | — |
+| Mission failed declared | NO | — | — |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Added a #demo-output element to the website index so the behaviour test can find and display demo output.
+
+Applied fix for broken main build (run 22932658253)
+
+---
