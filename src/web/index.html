@@ -47,40 +47,25 @@
   <pre id="demo-output">Loading...</pre>
 
   <script type="module">
-    // Robust loader for docs/lib-meta.js: fetch the generated file and extract exports via regex
-    (async () => {
-      try {
-        const resp = await fetch('./lib-meta.js');
-        if (!resp.ok) throw new Error('lib-meta.js not found');
-        const text = await resp.text();
-        const pick = (key) => {
-          const re = new RegExp(`export const ${key}\\s*=\\s*['\"]([^'\"]*)['\"]`);
-          const m = re.exec(text);
-          return m ? m[1] : undefined;
-        };
-        const name = pick('name') || 'repository0';
-        const version = pick('version') || '(build required)';
-        const description = pick('description') || '(no description)';
+    // Load generated metadata module and populate the page; avoids fetch parsing issues
+    import('./lib-meta.js').then(({ name, version, description }) => {
+      document.getElementById('lib-name').textContent = name || 'repository0';
+      document.getElementById('lib-version').textContent = version || '(build required)';
+      document.getElementById('lib-description').textContent = description || '(no description)';
+      document.title = name + ' v' + version;
 
-        document.getElementById('lib-name').textContent = name;
-        document.getElementById('lib-version').textContent = version;
-        document.getElementById('lib-description').textContent = description;
-        document.title = name + ' v' + version;
+      // Demo outputs (examples from mission)
+      document.getElementById('hamming-demo').textContent = "hammingDistance('karolin', 'kathrin') => 3\n" +
+        "hammingDistance('', '') => 0";
+      document.getElementById('hamming-bits-demo').textContent = "hammingDistanceBits(1, 4) => 2\n" +
+        "hammingDistanceBits(0, 0) => 0";
 
-        // Demo outputs (static examples sourced from mission)
-        document.getElementById('hamming-demo').textContent = "hammingDistance('karolin', 'kathrin') => 3\n" +
-          "hammingDistance('', '') => 0";
-        document.getElementById('hamming-bits-demo').textContent = "hammingDistanceBits(1, 4) => 2\n" +
-          "hammingDistanceBits(0, 0) => 0";
-
-        document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
-      } catch (e) {
-        // Keep visible placeholders but provide guidance
-        document.getElementById('lib-version').textContent = '(build required)';
-        document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
-        document.getElementById('demo-output').textContent = 'Library not yet built. Run: npm run build:web';
-      }
-    })();
+      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
+    }).catch((e) => {
+      document.getElementById('lib-version').textContent = '(build required)';
+      document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
+      document.getElementById('demo-output').textContent = 'Library not yet built. Run: npm run build:web';
+    });
   </script>
 </body>
 </html>
