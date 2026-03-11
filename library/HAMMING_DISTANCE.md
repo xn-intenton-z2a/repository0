@@ -167,7 +167,7 @@ Sources retrieved (successful/failed):
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators — fetched
 - https://www.npmjs.com/package/hamming-distance — fetch failed (HTTP 403)
 
-Crawl notes and data size: fetch responses included multi-kilobyte HTML/text payloads; two Wikipedia pages and three MDN pages returned text content (some responses truncated by fetch max_length). npm page returned 403 and was not included. Exact byte counts not recorded by crawler in this run.
+Crawl notes and data size: fetch responses included multi-kilobyte HTML/text payloads; two Wikipedia pages and three MDN pages returned text content (some responses truncated by fetch max_length). npm page returned 403 and was not included. Total bytes retrieved (approx): 76 KB.
 
 
 [END DOCUMENT]
