@@ -2,51 +2,65 @@
 
 Summary
 
-Implement the canonical FizzBuzz library surface in src/lib/main.js: two named exports fizzBuzz and fizzBuzzSingle that implement the behaviour described in MISSION.md and handle edge cases precisely.
+Provide a complete, well-documented, and tested canonical FizzBuzz implementation exported from src/lib/main.js. This feature ensures the library API, input validation, JSDoc, and unit tests satisfy the mission and acceptance criteria.
 
 Motivation
 
-Provide a minimal, fully tested, and documented library implementation that satisfies the repository mission and serves as the foundation for CLI, web demo, and docs features.
+The mission requires a minimal JavaScript library exposing fizzBuzz and fizzBuzzSingle with strict error semantics and full unit-test coverage. This feature closes the gap between the current implementation and the required test coverage and documentation.
 
 Specification
 
-- Exports
-  - Named exports: fizzBuzz, fizzBuzzSingle (ES module named exports)
+- Public API
+  - Named exports (ES module): fizzBuzz, fizzBuzzSingle
+  - Both functions must be implemented in src/lib/main.js and used by CLI and web demo.
 
-- fizzBuzz(n):
-  - Input: single numeric argument n
+- fizzBuzz(n)
+  - Signature: fizzBuzz(n: number) => string[]
   - Behaviour:
-    - If n is exactly 0, return an empty array []
-    - If n is a negative integer, throw RangeError with a clear message
-    - If n is not an integer (including NaN, non-number), throw TypeError
-    - Otherwise return an array of length n with entries for 1..n using fizzBuzzSingle for each element
+    - If n === 0, return an empty array []
+    - If n is a negative integer, throw RangeError with message: "n must be non-negative"
+    - If n is not a Number or not an integer (including NaN), throw TypeError with message: "n must be an integer"
+    - Otherwise return an array of length n where element i (1-based) equals fizzBuzzSingle(i)
 
-- fizzBuzzSingle(n):
-  - Input: a single positive integer
+- fizzBuzzSingle(n)
+  - Signature: fizzBuzzSingle(n: number) => string
   - Behaviour:
-    - If input is not a number or not an integer, throw TypeError
-    - If input is <= 0, throw RangeError
-    - Return "Fizz" for multiples of 3, "Buzz" for multiples of 5, "FizzBuzz" for multiples of both, otherwise the decimal representation of the number as a string
+    - If n is not a Number or is NaN, throw TypeError with message: "n must be a number"
+    - If n is not an integer, throw TypeError with message: "n must be an integer"
+    - If n <= 0, throw RangeError with message: "n must be a positive integer"
+    - Return:
+      - "FizzBuzz" when n divisible by 15
+      - "Fizz" when n divisible by 3 only
+      - "Buzz" when n divisible by 5 only
+      - String decimal representation of n otherwise
 
-Edge Cases and Errors
+- Documentation
+  - Add JSDoc above both functions describing parameters, return type, and thrown errors.
+  - Ensure README.md examples import the named exports and show programmatic and CLI usage.
 
-- fizzBuzz(0) returns []
-- fizzBuzz(-1) throws RangeError
-- fizzBuzz(3.5) throws TypeError
-- fizzBuzzSingle(0) throws RangeError
-- Non-number inputs throw TypeError
+- Tests
+  - Update tests/unit/main.test.js (or add tests in the same file) to include explicit unit tests for fizzBuzz and fizzBuzzSingle covering:
+    - fizzBuzz(15) returns array length 15 and element 15 === "FizzBuzz"
+    - fizzBuzzSingle(3) === "Fizz"
+    - fizzBuzzSingle(5) === "Buzz"
+    - fizzBuzzSingle(15) === "FizzBuzz"
+    - fizzBuzzSingle(7) === "7"
+    - fizzBuzz(0) returns []
+    - fizzBuzz(-1) throws RangeError
+    - fizzBuzz(3.5) throws TypeError
+    - fizzBuzzSingle(0) throws RangeError
+    - Non-number inputs (e.g., fizzBuzz('a')) throw TypeError
+  - Tests must import named exports by name (import { fizzBuzz, fizzBuzzSingle } from '../../src/lib/main.js') and assert exact messages where appropriate.
 
-Tests and Acceptance Criteria
+Acceptance Criteria
 
-- fizzBuzz(15) returns array of length 15 and element 15 equals "FizzBuzz"
-- fizzBuzzSingle(3) returns "Fizz"
-- fizzBuzzSingle(5) returns "Buzz"
-- fizzBuzzSingle(15) returns "FizzBuzz"
-- fizzBuzzSingle(7) returns "7"
-- fizzBuzz(0) returns []
-- Unit tests exist in tests/unit/main.test.js asserting all above behaviours and edge cases
+- Programmatic API: fizzBuzz and fizzBuzzSingle are exported as named ES module exports.
+- Behaviour: All function behaviours and error semantics match specifications above.
+- Tests: tests/unit/main.test.js contains unit tests that assert all acceptance criteria and all tests pass when running npm test.
+- Documentation: README.md shows copy-paste examples for both programmatic usage and CLI usage that match the implemented behaviour.
 
 Notes
 
-- Keep implementation compact and well-documented with JSDoc to help website and CLI integration.
-
+- Keep changes minimal: prefer editing tests and JSDoc over changing runtime behaviour unless a bug is found.
+- Do not add new runtime dependencies.
+- Ensure CLI and web demo reuse the same exported functions rather than duplicating logic.
