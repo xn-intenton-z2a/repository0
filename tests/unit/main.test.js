@@ -1,26 +1,61 @@
-// SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
-import { describe, test, expect } from "vitest";
-import { main, getIdentity, name, version, description } from "../../src/lib/main.js";
+import { describe, it, expect } from 'vitest';
+import { fizzBuzz, fizzBuzzSingle } from '../../src/lib/main.js';
 
-describe("Main Output", () => {
-  test("should terminate without error", () => {
-    process.argv = ["node", "src/lib/main.js"];
-    main();
+describe('fizzBuzzSingle', () => {
+  it('returns Fizz for multiples of 3', () => {
+    expect(fizzBuzzSingle(3)).toBe('Fizz');
+  });
+
+  it('returns Buzz for multiples of 5', () => {
+    expect(fizzBuzzSingle(5)).toBe('Buzz');
+  });
+
+  it('returns FizzBuzz for multiples of 15', () => {
+    expect(fizzBuzzSingle(15)).toBe('FizzBuzz');
+  });
+
+  it('returns the number as string for non-multiples', () => {
+    expect(fizzBuzzSingle(7)).toBe('7');
+  });
+
+  it('throws TypeError for non-number', () => {
+    expect(() => fizzBuzzSingle('a')).toThrow(TypeError);
+  });
+
+  it('throws TypeError for non-integer', () => {
+    expect(() => fizzBuzzSingle(2.5)).toThrow(TypeError);
+  });
+
+  it('throws RangeError for zero or negative', () => {
+    expect(() => fizzBuzzSingle(0)).toThrow(RangeError);
+    expect(() => fizzBuzzSingle(-3)).toThrow(RangeError);
   });
 });
 
-describe("Library Identity", () => {
-  test("exports name, version, and description", () => {
-    expect(typeof name).toBe("string");
-    expect(typeof version).toBe("string");
-    expect(typeof description).toBe("string");
-    expect(name.length).toBeGreaterThan(0);
-    expect(version).toMatch(/^\d+\.\d+\.\d+/);
+describe('fizzBuzz', () => {
+  it('returns correct array for n=15', () => {
+    const out = fizzBuzz(15);
+    expect(Array.isArray(out)).toBe(true);
+    expect(out).toHaveLength(15);
+    expect(out[0]).toBe('1');
+    expect(out[2]).toBe('Fizz');
+    expect(out[4]).toBe('Buzz');
+    expect(out[14]).toBe('FizzBuzz');
   });
 
-  test("getIdentity returns correct structure", () => {
-    const identity = getIdentity();
-    expect(identity).toEqual({ name, version, description });
+  it('returns [] for n=0', () => {
+    expect(fizzBuzz(0)).toEqual([]);
+  });
+
+  it('throws RangeError for negative', () => {
+    expect(() => fizzBuzz(-1)).toThrow(RangeError);
+  });
+
+  it('throws TypeError for non-integer', () => {
+    expect(() => fizzBuzz(3.5)).toThrow(TypeError);
+  });
+
+  it('throws TypeError for non-number', () => {
+    expect(() => fizzBuzz('10')).toThrow(TypeError);
   });
 });
