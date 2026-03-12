@@ -237,7 +237,8 @@ jobs:
             git commit -m "schedule: set to ${FREQUENCY}, model ${MODEL:-gpt-5-mini}"
           fi
           for attempt in 1 2 3; do
-            git push origin main && break
+            # Use HEAD:refs/heads/main to handle detached HEAD state
+            git push origin HEAD:refs/heads/main && break
             echo "Push failed (attempt $attempt) — pulling and retrying"
             git pull --rebase origin main || {
               echo "Rebase conflict — aborting rebase and retrying"

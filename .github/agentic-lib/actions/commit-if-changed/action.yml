@@ -57,7 +57,10 @@ runs:
                   continue
                 }
               fi
-              git push origin "$REF" && { REMOTE_REF_EXISTS="true"; PUSH_SUCCESS="true"; break; }
+              # Use HEAD:refs/heads/$REF to handle detached HEAD state
+              # (actions/checkout with a SHA puts us in detached HEAD, so
+              #  "git push origin main" fails with "src refspec main does not match any")
+              git push origin "HEAD:refs/heads/$REF" && { REMOTE_REF_EXISTS="true"; PUSH_SUCCESS="true"; break; }
             else
               git pull --rebase || {
                 echo "Rebase conflict on attempt $attempt — aborting rebase and retrying"

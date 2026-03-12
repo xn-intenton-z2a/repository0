@@ -27,7 +27,7 @@ on:
       mission-seed:
         type: string
         required: false
-        default: "hamming-distance"
+        default: "6-kyu-understand-hamming-distance"
       mission-text:
         type: string
         required: false
@@ -64,26 +64,26 @@ on:
         description: "Mission seed name (purge only)"
         type: choice
         required: false
-        default: "hamming-distance"
+        default: "6-kyu-understand-hamming-distance"
         options:
-          - hamming-distance
-          - agi
-          - ascii-face
-          - c64-emulator
-          - cron-engine
-          - dense-encoding
-          - fizz-buzz
-          - hello-world
-          - json-schema-diff
-          - lunar-lander
-          - markdown-compiler
-          - owl-ontology
-          - plot-code-lib
-          - ray-tracer
-          - roman-numerals
-          - string-utils
-          - time-series-lab
-          - empty
+          - 8-kyu-remember-empty
+          - 8-kyu-remember-hello-world
+          - 7-kyu-understand-fizz-buzz
+          - 6-kyu-understand-hamming-distance
+          - 6-kyu-understand-roman-numerals
+          - 5-kyu-create-ascii-face
+          - 5-kyu-apply-string-utils
+          - 4-kyu-apply-cron-engine
+          - 4-kyu-apply-dense-encoding
+          - 4-kyu-analyze-json-schema-diff
+          - 3-kyu-analyze-lunar-lander
+          - 3-kyu-evaluate-time-series-lab
+          - 3-kyu-evaluate-owl-ontology
+          - 2-kyu-evaluate-markdown-compiler
+          - 2-kyu-create-plot-code-lib
+          - 1-kyu-create-ray-tracer
+          - 1-dan-create-c64-emulator
+          - 2-dan-create-agi
       mission-text:
         description: "Freeform mission text for MISSION.md (overrides mission-seed if provided)"
         type: string
@@ -126,21 +126,24 @@ permissions: write-all
 
 jobs:
   # Step 1: Update agentic-lib and infrastructure (commits to main)
+  # Skip tests when purge/reseed will replace all user code anyway
   update:
     uses: ./.github/workflows/agentic-lib-update.yml
     with:
       ref: ${{ inputs.ref }}
       dry-run: ${{ inputs.dry-run || 'false' }}
+      skip-tests: ${{ inputs.mode == 'reseed' || inputs.mode == 'purge' }}
     secrets: inherit
 
   # Step 2: Reseed/purge and configure (only if mode != update)
+  # Use !cancelled() so purge runs even if update's npm test failed
   init:
     needs: update
-    if: inputs.mode == 'reseed' || inputs.mode == 'purge'
+    if: "!cancelled() && (inputs.mode == 'reseed' || inputs.mode == 'purge')"
     runs-on: ubuntu-latest
     env:
       INIT_MODE: ${{ inputs.mode }}
-      INIT_MISSION_SEED: ${{ inputs.mission-seed || 'hamming-distance' }}
+      INIT_MISSION_SEED: ${{ inputs.mission-seed || '6-kyu-understand-hamming-distance' }}
       INIT_MISSION_TEXT: ${{ inputs.mission-text }}
     steps:
       - uses: actions/checkout@v6
@@ -307,7 +310,8 @@ jobs:
           VERSION=$(npx @xn-intenton-z2a/agentic-lib version 2>/dev/null || echo "latest")
           git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION}) [skip ci]"
           for attempt in 1 2 3; do
-            git push origin main && break
+            # Use HEAD:refs/heads/main to handle detached HEAD state
+            git push origin HEAD:refs/heads/main && break
             echo "Push failed (attempt $attempt) — pulling and retrying"
             git pull --rebase origin main || {
               echo "Rebase conflict — aborting rebase and retrying"

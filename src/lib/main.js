@@ -39,69 +39,6 @@ export function main(args) {
   console.log(`${name}@${version}`);
 }
 
-/**
- * Compute the Hamming distance between two strings using Unicode code points.
- * Throws TypeError for non-string inputs, RangeError for unequal lengths.
- */
-export function hammingDistance(a, b) {
-  if (typeof a !== "string" || typeof b !== "string") {
-    throw new TypeError("hammingDistance expects two strings");
-  }
-  // Array.from iterates by Unicode code points, handling surrogate pairs correctly
-  const pa = Array.from(a);
-  const pb = Array.from(b);
-  if (pa.length !== pb.length) {
-    throw new RangeError("Strings must have equal length (in code points) to compute Hamming distance");
-  }
-  let dist = 0;
-  for (let i = 0; i < pa.length; i++) {
-    if (pa[i] !== pb[i]) dist++;
-  }
-  return dist;
-}
-
-/**
- * Compute the Hamming distance between two non-negative integers (bitwise difference count).
- * Supports Number (integer) and BigInt; throws TypeError for invalid types and RangeError for negatives.
- */
-export function hammingDistanceBits(x, y) {
-  const tx = typeof x;
-  const ty = typeof y;
-
-  // BigInt path
-  if (tx === "bigint" || ty === "bigint") {
-    if (tx !== "bigint" || ty !== "bigint") {
-      throw new TypeError("Both arguments must be of the same numeric type (both BigInt or both Number)");
-    }
-    if (x < 0n || y < 0n) throw new RangeError("Negative integers are not allowed");
-    let v = x ^ y;
-    let count = 0n;
-    while (v) {
-      v &= v - 1n;
-      count++n;
-    }
-    // Return as Number when safe; BigInt count should be small for reasonable inputs
-    return Number(count);
-  }
-
-  // Number path
-  if (tx !== "number" || ty !== "number") {
-    throw new TypeError("hammingDistanceBits expects integer Number or BigInt arguments");
-  }
-  if (!Number.isInteger(x) || !Number.isInteger(y)) {
-    throw new TypeError("hammingDistanceBits expects integer Number arguments");
-  }
-  if (x < 0 || y < 0) throw new RangeError("Negative integers are not allowed");
-  // XOR and count bits using Kernighan's algorithm
-  let v = x ^ y;
-  let count = 0;
-  while (v) {
-    v &= v - 1;
-    count++;
-  }
-  return count;
-}
-
 if (isNode) {
   const { fileURLToPath } = await import("url");
   if (process.argv[1] === fileURLToPath(import.meta.url)) {
