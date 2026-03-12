@@ -29,6 +29,10 @@ fi
 
 echo "push-to-logs: pushing ${FILES[*]} to ${BRANCH}"
 
+# Mark the workspace as safe (needed in container jobs where the checkout
+# was done by a different user, e.g. Playwright containers)
+git config --global --add safe.directory "$(pwd)" 2>/dev/null || true
+
 # Configure git
 git config --local user.email 'action@github.com'
 git config --local user.name 'GitHub Actions[bot]'
@@ -39,13 +43,21 @@ for f in "${FILES[@]}"; do
   cp "$f" "${TMPDIR}/$(basename "$f")"
 done
 
+# Remember which branch/ref to return to
+ORIGINAL_REF=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+if [ "$ORIGINAL_REF" = "HEAD" ]; then
+  ORIGINAL_REF=$(git rev-parse HEAD 2>/dev/null || echo "")
+fi
+
+# Stash any uncommitted changes so branch switching works cleanly
+git stash --include-untracked 2>/dev/null || true
+
 # Fetch the agentic-lib-logs branch (may not exist yet)
 REMOTE_EXISTS=""
 git fetch origin "${BRANCH}" 2>/dev/null && REMOTE_EXISTS="true" || true
 
 if [ "$REMOTE_EXISTS" = "true" ]; then
-  # Check out existing agentic-lib-logs branch into a detached worktree-like state
-  git checkout "origin/${BRANCH}" -- . 2>/dev/null || true
+  # Check out existing agentic-lib-logs branch
   git checkout -B "${BRANCH}" "origin/${BRANCH}"
 else
   # Create orphan branch
@@ -79,8 +91,15 @@ else
   done
 fi
 
-# Return to previous branch
-git checkout - 2>/dev/null || git checkout main 2>/dev/null || true
+# Return to original branch/ref
+if [ -n "$ORIGINAL_REF" ]; then
+  git checkout "$ORIGINAL_REF" 2>/dev/null || git checkout main 2>/dev/null || true
+else
+  git checkout main 2>/dev/null || true
+fi
+
+# Restore stashed changes
+git stash pop 2>/dev/null || true
 
 # Clean up
 rm -rf "$TMPDIR"

@@ -67,18 +67,22 @@ on:
         default: "hamming-distance"
         options:
           - hamming-distance
-          - fizz-buzz
-          - roman-numerals
-          - lunar-lander
-          - string-utils
-          - dense-encoding
-          - plot-code-lib
-          - cron-engine
-          - owl-ontology
-          - time-series-lab
+          - agi
+          - ascii-face
           - c64-emulator
-          - ray-tracer
+          - cron-engine
+          - dense-encoding
+          - fizz-buzz
+          - hello-world
+          - json-schema-diff
+          - lunar-lander
           - markdown-compiler
+          - owl-ontology
+          - plot-code-lib
+          - ray-tracer
+          - roman-numerals
+          - string-utils
+          - time-series-lab
           - empty
       mission-text:
         description: "Freeform mission text for MISSION.md (overrides mission-seed if provided)"
@@ -250,10 +254,10 @@ jobs:
 
             const SCHEDULE_MAP = {
               off: null,
-              weekly: '15 6 * * 1',
-              daily: '15 6 * * *',
-              hourly: '15 * * * *',
-              continuous: '5,15,25,35,45,55 * * * *',
+              weekly: '25 6 * * 1',
+              daily: '25 6 * * *',
+              hourly: '25 * * * *',
+              continuous: '5,25,45 * * * *',
             };
 
             if (fs.existsSync(workflowPath)) {

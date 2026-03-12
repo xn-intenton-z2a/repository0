@@ -35,8 +35,12 @@ runs:
         fi
         if ! git diff --cached --quiet; then
           git commit -m "${{ inputs.commit-message }}"
+          # Stash any unstaged changes (e.g. log/screenshot files we just unstaged)
+          # so that git pull --rebase can work cleanly
+          git stash 2>/dev/null || true
           REF="${{ inputs.push-ref }}"
           MAX_RETRIES=3
+          PUSH_SUCCESS=""
           REMOTE_REF_EXISTS=""
           if [ -n "$REF" ]; then
             git ls-remote --exit-code origin "$REF" > /dev/null 2>&1 && REMOTE_REF_EXISTS="true"
@@ -53,7 +57,7 @@ runs:
                   continue
                 }
               fi
-              git push origin "$REF" && { REMOTE_REF_EXISTS="true"; break; }
+              git push origin "$REF" && { REMOTE_REF_EXISTS="true"; PUSH_SUCCESS="true"; break; }
             else
               git pull --rebase || {
                 echo "Rebase conflict on attempt $attempt — aborting rebase and retrying"
@@ -61,13 +65,15 @@ runs:
                 sleep $((attempt * 2))
                 continue
               }
-              git push && break
-            fi
-            if [ "$attempt" -eq "$MAX_RETRIES" ]; then
-              echo "::error::Failed to push after $MAX_RETRIES attempts"
-              exit 1
+              git push && { PUSH_SUCCESS="true"; break; }
             fi
             echo "Push failed on attempt $attempt, retrying..."
             sleep $((attempt * 2))
           done
+          # Restore stashed unstaged changes
+          git stash pop 2>/dev/null || true
+          if [ "$PUSH_SUCCESS" != "true" ]; then
+            echo "::error::Failed to push after $MAX_RETRIES attempts"
+            exit 1
+          fi
         fi
