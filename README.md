@@ -1,37 +1,28 @@
-# repository0
+# repository0 — FizzBuzz Library
 
-A small library demonstrating simple utilities and a web demo. This change implements a FizzBuzz library as the core feature.
+This repository implements a small JavaScript library that provides FizzBuzz utilities and a demo website. It is intentionally minimal to serve as a learning and CI demonstration repository.
 
-## Installation
+Features
+- fizzBuzzSingle(n): return Fizz/Buzz/FizzBuzz or the number as string for a single positive integer
+- fizzBuzz(n): return an array of FizzBuzz results from 1..n
 
-Install dependencies:
+Edge cases
+- fizzBuzz(0) => []
+- Negative numbers => RangeError
+- Non-integers => TypeError
 
-npm ci
-
-Run tests:
-
-npm test
-npm run test:behaviour
-
-## API
-
-Import the functions from the library:
+Usage (Node)
 
 import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js';
 
-Examples:
+console.log(fizzBuzzSingle(3)); // "Fizz"
+console.log(fizzBuzz(15));
 
-- fizzBuzz(15) // -> array of 15 strings, last is "FizzBuzz"
-- fizzBuzzSingle(3) // -> "Fizz"
-- fizzBuzzSingle(5) // -> "Buzz"
-- fizzBuzzSingle(7) // -> "7"
+Usage (Browser)
+Open src/web/index.html in a browser — the page imports the library and displays the demo output.
 
-Edge cases:
+Testing
+- Unit tests: npm test (vitest)
+- Behaviour tests (Playwright): npm run test:behaviour
 
-- fizzBuzz(0) -> []
-- Non-integer inputs -> TypeError
-- Negative inputs -> RangeError
-
-## Website demo
-
-Open `src/web/index.html` in a browser or run the behaviour tests which start a local server and navigate to the demo page.
+License: MIT
