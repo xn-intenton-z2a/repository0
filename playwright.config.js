@@ -4,13 +4,13 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "tests/behaviour",
-  timeout: 30000,
+  timeout: 5000,
   retries: 2,
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:3000/src/web/",
   },
   webServer: {
-    command: "npx serve docs -l 3000",
+    command: "npx serve . -l 3000",
     port: 3000,
     reuseExistingServer: true,
   },

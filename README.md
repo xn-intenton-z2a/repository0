@@ -1,176 +1,8 @@
-# Hamming Distance Library
+# repo
 
-A JavaScript library for calculating Hamming distances between strings and integers.
+This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests on a schedule.
 
-## Installation
-
-```bash
-npm install @xn-intenton-z2a/repository0
-```
-
-## Usage
-
-### String Hamming Distance
-
-Calculate the Hamming distance between two strings of equal length:
-
-```javascript
-import { hammingDistance } from '@xn-intenton-z2a/repository0';
-
-// Basic usage
-console.log(hammingDistance('karolin', 'kathrin')); // → 3
-
-// Empty strings
-console.log(hammingDistance('', '')); // → 0
-
-// Identical strings
-console.log(hammingDistance('hello', 'hello')); // → 0
-
-// Unicode support
-console.log(hammingDistance('café', 'care')); // → 2
-console.log(hammingDistance('😀😁', '😀😂')); // → 1
-```
-
-### Bit Hamming Distance
-
-Calculate the Hamming distance between two non-negative integers:
-
-```javascript
-import { hammingDistanceBits } from '@xn-intenton-z2a/repository0';
-
-// Basic usage
-console.log(hammingDistanceBits(1, 4)); // → 2 (binary: 001 vs 100)
-
-// Same numbers
-console.log(hammingDistanceBits(0, 0)); // → 0
-
-// Larger numbers
-console.log(hammingDistanceBits(15, 0)); // → 4 (binary: 1111 vs 0000)
-```
-
-### Library Identity
-
-Get information about the library:
-
-```javascript
-import { getIdentity, name, version } from '@xn-intenton-z2a/repository0';
-
-console.log(name);         // Library name
-console.log(version);      // Library version
-console.log(getIdentity()); // Complete identity object
-```
-
-## API Reference
-
-### `hammingDistance(a, b)`
-
-Computes the Hamming distance between two strings.
-
-**Parameters:**
-- `a` (string): First string
-- `b` (string): Second string
-
-**Returns:** `number` - The number of positions where characters differ
-
-**Throws:**
-- `TypeError`: If either argument is not a string
-- `RangeError`: If strings have different lengths
-
-**Features:**
-- Unicode support (compares code points, not UTF-16 code units)
-- Handles emojis and complex characters correctly
-- Zero-length string support
-
-### `hammingDistanceBits(x, y)`
-
-Computes the Hamming distance between two integers.
-
-**Parameters:**
-- `x` (number): First non-negative integer
-- `y` (number): Second non-negative integer
-
-**Returns:** `number` - The number of differing bits
-
-**Throws:**
-- `TypeError`: If either argument is not an integer
-- `RangeError`: If either argument is negative or not a safe integer
-
-**Features:**
-- Works with integers up to `Number.MAX_SAFE_INTEGER`
-- Efficient bitwise implementation
-- Handles zero and large numbers correctly
-
-## Error Handling
-
-All functions provide detailed error messages:
-
-```javascript
-try {
-  hammingDistance('abc', 'abcd');
-} catch (error) {
-  console.log(error.message); // "Strings must have equal length"
-}
-
-try {
-  hammingDistanceBits(-1, 5);
-} catch (error) {
-  console.log(error.message); // "First argument must be non-negative"
-}
-```
-
-## Web Demo
-
-Visit the [interactive demo](https://xn-intenton-z2a.github.io/repository0/) to try the functions in your browser.
-
-## Examples
-
-### Real-world Applications
-
-**DNA Sequence Comparison:**
-```javascript
-const sequence1 = 'ATCGATCG';
-const sequence2 = 'ATCAATCG';
-console.log(hammingDistance(sequence1, sequence2)); // → 1
-```
-
-**Error Detection in Data Transmission:**
-```javascript
-const original = 0b11010110;
-const received = 0b11110110;
-console.log(hammingDistanceBits(original, received)); // → 1
-```
-
-**Password Similarity:**
-```javascript
-function passwordSimilarity(pwd1, pwd2) {
-  if (pwd1.length !== pwd2.length) return 'Different lengths';
-  const distance = hammingDistance(pwd1, pwd2);
-  return `${distance} character(s) different`;
-}
-```
-
-## Development
-
-```bash
-# Install dependencies
-npm ci
-
-# Run tests
-npm test
-
-# Run behavior tests
-npm run test:behaviour
-
-# Build web demo
-npm run build:web
-
-# Start local server
-npm start
-```
-
-## License
-
-MIT
+## Getting Started
 
 1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
 2. **Configure GitHub** — see [Setup](#setup) below
@@ -217,33 +49,35 @@ The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers reposit
 ## File Layout
 
 ```
-src/lib/main.js              ← library (Node entry point: identity + mission functions)
-src/web/index.html            ← web page (browser: imports lib-meta.js, demonstrates library)
+src/lib/main.js              ← library (browser-safe: identity + mission functions)
+src/web/index.html            ← web page (imports ./lib.js)
+src/web/lib.js                ← browser entry point (re-exports from ../lib/main.js)
 tests/unit/main.test.js       ← unit tests (import main.js directly, test API-level detail)
 tests/unit/web.test.js        ← web structure tests (read index.html as text, verify wiring)
-tests/behaviour/              ← Playwright E2E (run page in browser, import main.js for coupling)
+tests/behaviour/              ← Playwright E2E (serve from project root, import main.js for coupling)
 docs/                         ← build output (generated by npm run build:web)
-docs/lib-meta.js              ← generated: exports name, version, description from package.json
+docs/lib.js                   ← generated: self-contained module for GitHub Pages
 ```
 
-These files form a **coupled unit**. Changes to the library must flow through to the web page, and tests verify this coupling:
+These files form a **coupled unit**. The library works in both Node and the browser:
 
-- `src/lib/main.js` exports `getIdentity()` → returns `{ name, version, description }` from `package.json`
-- `npm run build:web` copies `src/web/*` to `docs/` and generates `docs/lib-meta.js` from `package.json`
-- `src/web/index.html` imports `lib-meta.js` at runtime → displays library identity on the page
+- `src/lib/main.js` is browser-safe — in Node it reads `package.json` via `createRequire`, in the browser via `fetch`
+- `src/web/lib.js` re-exports from `../lib/main.js` — the page imports the **real library**, not a generated copy
+- `src/web/index.html` imports `./lib.js` → displays library identity on the page
 - The behaviour test imports `getIdentity()` from `main.js` AND reads `#lib-version` from the rendered page → asserts they match
+- `npm run build:web` generates `docs/lib.js` as a self-contained module for production (GitHub Pages)
 
-This coupling test proves the web page is consuming the real library via the build pipeline. Mission-specific functions should follow the same path — never duplicate library logic inline in the web page.
+This coupling proves the web page consumes the real library. Mission-specific functions should follow the same path — never duplicate library logic inline in the web page.
 
 ## Test Strategy
 
 | Test layer | What it tests | How it binds |
 |------------|--------------|--------------|
 | **Unit tests** (`tests/unit/main.test.js`) | Library API: return values, error types, edge cases | Imports directly from `src/lib/main.js` |
-| **Web structure tests** (`tests/unit/web.test.js`) | HTML structure: expected elements, `lib-meta.js` import | Reads `src/web/index.html` as text |
-| **Behaviour tests** (`tests/behaviour/`) | End-to-end: page renders, interactive elements work | Playwright loads the built site; coupling test imports `getIdentity()` from `main.js` and asserts the page displays the same version |
+| **Web structure tests** (`tests/unit/web.test.js`) | HTML structure: expected elements, `lib.js` re-export | Reads `src/web/index.html` and `src/web/lib.js` as text |
+| **Behaviour tests** (`tests/behaviour/`) | End-to-end: page renders, displays real library values | Playwright serves from project root; coupling test imports `getIdentity()` from `main.js` and asserts the page displays the same version |
 
-The **coupling test** in the behaviour test is the key invariant: it proves the web page displays values from the actual library, not hardcoded or duplicated values. If the build pipeline breaks, this test fails.
+The **coupling test** in the behaviour test is the key invariant: it proves the web page displays values from the actual library, not hardcoded or duplicated values. The page imports `lib.js` which re-exports from `main.js` which reads `package.json` — the same chain the unit tests exercise.
 
 ## Configuration
 

@@ -1,4 +1,4 @@
-// src/web/lib.js
-// Re-export all functions from the main library for web use
-
-export * from '../lib/main.js';
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
+// src/web/lib.js — Browser entry point, re-exports from the library.
+export { name, version, description, getIdentity } from "../lib/main.js";
