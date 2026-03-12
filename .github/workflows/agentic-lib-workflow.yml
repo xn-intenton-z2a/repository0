@@ -20,6 +20,10 @@ on:
     - cron: "0 6 * * 1"
   workflow_call:
     inputs:
+      ref:
+        type: string
+        required: false
+        default: ""
       model:
         type: string
         required: false
@@ -135,6 +139,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.ref || github.sha }}
           sparse-checkout: ${{ env.configPath }}
           sparse-checkout-cone-mode: false
       - name: Normalise params
@@ -265,6 +270,8 @@ jobs:
     container: mcr.microsoft.com/playwright:v1.58.2-noble
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       - uses: actions/setup-node@v6
         with:
@@ -305,6 +312,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       - uses: actions/setup-node@v6
         with:
@@ -553,10 +562,13 @@ jobs:
       needs.params.result == 'success' &&
       inputs.skipMaintain != 'true' && inputs.skipMaintain != true
     runs-on: ubuntu-latest
+    outputs:
+      commit-sha: ${{ steps.get-sha.outputs.sha }}
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ inputs.ref || github.sha }}
 
       - name: Fetch log from agentic-lib-logs branch
         run: |
@@ -660,6 +672,10 @@ jobs:
           commit-message: "agentic-step: maintain features and library"
           push-ref: ${{ github.ref_name }}
 
+      - name: Capture commit SHA
+        id: get-sha
+        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
       - name: Push log to agentic-lib-logs branch
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         run: bash .github/agentic-lib/scripts/push-to-logs.sh "intentïon.md" "intention.md"
@@ -679,6 +695,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
       - name: Fetch log from agentic-lib-logs branch
         run: |
@@ -729,6 +746,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
       - name: Fetch log from agentic-lib-logs branch
         run: |
@@ -767,7 +785,7 @@ jobs:
 
   # ─── Fix stuck PRs with failing checks ─────────────────────────────
   fix-stuck:
-    needs: [params, supervisor]
+    needs: [params, maintain, supervisor]
     if: |
       !cancelled() &&
       needs.params.outputs.mode == 'full' &&
@@ -777,6 +795,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
       - uses: actions/setup-node@v6
         with:
@@ -1088,7 +1107,7 @@ jobs:
 
   # ─── Review: close resolved issues, enhance with criteria ──────────
   review-features:
-    needs: [params, supervisor]
+    needs: [params, maintain, supervisor]
     if: |
       !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'review-only') &&
@@ -1096,6 +1115,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
       - uses: actions/setup-node@v6
         with:
@@ -1133,7 +1154,7 @@ jobs:
 
   # ─── Dev: sequential issue resolution ──────────────────────────────
   dev:
-    needs: [params, review-features]
+    needs: [params, maintain, review-features]
     if: |
       !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
@@ -1144,6 +1165,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
       - name: Fetch log from agentic-lib-logs branch
         run: |
@@ -1405,13 +1427,14 @@ jobs:
 
   # ─── Post-merge: stats, schedule, mission check ────────────────────
   post-merge:
-    needs: [params, dev, pr-cleanup]
+    needs: [params, maintain, dev, pr-cleanup]
     if: ${{ !cancelled() && needs.params.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
       - name: Summary
         run: |
@@ -1428,20 +1451,23 @@ jobs:
 
   # ─── Post-commit validation: call test workflow to verify branch health ───
   post-commit-test:
-    needs: [params, dev, fix-stuck, post-merge]
+    needs: [params, maintain, dev, fix-stuck, post-merge]
     if: >-
       !cancelled()
       && needs.params.outputs.dry-run != 'true'
       && needs.params.result == 'success'
     uses: ./.github/workflows/agentic-lib-test.yml
+    with:
+      ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
     secrets: inherit
 
   # ─── Schedule change (if requested) ────────────────────────────────
   update-schedule:
-    needs: [params, dev]
+    needs: [params, maintain, dev]
     if: ${{ !cancelled() && needs.params.outputs.dry-run != 'true' && needs.params.outputs.schedule != '' && needs.params.result == 'success' }}
     uses: ./.github/workflows/agentic-lib-schedule.yml
     with:
+      ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
       frequency: ${{ needs.params.outputs.schedule }}
       model: ${{ needs.params.outputs.model }}
       profile: ${{ needs.params.outputs.profile }}

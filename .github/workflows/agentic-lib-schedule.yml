@@ -13,6 +13,10 @@ run-name: "agentic-lib-schedule -> ${{ inputs.frequency }} (${{ inputs.model }}$
 on:
   workflow_call:
     inputs:
+      ref:
+        type: string
+        required: false
+        default: ""
       frequency:
         description: "How often the workflow should run"
         required: true
@@ -80,10 +84,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         if: inputs.dry-run == 'true' || inputs.dry-run == true
+        with:
+          ref: ${{ inputs.ref || github.sha }}
       - uses: actions/checkout@v6
         if: inputs.dry-run != 'true' && inputs.dry-run != true
         with:
-          ref: main
+          ref: ${{ inputs.ref || 'main' }}
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: Update workflow schedule and model

@@ -12,6 +12,10 @@ run-name: "agentic-lib-init ${{ inputs.mode || 'update' }} [${{ github.ref_name 
 on:
   workflow_call:
     inputs:
+      ref:
+        type: string
+        required: false
+        default: ""
       mode:
         type: string
         required: false
@@ -121,6 +125,7 @@ jobs:
   update:
     uses: ./.github/workflows/agentic-lib-update.yml
     with:
+      ref: ${{ inputs.ref }}
       dry-run: ${{ inputs.dry-run || 'false' }}
     secrets: inherit
 
@@ -136,10 +141,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         if: inputs.dry-run == 'true' || inputs.dry-run == true
+        with:
+          ref: ${{ inputs.ref || github.sha }}
       - uses: actions/checkout@v6
         if: inputs.dry-run != 'true' && inputs.dry-run != true
         with:
-          ref: main
+          ref: ${{ inputs.ref || 'main' }}
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - uses: actions/setup-node@v6

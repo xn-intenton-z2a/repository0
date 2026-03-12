@@ -14,6 +14,10 @@ run-name: "agentic-lib-update [${{ github.ref_name }}]"
 on:
   workflow_call:
     inputs:
+      ref:
+        type: string
+        required: false
+        default: ""
       dry-run:
         type: string
         required: false
@@ -36,10 +40,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         if: inputs.dry-run == 'true' || inputs.dry-run == true
+        with:
+          ref: ${{ inputs.ref || github.sha }}
       - uses: actions/checkout@v6
         if: inputs.dry-run != 'true' && inputs.dry-run != true
         with:
-          ref: main
+          ref: ${{ inputs.ref || 'main' }}
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - uses: actions/setup-node@v6
