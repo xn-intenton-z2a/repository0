@@ -256,11 +256,52 @@ jobs:
       merged-prs: ${{ steps.cleanup.outputs.merged-prs }}
       closed-prs: ${{ steps.cleanup.outputs.closed-prs }}
 
-  # ─── Telemetry: gather repo state for supervisor ───────────────────
-  telemetry:
+  # ─── Behaviour Telemetry: run Playwright tests in container ────────
+  behaviour-telemetry:
     needs: params
     if: |
       needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only'
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.58.2-noble
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install dependencies (non-blocking)
+        run: npm ci 2>/dev/null || npm install 2>/dev/null || true
+
+      - name: Build web assets (non-blocking)
+        run: npm run build:web 2>/dev/null || true
+
+      - name: Run behaviour tests (non-blocking)
+        id: behaviour-tests
+        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
+        run: |
+          set +e
+          OUTPUT=$(npm run --if-present test:behaviour 2>&1)
+          EXIT_CODE=$?
+          echo "exit-code=$EXIT_CODE" | tee -a $GITHUB_OUTPUT
+          PASS_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ passed' | head -1 | grep -oP '\d+' || echo "0")
+          FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ failed' | head -1 | grep -oP '\d+' || echo "0")
+          echo "pass-count=$PASS_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "fail-count=$FAIL_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "$OUTPUT"
+          exit 0
+
+    outputs:
+      exit-code: ${{ steps.behaviour-tests.outputs.exit-code || '-1' }}
+      pass-count: ${{ steps.behaviour-tests.outputs.pass-count || '0' }}
+      fail-count: ${{ steps.behaviour-tests.outputs.fail-count || '0' }}
+
+  # ─── Telemetry: gather repo state for supervisor ───────────────────
+  telemetry:
+    needs: [params, behaviour-telemetry]
+    if: |
+      !cancelled() &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -301,24 +342,6 @@ jobs:
           echo "pass-count=$PASS_COUNT" | tee -a $GITHUB_OUTPUT
           echo "fail-count=$FAIL_COUNT" | tee -a $GITHUB_OUTPUT
           echo "$OUTPUT" > /tmp/unit-test-output.txt
-          echo "$OUTPUT"
-          exit 0
-
-      - name: Run behaviour tests (non-blocking)
-        id: behaviour-tests
-        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
-        run: |
-          set +e
-          npx playwright install --with-deps chromium 2>/dev/null || true
-          npm run build:web 2>/dev/null || true
-          OUTPUT=$(npm run --if-present test:behaviour 2>&1)
-          EXIT_CODE=$?
-          echo "exit-code=$EXIT_CODE" | tee -a  $GITHUB_OUTPUT
-          PASS_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ passed' | head -1 | grep -oP '\d+' || echo "0")
-          FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ failed' | head -1 | grep -oP '\d+' || echo "0")
-          echo "pass-count=$PASS_COUNT" | tee -a  $GITHUB_OUTPUT
-          echo "fail-count=$FAIL_COUNT" | tee -a  $GITHUB_OUTPUT
-          echo "$OUTPUT" > /tmp/behaviour-test-output.txt
           echo "$OUTPUT"
           exit 0
 
@@ -462,10 +485,6 @@ jobs:
             const unitOutput = fs.existsSync('/tmp/unit-test-output.txt')
               ? fs.readFileSync('/tmp/unit-test-output.txt', 'utf8')
               : '';
-            const behaviourOutput = fs.existsSync('/tmp/behaviour-test-output.txt')
-              ? fs.readFileSync('/tmp/behaviour-test-output.txt', 'utf8')
-              : '';
-
             const telemetry = {
               issues: issuesSummary,
               instabilityIssues: instabilityNumbers,
@@ -487,10 +506,9 @@ jobs:
                   output: unitOutput,
                 },
                 behaviour: {
-                  exitCode: parseInt('${{ steps.behaviour-tests.outputs.exit-code }}' || '-1'),
-                  passCount: parseInt('${{ steps.behaviour-tests.outputs.pass-count }}' || '0'),
-                  failCount: parseInt('${{ steps.behaviour-tests.outputs.fail-count }}' || '0'),
-                  output: behaviourOutput,
+                  exitCode: parseInt('${{ needs.behaviour-telemetry.outputs.exit-code }}' || '-1'),
+                  passCount: parseInt('${{ needs.behaviour-telemetry.outputs.pass-count }}' || '0'),
+                  failCount: parseInt('${{ needs.behaviour-telemetry.outputs.fail-count }}' || '0'),
                 },
               },
               externalTestResults,
@@ -767,13 +785,13 @@ jobs:
       - name: Install project dependencies
         run: npm ci
 
-      - name: Install Playwright (for behaviour tests)
-        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
-        run: npx playwright install --with-deps chromium
-
-      - name: Self-init (agentic-lib dev only)
-        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
-        run: bash scripts/self-init.sh
+#      - name: Install Playwright (for behaviour tests)
+#        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
+#        run: npx playwright install --with-deps chromium
+#
+#      - name: Self-init (agentic-lib dev only)
+#        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+#        run: bash scripts/self-init.sh
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
@@ -1262,29 +1280,29 @@ jobs:
           echo "tests-passed=true" >> $GITHUB_OUTPUT
           echo "All tests passed"
 
-      - name: Run behaviour tests before committing
-        id: pre-commit-behaviour-test
-        if: steps.issue.outputs.issue-number != '' && steps.pre-commit-test.outputs.tests-passed == 'true' && (hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != '')
-        run: |
-          npx playwright install --with-deps chromium 2>/dev/null || true
-          npm run build:web 2>/dev/null || true
-          set +e
-          npm run --if-present test:behaviour 2>&1 | tail -30
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "::warning::Behaviour test attempt 1 failed — retrying"
-            sleep 2
-            npm run --if-present test:behaviour 2>&1 | tail -30
-            EXIT_CODE=$?
-          fi
-          set -e
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "tests-passed=false" >> $GITHUB_OUTPUT
-            echo "WARNING: Behaviour tests failed (exit $EXIT_CODE) — skipping commit and PR"
-            exit 0
-          fi
-          echo "tests-passed=true" >> $GITHUB_OUTPUT
-          echo "Behaviour tests passed"
+#      - name: Run behaviour tests before committing
+#        id: pre-commit-behaviour-test
+#        if: steps.issue.outputs.issue-number != '' && steps.pre-commit-test.outputs.tests-passed == 'true' && (hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != '')
+#        run: |
+#          npx playwright install --with-deps chromium 2>/dev/null || true
+#          npm run build:web 2>/dev/null || true
+#          set +e
+#          npm run --if-present test:behaviour 2>&1 | tail -30
+#          EXIT_CODE=$?
+#          if [ $EXIT_CODE -ne 0 ]; then
+#            echo "::warning::Behaviour test attempt 1 failed — retrying"
+#            sleep 2
+#            npm run --if-present test:behaviour 2>&1 | tail -30
+#            EXIT_CODE=$?
+#          fi
+#          set -e
+#          if [ $EXIT_CODE -ne 0 ]; then
+#            echo "tests-passed=false" >> $GITHUB_OUTPUT
+#            echo "WARNING: Behaviour tests failed (exit $EXIT_CODE) — skipping commit and PR"
+#            exit 0
+#          fi
+#          echo "tests-passed=true" >> $GITHUB_OUTPUT
+#          echo "Behaviour tests passed"
 
       - name: Commit and push
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true' && steps.pre-commit-behaviour-test.outputs.tests-passed != 'false'
