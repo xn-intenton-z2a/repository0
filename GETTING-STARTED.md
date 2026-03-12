@@ -15,6 +15,45 @@ cd my-project
 
 Edit `MISSION.md` to describe what you want to build. Be specific about features, technical requirements, and quality expectations. The agent reads this file to understand your project goals.
 
+### Option A: Use a built-in graded mission
+
+agentic-lib ships with 18 built-in missions, graded using [Codewars kyu/dan](https://docs.codewars.com/concepts/kata/) difficulty and [Bloom's taxonomy](https://en.wikipedia.org/wiki/Bloom%27s_taxonomy) cognitive type. To start with one, use `init --purge --mission`:
+
+```bash
+npx @xn-intenton-z2a/agentic-lib init --purge --mission 7-kyu-understand-fizz-buzz
+```
+
+Built-in missions (easiest to hardest):
+
+| Mission | Kyu/Dan | Bloom's | Description |
+|---------|---------|---------|-------------|
+| `8-kyu-remember-empty` | 8 kyu | Remember | Blank template |
+| `8-kyu-remember-hello-world` | 8 kyu | Remember | Hello World |
+| `7-kyu-understand-fizz-buzz` | 7 kyu | Understand | Classic FizzBuzz |
+| `6-kyu-understand-hamming-distance` | 6 kyu | Understand | Hamming distance (strings + bits) |
+| `6-kyu-understand-roman-numerals` | 6 kyu | Understand | Roman numeral conversion |
+| `5-kyu-create-ascii-face` | 5 kyu | Create | ASCII face art |
+| `5-kyu-apply-string-utils` | 5 kyu | Apply | 10 string utility functions |
+| `4-kyu-apply-cron-engine` | 4 kyu | Apply | Cron expression parser |
+| `4-kyu-apply-dense-encoding` | 4 kyu | Apply | Dense binary encoding |
+| `4-kyu-analyze-json-schema-diff` | 4 kyu | Analyze | JSON Schema diff |
+| `3-kyu-analyze-lunar-lander` | 3 kyu | Analyze | Lunar lander simulation |
+| `3-kyu-evaluate-time-series-lab` | 3 kyu | Evaluate | Time series analysis |
+| `3-kyu-evaluate-owl-ontology` | 3 kyu | Evaluate | OWL ontology processor |
+| `2-kyu-evaluate-markdown-compiler` | 2 kyu | Evaluate | Markdown compiler |
+| `2-kyu-create-plot-code-lib` | 2 kyu | Create | Code visualization library |
+| `1-kyu-create-ray-tracer` | 1 kyu | Create | Ray tracer |
+| `1-dan-create-c64-emulator` | 1 dan | Create | C64 emulator |
+| `2-dan-create-agi` | 2 dan | Create | AGI vision |
+
+List all available missions:
+
+```bash
+npx @xn-intenton-z2a/agentic-lib iterate --list-missions
+```
+
+### Option B: Write your own mission
+
 Example:
 
 ```markdown
