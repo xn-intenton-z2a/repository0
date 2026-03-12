@@ -20,15 +20,18 @@ describe("Website", () => {
     expect(html).toContain("lib.js");
   });
 
-  test("src/web/lib.js re-exports from the library", () => {
+  test("src/web/lib.js re-exports fizzBuzz from the library", () => {
     expect(existsSync("src/web/lib.js")).toBe(true);
     const lib = readFileSync("src/web/lib.js", "utf8");
     expect(lib).toContain("../lib/main.js");
+    expect(lib).toContain("fizzBuzz");
+    expect(lib).toContain("fizzBuzzSingle");
   });
 
   test("index.html displays library identity elements", () => {
     const html = readFileSync("src/web/index.html", "utf8");
     expect(html).toContain("lib-name");
     expect(html).toContain("lib-version");
+    expect(html).toContain("demo-output");
   });
 });
