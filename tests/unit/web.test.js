@@ -1,10 +1,34 @@
-import { test, expect } from 'vitest';
-import { readFile } from 'fs/promises';
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
+import { describe, test, expect } from "vitest";
+import { readFileSync, existsSync } from "fs";
 
-test('web index has expected structure and imports', async () => {
-  const html = await readFile(new URL('../../src/web/index.html', import.meta.url), 'utf8');
-  expect(html).toContain('id="lib-name"');
-  expect(html).toContain('id="lib-version"');
-  expect(html).toContain('id="demo-output"');
-  expect(html).toContain("import('./lib.js')");
+describe("Website", () => {
+  test("src/web/index.html exists", () => {
+    expect(existsSync("src/web/index.html")).toBe(true);
+  });
+
+  test("index.html contains valid HTML structure", () => {
+    const html = readFileSync("src/web/index.html", "utf8");
+    expect(html).toContain("<!DOCTYPE html>");
+    expect(html).toContain("<html");
+    expect(html).toContain("</html>");
+  });
+
+  test("index.html imports the library via lib.js", () => {
+    const html = readFileSync("src/web/index.html", "utf8");
+    expect(html).toContain("lib.js");
+  });
+
+  test("src/web/lib.js re-exports from the library", () => {
+    expect(existsSync("src/web/lib.js")).toBe(true);
+    const lib = readFileSync("src/web/lib.js", "utf8");
+    expect(lib).toContain("../lib/main.js");
+  });
+
+  test("index.html displays library identity elements", () => {
+    const html = readFileSync("src/web/index.html", "utf8");
+    expect(html).toContain("lib-name");
+    expect(html).toContain("lib-version");
+  });
 });

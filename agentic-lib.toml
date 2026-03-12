@@ -6,7 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "daily"              # off | weekly | daily | hourly | continuous
+supervisor = "continuous"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -38,7 +38,7 @@ test = "npm ci && npm test"
 [tuning]
 # Profile sets defaults for all tuning and limit knobs: min | recommended | max
 # Profile definitions live in [profiles.*] sections below.
-profile = "recommended"
+profile = "max"
 #
 # Model selection — each has different strengths:
 #   gpt-5-mini      — Fast, cheap, supports reasoning-effort. Best for CI and iteration.
@@ -46,7 +46,7 @@ profile = "recommended"
 #   gpt-4.1         — High capability, large context. Best for thorough analysis.
 # Note: reasoning-effort only works with gpt-5-mini and o4-mini.
 # For other models it is automatically skipped.
-model = "gpt-5-mini"
+model = "claude-sonnet-4"
 #
 # Override individual knobs below. Omit or comment out to use profile defaults.
 # reasoning-effort = "low"       # low | medium | high | none (none = disable entirely)
@@ -141,7 +141,7 @@ max-source-todos = 0               # max TODO comments allowed in ./src (0 = non
 log-file = "intentïon.md"
 
 [init]
-timestamp = "2026-03-12T21:57:09.136Z"
+timestamp = "2026-03-12T22:52:08.380Z"
 mode = "purge"
-mission = "7-kyu-understand-fizz-buzz"
+mission = "4-kyu-apply-dense-encoding"
 version = "7.4.5"

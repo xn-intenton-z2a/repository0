@@ -9,7 +9,7 @@
     "build:web": "node .github/agentic-lib/scripts/build-web.cjs",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
-    "test:behaviour": "npx playwright test tests/unit/site.spec.js --config playwright.config.js",
+    "test:behaviour": "npx playwright test --config playwright.config.js",
     "start": "npm run build:web && npx serve docs",
     "start:cli": "node src/lib/main.js"
   },
