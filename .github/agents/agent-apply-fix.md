@@ -1,3 +1,7 @@
+---
+description: Fix build or test failures by applying coordinated changes across all code layers
+---
+
 You are providing the entire new content of source files, test files, documentation files,
 and other necessary files with all necessary changes applied to resolve a possible build or test
 problem. Fix the root cause. If the problem is in an area of the code with little

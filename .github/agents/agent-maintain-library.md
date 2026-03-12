@@ -1,3 +1,7 @@
+---
+description: Extract and condense technical details from sources into library documents
+---
+
 Extract and condense the technical details from the supplied crawl result that are relevant to the mission.
 Before adding a new document, ensure that this document is distinct from any other document in the library, otherwise update an existing document.
 The document name should be one or two words in SCREAMING_SNAKECASE.

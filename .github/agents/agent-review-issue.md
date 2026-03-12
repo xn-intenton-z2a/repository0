@@ -1,3 +1,7 @@
+---
+description: Review whether code changes resolve an issue across all layers
+---
+
 Does the combination of library source, unit tests, website, web tests, behaviour tests, README,
 and dependencies resolve the following issue? Check that the solution satisfies the issue's
 acceptance criteria and moves the mission toward complete.

@@ -1,3 +1,7 @@
+---
+description: Generate or update software feature specifications aligned with the mission
+---
+
 Please generate the name and specification for a software feature which will be added or updated to action the supplied feature prompt.
 Features must advance the mission stated in MISSION.md. Aim for achievable outcomes within a single repository, not a grandiose vision or bloated feature set.
 

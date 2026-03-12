@@ -1,3 +1,7 @@
+---
+description: Review GitHub issues and enhance with testable acceptance criteria
+---
+
 Please review the GitHub issue and determine if it should be enhanced, closed or if no operation is needed.
 
 If the issue is relevant to the mission statement and features:
