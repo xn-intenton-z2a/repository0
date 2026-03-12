@@ -1,8 +1,17 @@
-# HAMMING_DISTANCE_API
+# HAMMING_DISTANCE_API (ARCHIVED)
 
-Summary
+This feature has been implemented in src/lib/main.js and is archived from the active feature set.
 
-A concise feature specification to implement and expose two core Hamming distance functions in src/lib/main.js: hammingDistance and hammingDistanceBits. The feature ensures correct Unicode handling, input validation, clear error semantics, unit tests, and README examples so the library fulfills the repository mission.
+Implementation location: `src/lib/main.js`
+
+Replaced by focused feature specs:
+- `features/HAMMING_DISTANCE_TESTS.md` — unit test requirements and acceptance criteria
+- `features/HAMMING_DISTANCE_README.md` — README documentation and examples
+- `features/HAMMING_DISTANCE_EXPORTS.md` — export/API surface verification
+
+Rationale
+
+Keep the original spec for historical context but mark it archived so the active features list reflects current outstanding work.
 
 Motivation
 
