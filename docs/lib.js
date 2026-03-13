@@ -9,3 +9,117 @@ export const description = "Mathematical plotting library and CLI tool - be the 
 export function getIdentity() {
   return { name, version, description };
 }
+
+export async function plotCLI(args) {
+  if (!isNode) {
+    throw new Error("CLI interface requires Node.js environment");
+  }
+  
+  const options = {
+    expression: null,
+    range: null,
+    file: null,
+    verbose: false,
+    help: false
+  };
+  
+  // Parse arguments
+  for (let i = 0; i < args.length; i++) {
+    switch (args[i]) {
+      case '--expression':
+        options.expression = args[++i];
+        break;
+      case '--range':
+        options.range = args[++i];
+        break;
+      case '--file':
+        options.file = args[++i];
+        break;
+      case '--verbose':
+        options.verbose = true;
+        break;
+      case '--help':
+        options.help = true;
+        break;
+    }
+  }
+  
+  if (options.help) {
+    console.log(`
+${name} v${version} - ${description}
+
+Usage: node src/lib/main.js [OPTIONS]
+
+Options:
+  --expression EXPR    Mathematical expression (e.g., "y=sin(x)")
+  --range RANGE       Variable range (e.g., "x=-pi:pi" or "x=-1:1,step=0.05")
+  --file FILENAME     Output file (.svg or .png)
+  --verbose           Show detailed output
+  --help              Show this help message
+  --version           Show version number
+
+Examples:
+  node src/lib/main.js --expression "y=sin(x)" --range "x=-pi:pi" --file sine.svg
+  node src/lib/main.js --expression "y=x^2+1" --range "x=-3:3,step=0.1" --file parabola.png
+  node src/lib/main.js --expression "y=log(x)" --range "x=0.1:10" --file log.svg --verbose
+`);
+    return;
+  }
+  
+  if (!options.expression) {
+    console.error("Error: --expression is required");
+    return;
+  }
+  
+  if (!options.range) {
+    console.error("Error: --range is required");
+    return;
+  }
+  
+  if (!options.file) {
+    console.error("Error: --file is required");
+    return;
+  }
+  
+  try {
+    if (options.verbose) {
+      console.log("Parsing expression:", options.expression);
+    }
+    
+    const parser = new ExpressionParser();
+    const expressionFunc = parser.parse(options.expression);
+    
+    if (options.verbose) {
+      console.log("Generating time series data for range:", options.range);
+    }
+    
+    const generator = new TimeSeriesGenerator();
+    const rangeSpec = generator.parseRange(options.range);
+    const data = generator.generate(expressionFunc, rangeSpec);
+    
+    if (options.verbose) {
+      console.log(`Generated ${data.length} data points`);
+    }
+    
+    const renderer = new PlotRenderer();
+    const ext = path.extname(options.file).toLowerCase();
+    
+    if (ext === '.svg') {
+      const svgContent = renderer.renderSVG(data, { title: options.expression });
+      await renderer.saveFile(svgContent, options.file);
+    } else if (ext === '.png') {
+      const pngBuffer = await renderer.renderPNG(data, { title: options.expression });
+      await renderer.saveFile(pngBuffer, options.file);
+    } else {
+      throw new Error(`Unsupported file format: ${ext}`);
+    }
+    
+    console.log(`Plot saved to ${options.file}`);
+    
+  } catch (error) {
+    console.error("Error:", error.message);
+    if (options.verbose) {
+      console.error(error.stack);
+    }
+  }
+}
