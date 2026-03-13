@@ -49,6 +49,7 @@
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
 
+  <script>document.addEventListener("DOMContentLoaded", ()=>{ if(!document.getElementById("demo-output")){ const p=document.createElement("pre"); p.id="demo-output"; p.className="output"; p.textContent="Loading demo..."; const ref = document.querySelector(".feature") || null; document.body.insertBefore(p, ref); } });</script>
   <script type="module">
     try {
       const { name, version, description, hammingDistance, hammingDistanceBits } = await import('./lib.js');
