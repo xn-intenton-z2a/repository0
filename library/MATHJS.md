@@ -3,31 +3,35 @@
 ## Table of Contents
 
 - Expression Parser and Evaluation
-- Supported Data Types
+- Supported Data Types and Number Systems
 - Mathematical Functions and Constants
-- Symbolic Computation
+- Symbolic Computation and Derivatives
 - Chaining Operations
+- Matrix Operations and Graphics Transformations
+- Unit Conversions and Physical Quantities
 - JavaScript Integration and Compatibility
-- Command Line Usage
-- Performance Characteristics
-- Extensibility
-- Derivative Calculations for Plotting
-- Matrix Operations for Graphics Transformations
+- Command Line Interface
+- Performance Characteristics and Extensibility
 
 ## Expression Parser and Evaluation
 
-Math.js is an extensive math library for JavaScript and Node.js featuring a flexible expression parser with support for symbolic computation. The library can evaluate mathematical expressions provided as strings with built-in functions and constants.
+Math.js is an extensive math library for JavaScript and Node.js featuring a flexible expression parser with support for symbolic computation. The library can evaluate mathematical expressions provided as strings with built-in functions and constants, making it ideal for plotting libraries that need to parse and evaluate user-provided mathematical expressions.
 
-### Basic Expression Evaluation
-The math.evaluate() function processes mathematical expressions:
+### Core Expression Evaluation
+The math.evaluate() function processes mathematical expressions with full operator precedence:
 - math.evaluate('1.2 * (2 + 4.5)') returns 7.8
-- math.evaluate('12.7 cm to inch') returns 5 inch with unit conversion
-- math.evaluate('sin(45 deg) ^ 2') returns 0.5 with trigonometric functions
+- math.evaluate('12.7 cm to inch') returns 5 inch with automatic unit conversion
+- math.evaluate('sin(45 deg) ^ 2') returns 0.5 using degree trigonometry
 - math.evaluate('9 / 3 + 2i') returns 3 + 2i for complex number operations
-- math.evaluate('det([-1, 2; 3, 1])') returns -7 for matrix determinant
+- math.evaluate('det([-1, 2; 3, 1])') returns -7 for matrix determinant calculations
 
-### Core Functions for Plotting
+### Function Evaluation for Plotting
+Key mathematical functions essential for plotting applications:
 - math.round(math.e, 3) returns 2.718 for precision control
+- math.atan2(3, -3) / math.pi returns 0.75 for polar coordinate conversion
+- math.log(10000, 10) returns 4 for logarithmic scaling
+- math.sqrt(-4) returns 2i for complex domain plotting
+- math.pow([[-1, 2], [3, 1]], 2) returns [[7, 0], [0, 7]] for matrix transformations
 - math.atan2(3, -3) / math.pi returns 0.75 for angle calculations
 - math.log(10000, 10) returns 4 for logarithmic scaling
 - math.sqrt(-4) returns 2i for complex plane visualization
@@ -214,7 +218,11 @@ math.trace(matrix) - Calculate matrix trace
 
 ## Detailed Digest
 
-Retrieved from https://mathjs.org/ on 2026-03-13. Math.js is an extensive math library for JavaScript and Node.js featuring a flexible expression parser with support for symbolic computation, large set of built-in functions and constants, and integrated solution for different data types including numbers, big numbers, complex numbers, fractions, units, and matrices. The library is compatible with JavaScript's built-in Math library, contains a flexible expression parser, performs symbolic computation, and is easily extensible. Examples demonstrate expression evaluation, mathematical function usage, and chaining operations for complex calculations.
+Math.js technical content retrieved from https://mathjs.org/ demonstrates comprehensive mathematical expression parsing and evaluation capabilities essential for plotting libraries. The library provides flexible expression parser supporting standard mathematical syntax, extensive data type support including complex numbers and matrices, symbolic computation capabilities with derivative calculations, and chainable operations for complex mathematical workflows.
 
-Attribution: Math.js mathematical expression parser and evaluator library for JavaScript
-Data size obtained: ~2.5KB of technical specifications and implementation examples
+Key implementation features include math.evaluate() function for processing mathematical expressions with full operator precedence, support for unit conversions and complex number operations, matrix operations suitable for graphics transformations, and built-in mathematical functions and constants essential for scientific plotting applications. The command-line interface enables standalone mathematical expression evaluation while JavaScript library integration provides programmatic access for web applications.
+
+**Source**: https://mathjs.org/ - Math.js mathematical expression parser and evaluator library for JavaScript
+**Retrieved**: 2026-03-13T11:19:12.493Z  
+**Attribution**: Math.js development team
+**Data Size**: ~15KB of technical specifications, API documentation, and implementation examples

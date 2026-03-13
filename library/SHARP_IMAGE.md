@@ -15,17 +15,25 @@
 
 ## High-Performance Image Processing
 
-Sharp is a high-speed Node-API module for converting, processing, and transforming images. It serves as a Node.js wrapper around the libvips image processing library, delivering exceptional performance for web-friendly image generation.
+Sharp is a high-speed Node-API module designed for converting large images to smaller, web-friendly formats with exceptional performance. As a Node.js wrapper around the libvips image processing library, it provides 4x-5x faster image processing than ImageMagick and GraphicsMagick due to its use of libvips.
 
-### Primary Use Cases
-- Converting large images to smaller, web-friendly formats
-- Batch image processing for web applications
-- Real-time image transformations in server applications
-- Generating responsive image variants
-- Creating image thumbnails and previews
+### Core Capabilities and Performance Features
+Sharp excels in high-performance image processing with these key capabilities:
+- Lightning-fast image resizing using Lanczos resampling for quality preservation
+- Support for all major input formats: JPEG, PNG, WebP, GIF, AVIF, TIFF, and SVG
+- Output formats include JPEG, PNG, WebP, GIF, AVIF, TIFF, plus raw pixel data
+- Advanced operations: rotation, extraction, compositing, gamma correction
+- Color space and embedded ICC profile handling with alpha transparency support
+- Streams, Buffer objects, and filesystem I/O support for flexible integration
+- Single input stream can split into multiple processing pipelines
 
-### Performance Advantage
-Sharp is typically 4x-5x faster than ImageMagick and GraphicsMagick when using their quickest settings, achieved through its use of libvips, a high-performance image processing library originally created in 1989 at Birkbeck College.
+### Advanced Features for Web Applications
+- Deep Zoom image pyramid generation suitable for slippy map tile viewers like OpenSeadragon
+- Memory-efficient processing with only small regions of uncompressed image data in memory
+- Full advantage of multiple CPU cores and L1/L2/L3 cache optimization
+- Non-blocking operations through libuv with no child processes spawned
+- Promise/async/await support for modern JavaScript workflows
+- Optimized file sizes using mozjpeg and pngquant features without external tools
 
 ## Supported Image Formats
 
@@ -239,9 +247,11 @@ lossless: boolean for WebP lossless compression
 
 ## Detailed Digest
 
-**Source Content:** Sharp image processing library website (https://sharp.pixelplumbing.com/)
-**Retrieved:** 2026-03-13
-**Attribution:** Sharp high-performance image processing library for Node.js
-**Data Size:** Approximately 3.8KB extracted content
+Sharp technical content retrieved from https://sharp.pixelplumbing.com/ demonstrates high-performance image processing capabilities essential for plotting libraries requiring image generation, format conversion, and optimization. The library provides libvips-powered performance with 4x-5x speed improvements over ImageMagick/GraphicsMagick, comprehensive format support for web-friendly image generation, and memory-efficient processing architecture.
 
-Sharp is a high-performance Node-API module for image processing built on the libvips library, offering 4x-5x faster performance than ImageMagick/GraphicsMagick. It supports comprehensive format conversion, advanced image operations, streaming processing, and runs on Node.js 18.17.0+, Deno, and Bun with minimal dependencies. The library features efficient memory management, deep zoom capabilities, and integrated optimization from mozjpeg and pngquant.
+Key implementation features include lightning-fast image resizing with Lanczos resampling for quality preservation, support for major input/output formats including SVG and modern web formats, advanced operations for compositing and gamma correction, streaming processing capabilities for efficient memory usage, and integration with modern JavaScript patterns including Promise/async/await support. The zero-dependency design ensures reliable deployment across Node.js, Deno, and Bun environments.
+
+**Source**: https://sharp.pixelplumbing.com/ - Sharp high-performance image processing library for Node.js
+**Retrieved**: 2026-03-13T11:19:12.493Z  
+**Attribution**: Sharp development team and libvips contributors
+**Data Size**: ~15KB technical specifications, performance details, and API documentation

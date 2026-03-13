@@ -1,40 +1,40 @@
-# Parametric and Polar Plotting
+# Multi-Expression Plotting
 
-Extend plotting capabilities beyond Cartesian coordinates to support parametric equations and polar coordinate systems for comprehensive mathematical visualization.
+Enable plotting multiple mathematical expressions on a single graph with proper styling and legend support for comparative mathematical analysis.
 
 ## Purpose
 
-Expand plot-code-lib visualization capabilities to handle parametric curves, polar coordinates, and 3D surface projections, enabling visualization of complex mathematical relationships that cannot be expressed as simple y=f(x) functions.
+Enhance plot-code-lib to handle multiple expressions simultaneously, creating overlay plots that enable mathematical comparison, relationship analysis, and comprehensive visualization in a single output file.
 
 ## Acceptance Criteria
 
-- Add --mode flag supporting: cartesian, parametric, polar coordinate systems
-- Support parametric equations with separate x(t) and y(t) expressions
-- Include polar coordinate plotting with r=f(theta) expressions  
-- Add parameter range specification for parametric equations (t=min:max)
-- Support angle range specification for polar plots (theta=0:2*pi)
-- Include 3D surface projection capabilities with z=f(x,y) expressions
-- Add coordinate system grid overlays appropriate to each mode
-- Support multiple parametric curves on the same plot with distinct styling
-- Include coordinate transformation utilities between systems
-- Add specialized axis labeling for polar and parametric coordinate systems
+- Support multiple --expression flags in a single command for overlay plotting
+- Add automatic color coding and line styling for different expressions
+- Include legend generation with expression labels and visual indicators
+- Support --label flag for custom naming of each expression in the legend
+- Add transparency and line style options for visual distinction between plots
+- Include mathematical relationship highlighting (intersections, differences)
+- Support expression comparison with automatic range optimization
+- Add grid and axis labeling appropriate for multi-expression visualization
+- Include plot title generation that summarizes the mathematical relationships
+- Support selective expression visibility toggles for complex multi-plot analysis
 
 ## Technical Implementation
 
-Extend PlotRenderer class to handle multiple coordinate systems and projection modes. Create ParametricGenerator and PolarGenerator classes for specialized coordinate data generation. Add coordinate transformation utilities and appropriate grid rendering for each system.
+Extend PlotRenderer class to handle multiple data series with distinct visual styling. Create LegendGenerator class for automatic legend creation. Add color palette management and line style variation. Implement mathematical intersection detection for relationship analysis.
 
 ## Integration Points
 
-- Extends existing CLI interface with coordinate system mode selection
-- Uses current ExpressionParser for all mathematical expression types
-- Builds on existing PlotRenderer architecture with mode-specific rendering
-- Compatible with current file output system for all coordinate modes
-- Works with existing web interface for interactive coordinate system selection
+- Builds on existing PlotRenderer with multi-series rendering capabilities
+- Uses current ExpressionParser for parsing multiple mathematical expressions
+- Extends existing CLI interface with multiple expression support
+- Compatible with all current output formats and file saving functionality
+- Works with existing TimeSeriesGenerator for multiple coordinate data series
 
 ## Example Usage
 
-Parametric curve: node src/lib/main.js --mode parametric --expression "x=cos(t)" --expression "y=sin(t)" --range "t=0:2*pi" --file circle.svg
+Compare functions: node src/lib/main.js -e "y=sin(x)" -e "y=cos(x)" -r "x=0:2*pi" -f trig.svg
 
-Polar plot: node src/lib/main.js --mode polar --expression "r=sin(3*theta)" --range "theta=0:2*pi" --file rose.png
+Labeled comparison: node src/lib/main.js -e "y=x^2" --label "quadratic" -e "y=2*x+1" --label "linear" -r "x=-3:3" -f comparison.svg
 
-3D surface: node src/lib/main.js --mode surface --expression "z=sin(x)*cos(y)" --range "x=-pi:pi,y=-pi:pi" --file surface.svg
+Mathematical family: node src/lib/main.js -e "y=sin(x)" -e "y=sin(2*x)" -e "y=sin(3*x)" -r "x=0:2*pi" -f harmonics.svg
