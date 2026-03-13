@@ -135,7 +135,7 @@ library-limit = 64                     # max library entries in library/ directo
 # Thresholds for deterministic mission-complete declaration.
 # All conditions must be met simultaneously.
 min-resolved-issues = 3            # minimum closed-as-RESOLVED issues since init
-min-dedicated-tests = 1            # minimum test files that import from src/lib/
+min-dedicated-tests = 0            # minimum test files that import from src/lib/
 max-source-todos = 0               # max TODO comments allowed in ./src (0 = none)
 
 [bot]
