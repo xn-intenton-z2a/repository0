@@ -8,6 +8,7 @@
 - Animation System
 - Performance Optimizations
 - Tree-shaking and Bundle Size
+- Colors Plugin and Default Palette
 - Responsive Design
 - Mixed Chart Types
 - Plugin Architecture
@@ -77,11 +78,12 @@ Version 3.0 introduced numerous performance improvements:
 
 ## Tree-shaking and Bundle Size
 
-Chart.js supports tree-shaking for optimal bundle sizes in modern JavaScript applications.
+Chart.js supports tree-shaking for optimal bundle sizes in modern JavaScript applications, with significant improvements introduced in version 4.0.
 
 ### Bundle Optimization
 - Selective component registration reduces bundle size significantly
 - Tree-shaking can reduce bundle size from 48KB to 14KB or smaller
+- JavaScript bundle size can be reduced by dozens of kilobytes by registering only necessary components
 - Only necessary chart types and plugins need to be included
 - Modular architecture supports partial imports
 
@@ -104,6 +106,16 @@ Chart.js supports mixing different chart types within a single visualization, al
 - Independent styling for each dataset type
 - Coordinated axis scaling across mixed types
 - Complex data relationship visualization
+
+## Colors Plugin and Default Palette
+
+Chart.js 4.0 introduces an enhanced Colors plugin with built-in Chart.js brand colors for immediate use.
+
+### Default Color Palette
+- Built-in time-saving zero-configuration plugin
+- Chart.js brand colors available as default palette
+- Automatic color assignment for datasets
+- Consistent color scheme across visualizations
 
 ## Plugin Architecture
 
@@ -164,6 +176,6 @@ Built-in event system for handling user interactions:
 **Source Content:** Chart.js official website (https://www.chartjs.org/)
 **Retrieved:** 2026-03-13
 **Attribution:** Chart.js community and maintainers
-**Data Size:** Approximately 3.2KB extracted content
+**Data Size:** Approximately 3.4KB extracted content
 
-Chart.js is a flexible JavaScript charting library optimized for modern web development, providing 8 chart types with HTML5 Canvas rendering, advanced animations, responsive design, and extensive customization options. The library emphasizes performance and developer experience with tree-shaking support, plugin architecture, and comprehensive API coverage.
+Chart.js is a flexible JavaScript charting library optimized for modern web development, providing 8 chart types with HTML5 Canvas rendering, advanced animations, responsive design, and extensive customization options. Version 4.0 introduces enhanced tree-shaking capabilities and a built-in Colors plugin with Chart.js brand colors for zero-configuration styling.
