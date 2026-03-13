@@ -1,18 +1,38 @@
-Title: npm: hamming-distance (fetch failed)
+Title: npm: hamming-distance
 
 Summary
 
-An attempt to fetch the npm package page at https://www.npmjs.com/package/hamming-distance returned HTTP 403 (forbidden). The package name suggests a utility to compute Hamming distance between strings or buffers; typical usage patterns on npm packages of this name include installing via npm/yarn and requiring or importing a function that accepts two strings/buffers and returns an integer.
+`hamming-distance` is a small npm package that calculates the Hamming distance between two hex strings or two Buffers.
 
-Suggested content to add later
+Package metadata
 
-- Install: npm install hamming-distance
-- Typical API (example, check upstream):
-  const hamming = require('hamming-distance');
-  const d = hamming('abc', 'abd'); // 1
+- Name: hamming-distance
+- Latest version: 1.0.0
+- Description: Calculate the hamming distance of two hex strings or buffers
+- License: MIT
+- Repository: https://github.com/math-utils/hamming-distance
+- Homepage: https://github.com/math-utils/hamming-distance
 
-Action
+Install
 
-- Re-fetch the npm page (or open the repository) to extract exact API, license, and usage examples. The library doc currently records the fetch failure and a stub usage suggestion; update this document after the page is accessible.
+npm install hamming-distance
 
-Source: npm package page (fetch returned 403 — content not captured).
+Usage
+
+```js
+const compare = require('hamming-distance');
+
+// compare two Buffers containing hexadecimal data
+const distance = compare(Buffer.from('0000', 'hex'), Buffer.from('000F', 'hex'));
+// distance is an integer (number of differing bits/positions)
+```
+
+Notes
+
+- The package accepts Buffers or hex strings (see upstream README) and returns a numeric Hamming distance.
+- Source and issues are on GitHub: https://github.com/math-utils/hamming-distance
+
+Sources
+
+- npm registry: https://registry.npmjs.org/hamming-distance
+- GitHub repository: https://github.com/math-utils/hamming-distance
