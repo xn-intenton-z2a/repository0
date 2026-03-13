@@ -18,7 +18,7 @@ inputs:
   config:
     description: "Path to agentic-lib.yml configuration file"
     required: false
-    default: ".github/agentic-lib/agents/agentic-lib.yml"
+    default: "agentic-lib.toml"
   instructions:
     description: "Path to agent prompt/instructions file (.md)"
     required: false

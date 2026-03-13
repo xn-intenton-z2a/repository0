@@ -198,8 +198,8 @@ function resolveLimits(limitsSection, profileName, profilesSection) {
  * Load configuration from agentic-lib.toml.
  *
  * If configPath ends in .toml, it is used directly.
- * Otherwise, the project root is derived (3 levels up from configPath)
- * and agentic-lib.toml is loaded from there.
+ * Otherwise (legacy .yml path), the project root is derived (3 levels up
+ * from configPath) and agentic-lib.toml is loaded from there.
  *
  * @param {string} configPath - Path to config file or YAML path (for project root derivation)
  * @returns {AgenticConfig} Parsed configuration object

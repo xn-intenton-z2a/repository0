@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-12T23:31:47.580Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -18,7 +17,7 @@ concurrency:
 
 on:
   schedule:
-    - cron: "5,25,45 * * * *"
+    - cron: "0 6 * * 1"
   workflow_call:
     inputs:
       ref:
@@ -645,7 +644,7 @@ jobs:
         with:
           task: "maintain-features"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-maintain-features.md"
+          instructions: ".github/agents/agent-maintain-features.md"
           writable-paths: ${{ steps.config.outputs.featuresWritablePaths }}
           model: ${{ needs.params.outputs.model }}
 
@@ -659,7 +658,7 @@ jobs:
         with:
           task: "maintain-library"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-maintain-library.md"
+          instructions: ".github/agents/agent-maintain-library.md"
           writable-paths: ${{ steps.config.outputs.libraryWritablePaths }}
           model: ${{ needs.params.outputs.model }}
 
@@ -734,7 +733,7 @@ jobs:
         with:
           task: "direct"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-director.md"
+          instructions: ".github/agents/agent-director.md"
           model: ${{ needs.params.outputs.model }}
 
       - name: Push log to agentic-lib-logs branch
@@ -789,7 +788,7 @@ jobs:
         with:
           task: "supervise"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-supervisor.md"
+          instructions: ".github/agents/agent-supervisor.md"
           model: ${{ needs.params.outputs.model }}
 
       - name: Push log to agentic-lib-logs branch
@@ -1061,7 +1060,7 @@ jobs:
         with:
           task: "fix-code"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-apply-fix.md"
+          instructions: ".github/agents/agent-apply-fix.md"
           pr-number: ${{ env.FIX_PR_NUMBER }}
           # test-command read from [execution].test in agentic-lib.toml
           model: ${{ needs.params.outputs.model }}
@@ -1078,7 +1077,7 @@ jobs:
         with:
           task: "fix-code"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-apply-fix.md"
+          instructions: ".github/agents/agent-apply-fix.md"
           model: ${{ needs.params.outputs.model }}
 
       - name: Build website and run behaviour tests (fix)
@@ -1159,7 +1158,7 @@ jobs:
         with:
           task: "review-issue"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-review-issue.md"
+          instructions: ".github/agents/agent-review-issue.md"
           model: ${{ needs.params.outputs.model }}
 
       - name: Enhance issues
@@ -1170,7 +1169,7 @@ jobs:
         with:
           task: "enhance-issue"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-ready-issue.md"
+          instructions: ".github/agents/agent-ready-issue.md"
           model: ${{ needs.params.outputs.model }}
 
   # ─── Dev: sequential issue resolution ──────────────────────────────
@@ -1296,7 +1295,7 @@ jobs:
         with:
           task: "transform"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-issue-resolution.md"
+          instructions: ".github/agents/agent-issue-resolution.md"
           # test-command read from [execution].test in agentic-lib.toml
           model: ${{ needs.params.outputs.model }}
           issue-number: ${{ steps.issue.outputs.issue-number }}

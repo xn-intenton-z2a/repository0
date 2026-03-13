@@ -201,7 +201,7 @@ jobs:
         with:
           task: "discussions"
           config: ${{ env.configPath }}
-          instructions: ".github/agentic-lib/agents/agent-discussion-bot.md"
+          instructions: ".github/agents/agent-discussion-bot.md"
           discussion-url: ${{ steps.discussion-url.outputs.url }}
           comment-node-id: ${{ steps.discussion-url.outputs.comment-node-id }}
           comment-created-at: ${{ steps.discussion-url.outputs.comment-created-at }}
