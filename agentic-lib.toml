@@ -6,8 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "continuous"              # off | weekly | daily | hourly | continuous
-model = "gpt-5-mini"
+supervisor = "daily"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -135,14 +134,14 @@ library-limit = 64                     # max library entries in library/ directo
 # Thresholds for deterministic mission-complete declaration.
 # All conditions must be met simultaneously.
 min-resolved-issues = 3            # minimum closed-as-RESOLVED issues since init
-min-dedicated-tests = 0            # minimum test files that import from src/lib/
+min-dedicated-tests = 1            # minimum test files that import from src/lib/
 max-source-todos = 0               # max TODO comments allowed in ./src (0 = none)
 
 [bot]
 log-file = "intentïon.md"
 
 [init]
-timestamp = "2026-03-12T23:06:22.984Z"
+timestamp = "2026-03-13T02:27:15.625Z"
 mode = "purge"
-mission = "6-kyu-understand-hamming-distance"
-version = "7.4.7"
+mission = "2-kyu-create-plot-code-lib"
+version = "7.4.8"

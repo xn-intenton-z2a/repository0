@@ -1,26 +1,24 @@
 # Mission
 
-A JavaScript library exporting Hamming distance functions.
+_"Be a go-to plot library with a CLI, be the jq of formulae visualisations."_
 
-## Core Functions
+**plot-code-lib** is a JavaScript library and CLI tool designed to:
+- Transform and given range and a simple expression syntax for (pick an existing open standard) to time series data.
+- Read and write the time series data in a standard format (pick an existing open standard).
+- Make use of libraries for formula parsing, time series generation, plotting, and persistence in image formats.
+- Generate SVG and PNG plots from the time series data and save these as files.
+- Variations on this example: `node run start -- --expression "y=sin(x)" --range "x=-1:-1,y=-1:-1" --file output.svg` .
+- Showcase all the features of the library via a CLI by dry running tp generate example commands and output in the README.md file.
 
-- `hammingDistance(a, b)` — compute the Hamming distance between two strings of equal length (number of positions where characters differ). Throw an error if the strings have different lengths.
-- `hammingDistanceBits(x, y)` — compute the Hamming distance between two non-negative integers (count the number of differing bits).
-
-## Requirements
-
-- Handle Unicode strings correctly (compare code points, not UTF-16 code units).
-- Validate inputs: throw `TypeError` for non-string/non-integer arguments, `RangeError` for unequal-length strings or negative integers.
-- Export both functions as named exports from `src/lib/main.js`.
-- Comprehensive unit tests covering normal cases, edge cases (empty strings, zero, large integers), and error cases.
-- README with usage examples and API documentation.
+`plot-code-lib` facilitate the creation of plots from mathematical expressions and time series data. It will take a
+mathematical expression and a range of values and generate a plot in SVG or PNG format.
 
 ## Acceptance Criteria
 
-- [ ] `hammingDistance("karolin", "kathrin")` returns `3`
-- [ ] `hammingDistance("", "")` returns `0`
-- [ ] `hammingDistance("a", "bb")` throws `RangeError`
-- [ ] `hammingDistanceBits(1, 4)` returns `2` (binary: 001 vs 100)
-- [ ] `hammingDistanceBits(0, 0)` returns `0`
+- [ ] Library parses mathematical expressions (e.g. `y=sin(x)`)
+- [ ] Generates time series data from expression and range
+- [ ] Produces SVG output files
+- [ ] Produces PNG output files
+- [ ] CLI interface works with `--expression`, `--range`, `--file` flags
+- [ ] README showcases example commands and output
 - [ ] All unit tests pass
-- [ ] README documents usage with examples
