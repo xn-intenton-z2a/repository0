@@ -2,12 +2,14 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/resolve-issue.js — Issue → code → PR
 //
-// Given an issue number, reads the issue, generates code using the Copilot SDK,
-// validates with tests, and creates a PR.
+// Uses runCopilotSession with lean prompts: the model reads source files,
+// writes code, and runs tests via tools.
 
 import * as core from "@actions/core";
 import { checkAttemptLimit, checkWipLimit, isIssueResolved } from "../safety.js";
-import { runCopilotTask, readOptionalFile, formatPathsSection, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
+import { readOptionalFile, formatPathsSection, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
+import { createGitHubTools, createGitTools } from "../../../copilot/github-tools.js";
 
 /**
  * Resolve a GitHub issue by generating code and creating a PR.
@@ -16,7 +18,7 @@ import { runCopilotTask, readOptionalFile, formatPathsSection, extractNarrative,
  * @returns {Promise<Object>} Result with outcome, prNumber, tokensUsed, model
  */
 export async function resolveIssue(context) {
-  const { octokit, repo, config, issueNumber, instructions, writablePaths, testCommand, model } = context;
+  const { octokit, repo, config, issueNumber, instructions, writablePaths, testCommand, model, logFilePath, screenshotFilePath } = context;
 
   if (!issueNumber) {
     throw new Error("resolve-issue task requires issue-number input");
@@ -57,7 +59,6 @@ export async function resolveIssue(context) {
 
   const contributing = readOptionalFile(config.paths.contributing.path);
   const agentInstructions = instructions || "Resolve the GitHub issue by writing code that satisfies the requirements.";
-  const readOnlyPaths = config.readOnlyPaths;
 
   const prompt = [
     "## Instructions",
@@ -71,34 +72,58 @@ export async function resolveIssue(context) {
     comments.length > 0 ? "## Issue Comments" : "",
     ...comments.map((c) => `**${c.user.login}:** ${c.body}`),
     "",
-    formatPathsSection(writablePaths, readOnlyPaths, config),
+    "## Your Task",
+    "Read the source files you need (use read_file tool).",
+    "Write code to resolve this issue, then run run_tests to verify.",
+    "",
+    formatPathsSection(writablePaths, config.readOnlyPaths, config),
     "",
     "## Constraints",
-    `- Run \`${testCommand}\` to validate your changes`,
+    `- Run \`${testCommand}\` via run_tests to validate your changes`,
+    "- Use read_file to read source files (don't guess at contents)",
     contributing ? `\n## Contributing Guidelines\n${contributing}` : "",
   ].join("\n");
 
   const t = config.tuning || {};
-  const { content: resultContent, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
+  const systemPrompt =
+    `You are an autonomous coding agent resolving GitHub issue #${issueNumber}. Write clean, tested code. Only modify files listed under "Writable" paths. Read-only paths are for context only.` +
+    NARRATIVE_INSTRUCTION;
+
+  const createTools = (defineTool, _wp, logger) => {
+    const ghTools = createGitHubTools(octokit, repo, defineTool, logger);
+    const gitTools = createGitTools(defineTool, logger);
+    return [...ghTools, ...gitTools];
+  };
+
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
+  const result = await runCopilotSession({
+    workspacePath: process.cwd(),
     model,
-    systemMessage: `You are an autonomous coding agent resolving GitHub issue #${issueNumber}. Write clean, tested code. Only modify files listed under "Writable" paths. Read-only paths are for context only.` + NARRATIVE_INSTRUCTION,
-    prompt,
-    writablePaths,
     tuning: t,
+    agentPrompt: systemPrompt,
+    userPrompt: prompt,
+    writablePaths,
+    createTools,
+    attachments,
+    excludedTools: ["dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment"],
+    logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
 
-  core.info(`Copilot SDK response received (${tokensUsed} tokens)`);
+  core.info(`Issue resolution completed (${result.tokensIn + result.tokensOut} tokens)`);
 
   return {
     outcome: "code-generated",
     prNumber: null,
-    tokensUsed,
-    inputTokens,
-    outputTokens,
-    cost,
+    tokensUsed: result.tokensIn + result.tokensOut,
+    inputTokens: result.tokensIn,
+    outputTokens: result.tokensOut,
+    cost: 0,
     model,
     commitUrl: null,
-    details: `Generated code for issue #${issueNumber}: ${resultContent.substring(0, 200)}`,
-    narrative: extractNarrative(resultContent, `Generated code for issue #${issueNumber}.`),
+    details: `Generated code for issue #${issueNumber}: ${(result.agentMessage || "").substring(0, 200)}`,
+    narrative: result.narrative || extractNarrative(result.agentMessage, `Generated code for issue #${issueNumber}.`),
   };
 }

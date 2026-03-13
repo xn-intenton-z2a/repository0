@@ -39,7 +39,6 @@ import {
   scanDirectory as _scanDirectory,
   buildClientOptions as _buildClientOptions,
   logTuningParam as _logTuningParam,
-  runCopilotTask as _runCopilotTask,
 } from "../../copilot/session.js";
 
 export function readOptionalFile(filePath, limit) {
@@ -56,8 +55,4 @@ export function buildClientOptions(githubToken) {
 
 export function logTuningParam(param, value, profileName, model, clip) {
   return _logTuningParam(param, value, profileName, model, clip, actionsLogger);
-}
-
-export async function runCopilotTask(options) {
-  return _runCopilotTask({ ...options, logger: actionsLogger });
 }

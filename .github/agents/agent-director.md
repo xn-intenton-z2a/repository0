@@ -41,6 +41,16 @@ When the mission is neither complete nor failed, produce a detailed gap analysis
 - Which metrics are NOT MET and what needs to happen to satisfy them
 - Prioritised list of what should be done next
 
+## Context Gathering
+
+When evaluating mission status, use all available context:
+
+1. **Read intentïon.md** (attached) — examine the narrative for iteration trends. Look for evidence of steady progress (features landing, tests passing) vs stagnation (same failures repeating, budget consumed with no code changes). This informs whether the mission is genuinely progressing or stuck.
+2. **Check GitHub Discussions** — use `search_discussions` to find user feedback on the current state. Users may have declared satisfaction or raised concerns that affect the mission assessment.
+3. **Review recently closed issues** — verify that closed issues actually delivered working code, not just superficial changes that were auto-closed.
+
+The narrative in intentïon.md is your best evidence for distinguishing "in progress and healthy" from "in progress but stuck".
+
 ## Output Format
 
 Respond with EXACTLY this structure:

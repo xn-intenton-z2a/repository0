@@ -26,6 +26,14 @@ Implement the MISSION described in the user prompt. This means:
 5. Run `run_tests` to verify everything passes
 6. If tests fail, read the error output carefully, fix the code, and repeat
 
+## Context Gathering (Before You Start)
+
+Before writing code, gather context to work efficiently:
+
+1. **Read intentïon.md** (if attached) — scan for patterns in past iterations. If a particular approach failed before (test failures, reverted code), try a different strategy. The narrative records what was tried and what happened.
+2. **Check existing tests** — understand what's already tested before writing new tests. Don't duplicate existing coverage.
+3. **Read MISSION.md carefully** — the acceptance criteria are your primary target. Every line of code you write should serve at least one acceptance criterion.
+
 ## Important Rules
 
 - Keep existing exports and functionality — add to them, don't replace

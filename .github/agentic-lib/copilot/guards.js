@@ -4,7 +4,7 @@
 //
 // Phase 4 Step 10a: Restores the guards that existed in the per-task handlers
 // (transform.js, fix-code.js, maintain-features.js, maintain-library.js)
-// before Phase 4 convergence replaced them with unconditional runHybridSession().
+// before Phase 4 convergence replaced them with unconditional runCopilotSession().
 
 import { existsSync } from "fs";
 import { resolve } from "path";

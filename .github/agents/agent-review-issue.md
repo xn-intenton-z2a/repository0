@@ -20,6 +20,14 @@ An issue is NOT resolved unless ALL of the following are true:
 If any of these are missing, the issue is NOT resolved — keep it open or create a follow-up issue for the gap.
 Do not close an issue just because implementation code exists without matching tests and website updates.
 
+## Context Gathering
+
+Before declaring an issue resolved, gather additional context:
+
+1. **Read intentïon.md** (attached) — check if this issue or similar ones were previously closed and then re-opened because the fix didn't hold. If so, apply extra scrutiny to the current resolution.
+2. **Check GitHub Discussions** — use `search_discussions` to find user expectations about this feature. Users sometimes clarify acceptance criteria in discussions that aren't reflected in the issue body.
+3. **Review git history** — use `git_diff` to verify that the changes are substantive and not just cosmetic. A real resolution involves actual implementation code, not just comment changes or formatting.
+
 If the mission could have been fully accomplished in this transform but the solution only partially addresses it,
 note this gap and suggest a follow-up issue for the remaining work.
 

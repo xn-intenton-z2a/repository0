@@ -32,3 +32,10 @@ For the normalised extract, extract the technical information from the crawled d
 directly usable format.
 Do not describe what information exists, include the actual information itself. The content must be specific and technical.
 Each item in the table of contents must have the technical details that thoroughly explain the implementation.
+
+## Context Gathering
+
+Before extracting library documents, gather context:
+
+1. **Check GitHub Discussions** — use `search_discussions` to find technical context and user questions about the project's dependencies and tools. These discussions often contain implementation details that complement crawled content.
+2. **Read intentïon.md** (attached) — look for technical challenges encountered during iterations. These highlight which library details are most needed by the transformation agents and should be prioritised in documentation.

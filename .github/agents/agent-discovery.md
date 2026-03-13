@@ -46,6 +46,14 @@ Write a MISSION.md file with the following structure:
 [Specific, testable criteria that define "done" — these become the test assertions]
 ```
 
+## Context Gathering
+
+Before writing the mission, gather additional context if tools are available:
+
+1. **Check GitHub Discussions** — use `search_discussions` or `list_discussions` to find user goals, feature requests, and feedback about the project. These provide valuable context about what the community values.
+2. **Read intentïon.md** (if attached) — examine the narrative for project history: what missions have been attempted before, what succeeded, and what failed. This helps you propose a mission that builds on past success rather than repeating past failures.
+3. **Review existing issues** — use `list_issues` to see what work is already planned or in progress. The mission should complement, not duplicate, existing plans.
+
 ## Important Rules
 
 - **Be specific** — don't write vague goals like "improve code quality". Write "add input validation to the `parse()` function for empty strings and null values"

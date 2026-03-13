@@ -66,14 +66,8 @@ const FALLBACK_TUNING = {
   reasoningEffort: "medium",
   infiniteSessions: true,
   transformationBudget: 32,
-  featuresScan: 10,
-  sourceScan: 10,
-  sourceContent: 5000,
-  testContent: 3000,
   issuesScan: 20,
-  issueBodyLimit: 500,
   staleDays: 30,
-  documentSummary: 2000,
   discussionComments: 10,
 };
 
@@ -95,14 +89,8 @@ function parseTuningProfile(profileSection) {
     reasoningEffort: profileSection["reasoning-effort"] || "medium",
     infiniteSessions: profileSection["infinite-sessions"] ?? true,
     transformationBudget: profileSection["transformation-budget"] || 32,
-    featuresScan: profileSection["max-feature-files"] || 10,
-    sourceScan: profileSection["max-source-files"] || 10,
-    sourceContent: profileSection["max-source-chars"] || 5000,
-    testContent: profileSection["max-test-chars"] || 3000,
     issuesScan: profileSection["max-issues"] || 20,
-    issueBodyLimit: profileSection["issue-body-limit"] || 500,
     staleDays: profileSection["stale-days"] || 30,
-    documentSummary: profileSection["max-summary-chars"] || 2000,
     discussionComments: profileSection["max-discussion-comments"] || 10,
   };
 }
@@ -158,14 +146,8 @@ function resolveTuning(tuningSection, profilesSection) {
   }
   const numericOverrides = {
     "transformation-budget": "transformationBudget",
-    "max-feature-files": "featuresScan",
-    "max-source-files": "sourceScan",
-    "max-source-chars": "sourceContent",
-    "max-test-chars": "testContent",
     "max-issues": "issuesScan",
-    "issue-body-limit": "issueBodyLimit",
     "stale-days": "staleDays",
-    "max-summary-chars": "documentSummary",
     "max-discussion-comments": "discussionComments",
   };
   for (const [tomlKey, jsKey] of Object.entries(numericOverrides)) {
@@ -279,6 +261,8 @@ export function loadConfig(configPath) {
     seeding: toml.seeding || {},
     intentionBot: {
       intentionFilepath: bot["log-file"] || "intentïon.md",
+      logBranch: bot["log-branch"] || "agentic-lib-logs",
+      screenshotFile: bot["screenshot-file"] || "SCREENSHOT_INDEX.png",
     },
     init: toml.init || null,
     tdd: toml.tdd === true,

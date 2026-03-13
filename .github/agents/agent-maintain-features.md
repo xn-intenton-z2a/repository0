@@ -30,6 +30,14 @@ A feature can be added based on a behaviour already present in the repository de
 Features must be achievable in a single software repository not part of a corporate initiative.
 The feature spec should be a multiline markdown with a few level 1 headings.
 The feature must be compatible with the mission statement in MISSION.md and ideally realise part of the value in the mission.
+
+## Context Gathering
+
+Before generating or updating features, gather context:
+
+1. **Check GitHub Discussions** — use `search_discussions` to find user feature requests and feedback. Users often suggest features or express priorities in discussions that should inform which features to create or prioritise.
+2. **Read intentïon.md** (attached) — examine the narrative for which features have been successfully implemented and which have caused problems. Propose features that build on successful patterns rather than repeating problematic ones.
+3. **Review open issues** — use `list_issues` to see what work is already planned. Avoid creating features that duplicate existing issue scope.
 The feature must be something that can be realised in a single source file (as below), ideally just as a library, CLI tool or possibly an HTTP API in combination with infrastructure as code deployment.
 The repository also has a website in `src/web/` that uses the JS library. When proposing features, consider:
 - The library API (`src/lib/main.js`) and its exports

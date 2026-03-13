@@ -9,6 +9,16 @@ relevance to the mission you may re-implement it or remove it.
 
 Apply the contributing guidelines to your response.
 
+## Context Gathering (Before Fixing)
+
+Before applying a fix, gather context to avoid repeating past failures:
+
+1. **Read intentïon.md** (attached) — look for recurring failure patterns. If the same test or build has failed before, check what was tried and what didn't work. Don't repeat a fix that was already reverted.
+2. **Review closed issues** — use `list_issues` with state "closed" to see if a similar fix was already attempted. Learn from what succeeded and what didn't.
+3. **Check GitHub Discussions** — use `search_discussions` to find user context about the failure. Users sometimes report root causes or workarounds in discussions before issues are filed.
+
+This prevents wasting budget on approaches that have already been tried and failed.
+
 You may complete the implementation of a feature and/or bring the code output in line with the README
 or other documentation. Do as much as you can all at once so that the build runs (even with nothing
 to build) and the tests pass and the main at least doesn't output an error.

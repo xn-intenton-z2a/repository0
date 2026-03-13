@@ -2,12 +2,38 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/maintain-library.js — Library and knowledge management
 //
-// Crawls SOURCES.md, updates library documents, maintains the knowledge base
-// that provides context for feature generation and issue resolution.
+// Uses runCopilotSession with lean prompts: the model reads sources, library docs,
+// and web content via tools to maintain the knowledge base.
 
 import * as core from "@actions/core";
-import { existsSync } from "fs";
-import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
+import { existsSync, readdirSync, statSync } from "fs";
+import { join } from "path";
+import { readOptionalFile, formatPathsSection, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
+
+/**
+ * Build a file listing summary (names + sizes, not content).
+ */
+function buildFileListing(dirPath, extension) {
+  if (!dirPath || !existsSync(dirPath)) return [];
+  try {
+    const files = readdirSync(dirPath, { recursive: true });
+    return files
+      .filter((f) => String(f).endsWith(extension))
+      .map((f) => {
+        const fullPath = join(dirPath, String(f));
+        try {
+          const stat = statSync(fullPath);
+          return `${f} (~${Math.round(stat.size / 40)} lines, ${stat.size} bytes)`;
+        } catch {
+          return String(f);
+        }
+      })
+      .slice(0, 30);
+  } catch {
+    return [];
+  }
+}
 
 /**
  * Maintain the library of knowledge documents from source URLs.
@@ -16,7 +42,7 @@ import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection, ex
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function maintainLibrary(context) {
-  const { config, instructions, writablePaths, model } = context;
+  const { config, instructions, writablePaths, model, logFilePath, screenshotFilePath } = context;
   const t = config.tuning || {};
 
   // Check mission-complete signal (skip in maintenance mode)
@@ -32,7 +58,7 @@ export async function maintainLibrary(context) {
 
   const libraryPath = config.paths.library.path;
   const libraryLimit = config.paths.library.limit;
-  const libraryDocs = scanDirectory(libraryPath, ".md", { contentLimit: t.documentSummary || 500 });
+  const libraryFiles = buildFileListing(libraryPath, ".md");
 
   const agentInstructions = instructions || "Maintain the library by updating documents from sources.";
 
@@ -66,10 +92,11 @@ export async function maintainLibrary(context) {
       "## Sources",
       sources,
       "",
-      `## Current Library Documents (${libraryDocs.length}/${libraryLimit} max)`,
-      ...libraryDocs.map((d) => `### ${d.name}\n${d.content}`),
+      `## Current Library Documents (${libraryFiles.length}/${libraryLimit} max)`,
+      libraryFiles.length > 0 ? libraryFiles.join(", ") : "none",
       "",
       "## Your Task",
+      "Use read_file to read existing library documents.",
       "1. Read each URL in SOURCES.md and extract technical content.",
       "2. Create or update library documents based on the source content.",
       "3. Remove library documents that no longer have corresponding sources.",
@@ -81,28 +108,39 @@ export async function maintainLibrary(context) {
     ].join("\n");
   }
 
-  const { content: resultContent, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
+  const systemPrompt =
+    "You are a knowledge librarian. Maintain a library of technical documents extracted from web sources." +
+    NARRATIVE_INSTRUCTION;
+
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
+  const result = await runCopilotSession({
+    workspacePath: process.cwd(),
     model,
-    systemMessage:
-      "You are a knowledge librarian. Maintain a library of technical documents extracted from web sources." + NARRATIVE_INSTRUCTION,
-    prompt,
-    writablePaths,
     tuning: t,
+    agentPrompt: systemPrompt,
+    userPrompt: prompt,
+    writablePaths,
+    attachments,
+    excludedTools: ["dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment", "run_tests"],
+    logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
 
   const outcomeLabel = hasUrls ? "library-maintained" : "sources-discovered";
   const detailsMsg = hasUrls
-    ? `Maintained library (${libraryDocs.length} docs, limit ${libraryLimit})`
+    ? `Maintained library (${libraryFiles.length} docs, limit ${libraryLimit})`
     : `Discovered sources for SOURCES.md from mission`;
 
   return {
     outcome: outcomeLabel,
-    tokensUsed,
-    inputTokens,
-    outputTokens,
-    cost,
+    tokensUsed: result.tokensIn + result.tokensOut,
+    inputTokens: result.tokensIn,
+    outputTokens: result.tokensOut,
+    cost: 0,
     model,
     details: detailsMsg,
-    narrative: extractNarrative(resultContent, detailsMsg),
+    narrative: result.narrative || extractNarrative(result.agentMessage, detailsMsg),
   };
 }

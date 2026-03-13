@@ -2,12 +2,15 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/supervise.js — Supervisor orchestration via LLM
 //
-// Gathers repository context (issues, PRs, workflows, features, library, activity),
-// asks the Copilot SDK to choose multiple concurrent actions, then dispatches them.
+// Uses runCopilotSession with lean prompts: the model explores issues, PRs,
+// and repository state via tools, then reports its chosen actions via a
+// report_supervisor_plan tool whose handler executes them.
 
 import * as core from "@actions/core";
 import { existsSync, readFileSync, readdirSync, statSync } from "fs";
-import { runCopilotTask, readOptionalFile, scanDirectory, filterIssues } from "../copilot.js";
+import { readOptionalFile, scanDirectory, filterIssues, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
+import { createGitHubTools, createDiscussionTools, createGitTools } from "../../../copilot/github-tools.js";
 
 /**
  * Look up the "Talk to the repository" discussion URL via GraphQL.
@@ -402,6 +405,13 @@ async function gatherContext(octokit, repo, config, t) {
 }
 
 function buildPrompt(ctx, agentInstructions, config) {
+  // Build mission-complete metrics inline for the LLM
+  const thresholds = config?.missionCompleteThresholds || {};
+  const minResolved = thresholds.minResolvedIssues ?? 3;
+  const minTests = thresholds.minDedicatedTests ?? 1;
+  const maxTodos = thresholds.maxSourceTodos ?? 0;
+  const resolvedCount = ctx.recentlyClosedSummary.filter((s) => s.includes("RESOLVED")).length;
+
   return [
     "## Instructions",
     agentInstructions,
@@ -409,91 +419,32 @@ function buildPrompt(ctx, agentInstructions, config) {
     "## Mission",
     ctx.mission || "(no mission defined)",
     "",
-    "## Repository State",
-    `### Open Issues (${ctx.issuesSummary.length})`,
-    ctx.issuesSummary.join("\n") || "none",
+    "## Repository Summary",
+    `Open issues: ${ctx.issuesSummary.length}`,
+    ctx.issuesSummary.join("\n") || "(none)",
     "",
-    `### Recently Closed Issues (${ctx.recentlyClosedSummary.length})`,
-    ctx.recentlyClosedSummary.join("\n") || "none",
+    `Recently closed issues: ${ctx.recentlyClosedSummary.length}`,
+    ctx.recentlyClosedSummary.join("\n") || "(none)",
     "",
-    `### Open PRs (${ctx.prsSummary.length})`,
-    ctx.prsSummary.join("\n") || "none",
+    `Open PRs: ${ctx.prsSummary.length}`,
+    ctx.prsSummary.join("\n") || "(none)",
     "",
-    `### Features (${ctx.featureNames.length}/${ctx.featuresLimit})`,
-    ctx.featureNames.join(", ") || "none",
+    `Features: ${ctx.featureNames.length}/${ctx.featuresLimit}`,
+    `Library docs: ${ctx.libraryNames.length}/${ctx.libraryLimit}`,
+    `Dedicated test files: ${ctx.dedicatedTestCount}`,
+    `Source TODOs: ${ctx.sourceTodoCount}`,
     "",
-    `### Library Docs (${ctx.libraryNames.length}/${ctx.libraryLimit})`,
-    ctx.libraryNames.join(", ") || "none",
-    "",
-    ...(ctx.sourceExports?.length > 0
-      ? [
-          `### Source Exports`,
-          "Functions and constants exported from source files:",
-          ...ctx.sourceExports.map((e) => `- ${e}`),
-          "",
-        ]
-      : []),
-    `### Test Coverage`,
-    ctx.dedicatedTestCount > 0
-      ? `Dedicated test files (${ctx.dedicatedTestCount}): ${ctx.dedicatedTestFiles.join(", ")}`
-      : "**No dedicated test files found.** Only seed tests (main.test.js, web.test.js) exist. Mission-complete requires dedicated tests that import from src/lib/.",
-    "",
-    `### Source TODO Count: ${ctx.sourceTodoCount}`,
-    ctx.sourceTodoCount > 0
-      ? `**${ctx.sourceTodoCount} TODO(s) found in source.** All TODOs must be resolved before mission-complete can be declared.`
-      : "No TODOs found in source — this criterion is met.",
-    "",
-    ...(() => {
-      // W10: Build mission-complete metrics inline for the LLM
-      const thresholds = config?.missionCompleteThresholds || {};
-      const minResolved = thresholds.minResolvedIssues ?? 3;
-      const minTests = thresholds.minDedicatedTests ?? 1;
-      const maxTodos = thresholds.maxSourceTodos ?? 0;
-      const resolvedCount = ctx.recentlyClosedSummary.filter((s) => s.includes("RESOLVED")).length;
-      const rows = [
-        `### Mission-Complete Metrics`,
-        "| Metric | Value | Target | Status |",
-        "|--------|-------|--------|--------|",
-        `| Open issues | ${ctx.issuesSummary.length} | 0 | ${ctx.issuesSummary.length === 0 ? "MET" : "NOT MET"} |`,
-        `| Open PRs | ${ctx.prsSummary.length} | 0 | ${ctx.prsSummary.length === 0 ? "MET" : "NOT MET"} |`,
-        `| Issues resolved (RESOLVED) | ${resolvedCount} | >= ${minResolved} | ${resolvedCount >= minResolved ? "MET" : "NOT MET"} |`,
-        `| Dedicated test files | ${ctx.dedicatedTestCount} | >= ${minTests} | ${ctx.dedicatedTestCount >= minTests ? "MET" : "NOT MET"} |`,
-        `| Source TODO count | ${ctx.sourceTodoCount} | <= ${maxTodos} | ${ctx.sourceTodoCount <= maxTodos ? "MET" : "NOT MET"} |`,
-        `| Budget used | ${ctx.cumulativeTransformationCost}/${ctx.transformationBudget} | < ${ctx.transformationBudget || "unlimited"} | ${ctx.transformationBudget > 0 && ctx.cumulativeTransformationCost >= ctx.transformationBudget ? "EXHAUSTED" : "OK"} |`,
-        "",
-        "**All metrics must show MET/OK for mission-complete to be declared.**",
-        "",
-      ];
-      return rows;
-    })(),
-    `### Recent Workflow Runs`,
-    ctx.workflowsSummary.join("\n") || "none",
-    "",
-    ...(ctx.actionsSinceInit.length > 0
-      ? [
-          `### Actions Since Last Init${ctx.initTimestamp ? ` (${ctx.initTimestamp})` : ""}`,
-          "Each entry: workflow | outcome | commit | branch | changes",
-          ...ctx.actionsSinceInit.map((a) => {
-            let line = `- ${a.name}: ${a.conclusion} (${a.created}) [${a.commitSha}] ${a.commitMessage}`;
-            if (a.prNumber) {
-              line += ` — PR #${a.prNumber}: +${a.additions}/-${a.deletions} in ${a.changedFiles} file(s)`;
-            }
-            return line;
-          }),
-          "",
-        ]
-      : []),
-    `### Recent Activity`,
-    ctx.recentActivity || "none",
+    `### Mission-Complete Metrics`,
+    "| Metric | Value | Target | Status |",
+    "|--------|-------|--------|--------|",
+    `| Open issues | ${ctx.issuesSummary.length} | 0 | ${ctx.issuesSummary.length === 0 ? "MET" : "NOT MET"} |`,
+    `| Open PRs | ${ctx.prsSummary.length} | 0 | ${ctx.prsSummary.length === 0 ? "MET" : "NOT MET"} |`,
+    `| Issues resolved (RESOLVED) | ${resolvedCount} | >= ${minResolved} | ${resolvedCount >= minResolved ? "MET" : "NOT MET"} |`,
+    `| Dedicated test files | ${ctx.dedicatedTestCount} | >= ${minTests} | ${ctx.dedicatedTestCount >= minTests ? "MET" : "NOT MET"} |`,
+    `| Source TODO count | ${ctx.sourceTodoCount} | <= ${maxTodos} | ${ctx.sourceTodoCount <= maxTodos ? "MET" : "NOT MET"} |`,
+    `| Budget used | ${ctx.cumulativeTransformationCost}/${ctx.transformationBudget} | < ${ctx.transformationBudget || "unlimited"} | ${ctx.transformationBudget > 0 && ctx.cumulativeTransformationCost >= ctx.transformationBudget ? "EXHAUSTED" : "OK"} |`,
     "",
     `### Supervisor: ${ctx.supervisor}`,
-    "",
-    "### Configuration (agentic-lib.toml)",
-    "```toml",
-    ctx.configToml || "",
-    "```",
-    "",
-    ...(ctx.packageJson ? ["### Dependencies (package.json)", "```json", ctx.packageJson, "```", ""] : []),
     ...(ctx.activeDiscussionUrl ? [`### Active Discussion`, `${ctx.activeDiscussionUrl}`, ""] : []),
     ...(ctx.oldestReadyIssue
       ? [`### Oldest Ready Issue`, `#${ctx.oldestReadyIssue.number}: ${ctx.oldestReadyIssue.title}`, ""]
@@ -501,65 +452,37 @@ function buildPrompt(ctx, agentInstructions, config) {
     ...(ctx.missionComplete
       ? [
           `### Mission Status: COMPLETE`,
-          ctx.missionCompleteInfo,
           "Transformation budget is frozen — no transform, maintain, or fix-code dispatches allowed.",
-          "You may still: review/close issues, respond to discussions, adjust schedule.",
           "",
         ]
       : []),
     ...(ctx.missionFailed
       ? [
           `### Mission Status: FAILED`,
-          ctx.missionFailedInfo,
           "The mission has been declared failed. The schedule should be set to off.",
-          "You may still: review/close issues, respond to discussions.",
           "",
         ]
       : []),
     ...(ctx.transformationBudget > 0
-      ? [`### Transformation Budget: ${ctx.cumulativeTransformationCost}/${ctx.transformationBudget} used (${Math.max(0, ctx.transformationBudget - ctx.cumulativeTransformationCost)} remaining)`, "Note: instability transforms (infrastructure fixes) do not count against this budget.", ""]
+      ? [`### Transformation Budget: ${ctx.cumulativeTransformationCost}/${ctx.transformationBudget} used (${Math.max(0, ctx.transformationBudget - ctx.cumulativeTransformationCost)} remaining)`, ""]
       : []),
     `### Issue Limits`,
     `Feature development WIP limit: ${ctx.featureIssuesWipLimit}`,
     `Maintenance WIP limit: ${ctx.maintenanceIssuesWipLimit}`,
     `Open issues: ${ctx.issuesSummary.length} (capacity for ${Math.max(0, ctx.featureIssuesWipLimit - ctx.issuesSummary.length)} more)`,
     "",
-    "## Available Actions",
-    "Pick one or more actions. Output them in the format below.",
+    `### Recent Activity`,
+    ctx.recentActivity || "none",
     "",
-    "### Workflow Dispatches",
-    "- `dispatch:agentic-lib-workflow | mode: dev-only | issue-number: <N>` — Pick up issue #N, generate code, open PR. Always specify the issue-number of the oldest ready issue.",
-    "- `dispatch:agentic-lib-workflow | mode: maintain-only` — Refresh feature definitions and library docs",
-    "- `dispatch:agentic-lib-workflow | mode: review-only` — Close resolved issues, enhance issue criteria",
-    "- `dispatch:agentic-lib-workflow | mode: pr-cleanup-only` — Merge open PRs with the automerge label if checks pass",
-    "- `dispatch:agentic-lib-bot` — Proactively post in discussions",
+    "## Your Task",
+    "Use list_issues, list_prs, read_file, and search_discussions to explore the repository state.",
+    "Then call report_supervisor_plan with your chosen actions and reasoning.",
     "",
-    "### GitHub API Actions",
-    "- `github:create-issue | title: <text> | labels: <comma-separated>` — Create a new issue",
-    "- `github:label-issue | issue-number: <N> | labels: <comma-separated>` — Add labels to an issue",
-    "- `github:close-issue | issue-number: <N>` — Close an issue",
-    "",
-    "### Communication",
-    "- `respond:discussions | message: <text> | discussion-url: <url>` — Reply via discussions bot",
-    "",
-    "### Schedule Control",
-    "- `set-schedule:<frequency>` — Change supervisor schedule (off, weekly, daily, hourly, continuous). Use `set-schedule:weekly` when mission is substantially complete, `set-schedule:continuous` to ramp up.",
-    "",
-    "- `nop` — No action needed this cycle",
-    "",
-    "## Output Format",
-    "Respond with EXACTLY this structure:",
-    "```",
-    "[ACTIONS]",
-    "action-name | param: value | param: value",
-    "[/ACTIONS]",
-    "[REASONING]",
-    "Why you chose these actions...",
-    "[/REASONING]",
-    "```",
+    "**You MUST call report_supervisor_plan exactly once.**",
   ].join("\n");
 }
 
+// Legacy text parsers — kept as fallback if the model doesn't call report_supervisor_plan
 function parseActions(content) {
   const actionsMatch = content.match(/\[ACTIONS\]([\s\S]*?)\[\/ACTIONS\]/);
   if (!actionsMatch) return [];
@@ -742,7 +665,7 @@ async function executeAction(octokit, repo, action, params, ctx) {
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function supervise(context) {
-  const { octokit, repo, config, instructions, model } = context;
+  const { octokit, repo, config, instructions, model, logFilePath, screenshotFilePath } = context;
   const t = config.tuning || {};
 
   const ctx = await gatherContext(octokit, repo, config, t);
@@ -751,9 +674,7 @@ export async function supervise(context) {
   // --- Deterministic lifecycle posts (before LLM) ---
 
   // Step 2: Auto-announce on first run after init
-  // Detect first supervisor run: initTimestamp exists but no prior supervisor workflow runs since init
   if (ctx.initTimestamp && !ctx.missionComplete && !ctx.missionFailed) {
-    // Check for any prior agentic-lib-workflow runs since init (count > 1 because current run is included)
     const supervisorRunCount = ctx.actionsSinceInit.filter(
       (a) => a.name.startsWith("agentic-lib-workflow"),
     ).length;
@@ -765,47 +686,115 @@ export async function supervise(context) {
     }
   }
 
-  // --- LLM decision ---
+  // --- LLM decision via hybrid session ---
   const agentInstructions = instructions || "You are the supervisor. Decide what actions to take.";
   const prompt = buildPrompt(ctx, agentInstructions, config);
 
-  const { content, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
+  const systemPrompt =
+    "You are the supervisor of an autonomous coding repository. Your job is to advance the mission by choosing which workflows to dispatch and which GitHub actions to take. Pick multiple actions when appropriate. Be strategic — consider what's already in progress, what's blocked, and what will make the most impact." +
+    NARRATIVE_INSTRUCTION;
+
+  // Shared mutable state to capture the plan
+  const planResult = { actions: [], reasoning: "" };
+
+  const createTools = (defineTool, _wp, logger) => {
+    const ghTools = createGitHubTools(octokit, repo, defineTool, logger);
+    const discTools = createDiscussionTools(octokit, repo, defineTool, logger);
+    const gitTools = createGitTools(defineTool, logger);
+
+    const reportPlan = defineTool("report_supervisor_plan", {
+      description: "Report the supervisor's chosen actions and reasoning. Call this exactly once. Actions will be executed automatically.",
+      parameters: {
+        type: "object",
+        properties: {
+          actions: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                action: { type: "string", description: "Action name (e.g. dispatch:agentic-lib-workflow, github:create-issue, set-schedule:weekly, nop)" },
+                params: { type: "object", description: "Action parameters (e.g. mode, issue-number, title, labels, message, discussion-url, frequency)" },
+              },
+              required: ["action"],
+            },
+            description: "List of actions to execute",
+          },
+          reasoning: { type: "string", description: "Why you chose these actions" },
+        },
+        required: ["actions", "reasoning"],
+      },
+      handler: async ({ actions, reasoning }) => {
+        planResult.reasoning = reasoning || "";
+
+        // Execute each action using existing handlers
+        const results = [];
+        for (const { action, params } of (actions || [])) {
+          try {
+            const result = await executeAction(octokit, repo, action, params || {}, ctx);
+            results.push(result);
+            logger.info(`Action result: ${result}`);
+          } catch (err) {
+            logger.warning(`Action ${action} failed: ${err.message}`);
+            results.push(`error:${action}:${err.message}`);
+          }
+        }
+
+        planResult.actions = actions || [];
+        planResult.results = results;
+        return { textResultForLlm: `Executed ${results.length} action(s): ${results.join(", ")}` };
+      },
+    });
+
+    return [...ghTools, ...discTools, ...gitTools, reportPlan];
+  };
+
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
+  const result = await runCopilotSession({
+    workspacePath: process.cwd(),
     model,
-    systemMessage:
-      "You are the supervisor of an autonomous coding repository. Your job is to advance the mission by choosing which workflows to dispatch and which GitHub actions to take. Pick multiple actions when appropriate. Be strategic — consider what's already in progress, what's blocked, and what will make the most impact.",
-    prompt,
-    writablePaths: [],
     tuning: t,
+    agentPrompt: systemPrompt,
+    userPrompt: prompt,
+    writablePaths: [],
+    createTools,
+    attachments,
+    excludedTools: ["write_file", "run_command", "run_tests"],
+    logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
 
-  const actions = parseActions(content);
-  const reasoning = parseReasoning(content);
+  const tokensUsed = result.tokensIn + result.tokensOut;
+
+  // Extract actions — prefer tool result, fall back to text parsing
+  let actions = planResult.actions;
+  let reasoning = planResult.reasoning;
+  let results = planResult.results || [];
+
+  if (actions.length === 0 && result.agentMessage) {
+    actions = parseActions(result.agentMessage);
+    reasoning = parseReasoning(result.agentMessage);
+
+    // Execute fallback-parsed actions
+    for (const { action, params } of actions) {
+      try {
+        const r = await executeAction(octokit, repo, action, params, ctx);
+        results.push(r);
+        core.info(`Action result: ${r}`);
+      } catch (err) {
+        core.warning(`Action ${action} failed: ${err.message}`);
+        results.push(`error:${action}:${err.message}`);
+      }
+    }
+  }
 
   core.info(`Supervisor reasoning: ${reasoning.substring(0, 200)}`);
   core.info(`Supervisor chose ${actions.length} action(s)`);
 
-  const results = [];
-  for (const { action, params } of actions) {
-    try {
-      const result = await executeAction(octokit, repo, action, params, ctx);
-      results.push(result);
-      core.info(`Action result: ${result}`);
-    } catch (err) {
-      core.warning(`Action ${action} failed: ${err.message}`);
-      results.push(`error:${action}:${err.message}`);
-    }
-  }
-
   // --- Deterministic lifecycle posts (after LLM) ---
 
-  // W12: Mission-complete/failed evaluation moved to the director task.
-  // The supervisor no longer declares mission-complete or mission-failed.
-
   // Step 3: Auto-respond when a message referral is present
-  // If the workflow was triggered with a message (from bot's request-supervisor),
-  // and the LLM didn't include a respond:discussions action, post back directly.
-  // Posts directly via GraphQL to avoid triggering the bot workflow (which would
-  // request-supervisor again, creating an infinite loop).
   const workflowMessage = context.discussionUrl ? "" : (process.env.INPUT_MESSAGE || "");
   if (workflowMessage && ctx.activeDiscussionUrl) {
     const hasDiscussionResponse = results.some((r) => r.startsWith("respond-discussions:"));
@@ -827,12 +816,12 @@ export async function supervise(context) {
   return {
     outcome: actions.length === 0 ? "nop" : `supervised:${actions.length}-actions`,
     tokensUsed,
-    inputTokens,
-    outputTokens,
-    cost,
+    inputTokens: result.tokensIn,
+    outputTokens: result.tokensOut,
+    cost: 0,
     model,
     details: `Actions: ${results.join(", ")}\nReasoning: ${reasoning.substring(0, 300)}`,
-    narrative: reasoning.substring(0, 500),
+    narrative: result.narrative || reasoning.substring(0, 500),
     changes,
   };
 }

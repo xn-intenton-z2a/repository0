@@ -66,6 +66,18 @@ When writing both tests and implementation:
 
 Follow the linting guidelines and the formatting guidelines from the included config.
 
+## Context Gathering (Before You Start)
+
+Before writing any code, gather context to avoid repeating past mistakes and to align with user expectations:
+
+1. **Read intentïon.md** (attached) — scan for patterns in past iterations. Look for recurring test failures, reverted approaches, and traps previous transforms fell into. If a particular approach failed before, try a different strategy.
+2. **Search GitHub Discussions** — use `list_discussions` or `search_discussions` to find user feedback, feature requests, and clarifications about the mission. Users often provide critical context in discussions that isn't in the issue body.
+3. **Review closed issues** — use `list_issues` with state "closed" to see what was already attempted and resolved. Avoid re-implementing rejected approaches or duplicating work that's already landed.
+4. **Check open PRs** — use `list_prs` to see if related work is already in flight. Coordinate rather than conflict.
+5. **Examine CONTRIBUTING.md and MISSION.md** — these are the source of truth. When in doubt, the mission's acceptance criteria override any other guidance.
+
+This context-gathering step is an investment that prevents wasted budget on approaches that have already been tried and failed.
+
 ## Evidence Gathering
 
 When implementing features, also produce evidence artifacts under `docs/`:

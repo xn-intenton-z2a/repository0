@@ -9,7 +9,7 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { loadConfig, getWritablePaths } from "./config-loader.js";
 import { logActivity, generateClosingNotes } from "./logging.js";
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import {
   buildMissionMetrics, buildMissionReadiness,
   computeTransformationCost, readCumulativeCost, buildLimitsStatus,
@@ -60,6 +60,12 @@ async function run() {
     const handler = TASKS[task];
     if (!handler) throw new Error(`Unknown task: ${task}. Available: ${Object.keys(TASKS).join(", ")}`);
 
+    // Resolve log and screenshot paths (fetched from agentic-lib-logs branch by workflow)
+    const logFile = config.intentionBot?.intentionFilepath || "intenti\u00F6n.md";
+    const screenshotFile = config.intentionBot?.screenshotFile || "SCREENSHOT_INDEX.png";
+    const logFilePath = existsSync(logFile) ? logFile : null;
+    const screenshotFilePath = existsSync(screenshotFile) ? screenshotFile : null;
+
     const context = {
       task, config, instructions, issueNumber, writablePaths, testCommand, model,
       prNumber: core.getInput("pr-number"),
@@ -68,6 +74,7 @@ async function run() {
       commentCreatedAt: core.getInput("comment-created-at"),
       octokit: github.getOctokit(process.env.GITHUB_TOKEN),
       repo: github.context.repo, github: github.context,
+      logFilePath, screenshotFilePath,
     };
 
     const startTime = Date.now();

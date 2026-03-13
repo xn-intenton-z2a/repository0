@@ -2,13 +2,15 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/direct.js — Director: mission-complete/failed evaluation via LLM
 //
-// Gathers mission metrics, builds an advisory assessment, asks the LLM
-// to decide mission-complete, mission-failed, or produce a gap analysis.
+// Uses runCopilotSession with lean prompts: the model reads source files
+// via tools to determine mission status and produce a structured evaluation.
 // The director does NOT dispatch workflows or create issues — that's the supervisor's job.
 
 import * as core from "@actions/core";
 import { existsSync, readFileSync, writeFileSync, readdirSync, statSync } from "fs";
-import { runCopilotTask, readOptionalFile, scanDirectory, filterIssues } from "../copilot.js";
+import { readOptionalFile, scanDirectory, filterIssues, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
+import { createGitHubTools, createGitTools } from "../../../copilot/github-tools.js";
 
 /**
  * Count TODO comments recursively in a directory.
@@ -98,7 +100,7 @@ function buildMetricAssessment(ctx, config) {
 }
 
 /**
- * Build the director prompt.
+ * Build the director prompt (lean version — model explores via tools).
  */
 function buildPrompt(ctx, agentInstructions, metricAssessment) {
   return [
@@ -114,35 +116,21 @@ function buildPrompt(ctx, agentInstructions, metricAssessment) {
     "### Mission-Complete Metrics",
     metricAssessment.table,
     "",
-    "## Repository State",
-    `### Open Issues (${ctx.issuesSummary.length})`,
-    ctx.issuesSummary.join("\n") || "none",
+    "## Repository Summary",
+    `Open issues: ${ctx.issuesSummary.length}`,
+    `Recently closed issues: ${ctx.recentlyClosedSummary.length}`,
+    `Open PRs: ${ctx.prsSummary.length}`,
+    `Dedicated test files: ${ctx.dedicatedTestCount}`,
+    `Source TODOs: ${ctx.sourceTodoCount}`,
+    `Transformation budget: ${ctx.cumulativeTransformationCost}/${ctx.transformationBudget || "unlimited"}`,
     "",
-    `### Recently Closed Issues (${ctx.recentlyClosedSummary.length})`,
-    ctx.recentlyClosedSummary.join("\n") || "none",
+    "## Your Task",
+    "Use list_issues and list_prs to review open work items.",
+    "Use read_file to inspect source code and tests for completeness.",
+    "Use git_diff or git_status for additional context if needed.",
+    "Then call report_director_decision with your determination.",
     "",
-    `### Open PRs (${ctx.prsSummary.length})`,
-    ctx.prsSummary.join("\n") || "none",
-    "",
-    ...(ctx.sourceExports?.length > 0
-      ? [
-          `### Source Exports`,
-          ...ctx.sourceExports.map((e) => `- ${e}`),
-          "",
-        ]
-      : []),
-    `### Test Coverage`,
-    ctx.dedicatedTestCount > 0
-      ? `Dedicated test files (${ctx.dedicatedTestCount}): ${ctx.dedicatedTestFiles.join(", ")}`
-      : "**No dedicated test files found.**",
-    "",
-    `### Source TODO Count: ${ctx.sourceTodoCount}`,
-    "",
-    `### Transformation Budget: ${ctx.cumulativeTransformationCost}/${ctx.transformationBudget || "unlimited"}`,
-    "",
-    `### Recent Activity`,
-    ctx.recentActivity || "none",
-    "",
+    "**You MUST call report_director_decision exactly once.**",
   ].join("\n");
 }
 
@@ -240,13 +228,12 @@ async function executeMissionFailed(octokit, repo, reason) {
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function direct(context) {
-  const { octokit, repo, config, instructions, model } = context;
+  const { octokit, repo, config, instructions, model, logFilePath, screenshotFilePath } = context;
   const t = config.tuning || {};
 
   // --- Gather context (similar to supervisor but focused on metrics) ---
   const mission = readOptionalFile(config.paths.mission.path);
   const intentionLogFull = readOptionalFile(config.intentionBot.intentionFilepath);
-  const recentActivity = intentionLogFull.split("\n").slice(-20).join("\n");
 
   const costMatches = intentionLogFull.matchAll(/\*\*agentic-lib transformation cost:\*\* (\d+)/g);
   const cumulativeTransformationCost = [...costMatches].reduce((sum, m) => sum + parseInt(m[1], 10), 0);
@@ -271,7 +258,7 @@ export async function direct(context) {
   const initTimestamp = config.init?.timestamp || null;
 
   const { data: openIssues } = await octokit.rest.issues.listForRepo({
-    ...repo, state: "open", per_page: t.issuesScan || 20, sort: "created", direction: "asc",
+    ...repo, state: "open", per_page: 20, sort: "created", direction: "asc",
   });
   const issuesOnly = openIssues.filter((i) => !i.pull_request);
   const filteredIssues = filterIssues(issuesOnly, { staleDays: t.staleDays || 30, initTimestamp });
@@ -307,7 +294,6 @@ export async function direct(context) {
             closeReason = "RESOLVED";
           }
         }
-        // Check for automerge closure (issue has "merged" label — set by ci-automerge)
         if (closeReason !== "RESOLVED") {
           const issueLabels = ci.labels.map((l) => (typeof l === "string" ? l : l.name));
           if (issueLabels.includes("merged")) {
@@ -328,23 +314,6 @@ export async function direct(context) {
   });
   const prsSummary = openPRs.map((pr) => `#${pr.number}: ${pr.title} (${pr.head.ref})`);
 
-  // Source exports
-  let sourceExports = [];
-  try {
-    const sourcePath = config.paths.source?.path || "src/lib/";
-    if (existsSync(sourcePath)) {
-      const sourceFiles = scanDirectory(sourcePath, [".js", ".ts"], { limit: 5 });
-      for (const sf of sourceFiles) {
-        const content = readFileSync(sf.path, "utf8");
-        const exports = [...content.matchAll(/export\s+(?:async\s+)?(?:function|const|let|var|class)\s+(\w+)/g)]
-          .map((m) => m[1]);
-        if (exports.length > 0) {
-          sourceExports.push(`${sf.name}: ${exports.join(", ")}`);
-        }
-      }
-    }
-  } catch { /* ignore */ }
-
   // Dedicated tests
   const { dedicatedTestCount, dedicatedTestFiles } = detectDedicatedTests();
 
@@ -357,12 +326,10 @@ export async function direct(context) {
   // Build context
   const ctx = {
     mission,
-    recentActivity,
     issuesSummary,
     recentlyClosedSummary,
     resolvedCount,
     prsSummary,
-    sourceExports,
     dedicatedTestCount,
     dedicatedTestFiles,
     sourceTodoCount,
@@ -374,20 +341,74 @@ export async function direct(context) {
   const metricAssessment = buildMetricAssessment(ctx, config);
   core.info(`Metric assessment: ${metricAssessment.assessment}`);
 
-  // --- LLM decision ---
+  // --- LLM decision via hybrid session ---
   const agentInstructions = instructions || "You are the director. Evaluate mission readiness.";
   const prompt = buildPrompt(ctx, agentInstructions, metricAssessment);
 
-  const { content, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
+  const systemPrompt =
+    "You are the director of an autonomous coding repository. Your job is to evaluate whether the mission is complete, failed, or in progress. You produce a structured assessment — you do NOT dispatch workflows or create issues." +
+    NARRATIVE_INSTRUCTION;
+
+  // Shared mutable state to capture the decision
+  const decisionResult = { decision: "in-progress", reason: "", analysis: "" };
+
+  const createTools = (defineTool, _wp, logger) => {
+    const ghTools = createGitHubTools(octokit, repo, defineTool, logger);
+    const gitTools = createGitTools(defineTool, logger);
+
+    const reportDecision = defineTool("report_director_decision", {
+      description: "Report the director's mission evaluation decision. Call this exactly once.",
+      parameters: {
+        type: "object",
+        properties: {
+          decision: {
+            type: "string",
+            enum: ["mission-complete", "mission-failed", "in-progress"],
+            description: "The mission status decision",
+          },
+          reason: { type: "string", description: "One-line summary of the decision" },
+          analysis: { type: "string", description: "Detailed analysis of the mission state" },
+        },
+        required: ["decision", "reason"],
+      },
+      handler: async ({ decision, reason, analysis }) => {
+        decisionResult.decision = decision;
+        decisionResult.reason = reason || "";
+        decisionResult.analysis = analysis || "";
+        return { textResultForLlm: `Decision recorded: ${decision}` };
+      },
+    });
+
+    return [...ghTools, ...gitTools, reportDecision];
+  };
+
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
+  const result = await runCopilotSession({
+    workspacePath: process.cwd(),
     model,
-    systemMessage:
-      "You are the director of an autonomous coding repository. Your job is to evaluate whether the mission is complete, failed, or in progress. You produce a structured assessment — you do NOT dispatch workflows or create issues.",
-    prompt,
-    writablePaths: [],
     tuning: t,
+    agentPrompt: systemPrompt,
+    userPrompt: prompt,
+    writablePaths: [],
+    createTools,
+    attachments,
+    excludedTools: ["write_file", "run_command", "run_tests", "dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment", "create_issue", "comment_on_issue"],
+    logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
 
-  const { decision, reason, analysis } = parseDirectorResponse(content);
+  const tokensUsed = result.tokensIn + result.tokensOut;
+
+  // Extract decision — prefer tool result, fall back to text parsing
+  let { decision, reason, analysis } = decisionResult;
+  if (decision === "in-progress" && !decisionResult.reason && result.agentMessage) {
+    const parsed = parseDirectorResponse(result.agentMessage);
+    decision = parsed.decision;
+    reason = parsed.reason;
+    analysis = parsed.analysis;
+  }
   core.info(`Director decision: ${decision} — ${reason}`);
 
   // Execute the decision
@@ -414,12 +435,12 @@ export async function direct(context) {
   return {
     outcome,
     tokensUsed,
-    inputTokens,
-    outputTokens,
-    cost,
+    inputTokens: result.tokensIn,
+    outputTokens: result.tokensOut,
+    cost: 0,
     model,
     details: `Decision: ${decision}\nReason: ${reason}\nAnalysis: ${analysis.substring(0, 300)}`,
-    narrative: `Director: ${reason}`,
+    narrative: result.narrative || `Director: ${reason}`,
     metricAssessment: metricAssessment.assessment,
     directorAnalysis: analysis,
     dedicatedTestCount,

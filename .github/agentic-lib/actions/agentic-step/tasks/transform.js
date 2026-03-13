@@ -2,12 +2,41 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/transform.js — Full mission → features → issues → code pipeline
 //
-// Reads the mission, analyzes the current state, identifies what to build next,
-// and either creates features, issues, or code.
+// Uses runCopilotSession with lean prompts: the model explores via tools
+// instead of having all context front-loaded into the prompt.
 
 import * as core from "@actions/core";
-import { writeFileSync, existsSync } from "fs";
-import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection, filterIssues, summariseIssue, extractFeatureSummary, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
+import { existsSync, readdirSync, statSync } from "fs";
+import { join, resolve } from "path";
+import { readOptionalFile, formatPathsSection, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
+import { createGitHubTools, createGitTools } from "../../../copilot/github-tools.js";
+
+/**
+ * Build a file listing summary (names + sizes, not content) for the lean prompt.
+ */
+function buildFileListing(dirPath, extensions) {
+  if (!dirPath || !existsSync(dirPath)) return [];
+  const exts = Array.isArray(extensions) ? extensions : [extensions];
+  try {
+    const files = readdirSync(dirPath, { recursive: true });
+    return files
+      .filter((f) => exts.some((ext) => String(f).endsWith(ext)))
+      .map((f) => {
+        const fullPath = join(dirPath, String(f));
+        try {
+          const stat = statSync(fullPath);
+          const lines = Math.round(stat.size / 40); // rough estimate
+          return `${f} (~${lines} lines, ${stat.size} bytes)`;
+        } catch {
+          return String(f);
+        }
+      })
+      .slice(0, 30); // cap listing at 30 files
+  } catch {
+    return [];
+  }
+}
 
 /**
  * Run the full transformation pipeline from mission to code.
@@ -16,7 +45,7 @@ import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection, fi
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function transform(context) {
-  const { config, instructions, writablePaths, testCommand, model, octokit, repo, issueNumber } = context;
+  const { config, instructions, writablePaths, testCommand, model, octokit, repo, issueNumber, logFilePath, screenshotFilePath } = context;
   const t = config.tuning || {};
 
   // Read mission (required)
@@ -32,39 +61,21 @@ export async function transform(context) {
     return { outcome: "nop", details: "Mission already complete (MISSION_COMPLETE.md signal)" };
   }
 
-  const features = scanDirectory(config.paths.features.path, ".md", { fileLimit: t.featuresScan || 10 });
-  const sourceFiles = scanDirectory(config.paths.source.path, [".js", ".ts"], {
-    fileLimit: t.sourceScan || 10,
-    contentLimit: t.sourceContent || 5000,
-    recursive: true,
-    sortByMtime: true,
-    clean: true,
-    outline: true,
-  });
-  const webFiles = scanDirectory(config.paths.web?.path || "src/web/", [".html", ".css", ".js"], {
-    fileLimit: t.sourceScan || 10,
-    contentLimit: t.sourceContent || 5000,
-    recursive: true,
-    sortByMtime: true,
-    clean: true,
-  });
-
-  const { data: rawIssues } = await octokit.rest.issues.listForRepo({
-    ...repo,
-    state: "open",
-    per_page: t.issuesScan || 20,
-  });
-  const openIssues = filterIssues(rawIssues, { staleDays: t.staleDays || 30 });
-
   // Fetch target issue if specified
-  let targetIssue = null;
+  let targetIssueSection = "";
   if (issueNumber) {
     try {
       const { data: issue } = await octokit.rest.issues.get({
         ...repo,
         issue_number: Number(issueNumber),
       });
-      targetIssue = issue;
+      targetIssueSection = [
+        `## Target Issue #${issue.number}: ${issue.title}`,
+        issue.body || "(no description)",
+        `Labels: ${issue.labels.map((l) => l.name).join(", ") || "none"}`,
+        "",
+        "**Focus your transformation on resolving this specific issue.**",
+      ].join("\n");
     } catch (err) {
       core.warning(`Could not fetch target issue #${issueNumber}: ${err.message}`);
     }
@@ -72,267 +83,104 @@ export async function transform(context) {
 
   const agentInstructions =
     instructions || "Transform the repository toward its mission by identifying the next best action.";
-  const readOnlyPaths = config.readOnlyPaths;
 
-  // TDD mode: split into test-first + implementation phases
-  if (config.tdd === true) {
-    return await transformTdd({
-      config,
-      instructions: agentInstructions,
-      writablePaths,
-      readOnlyPaths,
-      testCommand,
-      model,
-      mission,
-      features,
-      sourceFiles,
-      webFiles,
-      openIssues,
-      tuning: t,
-    });
-  }
+  // ── Build lean prompt (structure + mission, not file contents) ──────
+  const sourceFiles = buildFileListing(config.paths.source.path, [".js", ".ts"]);
+  const testFiles = buildFileListing(config.paths.tests.path, [".js", ".ts"]);
+  const webFiles = buildFileListing(config.paths.web?.path || "src/web/", [".html", ".css", ".js"]);
+  const featureFiles = buildFileListing(config.paths.features.path, [".md"]);
 
   const prompt = [
     "## Instructions",
     agentInstructions,
     "",
-    ...(targetIssue
-      ? [
-          `## Target Issue #${targetIssue.number}: ${targetIssue.title}`,
-          targetIssue.body || "(no description)",
-          `Labels: ${targetIssue.labels.map((l) => l.name).join(", ") || "none"}`,
-          "",
-          "**Focus your transformation on resolving this specific issue.**",
-          "",
-        ]
-      : []),
+    ...(targetIssueSection ? [targetIssueSection, ""] : []),
     "## Mission",
     mission,
     "",
-    `## Current Features (${features.length})`,
-    ...features.map((f) => `### ${f.name}\n${extractFeatureSummary(f.content, f.name)}`),
-    "",
-    `## Current Source Files (${sourceFiles.length})`,
-    ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
-    "",
-    ...(webFiles.length > 0
-      ? [
-          `## Website Files (${webFiles.length})`,
-          "The website in `src/web/` uses the JS library.",
-          "When transforming source code, also update the website to use the library's new/changed features.",
-          "`src/web/lib.js` re-exports from `../lib/main.js` so the page imports the real library directly. Keep `main.js` browser-safe (guard Node APIs behind `typeof process` checks). NEVER duplicate library functions inline in the web page.",
-          ...webFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
-          "",
-        ]
-      : []),
-    `## Open Issues (${openIssues.length})`,
-    ...openIssues.slice(0, t.issuesScan || 20).map((i) => summariseIssue(i, t.issueBodyLimit || 500)),
-    "",
-    "## Output Artifacts",
-    "If your changes produce output artifacts (plots, visualizations, data files, usage examples),",
-    `save them to the \`${config.paths.examples?.path || "examples/"}\` directory.`,
-    "This directory is for demonstrating what the code can do.",
+    "## Repository Structure",
+    `Source files (${sourceFiles.length}): ${sourceFiles.join(", ") || "none"}`,
+    `Test files (${testFiles.length}): ${testFiles.join(", ") || "none"}`,
+    `Features (${featureFiles.length}): ${featureFiles.join(", ") || "none"}`,
+    ...(webFiles.length > 0 ? [
+      `Website files (${webFiles.length}): ${webFiles.join(", ")}`,
+      "The website in `src/web/` uses the JS library. `src/web/lib.js` re-exports from `../lib/main.js`.",
+      "When transforming source code, also update the website to use the library's new/changed features.",
+    ] : []),
     "",
     "## Your Task",
-    "Analyze the mission, features, source code, and open issues.",
+    "Analyze the mission and open issues (use list_issues tool).",
+    "Read the source files you need (use read_file tool).",
     "Determine the single most impactful next step to transform this repository.",
-    "Then implement that step.",
+    "Then implement that step, writing files and running run_tests to verify.",
     "",
     "## When NOT to make changes",
     "If the existing code already satisfies all requirements in MISSION.md and all open issues have been addressed:",
     "- Do NOT make cosmetic changes (reformatting, renaming, reordering)",
     "- Do NOT add features beyond what MISSION.md specifies",
-    "- Do NOT rewrite working code for stylistic preferences",
     "- Instead, report that the mission is satisfied and make no file changes",
     "",
-    formatPathsSection(writablePaths, readOnlyPaths, config),
+    formatPathsSection(writablePaths, config.readOnlyPaths, config),
     "",
     "## Constraints",
-    `- Run \`${testCommand}\` to validate your changes`,
+    `- Run \`${testCommand}\` via run_tests to validate your changes`,
+    "- Use list_issues to see open issues, get_issue for full details",
+    "- Use read_file to read source files you need (don't guess at contents)",
   ].join("\n");
 
-  core.info(`Transform prompt length: ${prompt.length} chars`);
+  core.info(`Transform lean prompt length: ${prompt.length} chars`);
 
-  const {
-    content: resultContent,
-    tokensUsed,
-    inputTokens,
-    outputTokens,
-    cost,
-  } = await runCopilotTask({
+  // ── Build attachments (mission + log + screenshot) ─────────────────
+  const attachments = [];
+  const missionPath = resolve(config.paths.mission.path);
+  if (existsSync(missionPath)) {
+    attachments.push({ type: "file", path: missionPath });
+  }
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
+  // ── System prompt ──────────────────────────────────────────────────
+  const systemPrompt =
+    "You are an autonomous code transformation agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step." + NARRATIVE_INSTRUCTION;
+
+  // ── Create custom tools (GitHub API + git) ─────────────────────────
+  const createTools = (defineTool, _wp, logger) => {
+    const ghTools = createGitHubTools(octokit, repo, defineTool, logger);
+    const gitTools = createGitTools(defineTool, logger);
+    return [...ghTools, ...gitTools];
+  };
+
+  // ── Run hybrid session ─────────────────────────────────────────────
+  const result = await runCopilotSession({
+    workspacePath: process.cwd(),
     model,
-    systemMessage:
-      "You are an autonomous code transformation agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step." + NARRATIVE_INSTRUCTION,
-    prompt,
-    writablePaths,
     tuning: t,
+    agentPrompt: systemPrompt,
+    userPrompt: prompt,
+    writablePaths,
+    createTools,
+    attachments,
+    excludedTools: ["dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment"],
+    logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
 
-  core.info(`Transformation step completed (${tokensUsed} tokens)`);
+  core.info(`Transformation step completed (${result.tokensIn + result.tokensOut} tokens)`);
 
-  // Detect mission-complete hint: if the LLM indicates mission satisfaction, log it
-  // but do NOT write MISSION_COMPLETE.md — the supervisor is the single authority
-  // for mission lifecycle declarations (it also handles bot announcements)
-  const lowerResult = resultContent.toLowerCase();
+  // Detect mission-complete hint
+  const lowerResult = (result.agentMessage || "").toLowerCase();
   if (lowerResult.includes("mission is satisfied") || lowerResult.includes("mission is complete") || lowerResult.includes("no changes needed")) {
     core.info("Transform indicates mission may be complete — supervisor will verify on next cycle");
   }
 
-  const promptBudget = [
-    { section: "mission", size: mission.length, files: "1", notes: "full" },
-    { section: "features", size: features.reduce((s, f) => s + f.content.length, 0), files: `${features.length}`, notes: "" },
-    { section: "source", size: sourceFiles.reduce((s, f) => s + f.content.length, 0), files: `${sourceFiles.length}`, notes: sourceFiles.some((f) => f.content.includes("// file:")) ? "some outlined" : "all full" },
-    { section: "issues", size: openIssues.length * 80, files: `${openIssues.length}`, notes: `${rawIssues.length - openIssues.length} filtered` },
-  ];
-
   return {
-    outcome: "transformed",
-    tokensUsed,
-    inputTokens,
-    outputTokens,
-    cost,
+    outcome: result.testsPassed ? "transformed" : "transformed",
+    tokensUsed: result.tokensIn + result.tokensOut,
+    inputTokens: result.tokensIn,
+    outputTokens: result.tokensOut,
+    cost: 0,
     model,
-    details: resultContent.substring(0, 500),
-    narrative: extractNarrative(resultContent, "Transformation step completed."),
-    promptBudget,
-    contextNotes: `Transformed with ${sourceFiles.length} source files (mtime-sorted, cleaned), ${features.length} features, ${openIssues.length} issues (${rawIssues.length - openIssues.length} stale filtered).`,
-  };
-}
-
-/**
- * TDD-mode transformation: Phase 1 creates a failing test, Phase 2 writes implementation.
- */
-async function transformTdd({
-  config: _config,
-  instructions,
-  writablePaths,
-  readOnlyPaths,
-  testCommand,
-  model,
-  mission,
-  features,
-  sourceFiles,
-  webFiles,
-  openIssues,
-  tuning: t,
-}) {
-  let totalTokens = 0;
-
-  // Phase 1: Create a failing test
-  core.info("TDD Phase 1: Creating failing test");
-
-  const testPrompt = [
-    "## Instructions",
-    instructions,
-    "",
-    "## Mode: TDD Phase 1 — Write Failing Test",
-    "You are in TDD mode. In this phase, you must ONLY write a test.",
-    "The test should capture the next feature requirement based on the mission and current state.",
-    "The test MUST fail against the current codebase (it tests something not yet implemented).",
-    "Do NOT write any implementation code in this phase.",
-    "",
-    "## Mission",
-    mission,
-    "",
-    `## Current Features (${features.length})`,
-    ...features.map((f) => `### ${f.name}\n${extractFeatureSummary(f.content, f.name)}`),
-    "",
-    `## Current Source Files (${sourceFiles.length})`,
-    ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
-    "",
-    ...(webFiles.length > 0
-      ? [
-          `## Website Files (${webFiles.length})`,
-          "The website in `src/web/` uses the JS library.",
-          ...webFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
-          "",
-        ]
-      : []),
-    `## Open Issues (${openIssues.length})`,
-    ...openIssues.slice(0, t.issuesScan || 20).map((i) => summariseIssue(i, t.issueBodyLimit || 500)),
-    "",
-    formatPathsSection(writablePaths, readOnlyPaths, _config),
-    "",
-    "## Constraints",
-    "- Write ONLY test code in this phase",
-    "- The test must fail when run (it tests unimplemented functionality)",
-    `- Run \`${testCommand}\` to confirm the test fails`,
-  ].join("\n");
-
-  const phase1 = await runCopilotTask({
-    model,
-    systemMessage:
-      "You are a TDD agent. In this phase, write ONLY a failing test that captures the next feature requirement. Do not write implementation code.",
-    prompt: testPrompt,
-    writablePaths,
-    tuning: t,
-  });
-  totalTokens += phase1.tokensUsed;
-  const testResult = phase1.content;
-
-  core.info(`TDD Phase 1 completed (${totalTokens} tokens): test created`);
-
-  // Phase 2: Write implementation to make the test pass
-  core.info("TDD Phase 2: Writing implementation");
-
-  const implPrompt = [
-    "## Instructions",
-    instructions,
-    "",
-    "## Mode: TDD Phase 2 — Write Implementation",
-    "A failing test has been written in Phase 1. Your job is to write the MINIMUM implementation",
-    "code needed to make the test pass. Do not modify the test.",
-    "",
-    "## What was done in Phase 1",
-    testResult.substring(0, 1000),
-    "",
-    "## Mission",
-    mission,
-    "",
-    `## Current Source Files (${sourceFiles.length})`,
-    ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
-    "",
-    ...(webFiles.length > 0
-      ? [
-          `## Website Files (${webFiles.length})`,
-          "The website in `src/web/` uses the JS library. Update it to reflect any new features.",
-          ...webFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
-          "",
-        ]
-      : []),
-    formatPathsSection(writablePaths, readOnlyPaths, _config),
-    "",
-    "## Output Artifacts",
-    "If your changes produce output artifacts (plots, visualizations, data files, usage examples),",
-    `save them to the \`${_config.paths.examples?.path || "examples/"}\` directory.`,
-    "This directory is for demonstrating what the code can do.",
-    "",
-    "## Constraints",
-    "- Write implementation code to make the failing test pass",
-    "- Do NOT modify the test file created in Phase 1",
-    `- Run \`${testCommand}\` to confirm all tests pass`,
-  ].join("\n");
-
-  const phase2 = await runCopilotTask({
-    model,
-    systemMessage:
-      "You are a TDD agent. A failing test was written in Phase 1. Write the minimum implementation to make it pass. Do not modify the test." + NARRATIVE_INSTRUCTION,
-    prompt: implPrompt,
-    writablePaths,
-    tuning: t,
-  });
-  totalTokens += phase2.tokensUsed;
-
-  core.info(`TDD Phase 2 completed (total ${totalTokens} tokens)`);
-
-  return {
-    outcome: "transformed-tdd",
-    tokensUsed: totalTokens,
-    inputTokens: (phase1.inputTokens || 0) + (phase2.inputTokens || 0),
-    outputTokens: (phase1.outputTokens || 0) + (phase2.outputTokens || 0),
-    cost: (phase1.cost || 0) + (phase2.cost || 0),
-    model,
-    details: `TDD transformation: Phase 1 (failing test) + Phase 2 (implementation). ${testResult.substring(0, 200)}`,
-    narrative: extractNarrative(phase2.content, "TDD transformation: wrote failing test then implementation."),
+    details: (result.agentMessage || "").substring(0, 500),
+    narrative: result.narrative || extractNarrative(result.agentMessage, "Transformation step completed."),
+    contextNotes: `Lean prompt transform: ${result.toolCalls} tool calls, ${result.testRuns} test runs, ${result.filesWritten} files written in ${result.sessionTime}s.`,
   };
 }

@@ -5,8 +5,9 @@
 // Appends structured entries to the intentïon.md activity log,
 // including commit URLs and safety-check outcomes.
 
-import { writeFileSync, readFileSync, appendFileSync, existsSync, mkdirSync } from "fs";
-import { dirname } from "path";
+import { writeFileSync, readFileSync, appendFileSync, existsSync, mkdirSync, copyFileSync } from "fs";
+import { dirname, basename } from "path";
+import { join } from "path";
 import * as core from "@actions/core";
 
 /**
@@ -157,6 +158,17 @@ export function logActivity({
     }
   } else {
     writeFileSync(filepath, `# intentïon Activity Log\n${entry}`);
+  }
+
+  // Write ASCII fallback copy (intention.md) for systems that can't handle UTF-8 filenames
+  const name = basename(filepath);
+  if (name !== "intention.md" && name.includes("intenti")) {
+    const fallbackPath = join(dirname(filepath), "intention.md");
+    try {
+      copyFileSync(filepath, fallbackPath);
+    } catch {
+      // Best-effort — don't fail the log if the copy fails
+    }
   }
 }
 

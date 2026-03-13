@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
-// src/copilot/agents.js — Load agent prompt files from src/agents/
+// src/copilot/agents.js — Load agent prompt files from .github/agents/
 
 import { readFileSync, readdirSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const agentsDir = resolve(__dirname, "..", "agents");
+const agentsDir = resolve(__dirname, "..", "..", ".github", "agents");
 
 /**
  * Load an agent prompt file by name.

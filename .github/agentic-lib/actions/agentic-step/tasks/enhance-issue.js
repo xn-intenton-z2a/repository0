@@ -2,18 +2,35 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/enhance-issue.js — Add testable acceptance criteria to issues
 //
-// Takes an issue and enhances it with clear, testable acceptance criteria
-// so that the resolve-issue task can implement it effectively.
-// Supports batch mode: when no issueNumber is provided, enhances up to 3 issues.
+// Uses runCopilotSession with lean prompts: the model reads features and docs
+// via tools to enhance issues with acceptance criteria.
 
 import * as core from "@actions/core";
+import { existsSync, readdirSync } from "fs";
 import { isIssueResolved } from "../safety.js";
-import { runCopilotTask, readOptionalFile, scanDirectory } from "../copilot.js";
+import { readOptionalFile, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
+import { createGitHubTools } from "../../../copilot/github-tools.js";
+
+/**
+ * Build a file listing summary (names only).
+ */
+function listFiles(dirPath, extension) {
+  if (!dirPath || !existsSync(dirPath)) return [];
+  try {
+    return readdirSync(dirPath, { recursive: true })
+      .filter((f) => String(f).endsWith(extension))
+      .map((f) => String(f))
+      .slice(0, 20);
+  } catch {
+    return [];
+  }
+}
 
 /**
  * Enhance a single GitHub issue with testable acceptance criteria.
  */
-async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instructions, model, tuning: t }) {
+async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instructions, model, tuning: t, logFilePath, screenshotFilePath }) {
   if (await isIssueResolved(octokit, repo, issueNumber)) {
     return { outcome: "nop", details: `Issue #${issueNumber} already resolved` };
   }
@@ -28,9 +45,12 @@ async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instruct
   }
 
   const contributing = readOptionalFile(config.paths.contributing.path);
-  const features = scanDirectory(config.paths.features.path, ".md", { contentLimit: t.documentSummary || 2000 });
+  const featureFiles = listFiles(config.paths.features.path, ".md");
 
   const agentInstructions = instructions || "Enhance this issue with clear, testable acceptance criteria.";
+
+  // Shared mutable state to capture the enhanced body
+  const enhanceResult = { body: "" };
 
   const prompt = [
     "## Instructions",
@@ -39,39 +59,71 @@ async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instruct
     `## Issue #${issueNumber}: ${issue.title}`,
     issue.body || "(no description)",
     "",
-    contributing ? `## Contributing Guidelines\n${contributing.substring(0, t.documentSummary || 2000)}` : "",
-    features.length > 0 ? `## Related Features\n${features.map((f) => f.content).join("\n---\n")}` : "",
-    config.configToml ? `## Configuration (agentic-lib.toml)\n\`\`\`toml\n${config.configToml}\n\`\`\`` : "",
-    config.packageJson ? `## Dependencies (package.json)\n\`\`\`json\n${config.packageJson}\n\`\`\`` : "",
+    contributing ? `## Contributing Guidelines\n${contributing.substring(0, 2000)}` : "",
+    featureFiles.length > 0 ? `## Feature Files (read with read_file for details)\n${featureFiles.join(", ")}` : "",
     "",
     "## Your Task",
+    "Read relevant feature files if needed using read_file.",
     "Write an enhanced version of this issue body that includes:",
     "1. Clear problem statement or feature description",
     "2. Testable acceptance criteria (Given/When/Then or checkbox format)",
     "3. Implementation hints if applicable",
     "",
-    "Output ONLY the new issue body text, no markdown code fences.",
+    "**Call report_enhanced_body exactly once** with the improved issue body.",
   ].join("\n");
 
-  const {
-    content: enhancedBody,
-    tokensUsed,
-    inputTokens,
-    outputTokens,
-    cost,
-  } = await runCopilotTask({
+  const systemPrompt =
+    "You are a requirements analyst. Enhance GitHub issues with clear, testable acceptance criteria." +
+    NARRATIVE_INSTRUCTION;
+
+  const createTools = (defineTool, _wp, logger) => {
+    const ghTools = createGitHubTools(octokit, repo, defineTool, logger);
+
+    const reportEnhancedBody = defineTool("report_enhanced_body", {
+      description: "Report the enhanced issue body with testable acceptance criteria. Call this exactly once.",
+      parameters: {
+        type: "object",
+        properties: {
+          enhanced_body: { type: "string", description: "The complete enhanced issue body text" },
+        },
+        required: ["enhanced_body"],
+      },
+      handler: async ({ enhanced_body }) => {
+        enhanceResult.body = enhanced_body;
+        return { textResultForLlm: "Enhanced body recorded." };
+      },
+    });
+
+    return [...ghTools, reportEnhancedBody];
+  };
+
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
+  const result = await runCopilotSession({
+    workspacePath: process.cwd(),
     model,
-    systemMessage: "You are a requirements analyst. Enhance GitHub issues with clear, testable acceptance criteria.",
-    prompt,
-    writablePaths: [],
     tuning: t,
+    agentPrompt: systemPrompt,
+    userPrompt: prompt,
+    writablePaths: [],
+    createTools,
+    attachments,
+    excludedTools: ["write_file", "run_command", "run_tests", "dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment"],
+    logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
 
-  if (enhancedBody.trim()) {
+  const tokensUsed = result.tokensIn + result.tokensOut;
+
+  // Fall back to agent message if report_enhanced_body wasn't called
+  const enhancedBody = enhanceResult.body || (result.agentMessage || "").trim();
+
+  if (enhancedBody) {
     await octokit.rest.issues.update({
       ...repo,
       issue_number: Number(issueNumber),
-      body: enhancedBody.trim(),
+      body: enhancedBody,
     });
     await octokit.rest.issues.addLabels({
       ...repo,
@@ -86,7 +138,6 @@ async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instruct
         "",
         `**Task:** enhance-issue`,
         `**Model:** ${model}`,
-        `**Features referenced:** ${features.length}`,
         "",
         "The issue body has been updated. The `ready` label has been added to indicate it is ready for implementation.",
       ].join("\n"),
@@ -97,12 +148,12 @@ async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instruct
   return {
     outcome: "issue-enhanced",
     tokensUsed,
-    inputTokens,
-    outputTokens,
-    cost,
+    inputTokens: result.tokensIn,
+    outputTokens: result.tokensOut,
+    cost: 0,
     model,
     details: `Enhanced issue #${issueNumber} with acceptance criteria`,
-    narrative: `Enhanced issue #${issueNumber} with testable acceptance criteria.`,
+    narrative: result.narrative || `Enhanced issue #${issueNumber} with testable acceptance criteria.`,
   };
 }
 
@@ -114,12 +165,12 @@ async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instruct
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function enhanceIssue(context) {
-  const { octokit, repo, config, issueNumber, instructions, model } = context;
+  const { octokit, repo, config, issueNumber, instructions, model, logFilePath, screenshotFilePath } = context;
   const t = config.tuning || {};
 
   // Single issue mode
   if (issueNumber) {
-    return enhanceSingleIssue({ octokit, repo, config, issueNumber, instructions, model, tuning: t });
+    return enhanceSingleIssue({ octokit, repo, config, issueNumber, instructions, model, tuning: t, logFilePath, screenshotFilePath });
   }
 
   // Batch mode: find up to 3 unready automated issues
@@ -141,7 +192,6 @@ export async function enhanceIssue(context) {
   let totalTokens = 0;
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
-  let totalCost = 0;
 
   for (const issue of unready) {
     core.info(`Batch enhancing issue #${issue.number} (${results.length + 1}/${unready.length})`);
@@ -153,12 +203,13 @@ export async function enhanceIssue(context) {
       instructions,
       model,
       tuning: t,
+      logFilePath,
+      screenshotFilePath,
     });
     results.push(result);
     totalTokens += result.tokensUsed || 0;
     totalInputTokens += result.inputTokens || 0;
     totalOutputTokens += result.outputTokens || 0;
-    totalCost += result.cost || 0;
   }
 
   const enhanced = results.filter((r) => r.outcome === "issue-enhanced").length;
@@ -168,7 +219,7 @@ export async function enhanceIssue(context) {
     tokensUsed: totalTokens,
     inputTokens: totalInputTokens,
     outputTokens: totalOutputTokens,
-    cost: totalCost,
+    cost: 0,
     model,
     details: `Batch enhanced ${enhanced}/${results.length} issues. ${results
       .map((r) => r.details)

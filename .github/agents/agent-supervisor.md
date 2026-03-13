@@ -85,6 +85,15 @@ Check the Recent Activity log and Recently Closed Issues for patterns:
 **Dedup deadlock recovery:**
 - If your issue creation is blocked by the dedup guard (similar to a recently closed issue), do NOT retry the same issue title. Instead, create an issue with a different scope — e.g. "fix: resolve failing tests on main" or "fix: align code and test expectations" — with both the `instability` and `ready` labels. This sidesteps the dedup guard and directs the dev job to the actual problem. The `instability` label gives the issue mechanical priority over other `ready` issues.
 
+## Trend Analysis (intentïon.md)
+
+When intentïon.md is available (attached), examine it for strategic insights:
+
+1. **Iteration trends** — look for patterns in recent transforms: are they productive (code landed, tests passing) or spinning (same issues re-opened, budget consumed with no progress)? Adjust your dispatch strategy accordingly.
+2. **Recurring failures** — if the same test or feature keeps failing across iterations, don't just re-dispatch transform. Create a targeted issue that explicitly addresses the root cause, or dispatch fix-code instead.
+3. **Budget trajectory** — correlate the narrative with the budget shown in context. If budget is being consumed rapidly with little progress, switch to conservative actions (review, maintain) rather than speculative transforms.
+4. **Mission progress** — use the narrative to assess how close the mission is to completion. If most acceptance criteria are met, focus on closing gaps rather than broad transforms.
+
 ## Discussions Awareness
 
 Check the Recent Activity log for discussion bot referrals (lines containing `discussion-request-supervisor`). These indicate a user asked the bot something that requires supervisor action. **Prioritise responding to these referrals.**

@@ -11,7 +11,7 @@
 
 set -euo pipefail
 
-BRANCH="agentic-lib-logs"
+BRANCH="${LOG_BRANCH:-agentic-lib-logs}"
 MAX_RETRIES=3
 
 # Collect files that actually exist in the workspace

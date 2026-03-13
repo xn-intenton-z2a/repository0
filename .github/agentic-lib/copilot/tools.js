@@ -42,6 +42,7 @@ export function createAgentTools(writablePaths, logger = defaultLogger, defineTo
 
   const readFile = defineTool("read_file", {
     description: "Read the contents of a file at the given path.",
+    overridesBuiltInTool: true,
     parameters: {
       type: "object",
       properties: {
@@ -63,6 +64,7 @@ export function createAgentTools(writablePaths, logger = defaultLogger, defineTo
 
   const writeFile = defineTool("write_file", {
     description: "Write content to a file. Parent directories created automatically. Only writable paths allowed.",
+    overridesBuiltInTool: true,
     parameters: {
       type: "object",
       properties: {
@@ -90,6 +92,7 @@ export function createAgentTools(writablePaths, logger = defaultLogger, defineTo
 
   const listFiles = defineTool("list_files", {
     description: "List files and directories at the given path.",
+    overridesBuiltInTool: true,
     parameters: {
       type: "object",
       properties: {
@@ -113,6 +116,7 @@ export function createAgentTools(writablePaths, logger = defaultLogger, defineTo
 
   const runCommand = defineTool("run_command", {
     description: "Run a shell command and return stdout/stderr.",
+    overridesBuiltInTool: true,
     parameters: {
       type: "object",
       properties: {

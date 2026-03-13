@@ -130,12 +130,14 @@ jobs:
           path: SCREENSHOT_INDEX.png
           if-no-files-found: ignore
 
-      - name: Push screenshot to agentic-lib-logs branch
+      - name: Push screenshot to log branch
         if: |
           github.ref == 'refs/heads/main' &&
           github.repository != 'xn-intenton-z2a/agentic-lib' &&
           (github.event_name == 'schedule' || inputs.push-screenshot == 'true' || inputs.push-screenshot == true)
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh SCREENSHOT_INDEX.png
+        env:
+          LOG_BRANCH: ${{ inputs.log-branch || 'agentic-lib-logs' }}
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${SCREENSHOT_FILE:-SCREENSHOT_INDEX.png}"
 
   # ─── Dispatch fix workflow when unit tests fail on main ─────────────
   dispatch-fix:
