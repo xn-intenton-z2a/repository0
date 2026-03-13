@@ -1,42 +1,42 @@
 # Interactive Web Demonstration
 
-Create a comprehensive web-based demonstration platform that showcases plot-code-lib capabilities through real-time interactions, making mathematical plotting accessible and shareable while highlighting the library's jq-like composability.
+Create a browser-based demonstration that showcases plot-code-lib core functionality with interactive forms, live plotting, and CLI command generation to highlight the library's capabilities.
 
 ## Purpose
 
-Transform the web interface into an interactive laboratory for mathematical exploration that demonstrates all plot-code-lib features through intuitive browser controls, real-time feedback, and seamless sharing capabilities that showcase the library's power and simplicity.
+Provide an accessible web demonstration of plot-code-lib functionality that allows users to experiment with mathematical expressions and see results instantly, while generating equivalent CLI commands that demonstrate the library's command-line capabilities.
 
 ## Acceptance Criteria
 
-- Add real-time mathematical expression plotting with live updates as users type
-- Include interactive parameter sliders for dynamic range and step size adjustment
-- Support instant expression validation with helpful syntax error highlighting and suggestions
-- Add direct plot export functionality (SVG download, PNG download, data export) from browser
-- Include shareable URL generation for mathematical expressions and configurations
-- Support mathematical function autocomplete and syntax highlighting in expression editor
-- Add curated example gallery with one-click loading and explanation of mathematical concepts
-- Include plot interaction features (zoom, pan, point inspection) for detailed analysis
-- Support responsive design that works across desktop, tablet, and mobile devices
-- Add educational tooltips and guided tours for mathematical function exploration
+- Add interactive form with input fields for expression, range, and output format
+- Include Generate Plot button that creates SVG visualization in browser using library functionality
+- Support mathematical expression validation with clear error messaging for invalid input
+- Add CLI command generator showing equivalent command-line usage for current inputs
+- Include curated example expressions with one-click loading (sine, cosine, parabola, exponential)
+- Support step size configuration through range input with preview of data point count
+- Add plot preview area that displays generated SVG directly in browser
+- Include example usage section with common mathematical functions and ranges
+- Support responsive design that works on desktop and mobile devices
+- Add copy-to-clipboard functionality for generated CLI commands
 
 ## Technical Implementation
 
-Build browser-compatible plotting engine using D3.js for real-time rendering. Implement expression parser using mathjs in browser environment. Create interactive UI components with immediate feedback. Add URL encoding/decoding for configuration sharing. Implement touch-friendly controls for mobile devices.
+Enhance existing web interface with interactive form controls and JavaScript event handling. Use browser-compatible subset of library functionality for client-side expression validation and plotting. Add example data and CLI command generation logic. Implement responsive CSS design for cross-device compatibility.
 
 ## Integration Points
 
-- Enhances existing web interface in src/web/ with real-time interactive capabilities
-- Uses browser-compatible subset of library functionality for client-side operation
-- Demonstrates CLI capabilities through interactive web examples and command generation
-- Compatible with existing mathematical expression syntax and range specification formats
-- Showcases library features while maintaining clear separation between web demo and core library
+- Builds on existing web interface in src/web/index.html with enhanced interactivity
+- Uses browser-compatible parts of main library functionality for client-side operation
+- Generates CLI commands that match actual CLI interface functionality and syntax
+- Compatible with existing mathematical expression parsing and SVG rendering
+- Demonstrates real library capabilities while keeping web demo lightweight and focused
 
 ## Example Usage
 
-Live expression editor: Type "y=sin(x*2)" and watch plot update in real-time
+Interactive plotting: Enter "y=sin(x)", set range "x=-pi:pi", click Generate to see plot
 
-Parameter exploration: Adjust sliders to modify "y=a*sin(b*x+c)" parameters dynamically
+CLI generation: Form automatically shows "node src/lib/main.js -e 'y=sin(x)' -r 'x=-pi:pi' -f output.svg"
 
-Educational gallery: Browse trigonometric, polynomial, logarithmic function families with explanations
+Example loading: Click "Sine Wave" example to auto-populate form with working expression and range
 
-Configuration sharing: Generate URL like /plot?expr=sin(x)&range=-pi:pi for collaboration
+Step size control: Adjust step size slider to see data point count update before plotting
