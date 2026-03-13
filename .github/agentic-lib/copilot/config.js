@@ -243,6 +243,7 @@ export function loadConfig(configPath) {
   const mc = toml["mission-complete"] || {};
   const missionCompleteThresholds = {
     minResolvedIssues: mc["min-resolved-issues"] ?? 3,
+    minDedicatedTests: mc["min-dedicated-tests"] ?? 1,
     requireDedicatedTests: mc["require-dedicated-tests"] ?? true,
     maxSourceTodos: mc["max-source-todos"] ?? 0,
   };

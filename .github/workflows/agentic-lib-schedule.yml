@@ -125,14 +125,25 @@ jobs:
             const cron = SCHEDULE_MAP[effectiveFrequency];
 
             // Check if the frequency is already set — skip if no-op (but never skip maintenance)
+            // Must check BOTH the config file AND the workflow file to avoid desynchronisation
             const supervisorRegex2 = /^\s*supervisor\s*=\s*"([^"]*)"/m;
             if (!isMaintenance && fs.existsSync(tomlPath)) {
               const currentToml = fs.readFileSync(tomlPath, 'utf8');
               const currentMatch = currentToml.match(supervisorRegex2);
               const currentFreq = currentMatch ? currentMatch[1] : '';
-              if (currentFreq === frequency) {
+              // Also check the workflow file has the expected cron schedule
+              const cronRegex = /- cron: "([^"]*)"/;
+              const workflowCronMatch = content.match(cronRegex);
+              const currentCron = workflowCronMatch ? workflowCronMatch[1] : null;
+              const expectedCron = cron; // from SCHEDULE_MAP
+              const configMatches = currentFreq === frequency;
+              const workflowMatches = currentCron === expectedCron;
+              if (configMatches && workflowMatches) {
                 core.info(`Schedule already set to ${frequency} — no change needed`);
                 return;
+              }
+              if (configMatches && !workflowMatches) {
+                core.info(`Config says ${frequency} but workflow cron is "${currentCron}" (expected "${expectedCron}") — updating workflow`);
               }
             }
 
