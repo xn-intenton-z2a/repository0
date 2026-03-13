@@ -9,3 +9,27 @@ export const description = "";
 export function getIdentity() {
   return { name, version, description };
 }
+
+export function encode(buffer, encoding) {
+  throw new Error("encode() function not yet implemented");
+}
+
+export function decode(str, encoding) {
+  throw new Error("decode() function not yet implemented");
+}
+
+export function encodeUUID(uuid) {
+  throw new Error("encodeUUID() function not yet implemented");
+}
+
+export function decodeUUID(str) {
+  throw new Error("decodeUUID() function not yet implemented");
+}
+
+export function createEncoding(name, charset) {
+  throw new Error("createEncoding() function not yet implemented");
+}
+
+export function listEncodings() {
+  throw new Error("listEncodings() function not yet implemented");
+}
