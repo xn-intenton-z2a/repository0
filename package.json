@@ -13,11 +13,23 @@
     "start": "npm run build:web && npx serve docs",
     "start:cli": "node src/lib/main.js"
   },
-  "keywords": ["plotting", "mathematics", "cli", "svg", "png", "charts", "visualization", "formulae"],
+  "keywords": [
+    "plotting",
+    "mathematics",
+    "cli",
+    "svg",
+    "png",
+    "charts",
+    "visualization",
+    "formulae"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.4.8"
+    "@xn-intenton-z2a/agentic-lib": "^7.4.8",
+    "d3": "^7.9.0",
+    "mathjs": "^15.1.1",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",

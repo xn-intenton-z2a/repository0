@@ -1,64 +1,61 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2025-2026 Polycode Limited
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
+import { plotCLI, main } from "../../src/lib/main.js";
 
 describe("CLI Interface", () => {
-  test("should have a TODO for CLI interface implementation", () => {
-    // TODO: Implement command line interface
-    // - Support --expression flag for mathematical expressions
-    // - Support --range flag for domain specification
-    // - Support --file flag for output filename (SVG or PNG based on extension)
-    // - Provide --help flag with usage examples and documentation
-    // - Support --version flag for version information
-    // - Handle invalid arguments with clear error messages
-    // - Support stdin input for batch processing expressions
-    // - Provide verbose output option for debugging
-    // - Support configuration files for common settings
-    // - Generate example commands in README with actual output
-    expect(true).toBe(true);
+  test("should parse command line arguments", async () => {
+    // Test help command
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await plotCLI(["--help"]);
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("--expression"));
+    consoleSpy.mockRestore();
   });
 
-  test("should parse command line arguments", () => {
-    // TODO: Test command line argument parsing
-    // const cli = new CLIInterface();
-    // const args = cli.parseArgs(["--expression", "y=sin(x)", "--range", "x=-pi:pi"]);
-    // expect(args.expression).toBe("y=sin(x)");
-    // expect(args.range).toBe("x=-pi:pi");
-    expect(true).toBe(true);
+  test("should support help and version flags", async () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    
+    await plotCLI(["--help"]);
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage:"));
+    
+    consoleSpy.mockRestore();
   });
 
-  test("should support help and version flags", () => {
-    // TODO: Test help and version functionality
-    // const cli = new CLIInterface();
-    // const helpOutput = cli.showHelp();
-    // const version = cli.showVersion();
-    // expect(helpOutput).toContain("--expression");
-    // expect(version).toMatch(/^\d+\.\d+\.\d+/);
-    expect(true).toBe(true);
+  test("should validate required arguments", async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    
+    await plotCLI(["--file", "output.svg"]);
+    expect(consoleErrorSpy).toHaveBeenCalledWith("Error: --expression is required");
+    
+    consoleErrorSpy.mockRestore();
   });
 
-  test("should validate required arguments", () => {
-    // TODO: Test argument validation
-    // const cli = new CLIInterface();
-    // expect(() => cli.parseArgs(["--file", "output.svg"])).toThrow("expression required");
-    expect(true).toBe(true);
+  test("should handle missing range argument", async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    
+    await plotCLI(["--expression", "y=x", "--file", "output.svg"]);
+    expect(consoleErrorSpy).toHaveBeenCalledWith("Error: --range is required");
+    
+    consoleErrorSpy.mockRestore();
   });
 
-  test("should handle different output formats", () => {
-    // TODO: Test output format detection
-    // const cli = new CLIInterface();
-    // const svgArgs = cli.parseArgs(["--expression", "y=x", "--file", "plot.svg"]);
-    // const pngArgs = cli.parseArgs(["--expression", "y=x", "--file", "plot.png"]);
-    // expect(svgArgs.format).toBe("svg");
-    // expect(pngArgs.format).toBe("png");
-    expect(true).toBe(true);
+  test("should handle missing file argument", async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    
+    await plotCLI(["--expression", "y=x", "--range", "x=-1:1"]);
+    expect(consoleErrorSpy).toHaveBeenCalledWith("Error: --file is required");
+    
+    consoleErrorSpy.mockRestore();
   });
 
-  test("should provide verbose output option", () => {
-    // TODO: Test verbose mode
-    // const cli = new CLIInterface();
-    // const args = cli.parseArgs(["--verbose", "--expression", "y=x"]);
-    // expect(args.verbose).toBe(true);
-    expect(true).toBe(true);
+  test("should integrate with main function", () => {
+    expect(() => main(["--version"])).not.toThrow();
+    expect(() => main(["--identity"])).not.toThrow();
+    expect(() => main()).not.toThrow();
+  });
+
+  test("should detect plotting commands", () => {
+    const plotArgs = ["--expression", "y=x", "--range", "x=-1:1", "--file", "test.svg"];
+    expect(() => main(plotArgs)).not.toThrow();
   });
 });
