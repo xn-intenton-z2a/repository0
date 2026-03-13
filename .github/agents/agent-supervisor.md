@@ -18,7 +18,17 @@ Look at which metrics are NOT MET — these tell you what gaps remain:
 5. Source TODO count > 0 → create an issue to resolve TODOs
 6. Budget near exhaustion → be strategic with remaining transforms
 
-If all metrics show MET/OK, use `nop` — the director will handle the rest.
+7. Implementation review gaps → create issues with label `implementation-gap` for critical gaps
+
+If all metrics show MET/OK and no implementation review gaps exist, use `nop` — the director will handle the rest.
+
+### Implementation Review
+
+If an **Implementation Review** section is present in the prompt, examine it carefully. The review traces each mission element through source code, tests, website, and behaviour tests. It provides ground-truth evidence of what is actually implemented — not just what metrics suggest.
+
+- **Critical gaps** should result in creating a focused issue (label: `implementation-gap`) that describes exactly what is missing
+- **Moderate gaps** should be noted but may not need immediate action
+- **Misleading metrics** should inform your decision-making — don't take actions based on metrics the review has flagged as unreliable
 
 ## Priority Order
 

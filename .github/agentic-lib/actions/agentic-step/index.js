@@ -8,7 +8,7 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { loadConfig, getWritablePaths } from "./config-loader.js";
-import { logActivity, generateClosingNotes } from "./logging.js";
+import { logActivity, generateClosingNotes, writeAgentLog } from "./logging.js";
 import { readFileSync, existsSync } from "fs";
 import {
   buildMissionMetrics, buildMissionReadiness,
@@ -30,12 +30,14 @@ import { reviewIssue } from "./tasks/review-issue.js";
 import { discussions } from "./tasks/discussions.js";
 import { supervise } from "./tasks/supervise.js";
 import { direct } from "./tasks/direct.js";
+import { implementationReview } from "./tasks/implementation-review.js";
 
 const TASKS = {
   "resolve-issue": resolveIssue, "fix-code": fixCode, "transform": transform,
   "maintain-features": maintainFeatures, "maintain-library": maintainLibrary,
   "enhance-issue": enhanceIssue, "review-issue": reviewIssue,
   "discussions": discussions, "supervise": supervise, "direct": direct,
+  "implementation-review": implementationReview,
 };
 
 async function run() {
@@ -136,6 +138,20 @@ async function run() {
         missionMetrics, closingNotes: result.closingNotes || generateClosingNotes(limitsStatus),
         transformationCost, narrative: result.narrative,
       });
+    }
+
+    // Write standalone agent log file (pushed to agentic-lib-logs branch by workflow)
+    try {
+      const agentLogFile = writeAgentLog({
+        task, outcome: result.outcome || "completed",
+        model: result.model || model, durationMs, tokensUsed: result.tokensUsed,
+        narrative: result.narrative, contextNotes: result.contextNotes,
+        reviewTable: result.reviewTable, completenessAdvice: result.completenessAdvice,
+        missionMetrics,
+      });
+      core.info(`Agent log written: ${agentLogFile}`);
+    } catch (err) {
+      core.warning(`Could not write agent log: ${err.message}`);
     }
 
     core.info(`agentic-step completed: outcome=${result.outcome}`);

@@ -474,6 +474,26 @@ function buildPrompt(ctx, agentInstructions, config) {
     `### Recent Activity`,
     ctx.recentActivity || "none",
     "",
+    ...(process.env.REVIEW_ADVICE ? [
+      "### Implementation Review",
+      `**Completeness:** ${process.env.REVIEW_ADVICE}`,
+      ...((() => {
+        try {
+          const gaps = JSON.parse(process.env.REVIEW_GAPS || "[]");
+          if (gaps.length > 0) {
+            return [
+              "",
+              "**Gaps Found:**",
+              ...gaps.map((g) => `- [${g.severity}] ${g.element}: ${g.description} (${g.gapType})`),
+              "",
+              "Consider creating issues with label 'implementation-gap' for critical gaps.",
+            ];
+          }
+        } catch { /* ignore */ }
+        return [];
+      })()),
+      "",
+    ] : []),
     "## Your Task",
     "Use list_issues, list_prs, read_file, and search_discussions to explore the repository state.",
     "Then call report_supervisor_plan with your chosen actions and reasoning.",

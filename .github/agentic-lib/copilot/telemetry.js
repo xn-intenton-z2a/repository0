@@ -148,6 +148,35 @@ export function readCumulativeCost(intentionFilepath) {
 }
 
 /**
+ * Gather and parse all agent-log-*.md files from a directory.
+ * Returns structured data from each log file for use in prompts and metrics.
+ *
+ * @param {string} logsDir - Directory containing agent-log-*.md files
+ * @returns {Array} Parsed log entries: { filename, task, outcome, advice, content }
+ */
+export function gatherAgentLogs(logsDir) {
+  if (!logsDir || !existsSync(logsDir)) return [];
+  try {
+    const files = readdirSync(logsDir)
+      .filter((f) => f.startsWith("agent-log-") && f.endsWith(".md"))
+      .sort();
+    return files.map((f) => {
+      const content = readFileSync(join(logsDir, f), "utf8");
+      const taskMatch = content.match(/\*\*Task:\*\* (.+)/);
+      const outcomeMatch = content.match(/\*\*Outcome:\*\* (.+)/);
+      const adviceMatch = content.match(/## Completeness Assessment\n([\s\S]*?)(?=\n##|\n---)/);
+      return {
+        filename: f,
+        task: taskMatch ? taskMatch[1].trim() : "unknown",
+        outcome: outcomeMatch ? outcomeMatch[1].trim() : "unknown",
+        advice: adviceMatch ? adviceMatch[1].trim() : "",
+        content,
+      };
+    });
+  } catch { return []; }
+}
+
+/**
  * Build limits status array for activity logging.
  *
  * @param {Object} params

@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-13T19:34:09.172Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -18,7 +17,7 @@ concurrency:
 
 on:
   schedule:
-    - cron: "5,25,45 * * * *"
+    - cron: "0 6 * * 1"
   workflow_call:
     inputs:
       ref:
@@ -709,11 +708,79 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" "intention.md"
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" "intention.md" agent-log-*.md
+
+  # ─── Implementation Review: traces mission elements through code/tests/website ──
+  implementation-review:
+    needs: [params]
+    if: |
+      !cancelled() &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'maintain-only') &&
+      needs.params.result == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      review-advice: ${{ steps.review.outputs.completeness-advice }}
+      review-gaps: ${{ steps.review.outputs.gaps }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Fetch log and agent logs from log branch
+        env:
+          LOG_FILE: ${{ needs.params.outputs.log-file }}
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+          SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
+        run: |
+          for f in "${LOG_FILE}" "intention.md" "${SCREENSHOT_FILE}"; do
+            git show "origin/${LOG_BRANCH}:${f}" > "$f" 2>/dev/null || true
+          done
+          mkdir -p .agent-logs
+          git fetch origin "${LOG_BRANCH}" 2>/dev/null || true
+          for f in $(git ls-tree --name-only "origin/${LOG_BRANCH}" 2>/dev/null | grep '^agent-log-' || true); do
+            git show "origin/${LOG_BRANCH}:${f}" > ".agent-logs/${f}" 2>/dev/null || true
+          done
+          echo "Fetched $(ls .agent-logs/agent-log-*.md 2>/dev/null | wc -l | tr -d ' ') agent log files"
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Self-init (agentic-lib dev only)
+        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+        run: bash scripts/self-init.sh
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
+
+      - name: Run implementation review
+        id: review
+        if: github.repository != 'xn-intenton-z2a/agentic-lib'
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "implementation-review"
+          config: ${{ needs.params.outputs.config-path }}
+          instructions: ".github/agents/agent-implementation-review.md"
+          model: ${{ needs.params.outputs.model }}
+
+      - name: Push log to log branch
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        env:
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" "intention.md" agent-log-*.md
 
   # ─── Director: LLM evaluates mission status (complete/failed/in-progress) ──
   director:
-    needs: [params, telemetry, maintain]
+    needs: [params, telemetry, maintain, implementation-review]
     if: |
       !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
@@ -761,6 +828,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          REVIEW_ADVICE: ${{ needs.implementation-review.outputs.review-advice }}
+          REVIEW_GAPS: ${{ needs.implementation-review.outputs.review-gaps }}
         with:
           task: "direct"
           config: ${{ needs.params.outputs.config-path }}
@@ -771,11 +840,11 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" "intention.md"
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" "intention.md" agent-log-*.md
 
   # ─── Supervisor: LLM decides what to do (after director evaluates) ──
   supervisor:
-    needs: [params, pr-cleanup, telemetry, maintain, director]
+    needs: [params, pr-cleanup, telemetry, maintain, implementation-review, director]
     if: |
       !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
@@ -822,6 +891,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           INPUT_MESSAGE: ${{ needs.params.outputs.message }}
+          REVIEW_ADVICE: ${{ needs.implementation-review.outputs.review-advice }}
+          REVIEW_GAPS: ${{ needs.implementation-review.outputs.review-gaps }}
         with:
           task: "supervise"
           config: ${{ needs.params.outputs.config-path }}
@@ -832,7 +903,7 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" "intention.md"
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" "intention.md" agent-log-*.md
 
   # ─── Fix stuck PRs with failing checks ─────────────────────────────
   fix-stuck:
@@ -1404,7 +1475,7 @@ jobs:
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
-        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" "intention.md"
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh "${{ needs.params.outputs.log-file }}" "intention.md" agent-log-*.md
 
       - name: Create PR and attempt merge
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true' && steps.pre-commit-behaviour-test.outputs.tests-passed != 'false'

@@ -71,6 +71,14 @@ function buildMetricAssessment(ctx, config) {
   const minTests = thresholds.minDedicatedTests ?? 1;
   const maxTodos = thresholds.maxSourceTodos ?? 0;
 
+  // Implementation review gaps (passed from workflow via env)
+  let reviewGaps = [];
+  try {
+    const gapsJson = process.env.REVIEW_GAPS;
+    if (gapsJson) reviewGaps = JSON.parse(gapsJson);
+  } catch { /* ignore parse errors */ }
+  const criticalGaps = reviewGaps.filter((g) => g.severity === "critical");
+
   const metrics = [
     { metric: "Open issues", value: ctx.issuesSummary.length, target: 0, met: ctx.issuesSummary.length === 0 },
     { metric: "Open PRs", value: ctx.prsSummary.length, target: 0, met: ctx.prsSummary.length === 0 },
@@ -78,6 +86,7 @@ function buildMetricAssessment(ctx, config) {
     { metric: "Dedicated tests", value: ctx.dedicatedTestCount, target: minTests, met: ctx.dedicatedTestCount >= minTests },
     { metric: "Source TODOs", value: ctx.sourceTodoCount, target: maxTodos, met: ctx.sourceTodoCount <= maxTodos },
     { metric: "Budget", value: ctx.cumulativeTransformationCost, target: ctx.transformationBudget || "unlimited", met: !(ctx.transformationBudget > 0 && ctx.cumulativeTransformationCost >= ctx.transformationBudget) },
+    { metric: "Implementation review", value: criticalGaps.length === 0 ? "No critical gaps" : `${criticalGaps.length} critical gap(s)`, target: "No critical gaps", met: criticalGaps.length === 0 },
   ];
 
   const allMet = metrics.every((m) => m.met);
@@ -124,10 +133,29 @@ function buildPrompt(ctx, agentInstructions, metricAssessment) {
     `Source TODOs: ${ctx.sourceTodoCount}`,
     `Transformation budget: ${ctx.cumulativeTransformationCost}/${ctx.transformationBudget || "unlimited"}`,
     "",
+    ...(process.env.REVIEW_ADVICE ? [
+      "## Implementation Review",
+      `**Completeness:** ${process.env.REVIEW_ADVICE}`,
+      ...((() => {
+        try {
+          const gaps = JSON.parse(process.env.REVIEW_GAPS || "[]");
+          if (gaps.length > 0) {
+            return [
+              "",
+              "### Gaps Found",
+              ...gaps.map((g) => `- [${g.severity}] ${g.element}: ${g.description} (${g.gapType})`),
+            ];
+          }
+        } catch { /* ignore */ }
+        return [];
+      })()),
+      "",
+    ] : []),
     "## Your Task",
     "Use list_issues and list_prs to review open work items.",
     "Use read_file to inspect source code and tests for completeness.",
     "Use git_diff or git_status for additional context if needed.",
+    "Consider the implementation review findings — if critical gaps exist, do NOT declare mission-complete.",
     "Then call report_director_decision with your determination.",
     "",
     "**You MUST call report_director_decision exactly once.**",

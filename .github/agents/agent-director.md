@@ -27,6 +27,9 @@ Declare `mission-complete` when ALL of the following are true:
 3. The Recently Closed Issues confirm that acceptance criteria have been addressed
 4. No TODOs remain in source code
 5. Dedicated test files exist (not just seed tests)
+6. The Implementation Review shows no critical gaps (if review data is present)
+
+**Important:** If the Implementation Review section is present in your prompt and identifies critical gaps — missing implementations, untested features, or misleading metrics — do NOT declare mission-complete even if other metrics are met. The review is ground-truth evidence; metrics can be misleading.
 
 ### Mission Failed
 Declare `mission-failed` when ANY of the following are true:
