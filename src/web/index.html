@@ -44,6 +44,8 @@
     <pre id="feature-bits-output" class="output">Loading examples...</pre>
   </section>
 
+  <pre id="demo-output" class="output">Loading demo...</pre>
+
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
 
@@ -69,6 +71,7 @@
 
       document.getElementById('feature-strings-output').textContent = JSON.stringify(stringsExamples, null, 2);
       document.getElementById('feature-bits-output').textContent = JSON.stringify(bitsExamples, null, 2);
+      document.getElementById('demo-output').textContent = JSON.stringify({ strings: stringsExamples, bits: bitsExamples }, null, 2);
       document.title = name + ' v' + version;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
