@@ -310,11 +310,13 @@ const webp = await sharp('input.jpg')
 
 **Source Content:** Sharp official documentation (https://sharp.pixelplumbing.com/)
 **Retrieved:** 2026-03-13  
-**Attribution:** Sharp development team and Lovell Fuller
-**Data Size:** Approximately 12KB of technical specifications and implementation guidance
+**Attribution:** Sharp development team led by Lovell Fuller and contributors
+**Data Size:** Approximately 8KB of technical specifications and implementation guidance
 
-Sharp provides high-performance image processing capabilities essential for modern web applications requiring efficient image optimization and transformation. The module features libvips integration for superior performance, comprehensive format support including modern formats like AVIF and WebP, memory-efficient streaming architecture, and built-in optimization equivalent to specialized tools like mozjpeg and pngquant.
+Sharp provides high-performance Node-API module for converting large images to smaller, web-friendly formats with 4x-5x faster performance than ImageMagick. The typical use case involves processing JPEG, PNG, WebP, GIF and AVIF images with varying dimensions for web applications. Module supports all JavaScript runtimes with Node-API v9 including Node.js >= 18.17.0, Deno and Bun.
 
-Key implementation features include 4x-5x performance improvement over traditional tools through libvips integration, multi-core CPU utilization with cache optimization, streaming architecture supporting input/output flexibility, comprehensive format support with optimization features, and no external runtime dependencies on modern platforms.
+Performance advantages include libvips integration for blazingly fast processing, Lanczos resampling ensuring quality preservation, color space and ICC profile handling, alpha transparency support, multi-core CPU utilization, memory-efficient small-region processing, non-blocking libuv operations, and Promises/async/await support. Modern systems require no additional install or runtime dependencies.
+
+Advanced features include mozjpeg and pngquant optimization without separate processes, optimized Huffman tables for JPEG, disabled PNG filtering for diagrams, animated GIF optimization, Deep Zoom pyramid generation, and streaming architecture supporting multiple processing pipelines.
 
 The library's focus on performance, memory efficiency, and developer experience makes it suitable for production applications requiring reliable, high-throughput image processing capabilities.
