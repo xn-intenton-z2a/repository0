@@ -105,10 +105,16 @@
       font-size: 0.8rem;
       font-weight: bold;
     }
+    .status.active {
+      background: #d4f5d4;
+      color: #0f5132;
+    }
     .status.coming-soon {
       background: #fff3cd;
       color: #856404;
     }
+    .success { color: #0f5132; }
+    .error { color: #dc3545; }
   </style>
 </head>
 <body>
@@ -128,7 +134,7 @@
 
   <h2>Core Encoding Functions</h2>
   <div class="demo-section">
-    <h3>Binary Data Encoding <span class="status coming-soon">Coming Soon</span></h3>
+    <h3>Binary Data Encoding <span class="status active">Active</span></h3>
     <p>Encode and decode arbitrary binary data using various encodings.</p>
     
     <div style="margin: 1rem 0;">
@@ -149,7 +155,7 @@
 
   <h2>UUID Encoding</h2>
   <div class="demo-section">
-    <h3>UUID Shortening <span class="status coming-soon">Coming Soon</span></h3>
+    <h3>UUID Shortening <span class="status active">Active</span></h3>
     <p>Encode UUIDs with maximum density - shorter than base64!</p>
     
     <div style="margin: 1rem 0;">
@@ -164,10 +170,10 @@
 
   <h2>Encoding Comparison</h2>
   <div class="demo-section">
-    <h3>Encoding Metadata <span class="status coming-soon">Coming Soon</span></h3>
+    <h3>Encoding Metadata <span class="status active">Active</span></h3>
     <p>Compare bit density and characteristics of all available encodings.</p>
     
-    <table class="encoding-table">
+    <table class="encoding-table" id="encodings-table">
       <thead>
         <tr>
           <th>Encoding</th>
@@ -177,28 +183,8 @@
           <th>Charset Preview</th>
         </tr>
       </thead>
-      <tbody id="encodings-table">
-        <tr>
-          <td>Base62</td>
-          <td>62</td>
-          <td>~5.95</td>
-          <td>~22 chars</td>
-          <td>0-9a-zA-Z</td>
-        </tr>
-        <tr>
-          <td>Base85</td>
-          <td>85</td>
-          <td>~6.41</td>
-          <td>~20 chars</td>
-          <td>ASCII85/Z85</td>
-        </tr>
-        <tr>
-          <td>Base91</td>
-          <td>91</td>
-          <td>~6.50</td>
-          <td>~20 chars</td>
-          <td>Printable ASCII</td>
-        </tr>
+      <tbody>
+        <!-- Populated by JavaScript -->
       </tbody>
     </table>
     
@@ -207,7 +193,7 @@
 
   <h2>Custom Encodings</h2>
   <div class="demo-section">
-    <h3>Create Custom Encoding <span class="status coming-soon">Coming Soon</span></h3>
+    <h3>Create Custom Encoding <span class="status active">Active</span></h3>
     <p>Define your own encoding from a character set string.</p>
     
     <div style="margin: 1rem 0;">
@@ -227,18 +213,21 @@
       <h3>Round-trip Testing</h3>
       <p>Verify that <code>decode(encode(x, enc), enc) === x</code> for all encodings and edge cases.</p>
       <button onclick="runRoundTripTests()">Run Tests</button>
+      <div id="roundtrip-results"></div>
     </div>
     
     <div class="feature-card">
       <h3>Edge Case Validation</h3>
       <p>Test with empty buffers, single bytes, all-zero bytes, and all-0xFF bytes.</p>
       <button onclick="runEdgeCaseTests()">Test Edge Cases</button>
+      <div id="edgecase-results"></div>
     </div>
     
     <div class="feature-card">
       <h3>Performance Comparison</h3>
       <p>Compare encoding/decoding speed across different algorithms and data sizes.</p>
       <button onclick="runPerformanceTests()">Benchmark</button>
+      <div id="performance-results"></div>
     </div>
   </div>
 
@@ -255,12 +244,33 @@
       document.getElementById('lib-description').textContent = lib.description || 'Explore the frontier of binary-to-text encoding density';
       document.title = lib.name + ' v' + lib.version;
       
-      // Update encoding metadata output
+      // Update encoding metadata display
       updateEncodingMetadata();
+      
+      // Populate encoding options
+      populateEncodingOptions();
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
       document.getElementById('lib-description').textContent = e.message;
       console.error('Failed to load library:', e);
+    }
+
+    // Helper function to convert hex string to Uint8Array
+    function hexToBytes(hex) {
+      const cleaned = hex.replace(/[^0-9a-fA-F]/g, '');
+      if (cleaned.length % 2 !== 0) {
+        throw new Error('Invalid hex string length');
+      }
+      const bytes = new Uint8Array(cleaned.length / 2);
+      for (let i = 0; i < cleaned.length; i += 2) {
+        bytes[i / 2] = parseInt(cleaned.substr(i, 2), 16);
+      }
+      return bytes;
+    }
+
+    // Helper function to convert Uint8Array to hex string
+    function bytesToHex(bytes) {
+      return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
     // Make functions available globally for onclick handlers
@@ -274,19 +284,23 @@
         return;
       }
       
-      // TODO: Use actual encoding functions when implemented
-      output.textContent = `TODO: encode("${input}", "${encoding}")
-      
-This will use the library's encode() function to convert
-hex input "${input}" using ${encoding} encoding.
+      try {
+        const bytes = hexToBytes(input);
+        const encoded = lib.encode(bytes, encoding);
+        const roundtrip = lib.decode(encoded, encoding);
+        const roundtripHex = bytesToHex(roundtrip);
+        
+        output.textContent = `✅ Encoding successful!
 
-Expected output format:
-{
-  "input": "${input}",
-  "encoding": "${encoding}",
-  "encoded": "[encoded result]",
-  "length": "[character count]"
-}`;
+Input: ${input} (${bytes.length} bytes)
+Encoding: ${encoding}
+Encoded: "${encoded}" (${encoded.length} chars)
+Round-trip: ${roundtripHex}
+Match: ${roundtripHex.toLowerCase() === input.toLowerCase() ? '✅ Perfect' : '❌ Failed'}`;
+        
+      } catch (e) {
+        output.textContent = `❌ Error: ${e.message}`;
+      }
     };
 
     window.decodeData = function() {
@@ -294,13 +308,26 @@ Expected output format:
       const encoding = document.getElementById('encoding-select').value;
       const output = document.getElementById('core-encoding-output');
       
-      // TODO: Use actual decoding functions when implemented
-      output.textContent = `TODO: decode("${input}", "${encoding}")
+      if (!input) {
+        output.textContent = 'Please enter encoded data to decode';
+        return;
+      }
       
-This will use the library's decode() function to convert
-encoded input "${input}" back to hex using ${encoding} encoding.
+      try {
+        // Try to decode as encoded string first
+        const decoded = lib.decode(input, encoding);
+        const hex = bytesToHex(decoded);
+        
+        output.textContent = `✅ Decoding successful!
 
-Round-trip verification: decode(encode(x, enc), enc) === x`;
+Input: "${input}"
+Encoding: ${encoding}
+Decoded: ${hex} (${decoded.length} bytes)
+As bytes: [${Array.from(decoded).join(', ')}]`;
+        
+      } catch (e) {
+        output.textContent = `❌ Error: ${e.message}`;
+      }
     };
 
     window.encodeUUID = function() {
@@ -312,17 +339,44 @@ Round-trip verification: decode(encode(x, enc), enc) === x`;
         return;
       }
       
-      // TODO: Use actual UUID encoding functions when implemented  
-      output.textContent = `TODO: encodeUUID("${input}")
-      
-UUID encoding comparison:
-- Original UUID: ${input} (36 chars with dashes)
-- Base64 baseline: [~24 chars]
-- Base62 encoding: [~22 chars] 
-- Base85 encoding: [~20 chars]
-- Base91 encoding: [~20 chars]
+      try {
+        const encoded = lib.encodeUUID(input);
+        const decoded = lib.decodeUUID(encoded);
+        const encodings = lib.listEncodings();
+        
+        let comparison = `✅ UUID encoding successful!
 
-Goal: Shortest possible printable representation!`;
+Original: ${input} (36 chars with dashes, 32 hex chars)
+Densest encoding (${encodings[0].name}): "${encoded}" (${encoded.length} chars)
+Round-trip: ${decoded}
+Match: ${decoded.toLowerCase() === input.toLowerCase() ? '✅ Perfect' : '❌ Failed'}
+
+📊 Comparison across all encodings:`;
+        
+        // Parse UUID to bytes once
+        const cleaned = input.replace(/-/g, '');
+        const bytes = new Uint8Array(16);
+        for (let i = 0; i < 32; i += 2) {
+          bytes[i / 2] = parseInt(cleaned.substring(i, i + 2), 16);
+        }
+        
+        for (const enc of encodings) {
+          try {
+            const encResult = lib.encode(bytes, enc.name);
+            comparison += `\n- ${enc.name}: "${encResult}" (${encResult.length} chars)`;
+          } catch (e) {
+            comparison += `\n- ${enc.name}: Error (${e.message})`;
+          }
+        }
+        
+        comparison += `\n\nSpace savings: ${36 - encoded.length} chars vs original UUID with dashes`;
+        comparison += `\nBase64 would be: ~24 chars, we achieved: ${encoded.length} chars`;
+        
+        output.textContent = comparison;
+        
+      } catch (e) {
+        output.textContent = `❌ Error: ${e.message}`;
+      }
     };
 
     window.generateSampleUUID = function() {
@@ -346,55 +400,216 @@ Goal: Shortest possible printable representation!`;
         return;
       }
       
-      // TODO: Use actual createEncoding function when implemented
-      const bits = Math.log2(charset.length);
-      output.textContent = `TODO: createEncoding("${name}", "${charset}")
-      
-Custom encoding "${name}" characteristics:
-- Charset: "${charset}"
-- Charset size: ${charset.length}
-- Bits per character: ~${bits.toFixed(2)}
-- Estimated UUID length: ~${Math.ceil(128 / bits)} chars
+      try {
+        const encoding = lib.createEncoding(name, charset);
+        
+        output.textContent = `✅ Custom encoding "${name}" created successfully!
 
-This encoding will be available for encode/decode operations.`;
+Charset: "${charset}"
+Size: ${encoding.size} characters
+Bits per character: ${encoding.bitsPerChar.toFixed(3)}
+Estimated UUID length: ${Math.ceil(128 / encoding.bitsPerChar)} chars
+
+This encoding is now available for encode/decode operations.
+Try encoding some data with your new encoding!`;
+        
+        // Refresh encoding options and metadata
+        populateEncodingOptions();
+        updateEncodingMetadata();
+        
+      } catch (e) {
+        output.textContent = `❌ Error: ${e.message}`;
+      }
     };
 
     window.runRoundTripTests = function() {
-      alert('TODO: Implement round-trip testing across all encodings');
+      const results = document.getElementById('roundtrip-results');
+      let output = 'Running round-trip tests...\n\n';
+      
+      try {
+        const encodings = lib.listEncodings();
+        const testCases = [
+          new Uint8Array([]),
+          new Uint8Array([0x00]),
+          new Uint8Array([0xFF]),
+          new Uint8Array([0xDE, 0xAD, 0xBE, 0xEF]),
+          new Uint8Array([0x00, 0x00, 0x00, 0x00]),
+          new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF])
+        ];
+        
+        for (const encoding of encodings) {
+          let passed = 0;
+          let total = testCases.length;
+          
+          for (const testCase of testCases) {
+            try {
+              const encoded = lib.encode(testCase, encoding.name);
+              const decoded = lib.decode(encoded, encoding.name);
+              
+              if (decoded.length === testCase.length && 
+                  decoded.every((b, i) => b === testCase[i])) {
+                passed++;
+              }
+            } catch (e) {
+              // Test failed
+            }
+          }
+          
+          output += `${encoding.name}: ${passed}/${total} tests passed ${passed === total ? '✅' : '❌'}\n`;
+        }
+        
+        results.innerHTML = `<pre style="margin:0.5rem 0; font-size:0.8rem;">${output}</pre>`;
+        
+      } catch (e) {
+        results.innerHTML = `<pre style="color:#dc3545;">Error: ${e.message}</pre>`;
+      }
     };
 
     window.runEdgeCaseTests = function() {
-      alert('TODO: Implement edge case validation (empty, single byte, all-zero, all-0xFF)');
+      const results = document.getElementById('edgecase-results');
+      let output = 'Running edge case tests...\n\n';
+      
+      try {
+        const encodings = lib.listEncodings();
+        const edgeCases = [
+          { name: 'Empty buffer', data: new Uint8Array([]) },
+          { name: 'Single zero', data: new Uint8Array([0x00]) },
+          { name: 'Single max', data: new Uint8Array([0xFF]) },
+          { name: 'All zeros (4)', data: new Uint8Array([0x00, 0x00, 0x00, 0x00]) },
+          { name: 'All max (4)', data: new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF]) }
+        ];
+        
+        for (const testCase of edgeCases) {
+          output += `${testCase.name}:\n`;
+          for (const encoding of encodings.slice(0, 3)) { // Test top 3 encodings
+            try {
+              const encoded = lib.encode(testCase.data, encoding.name);
+              const decoded = lib.decode(encoded, encoding.name);
+              const match = decoded.length === testCase.data.length && 
+                           decoded.every((b, i) => b === testCase.data[i]);
+              
+              output += `  ${encoding.name}: "${encoded}" ${match ? '✅' : '❌'}\n`;
+            } catch (e) {
+              output += `  ${encoding.name}: Error - ${e.message}\n`;
+            }
+          }
+          output += '\n';
+        }
+        
+        results.innerHTML = `<pre style="margin:0.5rem 0; font-size:0.8rem;">${output}</pre>`;
+        
+      } catch (e) {
+        results.innerHTML = `<pre style="color:#dc3545;">Error: ${e.message}</pre>`;
+      }
     };
 
     window.runPerformanceTests = function() {
-      alert('TODO: Implement performance benchmarking across encodings');
+      const results = document.getElementById('performance-results');
+      let output = 'Running performance benchmarks...\n\n';
+      
+      try {
+        const encodings = lib.listEncodings();
+        const testSizes = [16, 100, 1000]; // bytes
+        
+        for (const size of testSizes) {
+          output += `Test data size: ${size} bytes\n`;
+          
+          // Generate test data
+          const testData = new Uint8Array(size);
+          for (let i = 0; i < size; i++) {
+            testData[i] = Math.floor(Math.random() * 256);
+          }
+          
+          for (const encoding of encodings.slice(0, 3)) { // Test top 3 encodings
+            const iterations = Math.max(1, Math.floor(1000 / size));
+            
+            // Encode benchmark
+            const encodeStart = performance.now();
+            for (let i = 0; i < iterations; i++) {
+              lib.encode(testData, encoding.name);
+            }
+            const encodeTime = performance.now() - encodeStart;
+            
+            // Decode benchmark
+            const encoded = lib.encode(testData, encoding.name);
+            const decodeStart = performance.now();
+            for (let i = 0; i < iterations; i++) {
+              lib.decode(encoded, encoding.name);
+            }
+            const decodeTime = performance.now() - decodeStart;
+            
+            output += `  ${encoding.name}: Encode ${(encodeTime/iterations).toFixed(2)}ms, Decode ${(decodeTime/iterations).toFixed(2)}ms\n`;
+          }
+          output += '\n';
+        }
+        
+        results.innerHTML = `<pre style="margin:0.5rem 0; font-size:0.8rem;">${output}</pre>`;
+        
+      } catch (e) {
+        results.innerHTML = `<pre style="color:#dc3545;">Error: ${e.message}</pre>`;
+      }
     };
 
     function updateEncodingMetadata() {
-      const output = document.getElementById('encoding-metadata-output');
-      
-      // TODO: Use actual listEncodings() function when implemented
-      output.textContent = `TODO: listEncodings()
-      
-Expected return format:
-[
-  {
-    "name": "base62",
-    "charset": "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    "size": 62,
-    "bitsPerChar": 5.954,
-    "uuidLength": 22
-  },
-  {
-    "name": "base85", 
-    "charset": "...",
-    "size": 85,
-    "bitsPerChar": 6.408,
-    "uuidLength": 20
-  },
-  ...
-]`;
+      try {
+        const encodings = lib.listEncodings();
+        const table = document.getElementById('encodings-table');
+        const tbody = table.querySelector('tbody');
+        
+        // Clear existing rows
+        tbody.innerHTML = '';
+        
+        // Add rows for each encoding
+        for (const encoding of encodings) {
+          const row = tbody.insertRow();
+          row.innerHTML = `
+            <td><strong>${encoding.name}</strong></td>
+            <td>${encoding.size}</td>
+            <td>${encoding.bitsPerChar.toFixed(3)}</td>
+            <td>${encoding.uuidLength} chars</td>
+            <td><code>${encoding.charset.length > 50 ? encoding.charset.substring(0, 47) + '...' : encoding.charset}</code></td>
+          `;
+        }
+        
+        const output = document.getElementById('encoding-metadata-output');
+        output.textContent = `✅ Loaded ${encodings.length} encodings
+
+Densest encoding: ${encodings[0].name} (${encodings[0].bitsPerChar.toFixed(3)} bits/char)
+UUID in densest encoding: ~${encodings[0].uuidLength} characters
+Space savings vs base64 (~24 chars): ${24 - encodings[0].uuidLength} characters
+
+All encodings maintain round-trip property: decode(encode(x, enc), enc) === x`;
+        
+      } catch (e) {
+        const output = document.getElementById('encoding-metadata-output');
+        output.textContent = `❌ Error loading encodings: ${e.message}`;
+      }
+    }
+
+    function populateEncodingOptions() {
+      try {
+        const encodings = lib.listEncodings();
+        const select = document.getElementById('encoding-select');
+        const currentValue = select.value;
+        
+        // Clear and repopulate options
+        select.innerHTML = '';
+        
+        for (const encoding of encodings) {
+          const option = document.createElement('option');
+          option.value = encoding.name;
+          option.textContent = `${encoding.name} (~${encoding.bitsPerChar.toFixed(2)} bits/char)`;
+          select.appendChild(option);
+        }
+        
+        // Restore selection if it still exists
+        if ([...select.options].some(opt => opt.value === currentValue)) {
+          select.value = currentValue;
+        }
+        
+      } catch (e) {
+        console.error('Error populating encoding options:', e);
+      }
     }
   </script>
 </body>

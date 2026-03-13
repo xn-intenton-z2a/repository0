@@ -4,27 +4,38 @@ import { describe, test, expect } from "vitest";
 import { encode, decode, listEncodings } from "../../src/lib/main.js";
 
 describe("Base62 Encoding", () => {
-  test("should have placeholder for base62 charset", () => {
-    // TODO: Test base62 encoding implementation
-    // - Verify charset is [0-9a-zA-Z] (62 characters)
-    // - Test encoding density ~5.95 bits/char
-    // - Test URL-safe output (no special characters)
-    // - Test UUID encoding produces ~22 chars
-    expect(true).toBe(true); // Placeholder passing test
+  test("should use correct charset and properties", () => {
+    const encodings = listEncodings();
+    const base62 = encodings.find(e => e.name === "base62");
+    
+    expect(base62).toBeDefined();
+    expect(base62.charset).toBe("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    expect(base62.size).toBe(62);
+    expect(base62.bitsPerChar).toBeCloseTo(5.954, 3);
+    expect(base62.uuidLength).toBe(22);
   });
 
-  test("should have placeholder for base62 round-trip", () => {
-    // TODO: Test base62 round-trip property
-    // - Test with various binary inputs
-    // - Test edge cases: empty, single byte, patterns
-    // - Verify decode(encode(x, 'base62'), 'base62') === x
-    expect(true).toBe(true); // Placeholder passing test
+  test("should produce URL-safe output", () => {
+    const testData = new Uint8Array([0xDE, 0xAD, 0xBE, 0xEF]);
+    const encoded = encode(testData, "base62");
+    
+    // Base62 should only contain alphanumeric characters
+    expect(/^[0-9a-zA-Z]+$/.test(encoded)).toBe(true);
   });
 
-  test("should have placeholder for base62 metadata", () => {
-    // TODO: Test base62 appears in listEncodings()
-    // - Verify encoding name, charset, and bit density
-    // - Test metadata accuracy
-    expect(true).toBe(true); // Placeholder passing test
+  test("should maintain round-trip property", () => {
+    const testCases = [
+      new Uint8Array([]),
+      new Uint8Array([0x00]),
+      new Uint8Array([0xFF]), 
+      new Uint8Array([0xDE, 0xAD, 0xBE, 0xEF]),
+      new Uint8Array(Array(16).fill(0).map(() => Math.floor(Math.random() * 256)))
+    ];
+    
+    for (const testData of testCases) {
+      const encoded = encode(testData, "base62");
+      const decoded = decode(encoded, "base62");
+      expect(decoded).toEqual(testData);
+    }
   });
 });

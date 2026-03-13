@@ -11,25 +11,129 @@ export function getIdentity() {
 }
 
 export function encode(buffer, encoding) {
-  throw new Error("encode() function not yet implemented");
+  // Convert input to Uint8Array if needed
+  if (buffer instanceof ArrayBuffer) {
+    buffer = new Uint8Array(buffer);
+  } else if (!(buffer instanceof Uint8Array)) {
+    throw new Error("Input must be Uint8Array or ArrayBuffer");
+  }
+  
+  const charset = CHARSETS[encoding] || customEncodings.get(encoding);
+  if (!charset) {
+    throw new Error(`Unknown encoding: ${encoding}`);
+  }
+  
+  return encodeBase(buffer, charset);
 }
 
 export function decode(str, encoding) {
-  throw new Error("decode() function not yet implemented");
+  if (typeof str !== "string") {
+    throw new Error("Input must be a string");
+  }
+  
+  const charset = CHARSETS[encoding] || customEncodings.get(encoding);
+  if (!charset) {
+    throw new Error(`Unknown encoding: ${encoding}`);
+  }
+  
+  return decodeBase(str, charset);
 }
 
 export function encodeUUID(uuid) {
-  throw new Error("encodeUUID() function not yet implemented");
+  const bytes = parseUUID(uuid);
+  
+  // Find the densest encoding (highest bits per character)
+  const encodings = listEncodings();
+  const densest = encodings.reduce((best, current) => 
+    current.bitsPerChar > best.bitsPerChar ? current : best
+  );
+  
+  return encode(bytes, densest.name);
 }
 
 export function decodeUUID(str) {
-  throw new Error("decodeUUID() function not yet implemented");
+  // Try to decode with each encoding until one works and produces 16 bytes
+  const encodings = listEncodings();
+  
+  for (const encoding of encodings) {
+    try {
+      const bytes = decode(str, encoding.name);
+      if (bytes.length === 16) {
+        return formatUUID(bytes);
+      }
+    } catch (e) {
+      // Continue trying other encodings
+      continue;
+    }
+  }
+  
+  throw new Error("Could not decode UUID with any available encoding");
 }
 
 export function createEncoding(name, charset) {
-  throw new Error("createEncoding() function not yet implemented");
+  if (typeof name !== "string" || name.length === 0) {
+    throw new Error("Encoding name must be a non-empty string");
+  }
+  
+  if (typeof charset !== "string" || charset.length < 2) {
+    throw new Error("Charset must be a string with at least 2 characters");
+  }
+  
+  // Check for duplicate characters
+  const uniqueChars = new Set(charset);
+  if (uniqueChars.size !== charset.length) {
+    throw new Error("Charset cannot contain duplicate characters");
+  }
+  
+  // Check for control characters
+  for (let i = 0; i < charset.length; i++) {
+    const code = charset.charCodeAt(i);
+    if (code < 32 || code === 127) {
+      throw new Error("Charset cannot contain control characters");
+    }
+  }
+  
+  // Don't allow overwriting built-in encodings
+  if (CHARSETS[name]) {
+    throw new Error(`Cannot overwrite built-in encoding: ${name}`);
+  }
+  
+  customEncodings.set(name, charset);
+  return {
+    name,
+    charset,
+    size: charset.length,
+    bitsPerChar: Math.log2(charset.length)
+  };
 }
 
 export function listEncodings() {
-  throw new Error("listEncodings() function not yet implemented");
+  const encodings = [];
+  
+  // Add built-in encodings
+  for (const [name, charset] of Object.entries(CHARSETS)) {
+    const bitsPerChar = Math.log2(charset.length);
+    encodings.push({
+      name,
+      charset,
+      size: charset.length,
+      bitsPerChar,
+      uuidLength: Math.ceil(128 / bitsPerChar)
+    });
+  }
+  
+  // Add custom encodings
+  for (const [name, charset] of customEncodings) {
+    const bitsPerChar = Math.log2(charset.length);
+    encodings.push({
+      name,
+      charset,
+      size: charset.length,
+      bitsPerChar,
+      uuidLength: Math.ceil(128 / bitsPerChar)
+    });
+  }
+  
+  // Sort by bits per character (densest first)
+  return encodings.sort((a, b) => b.bitsPerChar - a.bitsPerChar);
 }

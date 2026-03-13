@@ -4,27 +4,51 @@ import { describe, test, expect } from "vitest";
 import { encode, decode } from "../../src/lib/main.js";
 
 describe("Core Encoding Functions", () => {
-  test("should have placeholder for encode function", () => {
-    // TODO: Test encode(buffer, encoding) function
-    // - Test with different encodings
-    // - Test with edge cases: empty buffer, single byte, all-zero bytes, all-0xFF bytes
-    // - Verify output is printable characters only
-    expect(true).toBe(true); // Placeholder passing test
+  test("should encode and decode arbitrary binary data", () => {
+    const testData = new Uint8Array([0xDE, 0xAD, 0xBE, 0xEF]);
+    
+    for (const encoding of ["base62", "base85", "base91"]) {
+      const encoded = encode(testData, encoding);
+      expect(typeof encoded).toBe("string");
+      expect(encoded.length).toBeGreaterThan(0);
+      
+      const decoded = decode(encoded, encoding);
+      expect(decoded).toEqual(testData);
+    }
   });
 
-  test("should have placeholder for decode function", () => {
-    // TODO: Test decode(str, encoding) function
-    // - Test round-trip property: decode(encode(x, enc), enc) === x
-    // - Test with different encodings
-    // - Test error handling for invalid input
-    expect(true).toBe(true); // Placeholder passing test
+  test("should handle edge cases correctly", () => {
+    const testCases = [
+      new Uint8Array([]), // empty buffer
+      new Uint8Array([0x00]), // single zero byte
+      new Uint8Array([0xFF]), // single max byte
+      new Uint8Array([0x00, 0x00, 0x00, 0x00]), // all-zero bytes
+      new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF]) // all-0xFF bytes
+    ];
+    
+    for (const encoding of ["base62", "base85", "base91"]) {
+      for (const testData of testCases) {
+        const encoded = encode(testData, encoding);
+        const decoded = decode(encoded, encoding);
+        expect(decoded).toEqual(testData);
+      }
+    }
   });
 
-  test("should have placeholder for round-trip property", () => {
-    // TODO: Test round-trip property for all encodings
-    // - Test with random binary data
-    // - Test with edge cases: empty, single byte, all-zero, all-0xFF
-    // - Ensure decode(encode(x, enc), enc) equals x for all inputs
-    expect(true).toBe(true); // Placeholder passing test
+  test("should enforce round-trip property", () => {
+    // Test with random binary data
+    for (let i = 0; i < 10; i++) {
+      const size = Math.floor(Math.random() * 100) + 1;
+      const testData = new Uint8Array(size);
+      for (let j = 0; j < size; j++) {
+        testData[j] = Math.floor(Math.random() * 256);
+      }
+      
+      for (const encoding of ["base62", "base85", "base91"]) {
+        const encoded = encode(testData, encoding);
+        const decoded = decode(encoded, encoding);
+        expect(decoded).toEqual(testData);
+      }
+    }
   });
 });
