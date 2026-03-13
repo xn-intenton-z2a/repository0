@@ -27,11 +27,11 @@ npm install sharp
 
 The module is powered by the blazingly fast libvips image processing library, originally created in 1989 at Birkbeck College and currently maintained by a small team led by John Cupitt.
 
-### Performance Characteristics
-Resizing operations are typically 4x-5x faster than the quickest ImageMagick and GraphicsMagick settings. Only small regions of uncompressed image data are held in memory and processed at a time, taking full advantage of multiple CPU cores and L1/L2/L3 cache hierarchies for optimal performance. Colour spaces, embedded ICC profiles and alpha transparency channels are all handled correctly. Lanczos resampling ensures quality is not sacrificed for speed.
+### Performance Characteristics and Memory Architecture
+Resizing operations deliver 4x-5x faster performance compared to ImageMagick and GraphicsMagick configurations through libvips integration. The library processes only small regions of uncompressed image data in memory at any time, maximizing utilization of multiple CPU cores and L1/L2/L3 cache systems. Color spaces, embedded ICC profiles and alpha transparency channels receive correct handling throughout processing pipelines. Lanczos resampling algorithms ensure output quality remains uncompromised despite exceptional processing speeds.
 
-### Non-blocking Architecture
-Everything remains non-blocking thanks to libuv integration, with no child processes spawned. Full Promises/async/await support ensures compatibility with modern JavaScript asynchronous programming patterns while maintaining high throughput.
+### Non-blocking Architecture and Integration
+All operations remain non-blocking through libuv integration without spawning child processes, ensuring efficient resource utilization. Complete Promise and async/await support provides seamless integration with modern JavaScript asynchronous programming patterns while maintaining exceptional processing throughput. The library includes optimization features from mozjpeg and pngquant for file size reduction without external imagemin processes.
 
 ## Image Format Support and Conversion
 

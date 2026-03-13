@@ -16,20 +16,21 @@
 
 ## Data Visualization Library Architecture
 
-D3.js (Data-Driven Documents) is a free, open-source JavaScript library for visualizing data with unparalleled flexibility in authoring dynamic, data-driven graphics. For more than a decade, D3 has powered groundbreaking and award-winning visualizations, become a foundational building block of higher-level chart libraries, and fostered a vibrant community of data practitioners around the world.
+D3.js (Data-Driven Documents) is a free, open-source JavaScript library for creating dynamic, data-driven graphics with unparalleled flexibility. For over a decade, D3 has powered groundbreaking visualizations, become a foundational building block of higher-level chart libraries, and fostered a vibrant global community of data practitioners.
 
-### Core Philosophy and Approach
-D3 follows a data-driven methodology where data determines the appearance and behavior of visual elements. The library's low-level approach built on web standards offers unparalleled flexibility for creating custom visualizations without proprietary abstractions. D3 binds data to Document Object Model (DOM) elements and applies data-driven transformations to create sophisticated, interactive graphics.
+### Core Philosophy and Technical Approach
+D3 implements a data-driven methodology where data directly determines visual element appearance and behavior. The library's low-level approach built on web standards provides maximum flexibility for custom visualizations without proprietary abstractions. D3 binds data arrays to Document Object Model elements and applies data-driven transformations to create sophisticated, interactive graphics.
 
-### Community and Resources
-- Extensive documentation at d3js.org
-- Gallery of examples at Observable for learning and inspiration
-- Active community support through d3js.org/community
-- Foundation for higher-level charting libraries across the web ecosystem
-- Regular releases and updates available through GitHub releases
+### Development Resources and Community
+- Comprehensive documentation available at d3js.org
+- Interactive examples gallery at Observable for learning and inspiration
+- Community support through d3js.org/community resources
+- Foundational library for numerous higher-level charting frameworks
+- Regular releases and source code available through GitHub
+- Active daily downloads indicating widespread adoption
 
-### Web Standards Foundation
-D3 leverages existing web standards (HTML, SVG, CSS) rather than introducing proprietary representations, ensuring broad browser compatibility and seamless integration with other web technologies. This approach provides maximum flexibility for custom visualization requirements.
+### Web Standards Integration
+D3 leverages existing web standards including HTML, SVG, and CSS rather than proprietary representations, ensuring broad browser compatibility and seamless integration with modern web development workflows. This standards-based approach provides maximum flexibility for custom visualization requirements while maintaining cross-browser compatibility.
 
 ## Data Binding and Selection
 

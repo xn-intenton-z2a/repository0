@@ -31,8 +31,8 @@ The Node.js fs module enables interacting with the file system using APIs modele
 - v11.14.0, v10.17.0: API no longer experimental
 - v10.1.0: API accessible via require('fs').promises
 
-### Threadpool Integration
-The fs/promises API provides asynchronous file system methods that return promises. The promise APIs use the underlying Node.js threadpool to perform file system operations off the event loop thread. These operations are not synchronized or threadsafe. Care must be taken when performing multiple concurrent modifications on the same file or data corruption may occur.
+### Threadpool Integration and Concurrency Considerations
+The fs/promises API provides asynchronous file system methods returning promises through the underlying Node.js threadpool for operations off the main event loop thread. These operations lack synchronization and thread safety, requiring careful coordination when performing concurrent modifications on identical files to prevent data corruption. The callback-based APIs deliver optimal performance for maximum throughput scenarios in execution time and memory allocation requirements.
 
 ### API Design Philosophy
 All file system operations provide synchronous, callback, and promise-based forms, enabling developers to choose appropriate patterns based on performance requirements, error handling preferences, and application architecture constraints.

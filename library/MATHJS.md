@@ -2,52 +2,56 @@
 
 ## Table of Contents
 
-- Expression Parser and Evaluation
-- Supported Data Types and Number Systems
-- Mathematical Functions and Constants
+- Expression Parser and Evaluation System
+- JavaScript Function API and Integration
+- Data Types and Number Systems Support
+- Mathematical Operations and Constants
+- Complex Numbers and Matrix Computations
 - Symbolic Computation and Derivatives
-- Chaining Operations
-- Matrix Operations and Graphics Transformations
+- Chaining Operations and Method Calls
 - Unit Conversions and Physical Quantities
-- JavaScript Integration and Compatibility
-- Command Line Interface
+- Command Line Interface Usage
 - Performance Characteristics and Extensibility
 
-## Expression Parser and Evaluation
+## Expression Parser and Evaluation System
 
-Math.js is an extensive math library for JavaScript and Node.js featuring a flexible expression parser with support for symbolic computation. It comes with a large set of built-in functions and constants and offers an integrated solution to work with different data types including numbers, big numbers, bigint, complex numbers, fractions, units, strings, arrays, and matrices. The library is powerful, easy to use, compatible with JavaScript's built-in Math library, and runs on any JavaScript engine.
+Math.js provides an extensive mathematical expression parser for JavaScript and Node.js with full symbolic computation support. The library integrates multiple data types including numbers, big numbers, bigint, complex numbers, fractions, units, strings, arrays, and matrices into a unified computational framework.
 
-### Core Features
+### Core Library Features
 - Supports numbers, big numbers, bigint, complex numbers, fractions, units, strings, arrays, and matrices
 - Compatible with JavaScript's built-in Math library
-- Contains a flexible expression parser
-- Does symbolic computation
+- Flexible expression parser with symbolic computation
 - Large set of built-in functions and constants
-- Can be used as a command line application
-- Runs on any JavaScript engine
-- Easily extensible
-- Open source
+- Command line application capability
+- Cross-platform JavaScript engine compatibility
+- Extensible architecture for custom functions
+- Open source with active development
 
-### Core Expression Evaluation
-The math.evaluate() function processes mathematical expressions with full operator precedence:
-- math.evaluate('1.2 * (2 + 4.5)') returns 7.8
-- math.evaluate('12.7 cm to inch') returns 5 inch with automatic unit conversion
-- math.evaluate('sin(45 deg) ^ 2') returns 0.5 using degree trigonometry
-- math.evaluate('9 / 3 + 2i') returns 3 + 2i for complex number operations
-- math.evaluate('det([-1, 2; 3, 1])') returns -7 for matrix determinant calculations
+### Expression Evaluation API
+The math.evaluate() function processes mathematical expressions with proper operator precedence and type handling:
 
-### Function Evaluation for Plotting
-Key mathematical functions essential for plotting applications:
-- math.round(math.e, 3) returns 2.718 for precision control
-- math.atan2(3, -3) / math.pi returns 0.75 for polar coordinate conversion
-- math.log(10000, 10) returns 4 for logarithmic scaling
-- math.sqrt(-4) returns 2i for complex domain plotting
-- math.pow([[-1, 2], [3, 1]], 2) returns [[7, 0], [0, 7]] for matrix transformations
-- math.derivative('x^2 + x', 'x') returns 2*x+1 for symbolic derivative calculation
-- math.chain(3).add(4).multiply(2).done() returns 14 for chained operations
+math.evaluate('1.2 * (2 + 4.5)') returns 7.8
+math.evaluate('12.7 cm to inch') returns 5 inch with unit conversion
+math.evaluate('sin(45 deg) ^ 2') returns 0.5 using degree trigonometry
+math.evaluate('9 / 3 + 2i') returns 3 + 2i for complex operations
+math.evaluate('det([-1, 2; 3, 1])') returns -7 for matrix determinants
 
-### Parser Features
-- Supports standard mathematical notation
+### Core Mathematical Functions
+Essential functions for mathematical computing and plotting:
+
+math.round(math.e, 3) returns 2.718 with precision control
+math.atan2(3, -3) / math.pi returns 0.75 for polar coordinates
+math.log(10000, 10) returns 4 for logarithmic operations
+math.sqrt(-4) returns 2i for complex domain calculations
+math.pow([[-1, 2], [3, 1]], 2) returns [[7, 0], [0, 7]] for matrix powers
+math.derivative('x^2 + x', 'x') returns 2*x+1 for symbolic derivatives
+
+### Method Chaining System
+Chainable operations for complex calculations:
+
+math.chain(3).add(4).multiply(2).done() returns 14
+math.chain(math.pi).divide(4).sin().done() calculates sin(π/4)
+math.chain([1, 2, 3]).multiply(2).add(1).done() returns [3, 5, 7]
 - Handles unit conversions automatically
 - Processes complex numbers with i notation
 - Evaluates matrix operations using bracket notation
