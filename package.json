@@ -1,7 +1,7 @@
 {
-  "name": "repo",
+  "name": "plot-code-lib",
   "version": "0.1.0",
-  "description": "",
+  "description": "Mathematical plotting library and CLI tool - be the jq of formulae visualisations",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
@@ -13,7 +13,7 @@
     "start": "npm run build:web && npx serve docs",
     "start:cli": "node src/lib/main.js"
   },
-  "keywords": [],
+  "keywords": ["plotting", "mathematics", "cli", "svg", "png", "charts", "visualization", "formulae"],
   "author": "",
   "license": "MIT",
   "dependencies": {
