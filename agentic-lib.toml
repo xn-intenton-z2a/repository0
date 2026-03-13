@@ -7,7 +7,6 @@
 
 [schedule]
 supervisor = "continuous"              # off | weekly | daily | hourly | continuous
-model = "claude-sonnet-4"
 
 [paths]
 mission = "MISSION.md"
@@ -39,7 +38,7 @@ test = "npm ci && npm test"
 [tuning]
 # Profile sets defaults for all tuning and limit knobs: min | recommended | max
 # Profile definitions live in [profiles.*] sections below.
-profile = "recommended"
+profile = "max"
 #
 # Model selection — each has different strengths:
 #   gpt-5-mini      — Fast, cheap, supports reasoning-effort. Best for CI and iteration.
@@ -47,20 +46,14 @@ profile = "recommended"
 #   gpt-4.1         — High capability, large context. Best for thorough analysis.
 # Note: reasoning-effort only works with gpt-5-mini and o4-mini.
 # For other models it is automatically skipped.
-model = "gpt-5-mini"
+model = "claude-sonnet-4"
 #
 # Override individual knobs below. Omit or comment out to use profile defaults.
 # reasoning-effort = "low"       # low | medium | high | none (none = disable entirely)
 infinite-sessions = false        # set to true for long sessions with compaction
 # transformation-budget = 4      # max code-changing cycles per run (0 = unlimited)
-# max-feature-files = 3
-# max-source-files = 3
-# max-source-chars = 1000
-# max-test-chars = 500
 # max-issues = 5
-# issue-body-limit = 200
 # stale-days = 14
-# max-summary-chars = 500
 # max-discussion-comments = 5
 
 # ─── Profile Definitions ────────────────────────────────────────────
@@ -69,19 +62,13 @@ infinite-sessions = false        # set to true for long sessions with compaction
 # [tuning] or [limits] to deviate from the active profile.
 
 [profiles.min]
-# ~10% of gpt-4.1 context (128K). Fast, cheap — CI testing, quick validation.
+# Fast, cheap — CI testing, quick validation.
 reasoning-effort = "low"                # low | medium | high | none
 infinite-sessions = false               # enable session compaction for long runs
 transformation-budget = 16             # max code-changing cycles per run
-max-feature-files = 3                      # max feature files included in prompts
-max-source-files = 3                        # max source files included in prompts
-max-source-chars = 4000                  # max chars of each source file's content included in prompts
-max-test-chars = 2000                     # max chars of each test file's content included in prompts
-max-issues = 5                        # max open issues included in prompts
-issue-body-limit = 1000                 # max chars of each issue's body text included in prompts
-stale-days = 14                        # days since last activity before an issue is considered stale and excluded
-max-summary-chars = 2000                 # max chars of each document's summary included in prompts
-max-discussion-comments = 3               # max recent discussion comments (newest first) included in prompts
+max-issues = 5                        # max open issues fetched from GitHub
+stale-days = 14                        # days since last activity before an issue is considered stale
+max-discussion-comments = 3               # max recent discussion comments fetched
 max-feature-issues = 1                     # max concurrent feature development issues
 max-maintenance-issues = 1                 # max concurrent maintenance issues
 max-attempts-per-branch = 2               # max transform attempts before abandoning a branch
@@ -90,19 +77,13 @@ features-limit = 2                     # max feature files in features/ director
 library-limit = 8                      # max library entries in library/ directory
 
 [profiles.recommended]
-# ~30% of claude-sonnet-4 context (216K). Balanced — good results, default for consumer repos.
+# Balanced — good results, default for consumer repos.
 reasoning-effort = "medium"            # low | medium | high | none
 infinite-sessions = true               # enable session compaction for long runs
 transformation-budget = 32             # max code-changing cycles per run
-max-feature-files = 10                     # max feature files included in prompts
-max-source-files = 10                       # max source files included in prompts
-max-source-chars = 8000                  # max chars of each source file's content included in prompts
-max-test-chars = 5000                    # max chars of each test file's content included in prompts
-max-issues = 15                       # max open issues included in prompts
-issue-body-limit = 2000                 # max chars of each issue's body text included in prompts
-stale-days = 30                        # days since last activity before an issue is considered stale and excluded
-max-summary-chars = 5000                # max chars of each document's summary included in prompts
-max-discussion-comments = 10              # max recent discussion comments (newest first) included in prompts
+max-issues = 15                       # max open issues fetched from GitHub
+stale-days = 30                        # days since last activity before an issue is considered stale
+max-discussion-comments = 10              # max recent discussion comments fetched
 max-feature-issues = 2                     # max concurrent feature development issues
 max-maintenance-issues = 1                 # max concurrent maintenance issues
 max-attempts-per-branch = 3               # max transform attempts before abandoning a branch
@@ -111,19 +92,13 @@ features-limit = 4                     # max feature files in features/ director
 library-limit = 32                     # max library entries in library/ directory
 
 [profiles.max]
-# ~90% of gpt-5-mini context (264K). Thorough — maximum context for complex missions.
+# Thorough — maximum context for complex missions.
 reasoning-effort = "high"              # low | medium | high | none
 infinite-sessions = true               # enable session compaction for long runs
 transformation-budget = 128           # max code-changing cycles per run
-max-feature-files = 20                     # max feature files included in prompts
-max-source-files = 25                       # max source files included in prompts
-max-source-chars = 12000                 # max chars of each source file's content included in prompts
-max-test-chars = 8000                   # max chars of each test file's content included in prompts
-max-issues = 30                      # max open issues included in prompts
-issue-body-limit = 3000                # max chars of each issue's body text included in prompts
-stale-days = 90                        # days since last activity before an issue is considered stale and excluded
-max-summary-chars = 8000               # max chars of each document's summary included in prompts
-max-discussion-comments = 20              # max recent discussion comments (newest first) included in prompts
+max-issues = 30                      # max open issues fetched from GitHub
+stale-days = 90                        # days since last activity before an issue is considered stale
+max-discussion-comments = 20              # max recent discussion comments fetched
 max-feature-issues = 4                     # max concurrent feature development issues
 max-maintenance-issues = 2                 # max concurrent maintenance issues
 max-attempts-per-branch = 5               # max transform attempts before abandoning a branch
@@ -134,15 +109,17 @@ library-limit = 64                     # max library entries in library/ directo
 [mission-complete]
 # Thresholds for deterministic mission-complete declaration.
 # All conditions must be met simultaneously.
-min-resolved-issues = 3            # minimum closed-as-RESOLVED issues since init
+min-resolved-issues = 2            # minimum closed-as-RESOLVED issues since init
 min-dedicated-tests = 0            # minimum test files that import from src/lib/
 max-source-todos = 0               # max TODO comments allowed in ./src (0 = none)
 
 [bot]
 log-file = "intentïon.md"
+log-branch = "agentic-lib-logs"
+screenshot-file = "SCREENSHOT_INDEX.png"
 
 [init]
-timestamp = "2026-03-13T02:27:15.625Z"
+timestamp = "2026-03-13T22:16:37.940Z"
 mode = "purge"
-mission = "2-kyu-create-plot-code-lib"
-version = "7.4.8"
+mission = "4-kyu-apply-dense-encoding"
+version = "7.4.13"
