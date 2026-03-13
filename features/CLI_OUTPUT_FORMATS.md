@@ -1,52 +1,52 @@
 # CLI Output Formats
 
-Expand command-line interface to support multiple output formats including CSV data export, JSON time series, and different image formats, making the library more versatile for data analysis workflows.
+Extend command-line interface to support multiple output formats including CSV data export, JSON time series, and stdout piping, making the library the "jq of formulae visualisations" for shell integration.
 
 ## Purpose
 
-This feature enhances the CLI to output mathematical data in various formats beyond SVG and PNG plots, enabling integration with spreadsheets, data analysis tools, and other mathematical software through standardized data formats.
+This feature completes the CLI to output mathematical data in various formats beyond SVG and PNG plots, enabling integration with spreadsheets, data analysis tools, and shell pipelines through standardized data formats.
 
 ## Acceptance Criteria
 
-- Support --format flag for output type selection (svg, png, csv, json)
-- CSV export includes x,y coordinate pairs with headers  
-- JSON export follows time series format with metadata
-- Support --data-only flag to output pure data without plots
-- Include statistical metadata in JSON exports (min, max, mean, points)
-- Support --precision flag for numerical precision control
-- Handle large datasets efficiently for data export
-- Provide --quiet flag to suppress progress output during data generation
-- Include expression and range metadata in exported files
-- Support piping output to stdout for shell integration
+- Add --format flag for output type selection (svg, png, csv, json)
+- CSV export includes x,y coordinate pairs with expression header comment
+- JSON export follows structured time series format with metadata
+- Support --stdout flag to pipe output directly for shell integration  
+- Include expression and range metadata in all export formats
+- Handle mathematical constants (pi, e) in range parsing correctly
+- Provide concise output suitable for pipe workflows
+- Support format auto-detection from file extension when --format omitted
+- Enable jq-style data processing workflows for mathematical expressions
+- Integrate seamlessly with existing CLI argument structure
 
 ## Technical Implementation
 
-Extend CLI argument parsing to include format and output control flags. Leverage existing TimeSeriesGenerator.exportCSV and exportJSON methods. Add metadata injection for self-documenting exports.
+Extend CLI argument parsing in plotCLI function to support --format and --stdout flags. Use existing TimeSeriesGenerator.exportCSV and exportJSON methods. Add format detection logic and stdout output handling for shell pipeline integration.
 
 ## Integration Points
 
-- Integrates with existing CLI interface and argument parsing
-- Uses current TimeSeriesGenerator export methods  
-- Web interface provides download options for different formats
-- Data exports include complete parameter information for reproducibility
-- Shell integration enables pipe workflows with other tools
+- Extends existing CLI interface with format control
+- Uses current TimeSeriesGenerator export methods without modification
+- Maintains backward compatibility with existing CLI usage
+- Enables shell scripting and data pipeline workflows
+- Supports the mission of being "jq of formulae visualisations"
 
 ## Example Usage
 
 ```
-# Export data as CSV
+# Export as CSV
 node src/lib/main.js --expression "y=sin(x)" --range "x=0:pi" --format csv --file sine.csv
 
-# JSON with metadata
-node src/lib/main.js --expression "y=x^2" --range "x=-2:2" --format json --file parabola.json
+# JSON to stdout for jq processing
+node src/lib/main.js --expression "y=x^2" --range "x=-2:2" --stdout --format json | jq '.[] | select(.y > 1)'
 
-# Data to stdout for piping
-node src/lib/main.js --expression "y=log(x)" --range "x=1:10" --format csv --data-only | head -20
+# Auto-detect format from extension
+node src/lib/main.js --expression "y=log(x)" --range "x=1:10" --file data.json
 
-# High precision export
-node src/lib/main.js --expression "y=e^x" --range "x=0:5,step=0.01" --format csv --precision 6 --file exponential.csv
+# Pipe CSV data to other tools
+node src/lib/main.js --expression "y=e^x" --range "x=0:3" --stdout --format csv | tail -n +2 | sort -n
 ```
 
-## Data Formats
+## Data Pipeline Integration
 
-CSV format includes x,y columns with expression and range as comment headers. JSON format follows time series standard with points array and comprehensive metadata for mathematical analysis and tool integration.
+CSV format uses standard x,y columns. JSON format provides structured data for jq processing. Stdout output enables mathematical formula visualization to integrate into shell-based data analysis workflows.

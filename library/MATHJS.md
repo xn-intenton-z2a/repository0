@@ -3,14 +3,14 @@
 ## Table of Contents
 
 - Expression Parser and Evaluation
-- Supported Data Types  
+- Supported Data Types
 - Mathematical Functions and Constants
-- Matrix Operations
 - Symbolic Computation
 - Chaining Operations
+- JavaScript Integration and Compatibility
 - Command Line Usage
-- Integration and Extension
 - Performance Characteristics
+- Extensibility
 
 ## Expression Parser and Evaluation
 
@@ -39,7 +39,7 @@ The math.evaluate() function processes mathematical expressions:
 Math.js supports multiple data types for comprehensive mathematical operations:
 - Numbers (standard JavaScript numbers)
 - Big numbers for high precision arithmetic
-- Bigint for integer operations  
+- Bigint for integer operations
 - Complex numbers with real and imaginary components
 - Fractions for exact rational arithmetic
 - Units with automatic conversion capabilities
@@ -54,7 +54,7 @@ All data types are supported seamlessly within expressions, allowing mixed opera
 
 ### Built-in Functions
 - math.round(value, precision) for rounding operations
-- math.atan2(y, x) for two-argument arctangent  
+- math.atan2(y, x) for two-argument arctangent
 - math.log(value, base) for logarithmic calculations
 - math.sqrt(value) for square root calculations including complex results
 - math.derivative(expression, variable) for symbolic differentiation
@@ -64,28 +64,6 @@ All data types are supported seamlessly within expressions, allowing mixed opera
 - math.e for Euler's number (approximately 2.718)
 - math.pi for the mathematical constant π
 - math.i for the imaginary unit
-
-### Chaining Operations
-Math.js supports method chaining for sequential operations:
-- math.chain(3).add(4).multiply(2).done() returns 14
-- Allows fluent interface for complex calculations
-- Improves readability for multi-step operations
-- math.sqrt(value) handles complex results for negative inputs
-- math.derivative(expression, variable) for symbolic differentiation
-- math.pow(base, exponent) for power operations including matrix powers
-
-### Mathematical Constants
-- math.e for Euler's number (2.718)
-- math.pi for the pi constant
-- Additional mathematical constants available
-
-## Matrix Operations
-
-Matrix operations are supported through bracket notation and dedicated functions:
-- Matrix definition using nested arrays: [[-1, 2], [3, 1]]
-- Matrix power operations: math.pow(matrix, exponent)
-- Determinant calculation: math.evaluate('det([matrix])')
-- Matrix arithmetic operations supported
 
 ## Symbolic Computation
 
@@ -100,13 +78,25 @@ Math.js supports method chaining for sequential operations:
 - math.chain(3).add(4).multiply(2).done() returns 14
 - The chaining mechanism allows building complex calculations step by step with intermediate results maintained internally
 
+## JavaScript Integration and Compatibility
+
+Math.js is compatible with JavaScript's built-in Math library and runs on any JavaScript engine. The library provides comprehensive support for both browser and Node.js environments with full ES6 module and CommonJS support.
+
 ## Command Line Usage
 
-Math.js can be used as a command line application for direct mathematical computations and expression evaluation.
+Math.js can be used as a command line application for direct mathematical computations and expression evaluation, providing an interactive mathematical environment.
+
+## Performance Characteristics
+
+The library is optimized for performance while maintaining flexibility. Expression compilation is available for repeated evaluations of the same expression with different values.
+
+## Extensibility
+
+Math.js is easily extensible, allowing custom functions, operators, and data types to be added to meet specific application requirements.
 
 ## Supplementary Details
 
-Math.js is compatible with JavaScript's built-in Math library, making it suitable for both browser and Node.js environments. The library runs on any JavaScript engine and provides extensible functionality for custom mathematical operations.
+Math.js provides a comprehensive mathematical environment suitable for scientific computing, data analysis, and educational applications. The library maintains compatibility with standard mathematical notation while providing programmatic access to advanced mathematical operations.
 
 ## Reference Details
 
@@ -134,6 +124,6 @@ Math.js is compatible with JavaScript's built-in Math library, making it suitabl
 **Source Content:** Math.js official website (https://mathjs.org/)
 **Retrieved:** 2026-03-13
 **Attribution:** Math.js development team
-**Data Size:** Approximately 2.5KB extracted content
+**Data Size:** Approximately 2.8KB extracted content
 
 Math.js is an extensive mathematics library for JavaScript and Node.js providing flexible expression parsing, symbolic computation, and comprehensive support for different data types including numbers, big numbers, complex numbers, fractions, units, and matrices. The library features built-in functions and constants, expression evaluation capabilities, and chainable operations for sequential mathematical computations.
