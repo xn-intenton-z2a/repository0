@@ -15,7 +15,7 @@
 
 ## Expression Parser and Evaluation
 
-Math.js is an extensive math library for JavaScript and Node.js featuring a flexible expression parser with support for symbolic computation. The library can evaluate mathematical expressions provided as strings with built-in functions and constants, making it ideal for plotting libraries that need to parse and evaluate user-provided mathematical expressions.
+Math.js is an extensive math library for JavaScript and Node.js featuring a flexible expression parser with support for symbolic computation. It comes with a large set of built-in functions and constants and offers an integrated solution to work with different data types including numbers, big numbers, complex numbers, fractions, units, and matrices. The library is powerful, easy to use, compatible with JavaScript's built-in Math library, and runs on any JavaScript engine.
 
 ### Core Expression Evaluation
 The math.evaluate() function processes mathematical expressions with full operator precedence:
@@ -223,6 +223,8 @@ Math.js technical content retrieved from https://mathjs.org/ demonstrates compre
 Key implementation features include math.evaluate() function for processing mathematical expressions with full operator precedence, support for unit conversions and complex number operations, matrix operations suitable for graphics transformations, and built-in mathematical functions and constants essential for scientific plotting applications. The command-line interface enables standalone mathematical expression evaluation while JavaScript library integration provides programmatic access for web applications.
 
 **Source**: https://mathjs.org/ - Math.js mathematical expression parser and evaluator library for JavaScript
-**Retrieved**: 2026-03-13T11:19:12.493Z  
+**Retrieved**: 2026-03-13T12:42:55.760Z  
 **Attribution**: Math.js development team
 **Data Size**: ~15KB of technical specifications, API documentation, and implementation examples
+
+Core feature highlights from source: supports numbers, big numbers, bigint, complex numbers, fractions, units, strings, arrays, and matrices; contains flexible expression parser; performs symbolic computation; includes large set of built-in functions and constants; usable as command line application; runs on any JavaScript engine; easily extensible; open source.
