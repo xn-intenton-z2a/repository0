@@ -1,15 +1,15 @@
 # HAMMING_DISTANCE_README
 
-Specification
+Status: implemented and pruned
 
-Ensure README documents the Hamming distance API with examples and API reference.
+This feature ensured the README documents the Hamming distance API with runnable examples and API reference. The README now contains usage examples and documents input validation behaviour.
 
-Acceptance Criteria
+Acceptance Criteria (verified)
 
-- README.md includes a section "Hamming distance" describing both functions: `hammingDistance(a, b)` and `hammingDistanceBits(x, y)`.
-- Examples are runnable and show expected outputs: e.g., `hammingDistance("karolin", "kathrin") // 3` and `hammingDistanceBits(1, 4) // 2`.
-- Input validation behavior (TypeError, RangeError) is documented.
+- README.md includes a section "Hamming distance" describing both functions: `hammingDistance(a, b)` and `hammingDistanceBits(x, y)`. (Verified)
+- Examples are runnable and show expected outputs: e.g., `hammingDistance("karolin", "kathrin") // 3` and `hammingDistanceBits(1, 4) // 2`. (Verified)
+- Input validation behavior (TypeError, RangeError) is documented. (Verified)
 
 Notes
 
-Keep examples small and copy-paste runnable in Node.js (Node >=24).
+Feature pruned; documentation is present in README.md.

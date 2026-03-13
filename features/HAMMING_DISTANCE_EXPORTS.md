@@ -1,15 +1,15 @@
 # HAMMING_DISTANCE_EXPORTS
 
-Specification
+Status: implemented and pruned
 
-Document and verify the module exports for the hamming distance functions.
+This feature tracked verifying the module exports for the Hamming distance functions. The implementation in src/lib/main.js now provides the required named exports and auxiliary metadata.
 
-Acceptance Criteria
+Acceptance Criteria (verified)
 
-- `src/lib/main.js` exports named exports `hammingDistance` and `hammingDistanceBits`.
-- The module also exposes `name`, `version`, `description`, and `main` (existing CLI helpers) without breaking the API.
-- Consumers can import the functions via `import { hammingDistance, hammingDistanceBits } from '@xn-intenton-z2a/repository0'` or via relative path `src/lib/main.js` in tests.
+- `src/lib/main.js` exports named exports `hammingDistance` and `hammingDistanceBits`. (Verified)
+- The module also exposes `name`, `version`, `description`, and `main` (existing CLI helpers) without breaking the API. (Verified)
+- Consumers can import the functions via `import { hammingDistance, hammingDistanceBits } from '@xn-intenton-z2a/repository0'` or via relative path `src/lib/main.js` in tests. (Verified)
 
 Notes
 
-This feature ensures the public API surface remains stable and documented.
+Feature pruned because implementation and tests exist in the repository.

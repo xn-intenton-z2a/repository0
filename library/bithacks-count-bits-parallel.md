@@ -6,12 +6,12 @@ Sean Eron Anderson's "Bit Twiddling Hacks" documents efficient bit‑manipulatio
 
 Algorithm outline (from the bithacks page)
 
-- Define masks: m1 = 0x5555..., m2 = 0x3333..., m4 = 0x0f0f..., m8 = 0x00ff00ff..., etc.
+- Define masks: m1 = 0x5555... (0101...), m2 = 0x3333... (00110011...), m4 = 0x0f0f..., m8 = 0x00ff00ff..., etc.
 - Combine bits in pairs, then nibbles, then bytes:
   x = (x & m1) + ((x >> 1) & m1)
   x = (x & m2) + ((x >> 2) & m2)
   x = (x + (x >> 4)) & m4
-  return (x * h01) >> 56  // collects byte sums into high byte (on 64-bit)
+  continue widening and finally collect sums (e.g. multiply by h01 and shift) to get the full popcount.
 
 Variants
 
@@ -23,6 +23,6 @@ Variants
 Notes
 
 - Pick a variant based on CPU features (fast multiply, vector instructions, POPCNT availability).
-- The page includes many more bit tricks and caveats (signed shifts, endianness).
+- The page includes many more bit tricks and caveats (signed shifts, endianness) and is a good reference for low-level bit hacks.
 
 Source: https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel

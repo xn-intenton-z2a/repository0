@@ -7,7 +7,7 @@ The Hamming distance between two equal-length strings or vectors is the number o
 Key points
 
 - Definition: number of mismatched positions between two sequences of equal length.
-- Complexity: O(n) for length‑n sequences when implemented by scanning or O(1) for fixed-width machine integers using popcount hardware/intrinsics.
+- Complexity: O(n) for length‑n sequences when implemented by scanning; O(1) for fixed-width machine integers using popcount intrinsics or hardware.
 - Uses: coding theory (error detection/correction), information theory, similarity metrics, cryptography.
 - Relation to codes: a code with minimum distance d detects up to d-1 errors and corrects floor((d-1)/2) errors.
 

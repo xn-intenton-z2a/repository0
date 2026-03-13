@@ -16,6 +16,7 @@ Operators
 
 Key behaviors
 
+- All bitwise operations coerce operands with ToInt32 semantics; results are 32‑bit integers represented as Number.
 - Because of ToInt32 coercion, large unsigned values (>= 2^31) may be interpreted as negative when used with signed operations.
 - Use >>> 0 to convert a Number to an unsigned 32‑bit representation: (n >>> 0).
 

@@ -1,16 +1,16 @@
 # HAMMING_DISTANCE_UNICODE
 
-Specification
+Status: implemented and pruned
 
-Ensure `hammingDistance(a, b)` compares strings by Unicode code points (not UTF-16 code units) so supplementary characters are treated as single positions.
+This feature ensured `hammingDistance(a, b)` compares strings by Unicode code points, treating supplementary characters as single positions. Unit tests exercise supplementary-plane characters and emoji.
 
-Acceptance Criteria
+Acceptance Criteria (verified)
 
-- `hammingDistance("karolin", "kathrin")` returns `3`.
-- `hammingDistance("\u{1F600}", "\u{1F601}")` (two distinct emoji code points) returns `1`.
-- `hammingDistance("\uD83D\uDE0D", "\uD83D\uDE0D")` (surrogate-pair representation of the same code point) returns `0`.
-- `hammingDistance("", "")` returns `0`.
+- `hammingDistance("karolin", "kathrin")` returns `3`. (Verified)
+- `hammingDistance("\u{1F600}", "\u{1F601}")` (two distinct emoji code points) returns `1`. (Verified)
+- `hammingDistance("\uD83D\uDE0D", "\uD83D\uDE0D")` (surrogate-pair representation of the same code point) returns `0`. (Verified)
+- `hammingDistance("", "")` returns `0`. (Verified)
 
 Notes
 
-Tests should use `Array.from()` or `for...of` to iterate code points; acceptance requires unit tests that exercise supplementary-plane characters.
+Feature pruned; implementation uses Array.from() to iterate code points.

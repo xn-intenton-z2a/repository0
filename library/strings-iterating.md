@@ -13,7 +13,7 @@ Key points
 Practical guidance
 
 - To iterate code points: for (const ch of str) { /* ch is a string representing one code point */ }
-- To get numeric code points: for-of or spread the string then call codePointAt(0) on each element.
+- To get numeric code points: for‑of or spread the string then call codePointAt(0) on each element.
 
 Examples
 
