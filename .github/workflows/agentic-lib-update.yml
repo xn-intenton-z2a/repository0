@@ -26,8 +26,6 @@ on:
         type: string
         required: false
         default: "false"
-  schedule:
-    - cron: "15 6 * * *"
   workflow_dispatch:
     inputs:
       dry-run:
