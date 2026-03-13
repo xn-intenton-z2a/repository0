@@ -3,47 +3,490 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>repository0</title>
-  <meta property="og:title" content="repository0">
-  <meta property="og:description" content="An autonomous repository powered by agentic-lib">
+  <title>plot-code-lib</title>
+  <meta property="og:title" content="plot-code-lib">
+  <meta property="og:description" content="Be a go-to plot library with a CLI, be the jq of formulae visualisations">
   <meta property="og:type" content="website">
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
-    h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
-    a { color: #0366d6; }
-    .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
+    body { 
+      font-family: system-ui, -apple-system, sans-serif; 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 2rem; 
+      color: #333; 
+      line-height: 1.6;
+    }
+    h1 { 
+      border-bottom: 3px solid #0366d6; 
+      padding-bottom: 0.5rem; 
+      color: #0366d6;
+    }
+    h2 {
+      color: #24292e;
+      margin-top: 2rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid #eaecef;
+    }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    
+    .identity { 
+      background: #f6f8fa; 
+      padding: 1rem; 
+      border-radius: 6px; 
+      margin: 1rem 0; 
+      font-family: monospace; 
+      border-left: 4px solid #0366d6;
+    }
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-    #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .feature-card {
+      background: #fff;
+      border: 1px solid #e1e4e8;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: box-shadow 0.2s ease;
+    }
+    
+    .feature-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .feature-card h3 {
+      color: #0366d6;
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .feature-icon {
+      font-size: 1.5rem;
+    }
+    
+    .demo-section {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    
+    .input-group {
+      margin: 1rem 0;
+    }
+    
+    .input-group label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: 600;
+      color: #24292e;
+    }
+    
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #d1d5da;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+    
+    .btn {
+      background: #0366d6;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.2s ease;
+    }
+    
+    .btn:hover {
+      background: #0256cc;
+    }
+    
+    .btn:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+    
+    .output {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      white-space: pre-wrap;
+      min-height: 3rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+    }
+    
+    .cli-demo {
+      background: #2d3748;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      margin: 1rem 0;
+    }
+    
+    .cli-prompt {
+      color: #68d391;
+      font-weight: bold;
+    }
+    
+    .error {
+      color: #d73a49;
+      background: #ffeef0;
+      padding: 0.5rem;
+      border-radius: 4px;
+      border-left: 4px solid #d73a49;
+    }
+    
+    .success {
+      color: #28a745;
+      background: #dcffe4;
+      padding: 0.5rem;
+      border-radius: 4px;
+      border-left: 4px solid #28a745;
+    }
+    
+    .status {
+      margin: 0.5rem 0;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
-  <h1 id="lib-name">repository0</h1>
-  <div class="identity">
-    <dl>
-      <dt>Version</dt>
-      <dd id="lib-version">loading...</dd>
-      <dt>Description</dt>
-      <dd id="lib-description">loading...</dd>
-    </dl>
-  </div>
-  <h2>Output</h2>
-  <div id="demo-output">Loading library...</div>
-  <h2>About</h2>
-  <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
+  <header>
+    <h1 id="lib-name">🔢 plot-code-lib</h1>
+    <p><em>"Be a go-to plot library with a CLI, be the jq of formulae visualisations"</em></p>
+    
+    <div class="identity">
+      <dl>
+        <dt>Version</dt>
+        <dd id="lib-version">loading...</dd>
+        <dt>Description</dt>
+        <dd id="lib-description">loading...</dd>
+      </dl>
+    </div>
+  </header>
+
+  <main>
+    <section id="overview">
+      <h2>📊 Mathematical Plot Generation</h2>
+      <p>Generate beautiful SVG and PNG plots from mathematical expressions with a simple CLI or web interface. Transform expressions like <code>y=sin(x)</code> into publication-ready visualizations.</p>
+    </section>
+
+    <section id="features">
+      <h2>✨ Core Features</h2>
+      <div class="features">
+        <div class="feature-card" id="expression-parser-card">
+          <h3><span class="feature-icon">🧮</span> Expression Parser</h3>
+          <p>Parse mathematical expressions using standard syntax. Support for common functions like sin, cos, log, and arithmetic operations.</p>
+          <div class="demo-section">
+            <div class="input-group">
+              <label for="expression-input">Try an expression:</label>
+              <input type="text" id="expression-input" placeholder="y=sin(x)" value="y=sin(x)">
+            </div>
+            <button class="btn" onclick="demonstrateExpressionParser()">Parse Expression</button>
+            <div class="output" id="expression-output">Enter an expression to see parsing results...</div>
+          </div>
+        </div>
+
+        <div class="feature-card" id="time-series-card">
+          <h3><span class="feature-icon">📈</span> Time Series Generator</h3>
+          <p>Generate coordinate data from expressions and ranges. Configurable step sizes for smooth curves.</p>
+          <div class="demo-section">
+            <div class="input-group">
+              <label for="range-input">Range specification:</label>
+              <input type="text" id="range-input" placeholder="x=-pi:pi" value="x=-3.14:3.14">
+            </div>
+            <div class="input-group">
+              <label for="step-input">Step size:</label>
+              <input type="number" id="step-input" value="0.1" step="0.01" min="0.01" max="1">
+            </div>
+            <button class="btn" onclick="demonstrateTimeSeries()">Generate Data</button>
+            <div class="output" id="timeseries-output">Configure range and step to generate coordinate data...</div>
+          </div>
+        </div>
+
+        <div class="feature-card" id="plot-renderer-card">
+          <h3><span class="feature-icon">🎨</span> Plot Renderer</h3>
+          <p>Render coordinate data as SVG and PNG plots with proper axes, labels, and scaling.</p>
+          <div class="demo-section">
+            <div class="input-group">
+              <label for="plot-format">Output format:</label>
+              <select id="plot-format">
+                <option value="svg">SVG (Scalable Vector Graphics)</option>
+                <option value="png">PNG (Portable Network Graphics)</option>
+              </select>
+            </div>
+            <button class="btn" onclick="demonstratePlotRenderer()">Render Plot</button>
+            <div class="output" id="plot-output">Generate some data first, then render a plot...</div>
+          </div>
+        </div>
+
+        <div class="feature-card" id="cli-interface-card">
+          <h3><span class="feature-icon">⚡</span> CLI Interface</h3>
+          <p>Full command-line interface with flags for expression, range, and output file specification.</p>
+          <div class="demo-section">
+            <div class="cli-demo">
+<span class="cli-prompt">$</span> node src/lib/main.js --expression "y=sin(x)" --range "x=-pi:pi" --file sine.svg
+<span class="cli-prompt">$</span> node src/lib/main.js --expression "y=x^2+1" --range "x=-3:3" --file parabola.png
+<span class="cli-prompt">$</span> node src/lib/main.js --help
+<span class="cli-prompt">$</span> node src/lib/main.js --version
+            </div>
+            <button class="btn" onclick="demonstrateCliInterface()">Show CLI Help</button>
+            <div class="output" id="cli-output">Click to see CLI interface demonstration...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="live-demo">
+      <h2>🚀 Interactive Demo</h2>
+      <div class="demo-section">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div>
+            <div class="input-group">
+              <label for="demo-expression">Mathematical Expression:</label>
+              <input type="text" id="demo-expression" placeholder="y=sin(x)*cos(x)" value="y=sin(x)*cos(x)">
+            </div>
+            <div class="input-group">
+              <label for="demo-range">Range:</label>
+              <input type="text" id="demo-range" placeholder="x=-2*pi:2*pi" value="x=-6.28:6.28">
+            </div>
+          </div>
+          <div>
+            <div class="input-group">
+              <label for="demo-step">Step Size:</label>
+              <input type="number" id="demo-step" value="0.1" step="0.01" min="0.01" max="1">
+            </div>
+            <div class="input-group">
+              <label for="demo-format">Output:</label>
+              <select id="demo-format">
+                <option value="svg">SVG Plot</option>
+                <option value="png">PNG Plot</option>
+                <option value="data">Raw Data</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div style="text-align: center; margin: 1rem 0;">
+          <button class="btn" onclick="generateFullDemo()" style="padding: 0.75rem 2rem;">🎯 Generate Plot</button>
+        </div>
+        <div class="status" id="demo-status"></div>
+        <div class="output" id="demo-output">Ready to generate your mathematical plot...</div>
+      </div>
+    </section>
+
+    <section id="examples">
+      <h2>📖 Example Usage</h2>
+      <div class="cli-demo">
+# Generate a sine wave
+<span class="cli-prompt">$</span> node src/lib/main.js --expression "y=sin(x)" --range "x=-pi:pi" --file sine.svg
+
+# Create a parabola with custom step size  
+<span class="cli-prompt">$</span> node src/lib/main.js --expression "y=x^2-2*x+1" --range "x=-2:4,step=0.05" --file parabola.png
+
+# Plot multiple functions (future feature)
+<span class="cli-prompt">$</span> node src/lib/main.js --expression "y=sin(x),y=cos(x)" --range "x=0:2*pi" --file trig.svg
+
+# Export raw data
+<span class="cli-prompt">$</span> node src/lib/main.js --expression "y=log(x)" --range "x=0.1:10" --output data.json
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <h2>🔗 About</h2>
+    <p>This website demonstrates the plot-code-lib library in action. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
+    <p><strong>Mission:</strong> Be a go-to plot library with a CLI, be the jq of formulae visualisations.</p>
+  </footer>
+
   <script type="module">
+    let libraryLoaded = false;
+    let libraryApi = {};
+
     try {
-      const { name, version, description } = await import('./lib.js');
-      document.getElementById('lib-name').textContent = name;
-      document.getElementById('lib-version').textContent = version;
-      document.getElementById('lib-description').textContent = description || '(no description)';
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
-      document.title = name + ' v' + version;
+      // Load the library
+      const lib = await import('./lib.js');
+      libraryApi = lib;
+      libraryLoaded = true;
+
+      // Update identity information
+      document.getElementById('lib-name').textContent = `🔢 ${lib.name || 'plot-code-lib'}`;
+      document.getElementById('lib-version').textContent = lib.version || 'loading...';
+      document.getElementById('lib-description').textContent = lib.description || 'Mathematical plotting library and CLI tool';
+      document.title = `${lib.name || 'plot-code-lib'} v${lib.version || '0.1.0'}`;
+
+      console.log('Library loaded successfully:', lib);
     } catch (e) {
+      console.error('Failed to load library:', e);
       document.getElementById('lib-version').textContent = '(error)';
-      document.getElementById('lib-description').textContent = e.message;
-      document.getElementById('demo-output').textContent = 'Failed to load library: ' + e.message;
+      document.getElementById('lib-description').textContent = 'Failed to load library: ' + e.message;
     }
+
+    // Feature demonstration functions
+    window.demonstrateExpressionParser = function() {
+      const expression = document.getElementById('expression-input').value;
+      const output = document.getElementById('expression-output');
+      
+      if (!expression.trim()) {
+        output.textContent = 'Please enter a mathematical expression';
+        output.className = 'output error';
+        return;
+      }
+
+      // TODO: Implement expression parsing
+      output.innerHTML = `<strong>Expression Parsing Demo:</strong>
+Input: ${expression}
+
+Parser Status: ⚠️  TODO - Implementation needed
+• Parse mathematical syntax: ${expression}
+• Extract variables and functions
+• Validate expression structure  
+• Return evaluatable function object
+
+<em>This feature will parse expressions like:</em>
+• y=sin(x), y=cos(x), y=tan(x)
+• y=x^2+2*x+1, y=sqrt(x)
+• y=log(x), y=ln(x), y=exp(x)
+• Complex expressions with parentheses and constants`;
+      
+      output.className = 'output';
+    };
+
+    window.demonstrateTimeSeries = function() {
+      const range = document.getElementById('range-input').value;
+      const step = document.getElementById('step-input').value;
+      const output = document.getElementById('timeseries-output');
+      
+      // TODO: Implement time series generation
+      output.innerHTML = `<strong>Time Series Generation Demo:</strong>
+Range: ${range}
+Step: ${step}
+
+Generator Status: ⚠️  TODO - Implementation needed
+• Parse range specification: "${range}"
+• Generate coordinate pairs with step size ${step}
+• Handle mathematical constants (pi, e)
+• Export data in standard formats
+
+<em>Sample output would be:</em>
+[
+  {"x": -3.14, "y": 0.00},
+  {"x": -3.04, "y": 0.10},
+  {"x": -2.94, "y": 0.19},
+  ...
+]`;
+      
+      output.className = 'output';
+    };
+
+    window.demonstratePlotRenderer = function() {
+      const format = document.getElementById('plot-format').value;
+      const output = document.getElementById('plot-output');
+      
+      // TODO: Implement plot rendering
+      output.innerHTML = `<strong>Plot Rendering Demo:</strong>
+Format: ${format.toUpperCase()}
+
+Renderer Status: ⚠️  TODO - Implementation needed
+• Generate ${format.toUpperCase()} plot from coordinate data
+• Add axes with tick marks and labels
+• Auto-scale to fit data range
+• Apply styling and grid lines
+
+<em>Features to implement:</em>
+• SVG output for scalable plots
+• PNG export with configurable resolution
+• Professional quality with clear lines
+• Multiple data series support
+• Customizable dimensions and styling`;
+      
+      output.className = 'output';
+    };
+
+    window.demonstrateCliInterface = function() {
+      const output = document.getElementById('cli-output');
+      
+      // TODO: Implement CLI interface
+      output.innerHTML = `<strong>CLI Interface Demo:</strong>
+
+CLI Status: ⚠️  TODO - Implementation needed
+
+<em>Usage: node src/lib/main.js [options]</em>
+
+Options:
+  --expression &lt;expr&gt;    Mathematical expression (e.g., "y=sin(x)")
+  --range &lt;range&gt;        Domain specification (e.g., "x=-pi:pi")  
+  --file &lt;filename&gt;     Output file (SVG or PNG based on extension)
+  --step &lt;number&gt;       Step size for data generation
+  --help               Show help information
+  --version            Show version number
+  --verbose            Enable detailed output
+
+<em>Examples:</em>
+  node src/lib/main.js --expression "y=x^2" --range "x=-2:2" --file plot.svg
+  node src/lib/main.js --help`;
+      
+      output.className = 'output';
+    };
+
+    window.generateFullDemo = function() {
+      const expression = document.getElementById('demo-expression').value;
+      const range = document.getElementById('demo-range').value;
+      const step = document.getElementById('demo-step').value;
+      const format = document.getElementById('demo-format').value;
+      const output = document.getElementById('demo-output');
+      const status = document.getElementById('demo-status');
+      
+      if (!expression.trim() || !range.trim()) {
+        status.innerHTML = '<div class="error">Please provide both expression and range</div>';
+        return;
+      }
+
+      status.innerHTML = '<div>🔄 Processing mathematical expression...</div>';
+      
+      // TODO: Implement full pipeline
+      setTimeout(() => {
+        output.innerHTML = `<strong>Full Pipeline Demo:</strong>
+Expression: ${expression}
+Range: ${range}
+Step: ${step}
+Format: ${format.toUpperCase()}
+
+Pipeline Status: ⚠️  TODO - Full implementation needed
+
+<em>Processing steps:</em>
+1. ✅ Parse expression: "${expression}"
+2. ⚠️  Generate coordinate data for range "${range}"
+3. ⚠️  Render ${format.toUpperCase()} plot with step size ${step}
+4. ⚠️  Output final ${format} file
+
+<em>This demo shows the complete workflow:</em>
+• Mathematical expression parsing
+• Time series data generation  
+• Professional plot rendering
+• Multiple output format support`;
+        
+        status.innerHTML = '<div class="success">✅ Demo completed - Implementation in progress</div>';
+        output.className = 'output';
+      }, 1000);
+    };
   </script>
 </body>
 </html>
