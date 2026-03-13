@@ -11,6 +11,8 @@
 - Command Line Usage
 - Performance Characteristics
 - Extensibility
+- Derivative Calculations for Plotting
+- Matrix Operations for Graphics Transformations
 
 ## Expression Parser and Evaluation
 
@@ -24,6 +26,14 @@ The math.evaluate() function processes mathematical expressions:
 - math.evaluate('9 / 3 + 2i') returns 3 + 2i for complex number operations
 - math.evaluate('det([-1, 2; 3, 1])') returns -7 for matrix determinant
 
+### Core Functions for Plotting
+- math.round(math.e, 3) returns 2.718 for precision control
+- math.atan2(3, -3) / math.pi returns 0.75 for angle calculations
+- math.log(10000, 10) returns 4 for logarithmic scaling
+- math.sqrt(-4) returns 2i for complex plane visualization
+- math.derivative('x^2 + x', 'x') returns 2*x+1 for curve analysis
+- math.pow([[-1, 2], [3, 1]], 2) returns [[7, 0], [0, 7]] for matrix transformations
+
 ### Parser Features
 - Supports standard mathematical notation
 - Handles unit conversions automatically
@@ -33,6 +43,7 @@ The math.evaluate() function processes mathematical expressions:
 - Compatible with JavaScript's built-in Math library
 - Contains a large set of built-in functions and constants
 - Easily extensible for custom functions
+- Supports symbolic computation for derivative calculations
 
 ## Supported Data Types
 
@@ -127,3 +138,83 @@ Math.js provides a comprehensive mathematical environment suitable for scientifi
 **Data Size:** Approximately 2.8KB extracted content
 
 Math.js is an extensive mathematics library for JavaScript and Node.js providing flexible expression parsing, symbolic computation, and comprehensive support for different data types including numbers, big numbers, complex numbers, fractions, units, and matrices. The library features built-in functions and constants, expression evaluation capabilities, and chainable operations for sequential mathematical computations.
+
+## Derivative Calculations for Plotting
+
+Math.js provides symbolic computation capabilities essential for mathematical plotting applications. The derivative function enables automatic calculation of function slopes and curve analysis.
+
+### Symbolic Derivative Computation
+- math.derivative('x^2 + x', 'x') calculates derivatives symbolically
+- Returns mathematical expressions rather than numeric values
+- Supports polynomial, trigonometric, exponential, and logarithmic functions
+- Enables automatic tangent line calculation at any point
+- Facilitates curve analysis for smooth plotting
+
+### Integration with Plotting Systems
+- Derivative calculations enable automatic curve smoothing
+- Slope calculations assist in adaptive sampling algorithms
+- Critical point detection through derivative analysis
+- Supports higher-order derivatives for curvature analysis
+
+## Matrix Operations for Graphics Transformations
+
+Math.js matrix capabilities support 2D and 3D graphics transformations essential for mathematical plotting.
+
+### Transformation Matrices
+- math.pow([[-1, 2], [3, 1]], 2) performs matrix exponentiation
+- Matrix multiplication for coordinate transformations
+- Scaling, rotation, and translation matrix operations
+- Determinant calculations for transformation validity checks
+
+### Graphics Applications
+- 2D coordinate system transformations
+- Viewport and projection calculations
+- Scaling transformations for different plot ranges
+- Rotation matrices for axis orientation changes
+
+## Supplementary Details
+
+### Expression Parser Configuration
+Math.js expression parser supports custom function definitions and operator precedence rules. The parser can be configured with custom evaluation contexts and variable scopes for specialized mathematical applications.
+
+### Unit System Integration
+The library provides comprehensive unit conversion capabilities with over 1000 predefined units across categories including length, area, volume, mass, time, frequency, speed, acceleration, force, energy, power, pressure, temperature, current, voltage, resistance, capacitance, inductance, electric charge, luminous intensity, and data storage.
+
+### Complex Number Operations
+Complex number support includes real and imaginary components with full arithmetic operations, polar and rectangular form conversions, magnitude and phase calculations, and complex conjugate operations essential for signal processing applications.
+
+## Reference Details
+
+### Core API Methods
+```
+math.evaluate(expr, scope) - Evaluate mathematical expression string
+math.compile(expr) - Compile expression for repeated evaluation
+math.parse(expr) - Parse expression into expression tree
+math.derivative(expr, variable) - Calculate symbolic derivative
+math.simplify(expr) - Simplify mathematical expression
+```
+
+### Data Type Constructors
+```
+math.complex(re, im) - Create complex number
+math.matrix(data) - Create matrix from array data  
+math.bignumber(value) - Create big number for precision
+math.fraction(num, den) - Create fraction for exact arithmetic
+math.unit(value, unit) - Create value with units
+```
+
+### Matrix Operations API
+```
+math.multiply(a, b) - Matrix multiplication
+math.transpose(matrix) - Matrix transpose operation
+math.det(matrix) - Calculate matrix determinant
+math.inv(matrix) - Calculate matrix inverse
+math.trace(matrix) - Calculate matrix trace
+```
+
+## Detailed Digest
+
+Retrieved from https://mathjs.org/ on 2026-03-13. Math.js is an extensive math library for JavaScript and Node.js featuring a flexible expression parser with support for symbolic computation, large set of built-in functions and constants, and integrated solution for different data types including numbers, big numbers, complex numbers, fractions, units, and matrices. The library is compatible with JavaScript's built-in Math library, contains a flexible expression parser, performs symbolic computation, and is easily extensible. Examples demonstrate expression evaluation, mathematical function usage, and chaining operations for complex calculations.
+
+Attribution: Math.js mathematical expression parser and evaluator library for JavaScript
+Data size obtained: ~2.5KB of technical specifications and implementation examples
