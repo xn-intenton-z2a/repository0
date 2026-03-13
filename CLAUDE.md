@@ -1,5 +1,11 @@
 # Claude Code Memory - intentïon repository0
 
+> **DO NOT USE `cd <dir> && git ...` — USE `git -C <dir> ...` ALWAYS.**
+> This is a multi-repo workspace. Each subdirectory is its own git repo.
+> Using `cd` in compound commands triggers security prompts every time.
+> This applies to YOU and to ANY AGENT YOU SPAWN. Never use the Agent tool
+> for simple file reads or git operations in subdirectories either.
+
 ## Context Survival (CRITICAL — read this first after every compaction)
 
 **After compaction or at session start:**
