@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
+# Schedule updated: 2026-03-13T09:24:03.507Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -16,8 +17,6 @@ concurrency:
   cancel-in-progress: false
 
 on:
-  schedule:
-    - cron: "0 6 * * 1"
   workflow_call:
     inputs:
       ref:
