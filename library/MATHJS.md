@@ -9,10 +9,12 @@
 - Symbolic Computation
 - Chaining Operations
 - Command Line Usage
+- Integration and Extension
+- Performance Characteristics
 
 ## Expression Parser and Evaluation
 
-Math.js features a flexible expression parser with support for symbolic computation. The library can evaluate mathematical expressions provided as strings.
+Math.js is an extensive math library for JavaScript and Node.js featuring a flexible expression parser with support for symbolic computation. The library can evaluate mathematical expressions provided as strings with built-in functions and constants.
 
 ### Basic Expression Evaluation
 The math.evaluate() function processes mathematical expressions:
@@ -28,6 +30,9 @@ The math.evaluate() function processes mathematical expressions:
 - Processes complex numbers with i notation
 - Evaluates matrix operations using bracket notation
 - Recognizes mathematical functions by name
+- Compatible with JavaScript's built-in Math library
+- Contains a large set of built-in functions and constants
+- Easily extensible for custom functions
 
 ## Supported Data Types
 
@@ -42,12 +47,29 @@ Math.js supports multiple data types for comprehensive mathematical operations:
 - Arrays for vector operations
 - Matrices for linear algebra
 
+### Type Flexibility
+All data types are supported seamlessly within expressions, allowing mixed operations without explicit type conversion. The library automatically handles type coercion and maintains precision where appropriate.
+
 ## Mathematical Functions and Constants
 
 ### Built-in Functions
 - math.round(value, precision) for rounding operations
-- math.atan2(y, x) for two-argument arctangent
+- math.atan2(y, x) for two-argument arctangent  
 - math.log(value, base) for logarithmic calculations
+- math.sqrt(value) for square root calculations including complex results
+- math.derivative(expression, variable) for symbolic differentiation
+- math.pow(base, exponent) for power operations including matrix exponentiation
+
+### Constants
+- math.e for Euler's number (approximately 2.718)
+- math.pi for the mathematical constant π
+- math.i for the imaginary unit
+
+### Chaining Operations
+Math.js supports method chaining for sequential operations:
+- math.chain(3).add(4).multiply(2).done() returns 14
+- Allows fluent interface for complex calculations
+- Improves readability for multi-step operations
 - math.sqrt(value) handles complex results for negative inputs
 - math.derivative(expression, variable) for symbolic differentiation
 - math.pow(base, exponent) for power operations including matrix powers
