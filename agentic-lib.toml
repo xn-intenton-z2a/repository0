@@ -6,7 +6,8 @@
 # During init:
 
 [schedule]
-supervisor = "daily"              # off | weekly | daily | hourly | continuous
+supervisor = "hourly"              # off | weekly | daily | hourly | continuous
+model = "claude-sonnet-4"
 
 [paths]
 mission = "MISSION.md"
