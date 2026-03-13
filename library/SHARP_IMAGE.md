@@ -10,15 +10,25 @@
 - Deep Zoom and Tile Generation
 - Color Space and Profile Management
 - File Size Optimization Techniques
-- JavaScript Runtime Compatibility
-- Installation and Dependencies
+- JavaScript Runtime Compatibility and Installation
+- Advanced Features and Processing Options
 
 ## High-Performance Node-API Module Architecture
 
 Sharp is a high-speed Node-API module designed for converting large images in common formats to smaller, web-friendly JPEG, PNG, WebP, GIF and AVIF images of varying dimensions. The typical use case involves high-performance image processing with 4x-5x faster processing than ImageMagick and GraphicsMagick due to its use of the libvips image processing library.
 
+### JavaScript Runtime Compatibility
+Sharp can be used with all JavaScript runtimes that provide support for Node-API v9, including Node.js >= 18.17.0, Deno and Bun. Most modern macOS, Windows and Linux systems do not require any additional install or runtime dependencies.
+
+### Installation and Setup
+```
+npm install sharp
+```
+
+The module is powered by the blazingly fast libvips image processing library, originally created in 1989 at Birkbeck College and currently maintained by a small team led by John Cupitt.
+
 ### Performance Characteristics
-Resizing operations are typically 4x-5x faster than the quickest ImageMagick and GraphicsMagick settings. Only small regions of uncompressed image data are held in memory and processed at a time, taking full advantage of multiple CPU cores and L1/L2/L3 cache hierarchies for optimal performance.
+Resizing operations are typically 4x-5x faster than the quickest ImageMagick and GraphicsMagick settings. Only small regions of uncompressed image data are held in memory and processed at a time, taking full advantage of multiple CPU cores and L1/L2/L3 cache hierarchies for optimal performance. Colour spaces, embedded ICC profiles and alpha transparency channels are all handled correctly. Lanczos resampling ensures quality is not sacrificed for speed.
 
 ### Non-blocking Architecture
 Everything remains non-blocking thanks to libuv integration, with no child processes spawned. Full Promises/async/await support ensures compatibility with modern JavaScript asynchronous programming patterns while maintaining high throughput.
@@ -192,19 +202,34 @@ Sharp represents a production-ready solution for high-performance image processi
 - Color space conversion parameters
 - Animation handling options for GIF and WebP
 
-### Integration Patterns
-- Promise-based API for async/await compatibility
-- Stream integration for pipeline processing
-- Error handling with detailed diagnostic information
-- Memory management for large image processing workflows
+### Advanced Features and Processing Options
+
+Sharp provides comprehensive image processing capabilities beyond basic conversion:
+- Rotation and orientation correction
+- Image extraction and compositing operations
+- Gamma correction for color adjustment
+- Stream support with single input Stream split into multiple processing pipelines
+- Deep Zoom image pyramids suitable for use with "slippy map" tile viewers like OpenSeadragon
+- File size optimization using mozjpeg and pngquant features without separate imagemin processes
+- Huffman table optimization when generating JPEG output images without separate command line tools like jpegoptim and jpegtran
+- PNG filtering disabled by default, producing same results as pngcrush for diagrams and line art
+- Animated GIF output optimization without separate command line tools such as gifsicle
+- Streams, Buffer objects and filesystem can be used for input and output
+
+### Optimization Features
+- Integrated mozjpeg features for JPEG optimization
+- Integrated pngquant capabilities for PNG compression
+- Automatic Huffman table optimization for JPEG files
+- GIF animation optimization built-in
+- No external dependency on imagemin or command line tools
 
 ## Detailed Digest
 
 **Source Content:** Sharp official website (https://sharp.pixelplumbing.com/)
-**Retrieved:** 2026-03-13T12:42:55.760Z
-**Attribution:** Lovell Fuller and Sharp contributors
-**Data Size:** Approximately 8KB extracted content
+**Retrieved:** 2026-03-13
+**Attribution:** Lovell Fuller and Sharp contributors under Apache License 2.0
+**Data Size:** Approximately 10KB extracted content
 
 Sharp technical content demonstrates high-performance Node-API image processing capabilities essential for web applications requiring efficient image transformation. The library provides 4x-5x faster processing than ImageMagick through libvips integration, comprehensive format support including modern formats like AVIF and WebP, streaming architecture for memory-efficient processing, and cross-platform compatibility with no external dependencies.
 
-Key implementation features include non-blocking operations with libuv integration, advanced optimization techniques integrated from mozjpeg and pngquant, Deep Zoom pyramid generation for web viewers, correct color space and ICC profile handling, and support for all major JavaScript runtimes including Node.js, Deno, and Bun. The library's architecture emphasizes performance while maintaining comprehensive functionality for production image processing workflows.
+Key implementation features include non-blocking operations with libuv integration, advanced optimization techniques integrated from mozjpeg and pngquant without external dependencies, Deep Zoom pyramid generation for web viewers like OpenSeadragon, correct color space and ICC profile handling, and support for all major JavaScript runtimes including Node.js >= 18.17.0, Deno, and Bun. The library's architecture emphasizes performance while maintaining comprehensive functionality for production image processing workflows including rotation, compositing, gamma correction, and advanced file optimization.

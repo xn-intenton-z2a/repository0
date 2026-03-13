@@ -25,6 +25,15 @@ The Node.js fs module enables interacting with the file system using APIs modele
 - CommonJS compatibility for legacy systems
 - Mixed API usage within single applications
 
+### Version History and Features
+- Added in v10.0.0: Promise-based fs/promises API
+- v14.0.0: Exposed as require('fs/promises')
+- v11.14.0, v10.17.0: API no longer experimental
+- v10.1.0: API accessible via require('fs').promises
+
+### Threadpool Integration
+The fs/promises API provides asynchronous file system methods that return promises. The promise APIs use the underlying Node.js threadpool to perform file system operations off the event loop thread. These operations are not synchronized or threadsafe. Care must be taken when performing multiple concurrent modifications on the same file or data corruption may occur.
+
 ### API Design Philosophy
 All file system operations provide synchronous, callback, and promise-based forms, enabling developers to choose appropriate patterns based on performance requirements, error handling preferences, and application architecture constraints.
 
@@ -286,7 +295,13 @@ Node.js fs module represents a comprehensive file system interface built on POSI
 ## Detailed Digest
 
 **Source Content:** Node.js File System API Documentation (https://nodejs.org/api/fs.html)
-**Retrieved:** 2026-03-13T12:42:55.760Z
+**Retrieved:** 2026-03-13
+**Attribution:** Node.js Foundation and contributors
+**Data Size:** Approximately 12KB extracted content
+
+Node.js File System module technical documentation provides comprehensive API specifications for POSIX-compliant file operations across JavaScript environments. The documentation covers three distinct API patterns (promises, callbacks, synchronous) with historical evolution from v10.0.0 experimental status to stable integration in current Node.js versions.
+
+Key implementation details include threadpool-based asynchronous operations for promise APIs, FileHandle class for resource management with EventEmitter integration, streaming capabilities for memory-efficient processing, and comprehensive error handling patterns. The documentation emphasizes concurrent operation safety considerations, performance trade-offs between API styles, and integration patterns for modern JavaScript applications requiring robust file system interaction capabilities.
 **Attribution:** Node.js contributors and OpenJS Foundation
 **Data Size:** Approximately 15KB extracted content (partial)
 

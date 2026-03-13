@@ -15,7 +15,18 @@
 
 ## Expression Parser and Evaluation
 
-Math.js is an extensive math library for JavaScript and Node.js featuring a flexible expression parser with support for symbolic computation. It comes with a large set of built-in functions and constants and offers an integrated solution to work with different data types including numbers, big numbers, complex numbers, fractions, units, and matrices. The library is powerful, easy to use, compatible with JavaScript's built-in Math library, and runs on any JavaScript engine.
+Math.js is an extensive math library for JavaScript and Node.js featuring a flexible expression parser with support for symbolic computation. It comes with a large set of built-in functions and constants and offers an integrated solution to work with different data types including numbers, big numbers, bigint, complex numbers, fractions, units, strings, arrays, and matrices. The library is powerful, easy to use, compatible with JavaScript's built-in Math library, and runs on any JavaScript engine.
+
+### Core Features
+- Supports numbers, big numbers, bigint, complex numbers, fractions, units, strings, arrays, and matrices
+- Compatible with JavaScript's built-in Math library
+- Contains a flexible expression parser
+- Does symbolic computation
+- Large set of built-in functions and constants
+- Can be used as a command line application
+- Runs on any JavaScript engine
+- Easily extensible
+- Open source
 
 ### Core Expression Evaluation
 The math.evaluate() function processes mathematical expressions with full operator precedence:
@@ -32,11 +43,8 @@ Key mathematical functions essential for plotting applications:
 - math.log(10000, 10) returns 4 for logarithmic scaling
 - math.sqrt(-4) returns 2i for complex domain plotting
 - math.pow([[-1, 2], [3, 1]], 2) returns [[7, 0], [0, 7]] for matrix transformations
-- math.atan2(3, -3) / math.pi returns 0.75 for angle calculations
-- math.log(10000, 10) returns 4 for logarithmic scaling
-- math.sqrt(-4) returns 2i for complex plane visualization
-- math.derivative('x^2 + x', 'x') returns 2*x+1 for curve analysis
-- math.pow([[-1, 2], [3, 1]], 2) returns [[7, 0], [0, 7]] for matrix transformations
+- math.derivative('x^2 + x', 'x') returns 2*x+1 for symbolic derivative calculation
+- math.chain(3).add(4).multiply(2).done() returns 14 for chained operations
 
 ### Parser Features
 - Supports standard mathematical notation

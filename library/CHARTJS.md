@@ -20,6 +20,19 @@ Chart.js is a simple yet flexible JavaScript charting library for the modern web
 ### Core Design Philosophy
 The library follows a component-based architecture with modular design enabling tree-shaking to reduce bundle sizes from 48KB to as low as 14KB by registering only necessary components. Chart.js emphasizes performance, simplicity, and flexibility while maintaining extensive customization capabilities for modern web applications.
 
+### Version 4.0 New Features
+- Default palette of Chart.js brand colors available as a built-in time-saving zero-configuration colors plugin
+- JavaScript bundle size reduction through tree-shaking by registering only necessary components
+- Scale stacking where layout boxes can be stacked and weighted in groups (introduced in 3.5)
+- Subtitle plugin with all the same options as main title (introduced in 3.4)
+- Line segment styling by user-defined criteria (introduced in 3.1)
+- Advanced animations where transitions of every property in every element can be configured individually (introduced in 3.0)
+- Mixed chart types to provide clear visual distinction between datasets (introduced in 2.0)
+- New chart axis types for plotting complex, sparse datasets on date time, logarithmic or custom scales (introduced in 2.0)
+
+### Community and Open Source
+Chart.js is a community maintained project with contributions welcome. The project is open source and actively developed with regular updates and improvements.
+
 ### Modern Web Standards Integration
 Chart.js leverages HTML5 Canvas for efficient rendering with hardware acceleration support, ensuring consistent performance across different browsers and devices. The library integrates seamlessly with modern JavaScript frameworks and build systems while maintaining vanilla JavaScript compatibility.
 
