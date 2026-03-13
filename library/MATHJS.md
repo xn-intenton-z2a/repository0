@@ -53,7 +53,7 @@ Math.js supports multiple data types for comprehensive mathematical operations:
 - math.pow(base, exponent) for power operations including matrix powers
 
 ### Mathematical Constants
-- math.e for Euler's number
+- math.e for Euler's number (2.718)
 - math.pi for the pi constant
 - Additional mathematical constants available
 
@@ -75,14 +75,8 @@ The library performs symbolic mathematical operations:
 ## Chaining Operations
 
 Math.js supports method chaining for sequential operations:
-```
-math.chain(3)
-    .add(4)
-    .multiply(2)
-    .done() // Returns 14
-```
-
-The chaining mechanism allows building complex calculations step by step with intermediate results maintained internally.
+- math.chain(3).add(4).multiply(2).done() returns 14
+- The chaining mechanism allows building complex calculations step by step with intermediate results maintained internally
 
 ## Command Line Usage
 

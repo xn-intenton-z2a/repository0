@@ -19,7 +19,7 @@ This feature enables the library to accept mathematical expressions like `y=sin(
 
 ## Technical Implementation
 
-The parser should use an existing mathematical expression parsing library rather than implementing parsing from scratch. The parsed expression should return a JavaScript function that can be called with variable values to compute results.
+The parser should use Math.js library for mathematical expression evaluation. Math.js provides comprehensive expression parsing with support for standard mathematical notation, functions (sin, cos, log, etc.), constants (pi, e), and complex operations. The parsed expression should return a JavaScript function that can be called with variable values to compute results using math.evaluate().
 
 ## Integration Points
 

@@ -20,7 +20,7 @@ This feature transforms coordinate data into visual plots by rendering them as s
 
 ## Technical Implementation
 
-The renderer should use established plotting libraries for JavaScript to ensure high-quality output. SVG generation provides scalability and text-based output, while PNG export enables use in documents and presentations.
+The renderer should use D3.js for SVG generation (scales, axes, path generators) and Sharp for PNG export from SVG. D3.js provides professional visualization capabilities with proper coordinate scaling, axis generation, and path creation. Sharp enables high-performance image conversion from SVG to PNG format.
 
 ## Integration Points
 

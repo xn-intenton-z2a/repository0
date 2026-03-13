@@ -45,4 +45,4 @@ node src/lib/main.js --expression "y=x^2" --range "x=-2:2,step=0.05" --output da
 
 ## Data Format
 
-Generated time series data should follow a standard format compatible with plotting libraries and easily serializable to JSON or CSV for persistence and interchange.
+Generated time series data should follow standard time series format as documented in TIME_SERIES.md library reference. Data should be structured as coordinate arrays compatible with D3.js plotting and easily serializable to JSON or CSV for persistence and interchange.

@@ -3,210 +3,164 @@
 ## Table of Contents
 
 - High-Performance Image Processing
-- Supported Image Formats  
-- Resizing and Transformation Operations
+- Supported Image Formats
+- Resize and Transform Operations
 - Color Space and Profile Management
-- Streaming and Pipeline Architecture
-- Output Format Optimization
-- Installation and Runtime Requirements
+- Stream Processing Pipeline
+- Deep Zoom Image Pyramids
+- Node.js Runtime Compatibility
+- Performance Optimization
 
 ## High-Performance Image Processing
 
-Sharp is a high-speed Node-API module for image processing, typically 4x-5x faster than ImageMagick and GraphicsMagick due to its use of libvips.
+Sharp is a high-speed Node-API module for image processing built on libvips:
+- 4x-5x faster than ImageMagick and GraphicsMagick
+- Utilizes libvips image processing library for performance
+- Multi-core CPU utilization with L1/L2/L3 cache optimization
+- Non-blocking operations using libuv event loop
+- Small memory footprint processing regions at a time
 
 ### Performance Characteristics
-- Powered by blazingly fast libvips image processing library
-- Originally created in 1989 at Birkbeck College
-- Currently maintained by team led by John Cupitt
-- Non-blocking operations using libuv
-- No child processes spawned
-- Full Promises/async/await support
-
-### Memory Management
-- Only small regions of uncompressed image data held in memory
-- Processes data regions at a time for efficiency
-- Takes advantage of multiple CPU cores
-- Optimizes L1/L2/L3 cache usage
-- Memory-efficient streaming architecture
+Sharp processes only small regions of uncompressed image data in memory while taking advantage of multiple CPU cores, delivering exceptional performance for image transformation operations.
 
 ## Supported Image Formats
 
 ### Input Formats
-- JPEG: Standard lossy compression format
-- PNG: Lossless compression with transparency
-- WebP: Modern efficient format by Google  
-- GIF: Animated and static graphics format
-- AVIF: Next-generation efficient format
-- TIFF: High-quality archival format
-- SVG: Scalable vector graphics
+- JPEG for photographic images
+- PNG for graphics with transparency
+- WebP for modern web-optimized images
+- GIF for animated and simple graphics
+- AVIF for next-generation image format
+- TIFF for high-quality archival images  
+- SVG for vector graphics input
 
-### Output Formats  
-- JPEG: Optimized encoding with mozjpeg integration
-- PNG: Efficient compression with pngquant features
-- WebP: Advanced compression for web delivery
-- GIF: Animated output with size optimization
-- AVIF: Cutting-edge compression ratios
-- TIFF: Professional archival output
-- Raw pixel data: Uncompressed buffer output
+### Output Formats
+- JPEG with mozjpeg optimization
+- PNG with pngquant optimization
+- WebP for web delivery
+- GIF with optimized file sizes
+- AVIF for advanced compression
+- TIFF for professional workflows
+- Raw pixel data for custom processing
 
-## Resizing and Transformation Operations
+## Resize and Transform Operations
 
-### Resizing Capabilities
-- High-quality Lanczos resampling ensures quality preservation
-- Maintains aspect ratio or allows distortion
+### Resizing Operations
+- Lanczos resampling ensures quality preservation during scaling
+- Aspect ratio preservation with various fit modes
+- Custom width and height specifications
+- Percentage-based scaling options
 - Smart cropping with attention algorithms
-- Thumbnail generation for web applications
-- Batch processing for multiple sizes
 
-### Geometric Transformations
-- Rotation: Arbitrary angle rotation with background fill
-- Extraction: Crop specific regions from images
-- Compositing: Layer multiple images together
-- Flipping: Horizontal and vertical mirroring
-- Affine transformations: Scale, skew, and perspective
-
-### Color Corrections
-- Gamma correction for display optimization
-- Brightness and contrast adjustments
-- Color space conversions
-- White balance corrections
-- Channel manipulation (RGB, CMYK)
+### Transformation Operations
+- Rotation with automatic background handling
+- Extraction of image regions and crops
+- Compositing multiple images together
+- Gamma correction for color accuracy
+- Sharpening and blur filtering
 
 ## Color Space and Profile Management
 
-### ICC Profile Support
-- Embedded ICC profiles handled correctly
-- Color space conversion between profiles
-- sRGB, Adobe RGB, ProPhoto RGB support
-- CMYK color space processing
+### Color Handling
+- Embedded ICC profile processing
+- Color space conversions (sRGB, Adobe RGB, etc.)
+- Alpha transparency channel preservation
+- Automatic color space detection
 - Profile stripping for web optimization
 
-### Alpha Transparency
-- Alpha transparency channels preserved
-- Premultiplied alpha handling
-- Transparency to solid color conversion
-- Alpha blending operations
+### Quality Control
+Sharp correctly handles color spaces and embedded profiles, ensuring accurate color reproduction across different output formats and devices.
 
-## Streaming and Pipeline Architecture
+## Stream Processing Pipeline
 
-### Stream Integration
-- Input from Streams, Buffer objects, or filesystem
-- Output to multiple processing pipelines
-- Single input stream split to multiple outputs
-- Memory-efficient for large file processing
+### Input/Output Methods
+- File system read and write operations
+- Buffer object processing for in-memory operations
+- Stream processing for efficient memory usage
+- Multiple output streams from single input
+- Pipeline processing for sequential operations
 
-### Pipeline Processing
-- Chainable operations for complex workflows
-- Non-destructive editing until output
-- Operation ordering optimization
-- Lazy evaluation for performance
+### Stream Benefits
+A single input stream can be split into multiple processing pipelines, enabling efficient batch processing and multiple output generation.
 
-## Output Format Optimization
+## Deep Zoom Image Pyramids
 
-### JPEG Optimization
-- Huffman table optimization built-in
-- No need for external jpegoptim or jpegtran tools
-- Progressive JPEG encoding support
-- Quality vs file size balancing
+Sharp supports generating Deep Zoom Image (DZI) pyramids suitable for use with slippy map tile viewers like OpenSeadragon:
+- Automatic tile generation at multiple zoom levels
+- Optimized for large high-resolution image viewing
+- Compatible with standard tile serving protocols
+- Efficient storage and delivery of massive images
 
-### PNG Optimization  
-- PNG filtering disabled by default for line art
-- Often produces results equivalent to pngcrush
-- Palette optimization for indexed color
-- Compression level configuration
+## Node.js Runtime Compatibility
 
-### GIF Optimization
-- Animated GIF file size optimization
-- No need for external gifsicle tool
-- Frame-by-frame compression
-- Color palette optimization
+### Runtime Support
+Sharp works with all JavaScript runtimes supporting Node-API v9:
+- Node.js >= 18.17.0 with full feature support
+- Deno runtime compatibility for modern JavaScript
+- Bun runtime support for fast development
+- Cross-platform compatibility (macOS, Windows, Linux)
 
-### WebP and AVIF
-- Advanced compression algorithms
-- Lossless and lossy encoding options
-- Alpha channel support
-- Progressive decoding support
+### Installation Requirements
+Most modern systems require no additional dependencies, with precompiled binaries available for standard platforms.
 
-## Installation and Runtime Requirements
+## Performance Optimization
 
-### System Requirements
-- Node.js >= 18.17.0 compatibility
-- Deno and Bun runtime support
-- Node-API v9 compatibility required
-- No additional install or runtime dependencies on most systems
+### Built-in Optimizations
+- Huffman table optimization for JPEG output without external tools
+- PNG filtering disabled by default for diagrams and line art
+- Animated GIF file size optimization without external tools
+- mozjpeg and pngquant integration for file size reduction
 
-### Platform Support
-- Modern macOS systems supported
-- Windows compatibility included
-- Linux distributions supported
-- ARM and x64 architecture support
-
-### Deep Zoom Features
-- Deep Zoom image pyramid generation
-- Suitable for "slippy map" tile viewers
-- OpenSeadragon compatibility
-- Multi-resolution image serving
+### Memory Efficiency
+Sharp processes images in small regions rather than loading entire images into memory, enabling processing of extremely large images without excessive memory usage.
 
 ## Supplementary Details
 
-Sharp is designed for high-volume server-side image processing with emphasis on performance and memory efficiency. The library provides comprehensive image manipulation capabilities while maintaining low resource usage through its libvips foundation.
+Sharp is powered by libvips, originally created in 1989 at Birkbeck College and maintained by John Cupitt's team. The library provides professional-grade image processing capabilities with modern JavaScript async/await support.
 
 ## Reference Details
 
-### Basic Usage Pattern
+### Installation and Setup
+```
+npm install sharp
+```
+
+### Basic Usage Examples
 ```javascript
 const sharp = require('sharp');
 
-await sharp(inputBuffer)
+// Resize image
+await sharp('input.jpg')
   .resize(800, 600)
   .jpeg({ quality: 80 })
   .toFile('output.jpg');
+
+// Stream processing
+sharp()
+  .resize(300)
+  .png()
+  .pipe(outputStream);
 ```
 
-### Resize Options
-- width: Target width in pixels
-- height: Target height in pixels  
-- fit: Scaling behavior (cover, contain, fill, inside, outside)
-- position: Crop position for cover/contain
-- background: Background color for letterboxing
-- withoutEnlargement: Prevent upscaling
+### API Methods
+- sharp(input) - Create processing pipeline
+- resize(width, height, options) - Scale image dimensions
+- rotate(angle) - Rotate image by degrees
+- crop(options) - Extract image region
+- composite(images) - Combine multiple images
+- jpeg/png/webp(options) - Format-specific output options
 
-### Format-Specific Options
-JPEG options:
-- quality: Compression quality (1-100)
-- progressive: Progressive encoding
-- mozjpeg: Use mozjpeg encoder
-
-PNG options:
-- compressionLevel: Compression level (0-9)
-- adaptiveFiltering: Enable adaptive filtering
-- palette: Use palette-based encoding
-
-WebP options:
-- quality: Compression quality
-- lossless: Lossless encoding mode
-- effort: Compression effort level
-
-### Transform Operations
-- rotate(angle): Rotate image
-- flip(): Flip horizontally  
-- flop(): Flip vertically
-- blur(sigma): Gaussian blur
-- sharpen(): Sharpen image
-- gamma(value): Gamma correction
-- negate(): Color inversion
-
-### Pipeline Methods
-- pipe(stream): Stream output to destination
-- toBuffer(): Output to Buffer object
-- toFile(path): Save to filesystem
-- clone(): Duplicate pipeline for multiple outputs
+### Performance Guidelines
+- Use streams for large file processing
+- Batch operations in pipelines for efficiency
+- Consider memory limits for concurrent operations
+- Utilize worker threads for CPU-intensive tasks
 
 ## Detailed Digest
 
-**Source Content:** Sharp image processing library website (https://sharp.pixelplumbing.com/)
-**Retrieved:** 2026-03-13  
-**Attribution:** Sharp development team and libvips contributors
-**Data Size:** Approximately 2.5KB extracted content
+**Source Content:** Sharp official website (https://sharp.pixelplumbing.com/)
+**Retrieved:** 2026-03-13
+**Attribution:** Lovell Fuller and Sharp contributors
+**Data Size:** Approximately 4KB extracted content
 
-Sharp provides high-performance Node.js image processing with comprehensive format support, efficient memory usage, and advanced optimization features built on the libvips library foundation.
+Sharp is a high-performance Node.js image processing library built on libvips, offering 4x-5x speed improvements over traditional tools while supporting comprehensive format handling, advanced transformations, and efficient stream processing for modern web applications.
