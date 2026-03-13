@@ -3,22 +3,117 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>repository0</title>
-  <meta property="og:title" content="repository0">
-  <meta property="og:description" content="An autonomous repository powered by agentic-lib">
+  <title>Binary-to-Text Encoding Library</title>
+  <meta property="og:title" content="Binary-to-Text Encoding Library">
+  <meta property="og:description" content="Explore the frontier of binary-to-text encoding density using printable characters">
   <meta property="og:type" content="website">
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
-    h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
+    body { 
+      font-family: system-ui, -apple-system, sans-serif; 
+      max-width: 1000px; 
+      margin: 0 auto; 
+      padding: 2rem; 
+      color: #333; 
+      line-height: 1.6;
+    }
+    h1 { 
+      border-bottom: 3px solid #0366d6; 
+      padding-bottom: 0.5rem; 
+      color: #0366d6;
+    }
+    h2 {
+      color: #586069;
+      border-left: 4px solid #0366d6;
+      padding-left: 1rem;
+      margin-top: 2rem;
+    }
     a { color: #0366d6; }
-    .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
+    .identity { 
+      background: #f6f8fa; 
+      padding: 1rem; 
+      border-radius: 6px; 
+      margin: 1rem 0; 
+      font-family: monospace; 
+    }
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-    #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
+    .demo-section {
+      background: #f8f9fa;
+      border: 1px solid #e1e4e8;
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .demo-output { 
+      background: #1e1e1e; 
+      color: #d4d4d4; 
+      padding: 1rem; 
+      border-radius: 6px; 
+      font-family: monospace; 
+      white-space: pre-wrap; 
+      min-height: 2rem;
+      margin-top: 0.5rem;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .feature-card {
+      background: white;
+      border: 1px solid #e1e4e8;
+      border-radius: 6px;
+      padding: 1rem;
+    }
+    .feature-card h3 {
+      margin-top: 0;
+      color: #0366d6;
+    }
+    input, select, button {
+      padding: 0.5rem;
+      border: 1px solid #e1e4e8;
+      border-radius: 4px;
+      font-family: inherit;
+    }
+    button {
+      background: #0366d6;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background: #0256cc;
+    }
+    .encoding-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    .encoding-table th, .encoding-table td {
+      border: 1px solid #e1e4e8;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    .encoding-table th {
+      background: #f6f8fa;
+    }
+    .status {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    .status.coming-soon {
+      background: #fff3cd;
+      color: #856404;
+    }
   </style>
 </head>
 <body>
-  <h1 id="lib-name">repository0</h1>
+  <h1 id="lib-name">Binary-to-Text Encoding Library</h1>
+  
   <div class="identity">
     <dl>
       <dt>Version</dt>
@@ -27,22 +122,279 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
-  <h2>Output</h2>
-  <div id="demo-output">Loading library...</div>
+
+  <h2>Mission</h2>
+  <p>Explore the frontier of binary-to-text encoding density using printable characters. The benchmark: produce the shortest possible printable representation of a v7 UUID.</p>
+
+  <h2>Core Encoding Functions</h2>
+  <div class="demo-section">
+    <h3>Binary Data Encoding <span class="status coming-soon">Coming Soon</span></h3>
+    <p>Encode and decode arbitrary binary data using various encodings.</p>
+    
+    <div style="margin: 1rem 0;">
+      <label>Input (hex): </label>
+      <input type="text" id="binary-input" placeholder="deadbeef" style="width: 200px;">
+      <label> Encoding: </label>
+      <select id="encoding-select">
+        <option value="base62">Base62</option>
+        <option value="base85">Base85</option>
+        <option value="base91">Base91</option>
+      </select>
+      <button onclick="encodeData()">Encode</button>
+      <button onclick="decodeData()">Decode</button>
+    </div>
+    
+    <div id="core-encoding-output" class="demo-output">Enter hex data and select an encoding to see results...</div>
+  </div>
+
+  <h2>UUID Encoding</h2>
+  <div class="demo-section">
+    <h3>UUID Shortening <span class="status coming-soon">Coming Soon</span></h3>
+    <p>Encode UUIDs with maximum density - shorter than base64!</p>
+    
+    <div style="margin: 1rem 0;">
+      <label>UUID: </label>
+      <input type="text" id="uuid-input" placeholder="01234567-89ab-cdef-0123-456789abcdef" style="width: 300px;">
+      <button onclick="encodeUUID()">Encode UUID</button>
+      <button onclick="generateSampleUUID()">Generate Sample</button>
+    </div>
+    
+    <div id="uuid-encoding-output" class="demo-output">Enter a UUID to see encoding results across all formats...</div>
+  </div>
+
+  <h2>Encoding Comparison</h2>
+  <div class="demo-section">
+    <h3>Encoding Metadata <span class="status coming-soon">Coming Soon</span></h3>
+    <p>Compare bit density and characteristics of all available encodings.</p>
+    
+    <table class="encoding-table">
+      <thead>
+        <tr>
+          <th>Encoding</th>
+          <th>Charset Size</th>
+          <th>Bits/Char</th>
+          <th>UUID Length</th>
+          <th>Charset Preview</th>
+        </tr>
+      </thead>
+      <tbody id="encodings-table">
+        <tr>
+          <td>Base62</td>
+          <td>62</td>
+          <td>~5.95</td>
+          <td>~22 chars</td>
+          <td>0-9a-zA-Z</td>
+        </tr>
+        <tr>
+          <td>Base85</td>
+          <td>85</td>
+          <td>~6.41</td>
+          <td>~20 chars</td>
+          <td>ASCII85/Z85</td>
+        </tr>
+        <tr>
+          <td>Base91</td>
+          <td>91</td>
+          <td>~6.50</td>
+          <td>~20 chars</td>
+          <td>Printable ASCII</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div id="encoding-metadata-output" class="demo-output">Loading encoding metadata...</div>
+  </div>
+
+  <h2>Custom Encodings</h2>
+  <div class="demo-section">
+    <h3>Create Custom Encoding <span class="status coming-soon">Coming Soon</span></h3>
+    <p>Define your own encoding from a character set string.</p>
+    
+    <div style="margin: 1rem 0;">
+      <label>Name: </label>
+      <input type="text" id="custom-name" placeholder="myencoding" style="width: 150px;">
+      <label> Charset: </label>
+      <input type="text" id="custom-charset" placeholder="0123456789ABCDEF" style="width: 200px;">
+      <button onclick="createCustomEncoding()">Create Encoding</button>
+    </div>
+    
+    <div id="custom-encoding-output" class="demo-output">Create a custom encoding to see its characteristics...</div>
+  </div>
+
+  <h2>Interactive Features</h2>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h3>Round-trip Testing</h3>
+      <p>Verify that <code>decode(encode(x, enc), enc) === x</code> for all encodings and edge cases.</p>
+      <button onclick="runRoundTripTests()">Run Tests</button>
+    </div>
+    
+    <div class="feature-card">
+      <h3>Edge Case Validation</h3>
+      <p>Test with empty buffers, single bytes, all-zero bytes, and all-0xFF bytes.</p>
+      <button onclick="runEdgeCaseTests()">Test Edge Cases</button>
+    </div>
+    
+    <div class="feature-card">
+      <h3>Performance Comparison</h3>
+      <p>Compare encoding/decoding speed across different algorithms and data sizes.</p>
+      <button onclick="runPerformanceTests()">Benchmark</button>
+    </div>
+  </div>
+
   <h2>About</h2>
-  <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
+  <p>This website demonstrates the binary-to-text encoding library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
+
   <script type="module">
+    let lib = {};
+    
     try {
-      const { name, version, description } = await import('./lib.js');
-      document.getElementById('lib-name').textContent = name;
-      document.getElementById('lib-version').textContent = version;
-      document.getElementById('lib-description').textContent = description || '(no description)';
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
-      document.title = name + ' v' + version;
+      lib = await import('./lib.js');
+      document.getElementById('lib-name').textContent = lib.name || 'Binary-to-Text Encoding Library';
+      document.getElementById('lib-version').textContent = lib.version || '0.1.0';
+      document.getElementById('lib-description').textContent = lib.description || 'Explore the frontier of binary-to-text encoding density';
+      document.title = lib.name + ' v' + lib.version;
+      
+      // Update encoding metadata output
+      updateEncodingMetadata();
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
       document.getElementById('lib-description').textContent = e.message;
-      document.getElementById('demo-output').textContent = 'Failed to load library: ' + e.message;
+      console.error('Failed to load library:', e);
+    }
+
+    // Make functions available globally for onclick handlers
+    window.encodeData = function() {
+      const input = document.getElementById('binary-input').value;
+      const encoding = document.getElementById('encoding-select').value;
+      const output = document.getElementById('core-encoding-output');
+      
+      if (!input) {
+        output.textContent = 'Please enter hex data to encode';
+        return;
+      }
+      
+      // TODO: Use actual encoding functions when implemented
+      output.textContent = `TODO: encode("${input}", "${encoding}")
+      
+This will use the library's encode() function to convert
+hex input "${input}" using ${encoding} encoding.
+
+Expected output format:
+{
+  "input": "${input}",
+  "encoding": "${encoding}",
+  "encoded": "[encoded result]",
+  "length": "[character count]"
+}`;
+    };
+
+    window.decodeData = function() {
+      const input = document.getElementById('binary-input').value;
+      const encoding = document.getElementById('encoding-select').value;
+      const output = document.getElementById('core-encoding-output');
+      
+      // TODO: Use actual decoding functions when implemented
+      output.textContent = `TODO: decode("${input}", "${encoding}")
+      
+This will use the library's decode() function to convert
+encoded input "${input}" back to hex using ${encoding} encoding.
+
+Round-trip verification: decode(encode(x, enc), enc) === x`;
+    };
+
+    window.encodeUUID = function() {
+      const input = document.getElementById('uuid-input').value;
+      const output = document.getElementById('uuid-encoding-output');
+      
+      if (!input) {
+        output.textContent = 'Please enter a UUID to encode';
+        return;
+      }
+      
+      // TODO: Use actual UUID encoding functions when implemented  
+      output.textContent = `TODO: encodeUUID("${input}")
+      
+UUID encoding comparison:
+- Original UUID: ${input} (36 chars with dashes)
+- Base64 baseline: [~24 chars]
+- Base62 encoding: [~22 chars] 
+- Base85 encoding: [~20 chars]
+- Base91 encoding: [~20 chars]
+
+Goal: Shortest possible printable representation!`;
+    };
+
+    window.generateSampleUUID = function() {
+      // Generate a sample v7 UUID format
+      const hex = () => Math.floor(Math.random() * 16).toString(16);
+      const uuid = Array(8).fill(0).map(() => hex()).join('') + '-' +
+                   Array(4).fill(0).map(() => hex()).join('') + '-' +
+                   '7' + Array(3).fill(0).map(() => hex()).join('') + '-' +
+                   ['8','9','a','b'][Math.floor(Math.random() * 4)] + Array(3).fill(0).map(() => hex()).join('') + '-' +
+                   Array(12).fill(0).map(() => hex()).join('');
+      document.getElementById('uuid-input').value = uuid;
+    };
+
+    window.createCustomEncoding = function() {
+      const name = document.getElementById('custom-name').value;
+      const charset = document.getElementById('custom-charset').value;
+      const output = document.getElementById('custom-encoding-output');
+      
+      if (!name || !charset) {
+        output.textContent = 'Please enter both name and charset';
+        return;
+      }
+      
+      // TODO: Use actual createEncoding function when implemented
+      const bits = Math.log2(charset.length);
+      output.textContent = `TODO: createEncoding("${name}", "${charset}")
+      
+Custom encoding "${name}" characteristics:
+- Charset: "${charset}"
+- Charset size: ${charset.length}
+- Bits per character: ~${bits.toFixed(2)}
+- Estimated UUID length: ~${Math.ceil(128 / bits)} chars
+
+This encoding will be available for encode/decode operations.`;
+    };
+
+    window.runRoundTripTests = function() {
+      alert('TODO: Implement round-trip testing across all encodings');
+    };
+
+    window.runEdgeCaseTests = function() {
+      alert('TODO: Implement edge case validation (empty, single byte, all-zero, all-0xFF)');
+    };
+
+    window.runPerformanceTests = function() {
+      alert('TODO: Implement performance benchmarking across encodings');
+    };
+
+    function updateEncodingMetadata() {
+      const output = document.getElementById('encoding-metadata-output');
+      
+      // TODO: Use actual listEncodings() function when implemented
+      output.textContent = `TODO: listEncodings()
+      
+Expected return format:
+[
+  {
+    "name": "base62",
+    "charset": "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    "size": 62,
+    "bitsPerChar": 5.954,
+    "uuidLength": 22
+  },
+  {
+    "name": "base85", 
+    "charset": "...",
+    "size": 85,
+    "bitsPerChar": 6.408,
+    "uuidLength": 20
+  },
+  ...
+]`;
     }
   </script>
 </body>

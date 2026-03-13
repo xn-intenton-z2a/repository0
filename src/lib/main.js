@@ -27,6 +27,33 @@ export function getIdentity() {
   return { name, version, description };
 }
 
+// Core encoding functions - TODO: Implement
+export function encode(buffer, encoding) {
+  throw new Error("encode() function not yet implemented");
+}
+
+export function decode(str, encoding) {
+  throw new Error("decode() function not yet implemented");
+}
+
+// UUID encoding functions - TODO: Implement  
+export function encodeUUID(uuid) {
+  throw new Error("encodeUUID() function not yet implemented");
+}
+
+export function decodeUUID(str) {
+  throw new Error("decodeUUID() function not yet implemented");
+}
+
+// Custom encoding functions - TODO: Implement
+export function createEncoding(name, charset) {
+  throw new Error("createEncoding() function not yet implemented");
+}
+
+export function listEncodings() {
+  throw new Error("listEncodings() function not yet implemented");
+}
+
 export function main(args) {
   if (args?.includes("--version")) {
     console.log(version);
