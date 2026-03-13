@@ -1,37 +1,38 @@
-# Data Export and Import
+# Data Pipeline Integration
 
-Expose existing data export capabilities through CLI and add comprehensive data import functionality for processing external datasets.
+Enable plot-code-lib to work as a data pipeline component by adding comprehensive data import/export capabilities with standard format support and streaming interfaces.
 
 ## Purpose
 
-Complete the data processing pipeline by exposing CSV/JSON export via CLI flags and enabling import of external datasets for mathematical transformation and visualization.
+Transform plot-code-lib into a powerful data pipeline tool that can consume data from various sources, apply mathematical transformations, and output results in multiple formats suitable for further processing or visualization.
 
 ## Acceptance Criteria
 
-- Add --format flag to CLI accepting: svg, png, csv, json
-- Support --stdout flag for pipeline-friendly output to console
-- Add --input flag for reading CSV/JSON data files
-- Support mathematical transformation of imported data columns
-- Auto-detect input format from file extension
-- Include metadata headers in exported files (expression, range, timestamp)
-- Handle column mapping for imported data (x,y coordinate specification)
-- Support stdin input for pipeline workflows
-- Maintain backward compatibility with existing file output behavior
+- Add --format flag supporting: svg, png, csv, json, tsv, parquet
+- Support --stdout flag for pipeline-friendly streaming output
+- Add --input flag for reading CSV, JSON, TSV, and Parquet data files
+- Include column mapping with --x-column and --y-column flags for imported data
+- Support mathematical transformation of imported data columns with expressions
+- Add --filter flag for data filtering before transformation or plotting
+- Include streaming data processing for large datasets that don't fit in memory
+- Support data aggregation functions: sum, mean, median, percentiles
+- Add data validation and error reporting for malformed input files
+- Include metadata preservation through the transformation pipeline
 
 ## Technical Implementation
 
-Extend CLI argument parsing to include --format, --stdout, and --input flags. The TimeSeriesGenerator class already has exportCSV() and exportJSON() methods that need CLI integration. Add data import parsing for CSV and JSON formats.
+Create DataPipeline class that handles input parsing, transformation, and output formatting. Extend CLI to support data source flags and streaming operations. Add column mapping utilities and data validation functions. Integrate with existing plot generation for visual output.
 
 ## Integration Points
 
-- Builds on existing CLI interface and argument parsing
-- Uses existing TimeSeriesGenerator exportCSV() and exportJSON() methods
-- Compatible with current ExpressionParser for data transformation
-- Works with existing PlotRenderer for visualization of imported data
-- Maintains full backward compatibility with current usage patterns
+- Extends existing CLI interface with new data processing flags
+- Uses current ExpressionParser for mathematical transformations on data
+- Works with existing PlotRenderer when visual output is requested
+- Compatible with TimeSeriesGenerator for coordinate data handling
+- Maintains full backward compatibility with expression-based plotting
 
 ## Example Usage
 
-Export generated data to CSV: node src/lib/main.js --expression "y=sin(x)" --range "x=0:2*pi" --format csv --stdout
+Transform data pipeline: cat data.csv | node src/lib/main.js --input stdin --x-column time --y-column value --expression "y=log(value)" --format csv --stdout
 
-Import and transform dataset: node src/lib/main.js --input sales-data.csv --expression "y=log(revenue)" --format svg --file analysis.svg
+Process and visualize: node src/lib/main.js --input measurements.json --filter "value > 0" --expression "y=sqrt(value)" --format svg --file analysis.svg
