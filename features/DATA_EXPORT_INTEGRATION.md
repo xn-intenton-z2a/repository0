@@ -6,18 +6,22 @@ Add CLI flags for JSON and CSV data export alongside plot generation to enable s
 
 Complete the CLI interface by adding data export capabilities that work alongside plot generation. The TimeSeriesGenerator exportJSON and exportCSV methods are implemented but not exposed through CLI flags, limiting users to programmatic access only.
 
+## Status: PARTIALLY IMPLEMENTED 🔄
+
+Backend methods exist in TimeSeriesGenerator class, but CLI flags are missing. Web interface lacks data export functionality.
+
 ## Acceptance Criteria
 
-- Add CLI flags --export-json and --export-csv to save time series data alongside plots
-- Support combined output: --file plot.svg --export-json data.json for dual plot and data generation
-- Add --data-only flag to export time series data without generating plots for pure data workflows  
-- Support automatic filename generation when data export flag is used without explicit filename
-- Include metadata in exported files (expression, range, timestamp, step size information)
-- Add data export options to web interface with download buttons for JSON and CSV formats
-- Display data preview in web interface showing generated coordinate points before download
-- Validate that exported data matches the plotted data points for consistency
-- Handle file path resolution correctly for data export files relative to plot output location
-- Add help text documentation for all new CLI flags with clear usage examples
+- 🔲 Add CLI flags --export-json and --export-csv to save time series data alongside plots
+- 🔲 Support combined output: --file plot.svg --export-json data.json for dual plot and data generation
+- 🔲 Add --data-only flag to export time series data without generating plots for pure data workflows  
+- 🔲 Support automatic filename generation when data export flag is used without explicit filename
+- 🔲 Include metadata in exported files (expression, range, timestamp, step size information)
+- 🔲 Add data export options to web interface with download buttons for JSON and CSV formats
+- 🔲 Display data preview in web interface showing generated coordinate points before download
+- ✅ Backend methods: exportJSON and exportCSV exist in TimeSeriesGenerator
+- 🔲 Handle file path resolution correctly for data export files relative to plot output location
+- 🔲 Add help text documentation for all new CLI flags with clear usage examples
 
 ## Technical Implementation
 
