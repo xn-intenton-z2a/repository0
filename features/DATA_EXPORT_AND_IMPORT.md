@@ -1,37 +1,37 @@
 # Data Export and Import
 
-Add comprehensive data export capabilities and support for importing existing datasets for mathematical transformation and visualization.
+Expose existing data export capabilities through CLI and add comprehensive data import functionality for processing external datasets.
 
 ## Purpose
 
-Transform plot-code-lib into a versatile data processing tool by supporting multiple input and output formats, enabling integration with spreadsheets, databases, and scientific computing workflows.
+Complete the data processing pipeline by exposing CSV/JSON export via CLI flags and enabling import of external datasets for mathematical transformation and visualization.
 
 ## Acceptance Criteria
 
-- Add CSV and JSON export formats to CLI output options
-- Support reading CSV files as input data for transformation
-- Include data import from JSON arrays with x,y coordinates
-- Add --format flag accepting: svg, png, csv, json, txt
-- Support --stdout flag for pipeline-friendly output
-- Auto-detect format from file extension when format not specified
-- Include metadata in exported files (expression, range, timestamp)
-- Handle large datasets efficiently with streaming where applicable
+- Add --format flag to CLI accepting: svg, png, csv, json
+- Support --stdout flag for pipeline-friendly output to console
+- Add --input flag for reading CSV/JSON data files
 - Support mathematical transformation of imported data columns
+- Auto-detect input format from file extension
+- Include metadata headers in exported files (expression, range, timestamp)
+- Handle column mapping for imported data (x,y coordinate specification)
+- Support stdin input for pipeline workflows
+- Maintain backward compatibility with existing file output behavior
 
 ## Technical Implementation
 
-Extend the existing CLI interface to accept --format and input file flags. Use current TimeSeriesGenerator export methods and add import capabilities. Maintain existing plotting functionality while adding data processing features.
+Extend CLI argument parsing to include --format, --stdout, and --input flags. The TimeSeriesGenerator class already has exportCSV() and exportJSON() methods that need CLI integration. Add data import parsing for CSV and JSON formats.
 
 ## Integration Points
 
 - Builds on existing CLI interface and argument parsing
-- Uses current ExpressionParser for data transformation
-- Leverages existing export methods in TimeSeriesGenerator
-- Compatible with current PlotRenderer for visualization
-- Maintains backward compatibility with existing usage patterns
+- Uses existing TimeSeriesGenerator exportCSV() and exportJSON() methods
+- Compatible with current ExpressionParser for data transformation
+- Works with existing PlotRenderer for visualization of imported data
+- Maintains full backward compatibility with current usage patterns
 
 ## Example Usage
 
-Export sine wave data to CSV: node src/lib/main.js --expression "y=sin(x)" --range "x=0:2*pi" --format csv --file data.csv
+Export generated data to CSV: node src/lib/main.js --expression "y=sin(x)" --range "x=0:2*pi" --format csv --stdout
 
-Import and transform existing data: node src/lib/main.js --input data.csv --expression "y=log(value)" --format json --stdout
+Import and transform dataset: node src/lib/main.js --input sales-data.csv --expression "y=log(revenue)" --format svg --file analysis.svg

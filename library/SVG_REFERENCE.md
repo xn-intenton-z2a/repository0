@@ -3,440 +3,374 @@
 ## Table of Contents
 
 - Scalable Vector Graphics Overview
-- XML-Based Markup Structure
 - Coordinate Systems and Viewports
 - Basic Shape Elements
-- Path Data and Complex Shapes
+- Path Elements and Commands
 - Text and Typography
-- Styling and CSS Integration
-- Transformations and Animations
-- Scripting and Interactivity
-- SVG in Web Integration
-- Browser Support and Standards
-- Mathematical Plot Elements
-- Scientific Notation and Symbols
+- Styling and Presentation
+- Transformations and Coordinate Manipulation
+- Grouping and Structural Elements
+- Advanced Graphics Effects
+- Animation and Interactivity
+- Integration with Web Technologies
+- Browser Compatibility and Standards
 
 ## Scalable Vector Graphics Overview
 
-Scalable Vector Graphics (SVG) is a Web graphics language defined as markup and APIs for creating static or dynamic images, capable of interactivity and animation, including various graphical effects. SVG can be styled with CSS and combined with HTML, making it ideal for mathematical plot generation and scientific visualization.
+SVG (Scalable Vector Graphics) is a Web graphics language that defines markup and APIs for creating static or dynamic images capable of interactivity and animation. SVG images are vector-based, scalable without quality loss, and fully integrated with web standards.
 
-### SVG Characteristics for Mathematical Plotting
-- XML-based vector graphics format ideal for precise mathematical shapes
-- Scalable without quality loss for high-resolution mathematical plots
-- Web standards compliant for cross-platform mathematical visualization
-- Interactive and animation capable for dynamic mathematical demonstrations
-- CSS stylable elements for customized mathematical plot appearance
-- JavaScript programmable for real-time mathematical function plotting
+### Core Characteristics
+- XML-based markup language for vector graphics
+- Resolution-independent scalable images
+- CSS styling and integration capabilities
+- JavaScript manipulation and interactivity support
+- Accessibility features with text-based content
+- Search engine indexable content
 
-### Mathematical Visualization Advantages
-SVG provides superior mathematical plot quality through vector precision, infinite scalability for detailed mathematical analysis, text integration for mathematical notation, and coordinate system control for precise mathematical scaling.
-
-## XML-Based Markup Structure
-
-SVG documents follow XML syntax rules with a defined namespace and element hierarchy.
-
-### Document Structure
-```
-<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
-  <!-- SVG content -->
-</svg>
-```
-
-### Namespace Requirements
-SVG elements must be properly namespaced when used in HTML documents or processed by XML parsers. The standard SVG namespace is "http://www.w3.org/2000/svg".
-
-### Element Hierarchy
-SVG documents support nested elements with proper parent-child relationships, enabling complex graphic compositions and logical grouping of related elements.
+### Web Standards Integration
+- HTML5 inline SVG support
+- CSS styling for SVG elements
+- DOM manipulation through JavaScript
+- ARIA accessibility attributes
+- HTTP caching and compression benefits
 
 ## Coordinate Systems and Viewports
 
-SVG uses a coordinate system with the origin (0,0) typically at the top-left corner, with x increasing rightward and y increasing downward.
+SVG uses a coordinate system that begins at the top-left corner with positive x extending right and positive y extending down.
 
-### Viewport Definition
-The viewport defines the visible area of the SVG canvas, specified through width and height attributes on the root SVG element.
+### Viewport and ViewBox
+- viewport: The visible area dimensions of the SVG
+- viewBox: The coordinate system for the SVG content
+- preserveAspectRatio: Controls scaling and alignment behavior
+- Coordinate transformations between viewport and viewBox
 
-### viewBox Attribute
-The viewBox attribute establishes a user coordinate system, enabling scaling and positioning control independent of the viewport dimensions.
-
-### Coordinate Transformations
-SVG supports coordinate system transformations including translation, rotation, scaling, and skewing through transform attributes.
+### Units and Measurements
+- User units: Default coordinate system unit
+- Absolute units: px, pt, pc, cm, mm, in
+- Relative units: em, ex, %
+- Viewport percentage units: vw, vh, vmin, vmax
 
 ## Basic Shape Elements
 
 SVG provides primitive shape elements for common geometric forms.
 
-### Rectangle Elements
-- `<rect>` for rectangular shapes
-- x, y attributes for positioning
-- width, height for dimensions
-- rx, ry for rounded corners
+### Rectangle Element
+```
+<rect x="10" y="10" width="100" height="80" />
+```
+- x, y: Position coordinates
+- width, height: Dimensions
+- rx, ry: Corner radius for rounded rectangles
 
-### Circle Elements
-- `<circle>` for circular shapes
-- cx, cy attributes for center positioning
-- r attribute for radius
+### Circle Element
+```
+<circle cx="50" cy="50" r="40" />
+```
+- cx, cy: Center coordinates
+- r: Radius
 
-### Ellipse Elements
-- `<ellipse>` for oval shapes
-- cx, cy for center positioning
-- rx, ry for horizontal and vertical radii
+### Ellipse Element
+```
+<ellipse cx="50" cy="50" rx="40" ry="20" />
+```
+- cx, cy: Center coordinates  
+- rx, ry: Horizontal and vertical radii
 
-### Line Elements
-- `<line>` for straight lines
-- x1, y1 for start point
-- x2, y2 for end point
+### Line Element
+```
+<line x1="0" y1="0" x2="100" y2="100" />
+```
+- x1, y1: Starting point coordinates
+- x2, y2: Ending point coordinates
 
-### Polygon and Polyline
-- `<polygon>` for closed shapes
-- `<polyline>` for connected line segments
-- points attribute for coordinate specification
+### Polyline and Polygon
+```
+<polyline points="0,0 50,25 100,0" />
+<polygon points="0,0 50,100 100,0" />
+```
+- points: Space or comma-separated coordinate pairs
+- polygon automatically closes the shape
 
-## Path Data and Complex Shapes
+## Path Elements and Commands
 
-The `<path>` element provides the most powerful shape creation capabilities through path data commands.
+The path element is the most powerful SVG shape element, supporting complex curves and shapes.
 
-### Path Commands
-- M (moveto) for positioning without drawing
-- L (lineto) for straight line segments
-- C (curveto) for cubic Bézier curves
-- Q (quadratic curveto) for quadratic Bézier curves
-- A (elliptical arc) for curved segments
-- Z (closepath) for closing path shapes
+### Path Command Types
+- M (moveto): Move to new position without drawing
+- L (lineto): Draw straight line to specified point  
+- H (horizontal lineto): Draw horizontal line
+- V (vertical lineto): Draw vertical line
+- C (curveto): Draw cubic Bézier curve
+- S (smooth curveto): Draw smooth cubic Bézier curve
+- Q (quadratic Bézier curveto): Draw quadratic Bézier curve
+- T (smooth quadratic Bézier curveto): Draw smooth quadratic curve
+- A (elliptical arc): Draw elliptical arc
+- Z (closepath): Close current subpath
 
-### Bézier Curves
-- Cubic Bézier curves with two control points
-- Quadratic Bézier curves with one control point
-- Smooth curve continuation commands
-- Relative and absolute coordinate modes
+### Path Syntax Examples
+```
+<path d="M 10 10 L 100 100" />
+<path d="M 10 80 Q 52.5 10, 95 80 T 180 80" />
+<path d="M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80" />
+```
 
-### Elliptical Arcs
-Complex arc definition with radius, rotation, and sweep parameters for creating curved segments that are parts of ellipses.
+### Arc Commands
+- A rx ry x-axis-rotation large-arc-flag sweep-flag x y
+- Large-arc-flag: 0 for small arc, 1 for large arc
+- Sweep-flag: 0 for counterclockwise, 1 for clockwise
 
 ## Text and Typography
 
-SVG provides comprehensive text handling capabilities with precise positioning and styling control.
+SVG provides comprehensive text rendering capabilities with advanced typography features.
 
-### Text Elements
-- `<text>` for single-line text
-- `<tspan>` for text spans with individual formatting
-- `<textPath>` for text along paths
-- x, y attributes for positioning
+### Text Element
+```
+<text x="10" y="50" font-family="Arial" font-size="16">Hello World</text>
+```
+- x, y: Text baseline position
+- font-family, font-size: Typography properties
+- text-anchor: Text alignment (start, middle, end)
 
-### Typography Control
-- font-family for typeface selection
-- font-size for text scaling
-- font-weight for boldness
-- text-anchor for alignment
+### Text Positioning and Spacing
+- dx, dy: Relative positioning offsets
+- rotate: Character rotation angles
+- textLength: Specify rendered text length
+- lengthAdjust: Adjust spacing or glyph scaling
 
-### Advanced Text Features
-- Text decoration including underlines and strikethrough
-- Text rotation and transformation
-- Multi-line text with precise line spacing
-- Internationalization support
+### Text on Path
+```
+<textPath href="#path1">Text following path curve</textPath>
+```
+- Text flows along specified path geometry
+- startOffset: Position along path to begin text
+- method: align or stretch text to path
 
-## Styling and CSS Integration
+### Multi-line Text
+- tspan: Inline text elements with independent styling
+- Multiple tspan elements for complex text layouts
+- Baseline adjustments and positioning controls
 
-SVG elements can be styled using CSS properties, either through external stylesheets, internal styles, or inline attributes.
+## Styling and Presentation
 
-### CSS Property Support
-- fill for interior color
-- stroke for outline color
-- stroke-width for line thickness
-- opacity for transparency
-- visibility for element display
+SVG elements can be styled using presentation attributes or CSS stylesheets.
 
-### Style Application Methods
-- External CSS files with class and ID selectors
-- Internal `<style>` elements within SVG documents
-- Inline style attributes on individual elements
-- Presentation attributes as element attributes
-
-### CSS Animation Integration
-SVG properties can be animated using CSS transitions and keyframe animations, providing smooth visual effects.
-
-## Transformations and Animations
-
-SVG supports both static transformations and dynamic animations.
-
-### Transform Types
-- translate() for positional changes
-- rotate() for rotational transformations
-- scale() for size modifications
-- skewX() and skewY() for perspective effects
-- matrix() for complex transformations
-
-### SMIL Animation
-- `<animate>` for property animation
-- `<animateTransform>` for transformation animation
-- `<animateMotion>` for path-based movement
-- timing attributes for animation control
-
-### Animation Timing
-- dur attribute for animation duration
-- repeatCount for animation repetition
-- begin attribute for animation triggers
-- keyTimes for animation pacing control
-
-## Scripting and Interactivity
-
-SVG elements support event handling and JavaScript manipulation for interactive graphics.
-
-### Event Handling
-- Mouse events (click, mouseover, mouseout)
-- Keyboard events for user input
-- Touch events for mobile interaction
-- Custom events for application logic
-
-### DOM Manipulation
-- getElementById() for element selection
-- getAttribute() and setAttribute() for property access
-- createElement() for dynamic element creation
-- Event listener registration and removal
-
-### JavaScript Integration
-- Inline script elements within SVG documents
-- External JavaScript file references
-- Event attribute handlers
-- Programmatic animation control
-
-## SVG in Web Integration
-
-SVG can be integrated into web pages through multiple methods, each with specific use cases and limitations.
-
-### Inline SVG
-SVG markup embedded directly in HTML documents, providing full styling and scripting capabilities with direct DOM access.
-
-### Image References
-SVG files referenced through `<img>` elements, `<object>` elements, or CSS background-image properties.
-
-### Dynamic Loading
-JavaScript-based SVG loading and manipulation for creating dynamic visualizations and interactive graphics.
-
-### HTML5 Integration
-Modern HTML5 supports inline SVG without XML namespace declarations, simplifying integration with web applications.
-
-## Browser Support and Standards
-
-SVG enjoys widespread browser support across modern web browsers with comprehensive feature implementation.
-
-### Standard Compliance
-SVG follows W3C specifications with defined behavior across different implementations and rendering engines.
-
-### Feature Support
-- Complete SVG 1.1 support in modern browsers
-- Partial SVG 2.0 feature adoption
-- Animation support varies by browser
-- JavaScript API consistency across platforms
-
-### Performance Considerations
-- Vector graphics scale efficiently
-- Complex paths may impact rendering performance
-- Animation performance varies by complexity
-- Hardware acceleration support in modern browsers
-
-## Supplementary Details
-
-SVG represents a mature and powerful graphics format for web applications, providing vector-based graphics with full integration into web standards. The format balances simplicity for basic shapes with sophisticated capabilities for complex visualizations.
-
-## Reference Details
-
-### Core Elements
-- `<svg>` - Root container element
-- `<g>` - Group element for logical organization
-- `<use>` - Element reuse and referencing
-- `<defs>` - Definitions for reusable components
-- `<symbol>` - Template definitions
-
-### Styling Attributes
-- fill: color or pattern for shape interior
-- stroke: color for shape outline
-- stroke-width: thickness of outline
-- opacity: transparency level
-- transform: coordinate transformations
-
-### Animation Elements
-- `<animate>` - Generic property animation
-- `<animateTransform>` - Transform-specific animation
-- `<animateMotion>` - Path-based motion animation
-- `<set>` - Discrete value setting
-
-### Filter Effects
-- `<filter>` - Filter definition container
-- `<feGaussianBlur>` - Blur filter primitive
-- `<feColorMatrix>` - Color manipulation
-- `<feOffset>` - Position offset effects
-
-## Detailed Digest
-
-**Source Content:** Mozilla Developer Network SVG documentation (https://developer.mozilla.org/en-US/docs/Web/SVG) and W3C SVG Primer (https://www.w3.org/Graphics/SVG/IG/resources/svgprimer.html)
-**Retrieved:** 2026-03-13
-**Attribution:** Mozilla Foundation and W3C SVG Working Group
-**Data Size:** Approximately 5.2KB extracted content
-
-SVG is a comprehensive XML-based vector graphics format for web applications, providing scalable graphics with CSS styling, JavaScript interactivity, and animation capabilities. The format integrates seamlessly with HTML and supports complex visualizations while maintaining web standards compliance.
-
-## Mathematical Plot Elements
-
-SVG provides specialized elements and techniques optimized for mathematical plot generation and scientific visualization applications.
-
-### Mathematical Path Generation
-```xml
-<!-- Smooth mathematical function curve -->
-<path d="M0,50 Q25,25 50,50 T100,50" 
-      fill="none" 
-      stroke="blue" 
-      stroke-width="2"/>
-
-<!-- Parametric curve with precise coordinates -->
-<path d="M10,10 C20,20 40,20 50,10" 
-      fill="none" 
-      stroke="red" 
-      stroke-width="1.5"/>
+### Fill and Stroke Properties
+```
+fill="red" stroke="blue" stroke-width="2"
+fill-opacity="0.5" stroke-opacity="0.8"
+stroke-linecap="round" stroke-linejoin="miter"
+stroke-dasharray="5,5" stroke-dashoffset="2"
 ```
 
-### Grid and Axis Systems
-```xml
-<!-- Mathematical coordinate grid -->
-<defs>
-  <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-    <path d="M 10 0 L 0 0 0 10" fill="none" stroke="gray" stroke-width="1"/>
-  </pattern>
-</defs>
-<rect width="100%" height="100%" fill="url(#grid)" />
+### CSS Integration
+- External stylesheets with class and id selectors
+- Inline styles using style attribute
+- CSS animations and transitions
+- Media queries for responsive SVG
 
-<!-- Mathematical axes with arrows -->
-<line x1="0" y1="50" x2="100" y2="50" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
-<line x1="50" y1="0" x2="50" y2="100" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+### Color Specifications
+- Named colors: red, blue, green
+- Hex notation: #FF0000, #RGB
+- RGB functions: rgb(255, 0, 0)
+- HSL functions: hsl(0, 100%, 50%)
+- Transparent and currentColor keywords
+
+## Transformations and Coordinate Manipulation
+
+SVG supports comprehensive transformation capabilities for manipulating coordinate systems.
+
+### Transform Functions
+- translate(tx [ty]): Move coordinate system origin
+- scale(sx [sy]): Scale coordinate system
+- rotate(angle [cx cy]): Rotate around point
+- skewX(angle), skewY(angle): Skew transformations
+- matrix(a b c d e f): General transformation matrix
+
+### Transform Attribute Usage
 ```
-
-### Mathematical Function Visualization
-- Precise path data generation for mathematical functions
-- Quadratic and cubic Bezier curves for smooth mathematical curves
-- Parametric curve support for complex mathematical relationships
-- Multi-segment paths for discontinuous mathematical functions
-- Coordinate system transformations for mathematical scaling
-
-## Scientific Notation and Symbols
-
-SVG supports comprehensive mathematical notation through text elements and symbol libraries for scientific visualization.
-
-### Mathematical Text Elements
-```xml
-<!-- Mathematical equation display -->
-<text x="50" y="20" font-family="serif" font-size="14" text-anchor="middle">
-  f(x) = sin(x) + cos(x)
-</text>
-
-<!-- Subscripts and superscripts -->
-<text x="30" y="40" font-family="serif" font-size="12">
-  x<tspan baseline-shift="sub" font-size="8">1</tspan>
-  + x<tspan baseline-shift="super" font-size="8">2</tspan>
-</text>
-
-<!-- Greek letters and mathematical symbols -->
-<text x="50" y="60" font-family="serif" font-size="14">
-  π ≈ 3.14159, α = π/4
-</text>
-```
-
-### Mathematical Symbol Libraries
-- Unicode mathematical symbols support (π, α, β, γ, δ, ε, θ, λ, μ, σ, φ, ψ, ω)
-- Mathematical operators (∑, ∫, ∂, ∇, ±, ×, ÷, ≤, ≥, ≠, ≈, ∞)
-- Fraction representation using text positioning
-- Matrix notation through grouped text elements
-- Complex mathematical expressions with proper spacing
-
-### Advanced Mathematical Notation
-```xml
-<!-- Complex mathematical expression -->
-<g font-family="serif" font-size="14">
-  <!-- Integral notation -->
-  <text x="10" y="50">∫</text>
-  <text x="15" y="45" font-size="10">b</text>
-  <text x="15" y="55" font-size="10">a</text>
-  <text x="25" y="50">f(x)dx</text>
-  
-  <!-- Summation notation -->
-  <text x="80" y="50">∑</text>
-  <text x="85" y="45" font-size="10">n</text>
-  <text x="85" y="55" font-size="10">i=1</text>
-  <text x="95" y="50">x<tspan baseline-shift="sub" font-size="8">i</tspan></text>
+<g transform="translate(50,50) rotate(45) scale(2,1)">
+  <!-- Transformed content -->
 </g>
 ```
 
+### Coordinate System Nesting
+- Transformations apply to element and all descendants
+- Nested coordinate systems multiply transformations
+- Local coordinate systems for complex graphics
+
+## Grouping and Structural Elements
+
+SVG provides structural elements for organizing and reusing graphics content.
+
+### Group Element
+```
+<g id="shapes" fill="blue" transform="translate(10,10)">
+  <circle r="5" />
+  <rect width="10" height="10" />
+</g>
+```
+- Groups elements for collective styling and transformation
+- Inherits and applies attributes to child elements
+
+### Definition and Reuse
+```
+<defs>
+  <g id="icon">
+    <circle r="10" />
+    <line x1="-5" y1="0" x2="5" y2="0" />
+  </g>
+</defs>
+<use href="#icon" x="50" y="50" />
+```
+- defs: Container for reusable elements
+- use: Reference and instantiate defined elements
+
+### Symbol Element
+- symbol: Define graphics templates with viewBox
+- Similar to group but establishes new viewport
+- Reusable components with independent coordinate systems
+
+## Advanced Graphics Effects
+
+SVG supports sophisticated visual effects through filters, gradients, and patterns.
+
+### Gradients
+```
+<linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+  <stop offset="0%" stop-color="red" />
+  <stop offset="100%" stop-color="blue" />
+</linearGradient>
+<radialGradient id="grad2" cx="50%" cy="50%" r="50%">
+  <stop offset="0%" stop-color="white" />
+  <stop offset="100%" stop-color="black" />
+</radialGradient>
+```
+
+### Patterns
+```
+<pattern id="pattern1" patternUnits="userSpaceOnUse" width="10" height="10">
+  <rect width="5" height="5" fill="red" />
+  <rect x="5" y="5" width="5" height="5" fill="blue" />
+</pattern>
+```
+
+### Filter Effects
+```
+<filter id="blur">
+  <feGaussianBlur stdDeviation="3" />
+</filter>
+<filter id="shadow">
+  <feOffset dx="2" dy="2" />
+  <feGaussianBlur stdDeviation="1" />
+</filter>
+```
+
+### Clipping and Masking
+- clipPath: Define clipping regions for elements
+- mask: Create alpha-based masking effects
+- Complex shaped boundaries and transparency effects
+
+## Animation and Interactivity
+
+SVG supports both declarative SMIL animations and JavaScript-based interactivity.
+
+### SMIL Animation Elements
+```
+<animateTransform attributeName="transform" type="rotate" 
+  values="0 50 50;360 50 50" dur="2s" repeatCount="indefinite" />
+<animate attributeName="fill" values="red;blue;red" dur="3s" repeatCount="indefinite" />
+```
+
+### Animation Attributes
+- dur: Animation duration
+- values: Keyframe values
+- keyTimes: Timing for keyframes
+- repeatCount: Number of repetitions
+
+### JavaScript Interactivity
+- Event handling: click, mouseover, mouseout
+- DOM manipulation: getAttribute, setAttribute
+- Dynamic content creation and modification
+- Integration with web application frameworks
+
+## Integration with Web Technologies
+
+SVG seamlessly integrates with HTML, CSS, and JavaScript for comprehensive web graphics.
+
+### HTML Integration Methods
+- Inline SVG: Direct inclusion in HTML documents
+- img element: SVG as image source
+- object element: Embedded SVG with DOM access
+- background-image: CSS background graphics
+
+### CSS Applications
+- SVG in CSS backgrounds and masks
+- CSS custom properties in SVG
+- Media queries for responsive graphics
+- CSS Grid and Flexbox with SVG elements
+
+### JavaScript DOM Manipulation
+- createElement and createElementNS for SVG elements
+- Namespace-aware attribute methods
+- Event handling and user interaction
+- Real-time data visualization updates
+
+## Browser Compatibility and Standards
+
+SVG enjoys broad browser support with consistent implementation across modern browsers.
+
+### Browser Support
+- Modern browsers: Full SVG 1.1 and SVG 2.0 features
+- Internet Explorer 9+: Basic SVG support
+- Mobile browsers: Complete SVG implementation
+- Progressive enhancement strategies for legacy browsers
+
+### Standards Compliance
+- W3C SVG specifications 1.1 and 2.0
+- XML namespace requirements
+- MIME type: image/svg+xml
+- Validation and conformance testing
+
+### Best Practices
+- Accessibility with title and desc elements
+- Performance optimization for complex graphics
+- Fallback content for unsupported browsers
+- Security considerations for user-generated SVG
+
 ## Supplementary Details
 
-### Mathematical Plot Optimization
-SVG mathematical plots benefit from path optimization techniques including segment reduction for performance, viewBox scaling for different mathematical ranges, and CSS styling for consistent mathematical notation appearance across devices.
-
-### Interactive Mathematical Visualization
-SVG supports interactive mathematical plots through JavaScript event handling, enabling dynamic mathematical function exploration, real-time parameter adjustment, and interactive mathematical demonstrations.
-
-### Mathematical Coordinate Systems
-SVG coordinate system flexibility supports various mathematical coordinate systems including Cartesian coordinates with custom origins, polar coordinate transformations, logarithmic scaling for mathematical data, and custom viewBox configurations for mathematical ranges.
+SVG represents a mature and powerful graphics standard that combines the precision of vector graphics with the flexibility of web technologies. Its declarative markup approach, combined with CSS styling and JavaScript interactivity, makes it suitable for everything from simple icons to complex data visualizations and interactive graphics applications.
 
 ## Reference Details
 
-### Mathematical Plot API
-```xml
-<!-- Mathematical function plot structure -->
-<svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">
-  <!-- Grid system -->
-  <defs>
-    <pattern id="mathGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#ccc" stroke-width="0.5"/>
-    </pattern>
-    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
-            refX="0" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="black" />
-    </marker>
-  </defs>
-  
-  <!-- Grid background -->
-  <rect x="-100" y="-100" width="200" height="200" fill="url(#mathGrid)"/>
-  
-  <!-- Axes -->
-  <line x1="-100" y1="0" x2="100" y2="0" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
-  <line x1="0" y1="-100" x2="0" y2="100" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
-  
-  <!-- Mathematical function curve -->
-  <path d="M-80,-64 Q-40,16 0,0 T80,64" fill="none" stroke="blue" stroke-width="2"/>
-  
-  <!-- Labels -->
-  <text x="85" y="-5" font-family="serif" font-size="12">x</text>
-  <text x="5" y="-85" font-family="serif" font-size="12">y</text>
-</svg>
-```
+### Core SVG Elements
+- svg: Root element establishing SVG context
+- g: Group element for organizing content
+- path: Complex shape definition with commands
+- rect, circle, ellipse, line: Basic shape primitives
+- text, tspan, textPath: Typography elements
+- use: Element reuse and instantiation
+- defs: Container for reusable definitions
 
-### Mathematical Styling Classes
-```css
-.math-axis {
-  stroke: #000;
-  stroke-width: 2;
-  marker-end: url(#arrowhead);
-}
+### Presentation Attributes
+- fill, stroke: Color and outline properties
+- opacity, fill-opacity, stroke-opacity: Transparency
+- transform: Coordinate system transformations
+- font-family, font-size: Typography properties
+- stroke-width, stroke-dasharray: Line styling
 
-.math-grid {
-  stroke: #ddd;
-  stroke-width: 0.5;
-  fill: none;
-}
-
-.math-function {
-  fill: none;
-  stroke-width: 2;
-}
-
-.math-text {
-  font-family: 'Times New Roman', serif;
-  text-anchor: middle;
-  dominant-baseline: central;
-}
-```
+### Advanced Elements
+- linearGradient, radialGradient: Color gradients
+- pattern: Repeating graphic patterns
+- clipPath, mask: Clipping and masking effects
+- filter: Complex visual effects
+- animate, animateTransform: SMIL animations
 
 ## Detailed Digest
 
-Retrieved from https://developer.mozilla.org/en-US/docs/Web/SVG on 2026-03-13. SVG provides comprehensive support for mathematical visualization through XML-based vector graphics with scalable precision. Features include path elements for mathematical function curves, text elements for mathematical notation, coordinate system control, CSS styling integration, and JavaScript programmability. The format supports mathematical symbols, complex expressions, grid systems, and interactive mathematical demonstrations while maintaining web standards compliance.
+**Source Content:** MDN Web Docs SVG documentation (https://developer.mozilla.org/en-US/docs/Web/SVG) and W3C SVG Primer (https://www.w3.org/Graphics/SVG/IG/resources/svgprimer.html)
+**Retrieved:** 2026-03-13
+**Attribution:** Mozilla Developer Network and W3C SVG Interest Group
+**Data Size:** Approximately 5.2KB extracted content
 
-Attribution: Mozilla Developer Network SVG documentation and W3C SVG specifications
-Data size obtained: ~6.8KB of technical specifications and mathematical implementation examples
+SVG is a comprehensive web graphics standard providing vector-based scalable images with XML markup, CSS styling integration, JavaScript interactivity, and broad browser support. The specification includes basic shape elements, complex path commands, text rendering, transformation capabilities, advanced effects through gradients and filters, SMIL animations, and seamless integration with HTML and web technologies for creating resolution-independent graphics suitable for responsive web design.
