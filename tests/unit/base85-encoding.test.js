@@ -4,27 +4,42 @@ import { describe, test, expect } from "vitest";
 import { encode, decode, listEncodings } from "../../src/lib/main.js";
 
 describe("Base85 Encoding", () => {
-  test("should have placeholder for base85 implementation", () => {
-    // TODO: Test base85 (Ascii85/Z85) encoding
-    // - Test encoding density ~6.41 bits/char
-    // - Test UUID encoding produces ~20 chars
-    // - Verify printable character output
-    // - Test compatibility with Z85 or Ascii85 standard
-    expect(true).toBe(true); // Placeholder passing test
+  test("should use correct charset and properties", () => {
+    const encodings = listEncodings();
+    const base85 = encodings.find(e => e.name === "base85");
+    
+    expect(base85).toBeDefined();
+    expect(base85.size).toBe(85);
+    expect(base85.bitsPerChar).toBeCloseTo(6.408, 2);
+    expect(base85.uuidLength).toBe(20);
+    expect(base85.charset.length).toBe(85);
   });
 
-  test("should have placeholder for base85 round-trip", () => {
-    // TODO: Test base85 round-trip property
-    // - Test with various binary inputs
-    // - Test edge cases and boundary conditions
-    // - Verify decode(encode(x, 'base85'), 'base85') === x
-    expect(true).toBe(true); // Placeholder passing test
+  test("should produce printable ASCII output", () => {
+    const testData = new Uint8Array([0xDE, 0xAD, 0xBE, 0xEF]);
+    const encoded = encode(testData, "base85");
+    
+    // Base85 should only contain printable ASCII characters
+    for (let i = 0; i < encoded.length; i++) {
+      const code = encoded.charCodeAt(i);
+      expect(code).toBeGreaterThanOrEqual(33); // No control chars
+      expect(code).toBeLessThanOrEqual(126); // Printable range
+    }
   });
 
-  test("should have placeholder for base85 metadata", () => {
-    // TODO: Test base85 appears in listEncodings()
-    // - Verify encoding name, charset, and bit density
-    // - Test metadata matches implementation
-    expect(true).toBe(true); // Placeholder passing test
+  test("should maintain round-trip property", () => {
+    const testCases = [
+      new Uint8Array([]),
+      new Uint8Array([0x00]),
+      new Uint8Array([0xFF]),
+      new Uint8Array([0xDE, 0xAD, 0xBE, 0xEF]),
+      new Uint8Array(Array(16).fill(0).map(() => Math.floor(Math.random() * 256)))
+    ];
+    
+    for (const testData of testCases) {
+      const encoded = encode(testData, "base85");
+      const decoded = decode(encoded, "base85");
+      expect(decoded).toEqual(testData);
+    }
   });
 });

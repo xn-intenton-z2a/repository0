@@ -3,30 +3,56 @@
 import { describe, test, expect } from "vitest";
 import { createEncoding, encode, decode, listEncodings } from "../../src/lib/main.js";
 
-describe("Custom Encoding Creation", () => {
-  test("should have placeholder for createEncoding function", () => {
-    // TODO: Test createEncoding(name, charset) function
-    // - Test creating custom encodings with different character sets
-    // - Test validation of charset (no duplicates, printable chars only)
-    // - Test error handling for invalid parameters
-    // - Verify created encoding works with encode/decode
-    expect(true).toBe(true); // Placeholder passing test
+describe("Custom Encodings", () => {
+  test("should create valid custom encodings", () => {
+    const encoding = createEncoding("hex", "0123456789ABCDEF");
+    
+    expect(encoding.name).toBe("hex");
+    expect(encoding.charset).toBe("0123456789ABCDEF");
+    expect(encoding.size).toBe(16);
+    expect(encoding.bitsPerChar).toBe(4);
   });
 
-  test("should have placeholder for custom encoding registration", () => {
-    // TODO: Test custom encoding appears in listEncodings()
-    // - Create a custom encoding and verify it's listed
-    // - Test metadata calculation for custom encodings
-    // - Test persistence and reuse of custom encodings
-    expect(true).toBe(true); // Placeholder passing test
+  test("should integrate custom encodings with encode/decode", () => {
+    createEncoding("binary", "01");
+    
+    const testData = new Uint8Array([0xAA]); // 10101010 in binary
+    const encoded = encode(testData, "binary");
+    expect(encoded).toBe("10101010");
+    
+    const decoded = decode(encoded, "binary");
+    expect(decoded).toEqual(testData);
   });
 
-  test("should have placeholder for custom encoding validation", () => {
-    // TODO: Test custom encoding validation rules
-    // - Test no control characters allowed
-    // - Test no ambiguous characters (configurable)
-    // - Test charset size validation
-    // - Test character uniqueness enforcement
-    expect(true).toBe(true); // Placeholder passing test
+  test("should validate charset requirements", () => {
+    // Test minimum length
+    expect(() => createEncoding("short", "A")).toThrow("at least 2 characters");
+    
+    // Test duplicate characters
+    expect(() => createEncoding("dupe", "ABBA")).toThrow("duplicate characters");
+    
+    // Test control characters
+    expect(() => createEncoding("ctrl", "ABC\n")).toThrow("control characters");
+    
+    // Test empty name
+    expect(() => createEncoding("", "ABC")).toThrow("non-empty string");
+  });
+
+  test("should prevent overwriting built-in encodings", () => {
+    expect(() => createEncoding("base62", "custom")).toThrow("Cannot overwrite built-in");
+    expect(() => createEncoding("base85", "custom")).toThrow("Cannot overwrite built-in");
+    expect(() => createEncoding("base91", "custom")).toThrow("Cannot overwrite built-in");
+  });
+
+  test("should appear in listEncodings output", () => {
+    createEncoding("test64", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+    
+    const encodings = listEncodings();
+    const testEncoding = encodings.find(e => e.name === "test64");
+    
+    expect(testEncoding).toBeDefined();
+    expect(testEncoding.size).toBe(64);
+    expect(testEncoding.bitsPerChar).toBe(6);
+    expect(testEncoding.uuidLength).toBe(22);
   });
 });
