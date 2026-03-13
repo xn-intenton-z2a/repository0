@@ -4,11 +4,11 @@ Plot multiple mathematical expressions on the same coordinate system with differ
 
 ## Purpose
 
-This feature extends the plotting capabilities to support multiple mathematical expressions on a single plot, enabling users to compare different functions, visualize function transformations, or show mathematical relationships between expressions.
+This feature extends the plotting capabilities to support multiple mathematical expressions on a single plot, enabling users to compare different functions, visualize function transformations, or show mathematical relationships between expressions. Currently the CLI accepts multiple --expression flags but only renders the last one.
 
 ## Acceptance Criteria
 
-- Accept multiple --expression flags in CLI for multiple functions
+- Accept multiple --expression flags in CLI and render all functions  
 - Render each function with different colors and line styles
 - Support function labels and legends on plots
 - Handle different domains per function gracefully
@@ -17,16 +17,16 @@ This feature extends the plotting capabilities to support multiple mathematical 
 - Include legend showing function expressions and colors
 - Auto-scale axes to fit all functions appropriately
 - Handle functions with different mathematical domains
-- Support custom colors and line styles through CLI options
+- Support custom colors through CLI options
 
 ## Technical Implementation
 
-Extend the PlotRenderer class to accept arrays of data series and render them with distinct visual properties. Modify CLI interface to collect multiple expressions and coordinate the parsing and generation of multiple data series.
+Extend the CLI argument parsing to collect multiple expressions into an array. Modify PlotRenderer to accept arrays of data series and render them with distinct visual properties using a predefined color palette.
 
 ## Integration Points
 
-- Extends CLI interface to handle multiple --expression flags
-- Enhances PlotRenderer to support multi-series plotting
+- Fix CLI interface to handle multiple --expression flags correctly
+- Enhance PlotRenderer to support multi-series plotting with color coding
 - Web interface provides multiple expression input fields
 - Legend generation integrates with SVG and PNG output
 - Color management ensures visual distinction between functions
@@ -34,13 +34,13 @@ Extend the PlotRenderer class to accept arrays of data series and render them wi
 ## Example Usage
 
 ```
-// Plot sine and cosine together
+# Plot sine and cosine together
 node src/lib/main.js --expression "y=sin(x)" --expression "y=cos(x)" --range "x=-pi:pi" --file trig.svg
 
-// Compare polynomial degrees
+# Compare polynomial degrees  
 node src/lib/main.js --expression "y=x" --expression "y=x^2" --expression "y=x^3" --range "x=-2:2" --file polynomials.png
 
-// Function transformations
+# Function transformations
 node src/lib/main.js --expression "y=sin(x)" --expression "y=2*sin(x)" --expression "y=sin(2*x)" --range "x=0:2*pi" --file transformations.svg
 ```
 
