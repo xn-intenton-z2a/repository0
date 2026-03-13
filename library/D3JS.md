@@ -321,9 +321,9 @@ tree(root);
 
 ## Detailed Digest
 
-**Source Content:** D3.js official website (https://d3js.org/)
+**Source Content:** D3.js official website (https://d3js.org/) and GitHub repository (https://github.com/d3/d3)
 **Retrieved:** 2026-03-13
-**Attribution:** D3.js development team led by Mike Bostock
+**Attribution:** D3.js development team led by Mike Bostock and contributors
 **Data Size:** Approximately 8KB of technical specifications and architectural documentation
 
 D3.js provides comprehensive data visualization capabilities essential for advanced plotting libraries requiring flexible, custom visualizations through direct DOM manipulation. The library features sophisticated data-to-DOM binding system with enter/update/exit patterns, extensive scale functions for data transformation, comprehensive animation and transition system, geographic projection support for mapping applications, and modular architecture supporting selective imports for performance optimization.

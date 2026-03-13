@@ -12,9 +12,9 @@ Core functionality is complete and working. All tests pass (44/44), CLI interfac
 
 ## Acceptance Criteria
 
-- ✅ Parse mathematical expressions with proper error handling for invalid syntax
-- ✅ Support common mathematical functions (sin, cos, tan, log, exp, sqrt, abs, pow)  
-- ✅ Generate accurate time series data points within specified ranges and step sizes
+- ✅ Parse mathematical expressions with proper error handling for invalid syntax using Math.js
+- ✅ Support comprehensive mathematical functions through Math.js (trigonometric, logarithmic, exponential, statistical)
+- ✅ Support mathematical constants (pi, e) in expressions and ranges with proper evaluation
 - ✅ Handle mathematical constants (pi, e) in expressions and ranges
 - ✅ Render clean SVG plots with proper scaling, axes, labels, and grid lines
 - ✅ Generate PNG plots with high quality anti-aliasing using Sharp library
