@@ -8,11 +8,11 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { loadConfig, getWritablePaths } from "./config-loader.js";
-import { logActivity, generateClosingNotes, writeAgentLog } from "./logging.js";
-import { readFileSync, existsSync } from "fs";
+import { generateClosingNotes, writeAgentLog } from "./logging.js";
+import { readFileSync, existsSync, readdirSync } from "fs";
 import {
   buildMissionMetrics, buildMissionReadiness,
-  computeTransformationCost, readCumulativeCost, buildLimitsStatus,
+  computeTransformationCost, buildLimitsStatus,
 } from "../../copilot/telemetry.js";
 import {
   checkInstabilityLabel, countDedicatedTests,
@@ -63,9 +63,22 @@ async function run() {
     if (!handler) throw new Error(`Unknown task: ${task}. Available: ${Object.keys(TASKS).join(", ")}`);
 
     // Resolve log and screenshot paths (fetched from agentic-lib-logs branch by workflow)
-    const logFile = config.intentionBot?.intentionFilepath || "intenti\u00F6n.md";
+    const logPrefix = config.intentionBot?.logPrefix || "agent-log-";
     const screenshotFile = config.intentionBot?.screenshotFile || "SCREENSHOT_INDEX.png";
-    const logFilePath = existsSync(logFile) ? logFile : null;
+    // Find the most recent agent-log file matching the prefix for LLM context
+    const logDir = logPrefix.includes("/") ? logPrefix.substring(0, logPrefix.lastIndexOf("/")) : ".";
+    const logBase = logPrefix.includes("/") ? logPrefix.substring(logPrefix.lastIndexOf("/") + 1) : logPrefix;
+    let logFilePath = null;
+    try {
+      const logFiles = readdirSync(logDir)
+        .filter(f => f.startsWith(logBase) && f.endsWith(".md"))
+        .sort();
+      if (logFiles.length > 0) {
+        const newest = logFiles[logFiles.length - 1];
+        const candidate = logDir === "." ? newest : `${logDir}/${newest}`;
+        if (existsSync(candidate)) logFilePath = candidate;
+      }
+    } catch { /* no log files yet */ }
     const screenshotFilePath = existsSync(screenshotFile) ? screenshotFile : null;
 
     const context = {
@@ -96,8 +109,7 @@ async function run() {
       && await checkInstabilityLabel(context, issueNumber);
     if (isInstability) core.info(`Issue #${issueNumber} has instability label — does not count against budget`);
     const transformationCost = computeTransformationCost(task, result.outcome, isInstability);
-    const intentionFilepath = config.intentionBot?.intentionFilepath;
-    const cumulativeCost = readCumulativeCost(intentionFilepath) + transformationCost;
+    const cumulativeCost = transformationCost;
 
     if (result.dedicatedTestCount == null || result.dedicatedTestCount === 0) {
       try {
@@ -122,23 +134,6 @@ async function run() {
     }
 
     const missionMetrics = buildMissionMetrics(config, result, limitsStatus, cumulativeCost, featureIssueCount, maintenanceIssueCount);
-
-    if (intentionFilepath) {
-      logActivity({
-        filepath: intentionFilepath, task, outcome: result.outcome || "completed",
-        issueNumber, prNumber: result.prNumber, commitUrl: result.commitUrl,
-        tokensUsed: result.tokensUsed, inputTokens: result.inputTokens,
-        outputTokens: result.outputTokens, cost: result.cost, durationMs,
-        model: result.model || model, details: result.details,
-        workflowUrl: `${process.env.GITHUB_SERVER_URL}/${github.context.repo.owner}/${github.context.repo.repo}/actions/runs/${github.context.runId}`,
-        profile: config.tuning?.profileName || "unknown",
-        changes: result.changes, contextNotes: result.contextNotes,
-        limitsStatus, promptBudget: result.promptBudget,
-        missionReadiness: buildMissionReadiness(missionMetrics),
-        missionMetrics, closingNotes: result.closingNotes || generateClosingNotes(limitsStatus),
-        transformationCost, narrative: result.narrative,
-      });
-    }
 
     // Write standalone agent log file (pushed to agentic-lib-logs branch by workflow)
     try {

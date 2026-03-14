@@ -261,7 +261,7 @@ export function loadConfig(configPath) {
     transformationBudget: tuning.transformationBudget,
     seeding: toml.seeding || {},
     intentionBot: {
-      intentionFilepath: bot["log-file"] || "intentïon.md",
+      logPrefix: bot["log-prefix"] || "agent-log-",
       logBranch: bot["log-branch"] || "agentic-lib-logs",
       screenshotFile: bot["screenshot-file"] || "SCREENSHOT_INDEX.png",
     },

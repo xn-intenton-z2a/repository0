@@ -261,10 +261,17 @@ export async function direct(context) {
 
   // --- Gather context (similar to supervisor but focused on metrics) ---
   const mission = readOptionalFile(config.paths.mission.path);
-  const intentionLogFull = readOptionalFile(config.intentionBot.intentionFilepath);
-
-  const costMatches = intentionLogFull.matchAll(/\*\*agentic-lib transformation cost:\*\* (\d+)/g);
-  const cumulativeTransformationCost = [...costMatches].reduce((sum, m) => sum + parseInt(m[1], 10), 0);
+  // Read cumulative cost from agent-log files
+  let cumulativeTransformationCost = 0;
+  try {
+    const { readdirSync } = await import("fs");
+    const logFiles = readdirSync(".").filter(f => f.startsWith("agent-log-") && f.endsWith(".md")).sort();
+    for (const f of logFiles) {
+      const content = readOptionalFile(f);
+      const costMatches = content.matchAll(/\*\*agentic-lib transformation cost:\*\* (\d+)/g);
+      cumulativeTransformationCost += [...costMatches].reduce((sum, m) => sum + parseInt(m[1], 10), 0);
+    }
+  } catch { /* no agent-log files yet */ }
 
   const missionComplete = existsSync("MISSION_COMPLETE.md");
   const missionFailed = existsSync("MISSION_FAILED.md");

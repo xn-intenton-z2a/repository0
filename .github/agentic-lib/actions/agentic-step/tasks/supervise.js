@@ -106,12 +106,20 @@ async function postDirectReply(octokit, repo, nodeId, body) {
 
 async function gatherContext(octokit, repo, config, t) {
   const mission = readOptionalFile(config.paths.mission.path);
-  const intentionLogFull = readOptionalFile(config.intentionBot.intentionFilepath);
-  const recentActivity = intentionLogFull.split("\n").slice(-20).join("\n");
-
-  // Read cumulative transformation cost from the activity log
-  const costMatches = intentionLogFull.matchAll(/\*\*agentic-lib transformation cost:\*\* (\d+)/g);
-  const cumulativeTransformationCost = [...costMatches].reduce((sum, m) => sum + parseInt(m[1], 10), 0);
+  // Read recent activity from agent-log files
+  let recentActivity = "";
+  let cumulativeTransformationCost = 0;
+  try {
+    const { readdirSync } = await import("fs");
+    const logFiles = readdirSync(".").filter(f => f.startsWith("agent-log-") && f.endsWith(".md")).sort();
+    const recent = logFiles.slice(-5);
+    recentActivity = recent.map(f => readOptionalFile(f)).join("\n---\n").split("\n").slice(-40).join("\n");
+    for (const f of logFiles) {
+      const content = readOptionalFile(f);
+      const costMatches = content.matchAll(/\*\*agentic-lib transformation cost:\*\* (\d+)/g);
+      cumulativeTransformationCost += [...costMatches].reduce((sum, m) => sum + parseInt(m[1], 10), 0);
+    }
+  } catch { /* no agent-log files yet */ }
 
   // Check mission-complete signal
   const missionComplete = existsSync("MISSION_COMPLETE.md");

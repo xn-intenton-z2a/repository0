@@ -6,10 +6,9 @@
 // (transform.js, fix-code.js, maintain-features.js, maintain-library.js)
 // before Phase 4 convergence replaced them with unconditional runCopilotSession().
 
-import { existsSync } from "fs";
+import { existsSync, readdirSync, readFileSync } from "fs";
 import { resolve } from "path";
 import { execSync } from "child_process";
-import { readCumulativeCost } from "./telemetry.js";
 
 /**
  * Task-to-guard mapping. Each task has an ordered list of guards.
@@ -71,9 +70,16 @@ export function checkGuards(taskName, config, workspacePath, { logger } = {}) {
       case "budget-exhausted": {
         const budget = config.transformationBudget || 0;
         if (budget > 0) {
-          const intentionFilepath = config.intentionBot?.intentionFilepath;
-          const filePath = intentionFilepath ? resolve(wsPath, intentionFilepath) : null;
-          const cumulativeCost = readCumulativeCost(filePath);
+          // Read cumulative cost from agent-log files in workspace
+          let cumulativeCost = 0;
+          try {
+            const logFiles = readdirSync(wsPath).filter(f => f.startsWith("agent-log-") && f.endsWith(".md"));
+            for (const f of logFiles) {
+              const content = readFileSync(resolve(wsPath, f), "utf8");
+              const costMatches = content.matchAll(/\*\*agentic-lib transformation cost:\*\* (\d+)/g);
+              cumulativeCost += [...costMatches].reduce((sum, m) => sum + parseInt(m[1], 10), 0);
+            }
+          } catch { /* no agent-log files */ }
           if (cumulativeCost >= budget) {
             return { skip: true, reason: `Transformation budget exhausted (${cumulativeCost}/${budget})` };
           }
