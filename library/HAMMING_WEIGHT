@@ -1,47 +1,34 @@
-TABLE OF CONTENTS
+HAMMING_WEIGHT
+
+Table of Contents
 1. Definition
-2. Normalised extract (implementation-ready)
-3. Supplementary details (fast methods, lookups)
-4. Reference details (algorithms/signatures)
+2. Relationship to Hamming distance
+3. Algorithms to compute Hamming weight (popcount)
+4. Practical implementations and complexity
 5. Detailed digest (source + retrieval)
-6. Attribution and size
+6. Attribution and data size
 
 1. Definition
-Hamming weight is the number of symbols equal to '1' in a binary string; equivalently, the population count (popcount) of an integer's binary representation.
+Hamming weight is the number of symbols equal to '1' in a binary representation (number of set bits) of a value.
 
-2. Normalised extract (implementation-ready)
-- Direct methods:
-  - Builtin instructions: use CPU POPCNT where available for 32/64-bit words.
-  - Kernighan loop: while(x){ x &= x-1; count++; } — loops once per set bit.
-  - Table lookup: precompute popcount for bytes (0..255) and sum values for each byte of the integer.
-  - SWAR/parallel bit count (constant-time for machine word): use mask-and-add sequence to accumulate counts across bit groups (see reference SWAR pattern below).
+2. Relationship to Hamming distance
+For two bit-vectors a and b, Hamming distance equals the Hamming weight of a XOR b.
 
-3. Supplementary details
-- Complexity: O(k) with Kernighan where k = number of set bits; O(word_count) for SWAR/table methods.
-- Use cases: cryptography, error-detection metrics, bitmask population queries.
-- Portability: use table lookup or software SWAR if hardware POPCNT not available.
+3. Algorithms to compute Hamming weight (popcount)
+- Naive loop: test each bit with mask shifting and add if set (O(W) for W bit-width).
+- Kernighan's algorithm (fast when few bits set): count = 0; while (v != 0) { v = v & (v - 1); count++; }
+- Table lookup: precompute table for 8-bit values (0..255), split integer into bytes and sum table[byte_i].
+- SWAR (SIMD Within A Register) parallel bit counting: use fixed masks and multiplies to count bits in parallel across subfields; e.g. successive pairwise summation with constants 0x5555..., 0x3333..., 0x0F0F..., then multiply and shift trick.
+- Hardware support: CPU instruction POPCNT or compiler builtin functions (GCC __builtin_popcount, clang), use those when available for O(1) hardware time per machine word.
 
-4. Reference details (algorithms/signatures)
-- Kernighan algorithm:
-  count = 0
-  while x != 0:
-    x = x & (x - 1)
-    count += 1
-  return count
-- SWAR 32-bit implementation:
-  x = x - ((x >> 1) & 0x55555555)
-  x = (x & 0x33333333) + ((x >> 2) & 0x33333333)
-  x = (x + (x >> 4)) & 0x0F0F0F0F
-  x = x + (x >> 8)
-  x = x + (x >> 16)
-  return x & 0x0000003F
-- Byte table lookup: sum TABLE[byte_i] for i across bytes.
+4. Practical implementations and complexity
+- Time: O(k) where k is number of machine words; Kernighan: O(popcount) iterations; table lookup: O(k) with small constant factor.
+- Use table lookup for small word sizes or when memory for table is acceptable; use Kernighan for sparse bits; use hardware/popcnt when available for best throughput.
 
 5. Detailed digest
-- Source: https://en.wikipedia.org/wiki/Hamming_weight
-- Retrieved: 2026-03-14
-- Core extracted content: definition, popcount patterns (Kernighan, lookup table, SWAR), recommended use of CPU POPCNT where available.
+Source: https://en.wikipedia.org/wiki/Hamming_weight
+Retrieved: 2026-03-14
+Extracted technical content: definition, algorithms (Kernighan, table, SWAR), relation to Hamming distance.
 
 6. Attribution and data size
-- Attribution: Wikipedia (Hamming weight) — content retrieved and condensed.
-- Crawled approximate data size: 160.7 KB (HTTP fetch payload saved during crawl).
+Source attribution: Wikipedia (Hamming weight). Crawled content size: ~160.7 KB (HTTP fetch on 2026-03-14).

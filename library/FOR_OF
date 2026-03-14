@@ -1,42 +1,39 @@
-TABLE OF CONTENTS
-1. Definition and behavior
-2. Normalised extract (implementation details)
-3. Iterable protocol and method resolution
-4. Performance and common patterns
-5. Troubleshooting and gotchas
-6. Detailed digest
-7. Attribution and size
+FOR_OF
 
-1. Definition and behavior
-for...of iterates over the values produced by an object's default iterator (its @@iterator method). It yields values (not keys) and is intended for iterables: arrays, strings, Maps, Sets, generators, TypedArrays, and user-defined iterables.
+Table of Contents
+1. Syntax
+2. Semantics and iterator protocol
+3. Behavior with strings, arrays, maps, sets
+4. Differences from for...in and forEach
+5. Use cases for Hamming computations
+6. Detailed digest (source + retrieval)
+7. Attribution and data size
 
-2. Normalised extract (implementation details)
-- Syntax: for (var variable of iterable) statement
-- Evaluation steps (simplified):
-  - Retrieve iterator = iterable[Symbol.iterator]()
-  - Loop: let result = iterator.next(); if result.done is true, exit loop; else assign result.value to loop variable and execute body.
-- For strings: iteration yields complete characters (Unicode code points), handling surrogate pairs as single iteration values.
-- For Map: default iterator produces entries [key, value]; for (const [k,v] of map) destructuring extracts both.
+1. Syntax
+for (declaration of iterable) statement
+Example: for (const ch of str) { /* ch is a string containing one Unicode code point or combined surrogate pair */ }
 
-3. Iterable protocol and method resolution
-- An object is iterable if it has a function at the key Symbol.iterator.
-- Custom iterables must implement a next() method returning { value: any, done: boolean }.
-- The for...of construct does not iterate object property names (use for...in for keys) and does not expose the iterator object unless explicitly captured.
+2. Semantics and iterator protocol
+- for...of obtains the iterator from the iterable's @@iterator method and repeatedly calls next() to receive values.
+- Each iteration yields the next value (the iterator's "value"), not keys or indices.
+- It respects early exit (break, return) and continue semantics of loops.
 
-4. Performance and common patterns
-- Use for...of when you need actual values and when the iterable implements a native fast iterator (arrays, typed arrays).
-- To iterate numeric ranges, prefer for (let i=0;i<n;i++) for performance-critical loops; for...of adds iterator overhead.
-- Use break/continue/return inside loop body as usual; 'continue' proceeds to next iterator.next() call.
+3. Behavior with strings, arrays, maps, sets
+- Strings: iterates over Unicode code points (the string iterator returns full code points, combining surrogate pairs as single iteration units).
+- Arrays: yields elements in order.
+- Map: yields [key, value] entries when iterating the map itself; Map.keys() and Map.values() iterate keys or values respectively.
 
-5. Troubleshooting and gotchas
-- Do not use for...of on plain objects (Object.prototype has no default iterator) — it will throw a TypeError; use Object.keys() or Object.entries() instead.
-- When modifying the iterable during iteration, behavior depends on the iterator implementation; arrays' built-in iterators reflect modifications to the array made before the next next() call in many engines but avoid relying on this.
+4. Differences from for...in and forEach
+- for...in iterates enumerable property names (keys) of an object (strings), not values; unsuitable for array element value iteration by index order.
+- forEach is a method on some collections (Array.prototype.forEach, Map.prototype.forEach) and is a function call for each element; it cannot be used with break/continue and cannot await asynchronous iterator results without extra scaffolding.
+
+5. Use cases for Hamming computations
+- Use for...of on strings to iterate code points when computing per-character Hamming distances. This avoids surrogate-pair miscounts and aligns with human-visible characters in many scripts (though grapheme clusters may still need segmentation if combining marks are relevant).
 
 6. Detailed digest
-- Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of
-- Retrieved: 2026-03-14
-- Core extracted content: iteration mechanics based on Symbol.iterator, string surrogate-pair handling, example usage patterns.
+Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of
+Retrieved: 2026-03-14
+Extracted technical content: loop signature, iterator protocol, string-iterator behavior.
 
-7. Attribution and size
-- Attribution: MDN Web Docs — for...of statement
-- Crawled approximate data size: 210.5 KB (HTTP fetch payload saved during crawl).
+7. Attribution and data size
+Source attribution: MDN Web Docs (for...of). Crawled content size: ~210.5 KB (HTTP fetch on 2026-03-14).

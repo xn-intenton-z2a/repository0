@@ -1,49 +1,43 @@
-TABLE OF CONTENTS
+HAMMING_DISTANCE
+
+Table of Contents
 1. Definition
-2. Normalised extract (implementation-ready)
-3. Supplementary details (performance, input types)
-4. Reference details (algorithms/signatures)
-5. Detailed digest (source + retrieval)
-6. Attribution and size
+2. Mathematical formula
+3. Efficient implementations
+4. JavaScript string considerations
+5. Complexity and edge cases
+6. Detailed digest (source + retrieval)
+7. Attribution and data size
 
 1. Definition
-Hamming distance between two equal-length binary strings/arrays/bit-vectors is the number of positions at which the corresponding symbols differ. For general sequences (bytes, code units, booleans) the same definition applies: count of mismatched positions.
+The Hamming distance between two equal-length sequences is the count of positions at which the corresponding elements differ. Applicable to binary vectors, characters in strings (when compared as code points), and fixed-length tokens.
 
-2. Normalised extract (implementation-ready)
-- Required precondition: inputs A and B must have equal length L; if lengths differ, define policy (throw or compare up to min length and account for remainder as differences).
-- Bitwise approach (fastest for binary/byte buffers): compute XOR of aligned machine words then count set bits (popcount) in the XOR result and sum.
-- For byte arrays: iterate over 32/64-bit words: for i from 0 to n/WORD_SIZE-1: diffword = A[i] XOR B[i]; total += popcount(diffword). Process remaining bytes similarly.
-- For strings by code unit: obtain UTF-16 code units; to measure Hamming distance by code points, first normalize to code points (e.g., iterate with codePointAt) then compare code points sequence lengths and values.
-- For short inputs or single integer pairs: use builtin popcount (C: __builtin_popcount, __builtin_popcountll) or CPU POPCNT instruction where available.
+2. Mathematical formula
+For sequences x and y of length n:
+  d(x,y) = sum_{i=0..n-1} (x_i != y_i ? 1 : 0)
+For binary integer values interpreted as bit-vectors of width W:
+  d(a,b) = popcount(a XOR b)
 
-3. Supplementary details
-- Time complexity: O(n) where n = number of units compared (bits/bytes/words). Memory: O(1) additional.
-- Input validation: ensure consistent encoding and alignment. When comparing strings across encodings, normalize (NFC/NFD) before computing distance.
-- Constant-time consideration: avoid input-dependent branches when used in cryptographic comparisons; use bitwise XOR and popcount without early exits.
+3. Efficient implementations
+- Bitwise (integers): compute XOR, then compute population count (popcount) of the XOR result. Use hardware popcount when available (e.g., GCC __builtin_popcount, CPU POPCNT instruction).
+- Software popcount: Kernighan's method: repeatedly clear lowest set bit: count = 0; while (v) { v &= v - 1; count++; }
+- Table lookup: split word into bytes/nibbles, use precomputed table to sum set bits.
+- Strings: normalize comparison unit to code points (not UTF-16 code units) when comparing textual characters across languages or surrogate pairs. Use an iterator that yields full Unicode code points and compare code points one-by-one.
 
-4. Reference details (algorithms/signatures)
-- Signature (byte buffers): function hammingDistance(bufA: Uint8Array, bufB: Uint8Array): number
-  - Preconditions: bufA.length === bufB.length else throw RangeError
-  - Implementation pattern (JS/wasm/C):
-    - for i in 0..(len/8)-1: x = readUint64LE(A, i) ^ readUint64LE(B, i); total += popcount64(x)
-    - handle tail bytes with 32/16/8-bit reads
-- popcount implementations:
-  - Kernighan method (generic): count=0; while(x){ x &= x-1; count++; }
-  - SWAR 32-bit parallel count:
-    x = x - ((x >> 1) & 0x55555555)
-    x = (x & 0x33333333) + ((x >> 2) & 0x33333333)
-    x = (x + (x >> 4)) & 0x0F0F0F0F
-    x = x + (x >> 8)
-    x = x + (x >> 16)
-    return x & 0x3F
-- Example JS pattern (word loop + popcount fallback):
-  - Use DataView or typed arrays for aligned word reads; fallback to byte loop and Kernighan popcount for portability.
+4. JavaScript string considerations
+- JS String length is in UTF-16 code units; surrogate pairs occupy two code units. Comparing by code unit will miscount differences for characters outside BMP.
+- Use for...of or String.prototype.codePointAt to iterate/inspect by code point. When comparing two strings for Hamming distance as sequences of characters, first ensure they have the same number of code points; if not, define desired behavior (error, pad, or normalize) before computing.
+- For binary data use Node.js Buffer objects (byte arrays) and compute XOR per byte then sum set bits per byte.
 
-5. Detailed digest
-- Source: https://en.wikipedia.org/wiki/Hamming_distance
-- Retrieved: 2026-03-14
-- Core extracted content: definition, XOR + popcount method, use cases for equal-length sequences, references to coding theory origin.
+5. Complexity and edge cases
+- Time complexity: O(n) where n is number of elements compared (bits, bytes, or code points).
+- Space: O(1) extra beyond inputs for streaming comparisons.
+- Edge cases: differing lengths, normalization (NFC/NFD) of Unicode, combining marks, grapheme clusters vs code points (graphemes require more advanced segmentation if intended semantics are 'characters' as visible glyphs).
 
-6. Attribution and data size
-- Attribution: Wikipedia (Hamming distance) — content retrieved and condensed.
-- Crawled approximate data size: 161.7 KB (HTTP fetch payload saved during crawl).
+6. Detailed digest
+Source: https://en.wikipedia.org/wiki/Hamming_distance
+Retrieved: 2026-03-14
+Extracted technical content: definition, formula, use of XOR+popcount for binary vectors, mention of equal-length requirement and algorithmic notes.
+
+7. Attribution and data size
+Source attribution: Wikipedia (Hamming distance). Crawled content size: ~161.5 KB (HTTP fetch on 2026-03-14).

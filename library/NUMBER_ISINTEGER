@@ -1,0 +1,35 @@
+NUMBER_ISINTEGER
+
+Table of Contents
+1. Signature
+2. Behavior and result criteria
+3. Polyfill and implementation notes
+4. Use in validation and numeric checks
+5. Detailed digest (source + retrieval)
+6. Attribution and data size
+
+1. Signature
+Number.isInteger(value) -> Boolean
+Parameter: value (any type)
+
+2. Behavior and result criteria
+- Returns true if typeof value === 'number' and value is finite and the mathematical value is an integer (no fractional part). Equivalent to: isFinite(value) && Math.floor(value) === value when typeof value is 'number'.
+- It does not coerce non-number types. e.g., Number.isInteger('3') -> false.
+
+3. Polyfill and implementation notes
+Polyfill (conceptual):
+  function isInteger(value) {
+    return typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
+  }
+Edge cases: NaN, Infinity, -Infinity -> all return false.
+
+4. Use in validation and numeric checks
+- Use Number.isInteger to guard functions that require integer inputs (array indices, bit widths, code unit indices) to prevent silent coercion and hard-to-find bugs.
+
+5. Detailed digest
+Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+Retrieved: 2026-03-14
+Extracted technical content: native signature, non-coercing behavior, and polyfill algorithm.
+
+6. Attribution and data size
+Source attribution: MDN Web Docs (Number.isInteger). Crawled content size: ~154.6 KB (HTTP fetch on 2026-03-14).
