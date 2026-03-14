@@ -173,3 +173,84 @@ Idempotence and safety
 - tests/unit/seed.test.js added and passing
 - CLI seed command delegates to seedOntology
 - Web demo loads seeded dataset successfully
+
+# DATASET_DIFF
+
+# Summary
+
+Provide a deterministic dataset diff and change detection feature that computes compact, stable changesets between two saved datasets (directories) or between in-memory model states, enabling precise, auditable transforms and automated migrations during pipeline runs.
+
+# Motivation
+
+To advance the mission of evolving seed data across successive transform cycles, the pipeline needs a stable way to detect what changed between datasets to drive targeted migrations, generate release notes, and avoid noisy diffs that make automated transforms brittle.
+
+# Specification
+
+Behavior
+
+- diffDatasets(dirA, dirB, opts?)
+  - Computes a deterministic changeset representing additions, deletions, and updates at the file, class, property and individual level between dataset A and dataset B.
+  - Returns a machine-friendly JSON changeset and a compact human-readable summary suitable for release notes.
+
+- diffModels(modelA, modelB, opts?)
+  - Computes a changeset between two in-memory models without touching the filesystem.
+
+- applyChangeset(dir, changeset, opts?)
+  - Applies a deterministic list of changes to a target dataset, writing files atomically and returning a summary of files changed and any validation issues.
+
+Changeset format
+
+- Changesets are JSON objects with the top-level shape:
+  - { files: { added: string[], removed: string[], modified: string[] }, classes: { added:[], removed:[], changed:[] }, properties: {...}, individuals: {...}, metadata: { algorithm: 'dataset-diff-v1', canonicalized: boolean } }
+- For modified files the changeset includes before/after canonical hashes and a minimal structural patch describing which classes/properties/individuals changed.
+- The algorithm uses canonicalized JSON-LD for file content comparison to avoid spurious diffs caused by key ordering or blank node labels (invokes canonicalize() when available).
+
+API
+
+- export function diffDatasets(dirA, dirB, opts?) -> Promise<changeset>
+  - opts may include { canonicalize: boolean (default true), ignoreContext: boolean, keysToIgnore: string[] }
+
+- export function diffModels(modelA, modelB, opts?) -> changeset
+
+- export function formatChangeset(changeset, format = 'json' | 'text') -> string
+  - format='text' produces a compact human readable patch suitable for release notes.
+
+- export function applyChangeset(dir, changeset, opts?) -> Promise<{ applied: boolean, summary: object }>
+  - applyChangeset performs atomic writes (write to temp dir then rename) and validates the resulting dataset using validate().
+
+Determinism
+
+- The diff output must be deterministic: re-running diffDatasets on the same inputs produces bit-for-bit identical JSON when opts.canonicalize is true and stable key ordering is used.
+- formatChangeset(text) must produce stable textual summaries for inclusion in automated release notes.
+
+Acceptance Criteria
+
+- diffDatasets correctly identifies additions, deletions, and modifications for small test fixtures with known edits; tests assert exact expected changes.
+- The changeset JSON is canonicalised such that re-running the diff on identical inputs returns identical bytes (unit test assertion using checksums).
+- formatChangeset(changeset,'text') produces a concise human readable summary and includes a deterministic header with metadata.algorithm and timestamp-free content.
+- applyChangeset can apply a minimal change (for example: rename a property or add an individual) atomically to a dataset; the target dataset then loads successfully via load(dir) and validate() reports no new errors.
+- tests/unit/dataset-diff.test.js covers diffDatasets, formatChangeset, and applyChangeset using temporary directories and fixture datasets.
+
+Testing Recommendations
+
+- Create small fixture datasets under tests/fixtures/diff/{a,b} that differ by a few deterministic changes; assert diffDatasets finds exactly the expected changes.
+- Verify canonicalization reduces noisy diffs by modifying JSON key order or blank node labels in a fixture and asserting the diff remains unchanged when opts.canonicalize is true.
+- Test applyChangeset by applying the computed changeset to a copy of dataset A and asserting load(copy) produces the same stats and validate() results as dataset B.
+
+Implementation Notes
+
+- Reuse canonicalize() from PERSISTENCE to normalise file contents prior to diffing and to compute content hashes used in the changeset.
+- Compare per-file canonical JSON strings; for modified files compute a shallow structural diff to classify changed classes/properties/individuals instead of emitting full file diffs to keep changesets compact.
+- Keep the changeset format stable (dataset-diff-v1) and add unit tests that assert fields and structure to avoid regressions.
+- When applying changes write to a temporary directory and atomically replace the target dataset or write a manifest indicating completion to avoid partial updates being consumed.
+- Expose a CLI helper (repo diff --a data/old --b data/new --format text) and surface the text-formatted changeset on the web adapter for release notes and pipeline automation.
+
+Related features
+
+- PERSISTENCE (canonicalize, save/load), MODEL_VERSIONING (migrate(), modelVersion), SEED_DATA
+
+Status
+
+- PROPOSED: specification ready; implement as src/lib/diff.js and export named functions from src/lib/main.js; add unit tests in tests/unit/dataset-diff.test.js and small fixtures in tests/fixtures/diff.
+
+# End of DATASET_DIFF

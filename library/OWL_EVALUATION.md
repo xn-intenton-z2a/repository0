@@ -134,8 +134,21 @@ Detailed digest
   - rdflib.js: https://github.com/linkeddata/rdflib.js
 - Retrieval and crawl notes: web fetches were limited to 20,000 characters per URL during extraction; longer normative pages were truncated where indicated. Local library documents were read and consolidated.
 
-Attribution and crawl size
-- Attribution: condensed and adapted from W3C JSON-LD and JSON-LD API recommendations, OWL 2 Overview, RDF 1.1 Primer, and project READMEs for jsonld.js, N3.js and rdflib.js; retrieval date: 2026-03-14.
-- Data size: page fetches used max_length up to 20,000 characters per URL; aggregate extracted text used to build this file is a synthesis of those fetches and existing local library documents.
+Attribution and crawl snapshot
+- Retrieval timestamp: 2026-03-14T10:39:31.306Z
+- Fetch parameters: web_fetch was invoked with max_length=20000 characters per URL; responses that exceeded this limit are marked below as Content truncated.
+- Per-URL results (note: 'Content truncated' indicates the returned page reached the fetch limit):
+  - https://www.w3.org/TR/json-ld11/ — fetched up to 20000 chars; Content truncated: YES
+  - https://json-ld.org/ — fetched within limit; Content truncated: NO
+  - https://www.w3.org/TR/json-ld11-api/ — fetched up to 20000 chars; Content truncated: YES
+  - https://github.com/digitalbazaar/jsonld.js — fetched within limit; Content truncated: NO
+  - https://www.w3.org/TR/owl2-overview/ — fetched up to 20000 chars; Content truncated: YES
+  - https://www.w3.org/TR/rdf11-primer/ — fetched up to 20000 chars; Content truncated: YES
+  - https://github.com/rdfjs/N3.js — fetched within limit; Content truncated: NO
+  - https://github.com/linkeddata/rdflib.js — fetched within limit; Content truncated: NO
+
+Notes:
+- For full normative definitions consult the original W3C and project URLs listed in the SOURCES.md file. Truncated pages should be re-fetched with a start_index to obtain the remaining content if exact normative text is required.
+- Attribution: condensed and adapted from the W3C JSON-LD 1.1 documents, OWL 2 Overview, RDF 1.1 Primer, and the jsonld.js, N3.js and rdflib.js project READMEs; retrieval date: 2026-03-14.
 
 End of OWL_EVALUATION
