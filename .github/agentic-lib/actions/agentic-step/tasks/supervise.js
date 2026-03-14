@@ -609,6 +609,13 @@ async function executeCreateIssue(octokit, repo, params, ctx) {
   if (!title && feature) {
     title = `feat: implement ${feature}`;
   }
+  // Fallback: derive title from mission context when LLM provides no params
+  if (!title && ctx?.mission) {
+    const missionHeading = ctx.mission.match(/^#\s+(.+)/m);
+    const missionName = missionHeading ? missionHeading[1].trim() : "mission";
+    title = `feat: implement ${missionName.toLowerCase()}`;
+    core.info(`create-issue: derived title from mission context: "${title}"`);
+  }
   if (!title) {
     core.warning("create-issue: no title, body, or feature provided — skipping");
     return "skipped:no-title";
