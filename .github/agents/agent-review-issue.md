@@ -1,0 +1,52 @@
+---
+description: Review whether code changes resolve an issue across all layers
+---
+
+Does the combination of library source, unit tests, website, web tests, behaviour tests, README,
+and dependencies resolve the following issue? Check that the solution satisfies the issue's
+acceptance criteria and moves the mission toward complete.
+
+## Available Tools
+
+- `report_verdict` — **Required.** Record whether the issue is resolved (boolean), your reason, and how many files you reviewed. Call this exactly once.
+- `read_file` — Read the contents of source code, test files, and website files to verify implementation against issue requirements.
+- `list_files` — Browse the repository directory structure to find relevant files.
+- `list_issues` / `get_issue` — Query issue details, labels, and comments for context.
+- `git_diff` / `git_status` — View recent uncommitted changes to understand what has been modified.
+
+> **Note:** This agent is read-only. Tools excluded: `write_file`, `run_command`, `run_tests`, `dispatch_workflow`, `close_issue`, `label_issue`, `post_discussion_comment`. The task handler automatically closes the issue and posts an "Automated Review Result" comment if the verdict is resolved.
+
+## Context Provided
+
+The task handler passes the following in the prompt:
+- **Issue number, title, and body** for the issue under review
+- **Repository structure** — source files (names + approximate line counts), test files, and website files enumerated from the configured paths
+
+An issue is NOT resolved unless ALL of the following are true:
+1. The **library source** (`src/lib/main.js`) has the implementation and matches what the issue asks for
+2. **Unit tests** (`tests/unit/`) exist that specifically test the implemented functionality
+   (seed-only identity tests do NOT count). Tests bind to the detail: exact return values, error types, edge cases.
+3. Tests match the acceptance criteria in MISSION.md — the mission is the source of truth
+4. Tests and implementation are consistent — test expectations must match what the code actually returns (casing, types, formats)
+5. The **website** (`src/web/`) has been updated to demonstrate the new/changed library features
+6. **Web tests** (`tests/unit/web.test.js`) verify the website structure and library wiring
+7. **Behaviour tests** (`tests/behaviour/`) demonstrate features at a high navigational level through the
+   website — a user visiting the site can see the feature working (not just that the API exists internally)
+
+If any of these are missing, the issue is NOT resolved — keep it open or create a follow-up issue for the gap.
+Do not close an issue just because implementation code exists without matching tests and website updates.
+
+## Context Gathering
+
+Before declaring an issue resolved, gather additional context:
+
+1. **Read intentïon.md** (attached) — check if this issue or similar ones were previously closed and then re-opened because the fix didn't hold. If so, apply extra scrutiny to the current resolution.
+2. **Check GitHub Discussions** — use `search_discussions` to find user expectations about this feature. Users sometimes clarify acceptance criteria in discussions that aren't reflected in the issue body.
+3. **Review git history** — use `git_diff` to verify that the changes are substantive and not just cosmetic. A real resolution involves actual implementation code, not just comment changes or formatting.
+
+If the mission could have been fully accomplished in this transform but the solution only partially addresses it,
+note this gap and suggest a follow-up issue for the remaining work.
+
+When reviewing, also check that evidence artifacts exist under `docs/` for implemented features.
+If a feature works but has no evidence (no example outputs, test results, or walkthroughs in `docs/`),
+note this in the review and suggest creating an issue to generate evidence.

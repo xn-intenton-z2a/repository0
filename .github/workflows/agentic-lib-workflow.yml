@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-08T00:52:10.645Z
+# Schedule updated: 2026-03-14T17:36:51.891Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -12,19 +12,23 @@
 
 name: agentic-lib-workflow
 run-name: "agentic-lib-workflow [${{ github.ref_name }}]"
-#concurrency:
-#  group: agentic-lib-workflow
-#  cancel-in-progress: false
+concurrency:
+  group: agentic-lib-workflow
+  cancel-in-progress: false
 
 on:
   schedule:
-    - cron: "5,15,25,35,45,55 * * * *"
+    - cron: "5,25,45 * * * *"
   workflow_call:
     inputs:
+      ref:
+        type: string
+        required: false
+        default: ""
       model:
         type: string
         required: false
-        default: "gpt-5-mini"
+        default: ""
       profile:
         type: string
         required: false
@@ -37,6 +41,10 @@ on:
         type: string
         required: false
         default: "true"
+      skipMaintain:
+        type: string
+        required: false
+        default: "false"
       config-path:
         type: string
         required: false
@@ -44,11 +52,12 @@ on:
   workflow_dispatch:
     inputs:
       model:
-        description: "Copilot SDK model to use"
+        description: "Copilot SDK model to use (empty = read from agentic-lib.toml)"
         type: choice
         required: false
-        default: "gpt-5-mini"
+        default: ""
         options:
+          - ""
           - gpt-5-mini
           - claude-sonnet-4
           - gpt-4.1
@@ -100,6 +109,11 @@ on:
         type: string
         required: false
         default: ""
+      skipMaintain:
+        description: "Skip maintain job (for testing fix-stuck in isolation)"
+        type: boolean
+        required: false
+        default: false
       dry-run:
         description: "Skip all push/PR/merge operations"
         type: boolean
@@ -124,13 +138,26 @@ jobs:
   params:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          sparse-checkout: ${{ env.configPath }}
+          sparse-checkout-cone-mode: false
       - name: Normalise params
         id: normalise
         shell: bash
         run: |
           MODEL='${{ inputs.model }}'
+          if [ -z "$MODEL" ] && [ -f "${{ env.configPath }}" ]; then
+            TOML_MODEL=$(grep '^\s*model' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
+            MODEL="${TOML_MODEL}"
+          fi
           echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
           PROFILE='${{ inputs.profile }}'
+          if [ -z "$PROFILE" ] && [ -f "${{ env.configPath }}" ]; then
+            TOML_PROFILE=$(grep '^\s*profile' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
+            PROFILE="${TOML_PROFILE}"
+          fi
           echo "profile=${PROFILE}" >> $GITHUB_OUTPUT
           MODE='${{ inputs.mode }}'
           echo "mode=${MODE:-full}" >> $GITHUB_OUTPUT
@@ -152,6 +179,18 @@ jobs:
           echo "dry-run=${DRY_RUN}" >> $GITHUB_OUTPUT
           CONFIG='${{ inputs.config-path }}'
           echo "config-path=${CONFIG:-${{ env.configPath }}}" >> $GITHUB_OUTPUT
+          # Bot config: log prefix, log branch, screenshot file
+          LOG_PREFIX=""
+          LOG_BRANCH=""
+          SCREENSHOT=""
+          if [ -f "${{ env.configPath }}" ]; then
+            LOG_PREFIX=$(grep '^\s*log-prefix' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
+            LOG_BRANCH=$(grep '^\s*log-branch' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
+            SCREENSHOT=$(grep '^\s*screenshot-file' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
+          fi
+          echo "log-prefix=${LOG_PREFIX:-agent-log-}" >> $GITHUB_OUTPUT
+          echo "log-branch=${LOG_BRANCH:-agentic-lib-logs}" >> $GITHUB_OUTPUT
+          echo "screenshot-file=${SCREENSHOT:-SCREENSHOT_INDEX.png}" >> $GITHUB_OUTPUT
     outputs:
       model: ${{ steps.normalise.outputs.model }}
       profile: ${{ steps.normalise.outputs.profile }}
@@ -162,6 +201,9 @@ jobs:
       pr-number: ${{ steps.normalise.outputs.pr-number }}
       dry-run: ${{ steps.normalise.outputs.dry-run }}
       config-path: ${{ steps.normalise.outputs.config-path }}
+      log-prefix: ${{ steps.normalise.outputs.log-prefix }}
+      log-branch: ${{ steps.normalise.outputs.log-branch }}
+      screenshot-file: ${{ steps.normalise.outputs.screenshot-file }}
 
   # ─── PR Cleanup: merge/close/delete stale PRs and branches ─────────
   pr-cleanup:
@@ -235,17 +277,104 @@ jobs:
       merged-prs: ${{ steps.cleanup.outputs.merged-prs }}
       closed-prs: ${{ steps.cleanup.outputs.closed-prs }}
 
-  # ─── Telemetry: gather repo state for supervisor ───────────────────
-  telemetry:
+  # ─── Behaviour Telemetry: run Playwright tests in container ────────
+  behaviour-telemetry:
     needs: params
     if: |
       needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only'
     runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.58.2-noble
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install dependencies (non-blocking)
+        run: npm ci 2>/dev/null || npm install 2>/dev/null || true
+
+      - name: Build web assets (non-blocking)
+        run: npm run build:web 2>/dev/null || true
+
+      - name: Run behaviour tests (non-blocking)
+        id: behaviour-tests
+        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
+        run: |
+          set +e
+          OUTPUT=$(npm run --if-present test:behaviour 2>&1)
+          EXIT_CODE=$?
+          echo "exit-code=$EXIT_CODE" | tee -a $GITHUB_OUTPUT
+          PASS_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ passed' | head -1 | grep -oP '\d+' || echo "0")
+          FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ failed' | head -1 | grep -oP '\d+' || echo "0")
+          echo "pass-count=$PASS_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "fail-count=$FAIL_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "$OUTPUT"
+          exit 0
+
+    outputs:
+      exit-code: ${{ steps.behaviour-tests.outputs.exit-code || '-1' }}
+      pass-count: ${{ steps.behaviour-tests.outputs.pass-count || '0' }}
+      fail-count: ${{ steps.behaviour-tests.outputs.fail-count || '0' }}
+
+  # ─── Telemetry: gather repo state for supervisor ───────────────────
+  telemetry:
+    needs: [params, behaviour-telemetry]
+    if: |
+      !cancelled() &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Install dependencies (non-blocking)
+        id: install-deps
+        run: |
+          set +e
+          INSTALL_CMD="npm ci"
+          OUTPUT=$(eval "$INSTALL_CMD" 2>&1)
+          EXIT_CODE=$?
+          echo "exit-code=$EXIT_CODE" | tee -a $GITHUB_OUTPUT
+          ERROR_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ error' | head -1 | grep -oP '\d+' || echo "0")
+          echo "error-count=$ERROR_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "$OUTPUT" > /tmp/install-output.txt
+          echo "$OUTPUT"
+          exit 0
+
+      - name: Run unit tests (non-blocking)
+        id: unit-tests
+        run: |
+          set +e
+          TEST_CMD=""
+          if [ -f agentic-lib.toml ]; then
+            TEST_CMD=$(grep '^\s*test\s*=' agentic-lib.toml 2>/dev/null | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/')
+          fi
+          TEST_CMD="${TEST_CMD:-npm test}"
+          OUTPUT=$(eval "$TEST_CMD" 2>&1)
+          EXIT_CODE=$?
+          echo "exit-code=$EXIT_CODE" | tee -a $GITHUB_OUTPUT
+          PASS_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ pass' | head -1 | grep -oP '\d+' || echo "0")
+          FAIL_COUNT=$(echo "$OUTPUT" | grep -oP '\d+ fail' | head -1 | grep -oP '\d+' || echo "0")
+          echo "pass-count=$PASS_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "fail-count=$FAIL_COUNT" | tee -a $GITHUB_OUTPUT
+          echo "$OUTPUT" > /tmp/unit-test-output.txt
+          echo "$OUTPUT"
+          exit 0
+
       - name: Gather telemetry
         id: gather
         uses: actions/github-script@v8
+        env:
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
         with:
           script: |
             const fs = require('fs');
@@ -261,6 +390,16 @@ jobs:
               number: i.number, title: i.title,
               labels: i.labels.map(l => l.name),
             }));
+
+            // W7: Check for open instability issues (mechanical priority override)
+            const { data: instabilityIssues } = await github.rest.issues.listForRepo({
+              owner, repo, state: 'open', labels: 'instability',
+              sort: 'created', direction: 'asc', per_page: 10,
+            });
+            const instabilityNumbers = instabilityIssues.map(i => i.number);
+            if (instabilityNumbers.length > 0) {
+              core.info(`Found ${instabilityNumbers.length} instability issue(s): ${instabilityNumbers.join(', ')}`);
+            }
 
             // Open PRs
             const { data: prs } = await github.rest.pulls.list({
@@ -294,20 +433,138 @@ jobs:
             // Message from bot/human
             const message = '${{ needs.params.outputs.message }}';
 
+            // Latest external test workflow run
+            let externalTestResults = null;
+            try {
+              const testRuns = await github.rest.actions.listWorkflowRuns({
+                owner, repo,
+                workflow_id: 'agentic-lib-test.yml',
+                branch: 'main',
+                per_page: 1,
+              });
+              const latestTest = testRuns.data.workflow_runs[0];
+              if (latestTest) {
+                const jobs = await github.rest.actions.listJobsForWorkflowRun({
+                  owner, repo,
+                  run_id: latestTest.id,
+                });
+                externalTestResults = {
+                  runId: latestTest.id,
+                  conclusion: latestTest.conclusion,
+                  created: latestTest.created_at,
+                  jobs: jobs.data.jobs.map(j => ({
+                    name: j.name, conclusion: j.conclusion,
+                  })),
+                };
+              }
+            } catch (e) { /* ignore */ }
+
+            // Source file stats
+            let sourceStats = null;
+            try {
+              const sourcePath = 'src/lib/';
+              if (fs.existsSync(sourcePath)) {
+                const files = fs.readdirSync(sourcePath).filter(f => f.endsWith('.js') || f.endsWith('.ts'));
+                sourceStats = files.map(f => {
+                  const content = fs.readFileSync(`${sourcePath}${f}`, 'utf8');
+                  const lines = content.split('\n').length;
+                  const exports = [...content.matchAll(/export\s+(?:async\s+)?(?:function|const|class)\s+(\w+)/g)].map(m => m[1]);
+                  return { file: f, lines, exports };
+                });
+              }
+            } catch (e) {}
+
+            // Mission complete/failed signals
+            const missionComplete = fs.existsSync('MISSION_COMPLETE.md');
+            const missionFailed = fs.existsSync('MISSION_FAILED.md');
+
+            // Activity log stats (from agent-log files on log branch)
+            const logBranch = process.env.LOG_BRANCH || 'agentic-lib-logs';
+            let activityStats = null;
+            try {
+              const { data: tree } = await github.rest.git.getTree({
+                owner, repo, tree_sha: logBranch, recursive: false,
+              });
+              const logFiles = tree.tree
+                .filter(f => f.path.startsWith('agent-log-') && f.path.endsWith('.md'))
+                .sort((a, b) => a.path.localeCompare(b.path));
+              activityStats = { entries: logFiles.length, totalTransformCost: 0 };
+              // Sum costs from the most recent 10 log files
+              const recent = logFiles.slice(-10);
+              for (const lf of recent) {
+                try {
+                  const { data } = await github.rest.repos.getContent({
+                    owner, repo, path: lf.path, ref: logBranch,
+                  });
+                  const content = Buffer.from(data.content, 'base64').toString('utf8');
+                  const costMatches = [...content.matchAll(/\*\*agentic-lib transformation cost:\*\* (\d+)/g)];
+                  activityStats.totalTransformCost += costMatches.reduce((sum, m) => sum + parseInt(m[1], 10), 0);
+                } catch { /* skip unreadable files */ }
+              }
+            } catch (e) {}
+
+            // Live test results from earlier steps
+            const installOutput = fs.existsSync('/tmp/install-output.txt')
+              ? fs.readFileSync('/tmp/install-output.txt', 'utf8')
+              : '';
+            const unitOutput = fs.existsSync('/tmp/unit-test-output.txt')
+              ? fs.readFileSync('/tmp/unit-test-output.txt', 'utf8')
+              : '';
             const telemetry = {
               issues: issuesSummary,
+              instabilityIssues: instabilityNumbers,
               prs: prsSummary,
               recentRuns: runsSummary,
               mission: mission.slice(0, 500),
               featureFiles: features,
               message: message || null,
+              liveTests: {
+                install: {
+                  exitCode: parseInt('${{ steps.install-deps.outputs.exit-code }}' || '0'),
+                  errorCount: parseInt('${{ steps.install-deps.outputs.error-count }}' || '0'),
+                  output: installOutput,
+                },
+                unit: {
+                  exitCode: parseInt('${{ steps.unit-tests.outputs.exit-code }}' || '0'),
+                  passCount: parseInt('${{ steps.unit-tests.outputs.pass-count }}' || '0'),
+                  failCount: parseInt('${{ steps.unit-tests.outputs.fail-count }}' || '0'),
+                  output: unitOutput,
+                },
+                behaviour: {
+                  exitCode: parseInt('${{ needs.behaviour-telemetry.outputs.exit-code }}' || '-1'),
+                  passCount: parseInt('${{ needs.behaviour-telemetry.outputs.pass-count }}' || '0'),
+                  failCount: parseInt('${{ needs.behaviour-telemetry.outputs.fail-count }}' || '0'),
+                },
+              },
+              externalTestResults,
+              sourceStats,
+              activityStats,
+              missionComplete,
+              missionFailed,
             };
 
             // Write to file for downstream jobs
             fs.writeFileSync('/tmp/telemetry.json', JSON.stringify(telemetry, null, 2));
-            // Set as output (truncated for GitHub output limits)
+            // Set as output (clipped by tuning profile)
+            let maxTelemetryChars = 30000;
+            try {
+              if (fs.existsSync('agentic-lib.toml')) {
+                const toml = fs.readFileSync('agentic-lib.toml', 'utf8');
+                const profileMatch = toml.match(/^\s*profile\s*=\s*"(\w+)"/m);
+                const profile = profileMatch ? profileMatch[1] : 'recommended';
+                const PROFILE_LIMITS = { min: 10000, recommended: 30000, max: 60000 };
+                maxTelemetryChars = PROFILE_LIMITS[profile] || 30000;
+              }
+            } catch (e) {}
             const summary = JSON.stringify(telemetry);
-            core.setOutput('telemetry', summary.slice(0, 60000));
+            core.setOutput('telemetry', summary.slice(0, maxTelemetryChars));
+
+      #- name: Output telemetry
+      #  shell: bash
+      #  run: |
+      #    echo "Telemetry data:"
+      #    echo '${{ steps.gather.outputs.telemetry }}'
+
     outputs:
       telemetry: ${{ steps.gather.outputs.telemetry }}
 
@@ -318,22 +575,38 @@ jobs:
     if: |
       !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'maintain-only') &&
-      needs.params.result == 'success'
+      needs.params.result == 'success' &&
+      inputs.skipMaintain != 'true' && inputs.skipMaintain != true
     runs-on: ubuntu-latest
+    outputs:
+      commit-sha: ${{ steps.get-sha.outputs.sha }}
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Fetch log and screenshot from log branch
+        env:
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+          SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
+        run: |
+          git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
+          git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
 
       - name: Check mission-complete signal
         id: mission-check
         run: |
-          if [ -f MISSION_COMPLETE.md ]; then
+          SUPERVISOR=$(grep '^\s*supervisor\s*=' agentic-lib.toml 2>/dev/null | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/')
+          if [ -f MISSION_COMPLETE.md ] && [ "$SUPERVISOR" != "maintenance" ]; then
             echo "mission-complete=true" >> $GITHUB_OUTPUT
             echo "Mission is complete — skipping budget-consuming tasks"
             cat MISSION_COMPLETE.md
           else
             echo "mission-complete=false" >> $GITHUB_OUTPUT
+            if [ "$SUPERVISOR" = "maintenance" ] && [ -f MISSION_COMPLETE.md ]; then
+              echo "Maintenance mode — ignoring MISSION_COMPLETE.md"
+            fi
           fi
 
       - uses: actions/setup-node@v6
@@ -346,20 +619,24 @@ jobs:
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
-        run: npm ci
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
 
       - name: Apply profile and model to config
-        if: needs.params.outputs.profile != '' || needs.params.outputs.model != 'gpt-5-mini'
+        if: inputs.profile != '' || inputs.model != ''
         run: |
           CONFIG="${{ needs.params.outputs.config-path }}"
-          PROFILE="${{ needs.params.outputs.profile }}"
-          MODEL="${{ needs.params.outputs.model }}"
+          PROFILE="${{ inputs.profile }}"
+          MODEL="${{ inputs.model }}"
           if [ -f "$CONFIG" ]; then
             if [ -n "$PROFILE" ]; then
               sed -i "s/^profile = \"[^\"]*\"/profile = \"${PROFILE}\"/" "$CONFIG"
               echo "Updated [tuning].profile to: ${PROFILE}"
             fi
-            if [ -n "$MODEL" ] && [ "$MODEL" != "gpt-5-mini" ]; then
+            if [ -n "$MODEL" ]; then
               sed -i "s/^model = \"[^\"]*\"/model = \"${MODEL}\"/" "$CONFIG"
               echo "Updated [tuning].model to: ${MODEL}"
             fi
@@ -385,7 +662,7 @@ jobs:
         with:
           task: "maintain-features"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-maintain-features.md"
+          instructions: ".github/agents/agent-maintain-features.md"
           writable-paths: ${{ steps.config.outputs.featuresWritablePaths }}
           model: ${{ needs.params.outputs.model }}
 
@@ -399,7 +676,7 @@ jobs:
         with:
           task: "maintain-library"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-maintain-library.md"
+          instructions: ".github/agents/agent-maintain-library.md"
           writable-paths: ${{ steps.config.outputs.libraryWritablePaths }}
           model: ${{ needs.params.outputs.model }}
 
@@ -417,16 +694,46 @@ jobs:
           commit-message: "agentic-step: maintain features and library"
           push-ref: ${{ github.ref_name }}
 
-  # ─── Supervisor: LLM decides what to do (after maintain has features) ──
-  supervisor:
-    needs: [params, pr-cleanup, telemetry, maintain]
+      - name: Capture commit SHA
+        id: get-sha
+        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Push log to log branch
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        env:
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md
+
+  # ─── Implementation Review: traces mission elements through code/tests/website ──
+  implementation-review:
+    needs: [params]
     if: |
       !cancelled() &&
-      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'maintain-only') &&
       needs.params.result == 'success'
     runs-on: ubuntu-latest
+    outputs:
+      review-advice: ${{ steps.review.outputs.completeness-advice }}
+      review-gaps: ${{ steps.review.outputs.gaps }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Fetch log and agent logs from log branch
+        env:
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+          SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
+        run: |
+          git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
+          git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
+          mkdir -p .agent-logs
+          git fetch origin "${LOG_BRANCH}" 2>/dev/null || true
+          for f in $(git ls-tree --name-only "origin/${LOG_BRANCH}" 2>/dev/null | grep '^agent-log-' || true); do
+            git show "origin/${LOG_BRANCH}:${f}" > ".agent-logs/${f}" 2>/dev/null || true
+          done
+          echo "Fetched $(ls .agent-logs/agent-log-*.md 2>/dev/null | wc -l | tr -d ' ') agent log files"
 
       - uses: actions/setup-node@v6
         with:
@@ -438,7 +745,158 @@ jobs:
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
-        run: npm ci
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
+
+      - name: Run implementation review
+        id: review
+        if: github.repository != 'xn-intenton-z2a/agentic-lib'
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "implementation-review"
+          config: ${{ needs.params.outputs.config-path }}
+          instructions: ".github/agents/agent-implementation-review.md"
+          model: ${{ needs.params.outputs.model }}
+
+      - name: Push log to log branch
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        env:
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md
+
+  # ─── Director: LLM evaluates mission status (complete/failed/in-progress) ──
+  director:
+    needs: [params, telemetry, maintain, implementation-review]
+    if: |
+      !cancelled() &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
+      needs.params.result == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      decision: ${{ steps.director.outputs.director-decision }}
+      analysis: ${{ steps.director.outputs.director-analysis }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+
+      - name: Fetch log and screenshot from log branch
+        env:
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+          SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
+        run: |
+          git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
+          git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Self-init (agentic-lib dev only)
+        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+        run: bash scripts/self-init.sh
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
+
+      - name: Run director
+        id: director
+        if: github.repository != 'xn-intenton-z2a/agentic-lib'
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          REVIEW_ADVICE: ${{ needs.implementation-review.outputs.review-advice }}
+          REVIEW_GAPS: ${{ needs.implementation-review.outputs.review-gaps }}
+        with:
+          task: "direct"
+          config: ${{ needs.params.outputs.config-path }}
+          instructions: ".github/agents/agent-director.md"
+          model: ${{ needs.params.outputs.model }}
+
+      - name: Push log to log branch
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        env:
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md
+
+  # ─── Supervisor: LLM decides what to do (after director evaluates) ──
+  supervisor:
+    needs: [params, pr-cleanup, telemetry, maintain, implementation-review, director]
+    if: |
+      !cancelled() &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
+      needs.params.result == 'success' &&
+      needs.director.outputs.decision != 'mission-complete' &&
+      needs.director.outputs.decision != 'mission-failed'
+    runs-on: ubuntu-latest
+    outputs:
+      backoff-skip: ${{ steps.backoff.outputs.skip }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+
+      - name: Fetch log, screenshot and state from log branch
+        env:
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+          SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
+        run: |
+          git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
+          git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
+
+      - name: "C15: Check nop backoff"
+        id: backoff
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let nopCount = 0;
+            try {
+              const content = fs.readFileSync('agentic-lib-state.toml', 'utf8');
+              const match = content.match(/cumulative-nop-cycles\s*=\s*(\d+)/);
+              if (match) nopCount = parseInt(match[1], 10);
+            } catch { /* no state file yet */ }
+            core.info(`Consecutive nop cycles: ${nopCount}`);
+            let shouldSkip = false;
+            if (nopCount > 3) {
+              const pow = Math.pow(2, Math.floor(Math.log2(nopCount)));
+              if (nopCount !== pow) {
+                shouldSkip = true;
+                core.info(`Backoff: skipping (nop count ${nopCount}, next run at ${pow * 2})`);
+              }
+            }
+            core.setOutput('skip', shouldSkip ? 'true' : 'false');
+
+      - uses: actions/setup-node@v6
+        if: steps.backoff.outputs.skip != 'true'
+        with:
+          node-version: "24"
+
+      - name: Self-init (agentic-lib dev only)
+        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+        run: bash scripts/self-init.sh
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
 
       - name: Run supervisor
         if: github.repository != 'xn-intenton-z2a/agentic-lib'
@@ -447,15 +905,23 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           INPUT_MESSAGE: ${{ needs.params.outputs.message }}
+          REVIEW_ADVICE: ${{ needs.implementation-review.outputs.review-advice }}
+          REVIEW_GAPS: ${{ needs.implementation-review.outputs.review-gaps }}
         with:
           task: "supervise"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-supervisor.md"
+          instructions: ".github/agents/agent-supervisor.md"
           model: ${{ needs.params.outputs.model }}
+
+      - name: Push log to log branch
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        env:
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md
 
   # ─── Fix stuck PRs with failing checks ─────────────────────────────
   fix-stuck:
-    needs: [params, supervisor]
+    needs: [params, maintain, supervisor]
     if: |
       !cancelled() &&
       needs.params.outputs.mode == 'full' &&
@@ -465,6 +931,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
       - uses: actions/setup-node@v6
         with:
@@ -473,29 +940,34 @@ jobs:
       - name: Install project dependencies
         run: npm ci
 
-      - name: Install Playwright (for behaviour tests)
-        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
-        run: npx playwright install --with-deps chromium
-
-      - name: Self-init (agentic-lib dev only)
-        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
-        run: bash scripts/self-init.sh
+#      - name: Install Playwright (for behaviour tests)
+#        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
+#        run: npx playwright install --with-deps chromium
+#
+#      - name: Self-init (agentic-lib dev only)
+#        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+#        run: bash scripts/self-init.sh
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
-        run: npm ci
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
 
       - name: Check mission-complete signal
         id: fix-mission-check
         run: |
-          if [ -f MISSION_COMPLETE.md ]; then
+          SUPERVISOR=$(grep '^\s*supervisor\s*=' agentic-lib.toml 2>/dev/null | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/')
+          if [ -f MISSION_COMPLETE.md ] && [ "$SUPERVISOR" != "maintenance" ]; then
             echo "mission-complete=true" >> $GITHUB_OUTPUT
             echo "Mission is complete — skipping fix-stuck"
           else
             echo "mission-complete=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Find and fix stuck PRs or broken main build
+      - name: Find stuck PRs or broken main build
         if: steps.fix-mission-check.outputs.mission-complete != 'true'
         uses: actions/github-script@v8
         env:
@@ -511,10 +983,11 @@ jobs:
             if (prNumber) {
               core.info(`Specific PR requested: #${prNumber}`);
               core.exportVariable('FIX_PR_NUMBER', prNumber);
+              core.exportVariable('FIX_REASON', 'requested');
               return;
             }
 
-            // Find PRs with failing checks or merge conflicts on agentic branches
+            // Find automerge PRs on agentic branches — always attempt to sync with main
             const { data: openPRs } = await github.rest.pulls.list({
               owner, repo, state: 'open', per_page: 10,
             });
@@ -525,35 +998,20 @@ jobs:
               if (!hasAutomerge) continue;
               if (!pr.head.ref.startsWith('agentic-lib-') && !pr.head.ref.startsWith('copilot/')) continue;
 
-              // Check for merge conflicts
-              const { data: fullPr } = await github.rest.pulls.get({
-                owner, repo, pull_number: pr.number,
+              // Check fix attempt count via PR comments with marker
+              const { data: comments } = await github.rest.issues.listComments({
+                owner, repo, issue_number: pr.number, per_page: 100,
               });
-              const hasConflicts = fullPr.mergeable_state === 'dirty' || fullPr.mergeable === false;
-
-              // Check if checks are failing
-              const { data: checkRuns } = await github.rest.checks.listForRef({
-                owner, repo, ref: pr.head.sha,
-              });
-              const hasFailing = checkRuns.check_runs.some(c => c.conclusion === 'failure');
-
-              if (!hasFailing && !hasConflicts) continue;
-
-              // Check fix attempt count
-              const { data: fixRuns } = await github.rest.actions.listWorkflowRuns({
-                owner, repo, workflow_id: 'agentic-lib-workflow.yml',
-                branch: pr.head.ref, per_page: maxFixAttempts + 1,
-              });
-              if (fixRuns.total_count >= maxFixAttempts) {
-                core.info(`PR #${pr.number} exceeded fix attempts. Removing automerge.`);
+              const fixAttempts = comments.filter(c => c.body && c.body.includes('<!-- fix-stuck-attempt -->')).length;
+              if (fixAttempts >= maxFixAttempts) {
+                core.info(`PR #${pr.number} exceeded ${maxFixAttempts} fix attempts (${fixAttempts} markers). Removing automerge.`);
                 try { await github.rest.issues.removeLabel({ owner, repo, issue_number: pr.number, name: 'automerge' }); } catch (e) {}
                 continue;
               }
 
-              const reason = hasConflicts ? 'merge conflicts' : 'failing checks';
-              core.info(`Will attempt to fix PR #${pr.number} (${reason})`);
+              core.info(`Will sync PR #${pr.number} with main (attempt ${fixAttempts + 1}/${maxFixAttempts})`);
               core.exportVariable('FIX_PR_NUMBER', String(pr.number));
-              core.exportVariable('FIX_REASON', reason);
+              core.exportVariable('FIX_REASON', 'sync');
               foundPR = true;
               break;
             }
@@ -570,7 +1028,6 @@ jobs:
                 if (testRuns.workflow_runs.length > 0) {
                   const latestTest = testRuns.workflow_runs[0];
                   if (latestTest.conclusion === 'failure') {
-                    // Check we haven't already opened a fix branch for this
                     const { data: existingPRs } = await github.rest.pulls.list({
                       owner, repo, state: 'open', head: `${owner}:agentic-lib-fix-main-build`, per_page: 1,
                     });
@@ -597,47 +1054,128 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Record fix-stuck attempt on PR
+        if: env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment "${{ env.FIX_PR_NUMBER }}" --body "<!-- fix-stuck-attempt -->
+          **fix-stuck** attempting to resolve: ${{ env.FIX_REASON }} (run [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}))"
+
       - name: Create fix branch for broken main build
         if: env.FIX_MAIN_BUILD == 'true' && steps.fix-mission-check.outputs.mission-complete != 'true'
         run: |
           git checkout -b agentic-lib-fix-main-build
 
-      - name: "Tier 1: Auto-resolve trivial merge conflicts"
-        if: env.FIX_PR_NUMBER != '' && env.FIX_REASON == 'merge conflicts' && steps.fix-mission-check.outputs.mission-complete != 'true'
+      - name: "Sync PR branch with main (incremental conflict resolution)"
+        if: env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
         id: trivial-resolve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
+          git config user.email 'action@github.com'
+          git config user.name 'GitHub Actions[bot]'
           git fetch origin main
-          if git merge origin/main --no-edit 2>/dev/null; then
-            echo "resolved=clean" >> $GITHUB_OUTPUT
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          RESOLVED=false
+
+          # --- Tier 1: Simple merge (no conflicts) ---
+          echo "=== Tier 1: Simple merge ==="
+          if git merge origin/main --no-edit 2>&1; then
+            echo "Tier 1: merge clean, pushing..."
+            git push origin HEAD:"$BRANCH" 2>&1 && RESOLVED=true || echo "Tier 1: push failed"
           else
-            CONFLICTED=$(git diff --name-only --diff-filter=U)
-            TRIVIAL_PATTERN='intentïon\.md|intention\.md|package-lock\.json'
-            NON_TRIVIAL=$(echo "$CONFLICTED" | grep -vE "$TRIVIAL_PATTERN" || true)
-            if [ -z "$NON_TRIVIAL" ]; then
-              echo "All conflicts are trivial — auto-resolving"
-              for f in $CONFLICTED; do
-                git checkout --theirs "$f"
-                git add "$f"
-              done
-              npm install 2>/dev/null || true
-              git add package-lock.json 2>/dev/null || true
-              git commit --no-edit
-              echo "resolved=trivial" >> $GITHUB_OUTPUT
-            else
-              git merge --abort
-              echo "resolved=none" >> $GITHUB_OUTPUT
-              echo "non_trivial<<EOF" >> $GITHUB_OUTPUT
-              echo "$NON_TRIVIAL" >> $GITHUB_OUTPUT
-              echo "EOF" >> $GITHUB_OUTPUT
+            echo "Tier 1: conflicts detected, aborting..."
+            git merge --abort 2>/dev/null || true
+          fi
+
+          # Check
+          if [ "$RESOLVED" = "true" ]; then
+            sleep 5
+            MERGEABLE=$(gh pr view "${{ env.FIX_PR_NUMBER }}" --json mergeable --jq '.mergeable')
+            echo "After Tier 1: mergeable=$MERGEABLE"
+            if [ "$MERGEABLE" = "CONFLICTING" ]; then
+              echo "Tier 1 pushed but PR still conflicting — continuing"
+              RESOLVED=false
             fi
           fi
 
-      - name: "Tier 2: LLM fix (conflicts or failing checks)"
+          # --- Tier 2: Merge preferring main for conflicts (-X theirs) ---
+          if [ "$RESOLVED" != "true" ]; then
+            echo "=== Tier 2: Merge with -X theirs ==="
+            git reset --hard HEAD 2>/dev/null || true
+            if git merge origin/main -X theirs --no-edit 2>&1; then
+              npm install 2>/dev/null || true
+              git add package-lock.json 2>/dev/null || true
+              git diff --cached --quiet || git commit --amend --no-edit
+              echo "Tier 2: merge succeeded, pushing..."
+              git push origin HEAD:"$BRANCH" 2>&1 || git push --force-with-lease origin HEAD:"$BRANCH" 2>&1
+              RESOLVED=true
+            else
+              echo "Tier 2: merge -X theirs failed, aborting..."
+              git merge --abort 2>/dev/null || true
+            fi
+          fi
+
+          # Check
+          if [ "$RESOLVED" = "true" ]; then
+            sleep 5
+            MERGEABLE=$(gh pr view "${{ env.FIX_PR_NUMBER }}" --json mergeable --jq '.mergeable')
+            echo "After Tier 2: mergeable=$MERGEABLE"
+            if [ "$MERGEABLE" = "CONFLICTING" ]; then
+              echo "Tier 2 pushed but PR still conflicting — continuing"
+              RESOLVED=false
+            fi
+          fi
+
+          # --- Tier 3: Save source files, reset to main, copy back, force-push ---
+          if [ "$RESOLVED" != "true" ]; then
+            echo "=== Tier 3: Nuclear — save files, reset to main, copy back ==="
+            TMPDIR=$(mktemp -d)
+            for dir in src tests; do
+              [ -d "$dir" ] && cp -r "$dir" "$TMPDIR/" || true
+            done
+            cp package.json "$TMPDIR/" 2>/dev/null || true
+
+            git reset --hard origin/main
+            for dir in src tests; do
+              [ -d "$TMPDIR/$dir" ] && cp -r "$TMPDIR/$dir" ./ || true
+            done
+            cp "$TMPDIR/package.json" . 2>/dev/null || true
+            npm install 2>/dev/null || true
+
+            git add -A
+            if ! git diff --cached --quiet; then
+              git commit -m "fix-stuck: sync with main (resolve conflicts)"
+              git push --force-with-lease origin HEAD:"$BRANCH" 2>&1 && RESOLVED=true
+            else
+              echo "Tier 3: no differences after reset — branch identical to main"
+              RESOLVED=true
+            fi
+            rm -rf "$TMPDIR"
+          fi
+
+          # --- Final check: HARD FAIL if still not resolved ---
+          sleep 5
+          MERGEABLE=$(gh pr view "${{ env.FIX_PR_NUMBER }}" --json mergeable --jq '.mergeable')
+          echo "Final PR mergeable status: $MERGEABLE"
+          if [ "$MERGEABLE" = "CONFLICTING" ]; then
+            echo "::error::PR #${{ env.FIX_PR_NUMBER }} is STILL CONFLICTING after all 3 resolution tiers"
+            exit 1
+          fi
+          if [ "$RESOLVED" != "true" ]; then
+            echo "::error::All 3 tiers failed to resolve PR #${{ env.FIX_PR_NUMBER }}"
+            exit 1
+          fi
+          echo "PR #${{ env.FIX_PR_NUMBER }} successfully synced with main"
+          echo "resolved=true" >> $GITHUB_OUTPUT
+
+      - name: "Tier 2: LLM fix (only for explicitly requested PRs with failing checks)"
         if: |
           env.FIX_PR_NUMBER != '' &&
           steps.fix-mission-check.outputs.mission-complete != 'true' &&
-          (env.FIX_REASON != 'merge conflicts' ||
-           steps.trivial-resolve.outputs.resolved == 'none')
+          env.FIX_REASON == 'requested'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -646,7 +1184,7 @@ jobs:
         with:
           task: "fix-code"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-apply-fix.md"
+          instructions: ".github/agents/agent-apply-fix.md"
           pr-number: ${{ env.FIX_PR_NUMBER }}
           # test-command read from [execution].test in agentic-lib.toml
           model: ${{ needs.params.outputs.model }}
@@ -663,7 +1201,7 @@ jobs:
         with:
           task: "fix-code"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-apply-fix.md"
+          instructions: ".github/agents/agent-apply-fix.md"
           model: ${{ needs.params.outputs.model }}
 
       - name: Build website and run behaviour tests (fix)
@@ -676,9 +1214,17 @@ jobs:
 
       - name: Commit and push fixes
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
-        uses: ./.github/agentic-lib/actions/commit-if-changed
-        with:
-          commit-message: "agentic-step: fix failing tests / resolve conflicts"
+        run: |
+          git config user.email 'action@github.com'
+          git config user.name 'GitHub Actions[bot]'
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "agentic-step: fix failing tests / resolve conflicts"
+            git push origin HEAD:"$BRANCH" 2>&1 || git push --force-with-lease origin HEAD:"$BRANCH" 2>&1
+          else
+            echo "No additional changes to push"
+          fi
 
       - name: Commit, push, and open PR for main build fix
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.FIX_MAIN_BUILD == 'true' && steps.fix-mission-check.outputs.mission-complete != 'true'
@@ -689,6 +1235,8 @@ jobs:
             echo "No changes to commit"
             exit 0
           fi
+          git config --local user.email 'action@github.com'
+          git config --local user.name 'GitHub Actions[bot]'
           git add -A
           git commit -m "agentic-step: fix broken main build (run ${{ env.FIX_RUN_ID }})"
           git push -u origin agentic-lib-fix-main-build
@@ -699,7 +1247,7 @@ jobs:
 
   # ─── Review: close resolved issues, enhance with criteria ──────────
   review-features:
-    needs: [params, supervisor]
+    needs: [params, maintain, supervisor]
     if: |
       !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'review-only') &&
@@ -707,6 +1255,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
       - uses: actions/setup-node@v6
         with:
@@ -718,7 +1268,11 @@ jobs:
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
-        run: npm ci
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
 
       - name: Review issues
         uses: ./.github/agentic-lib/actions/agentic-step
@@ -728,7 +1282,7 @@ jobs:
         with:
           task: "review-issue"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-review-issue.md"
+          instructions: ".github/agents/agent-review-issue.md"
           model: ${{ needs.params.outputs.model }}
 
       - name: Enhance issues
@@ -739,12 +1293,12 @@ jobs:
         with:
           task: "enhance-issue"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-ready-issue.md"
+          instructions: ".github/agents/agent-ready-issue.md"
           model: ${{ needs.params.outputs.model }}
 
   # ─── Dev: sequential issue resolution ──────────────────────────────
   dev:
-    needs: [params, review-features]
+    needs: [params, maintain, review-features]
     if: |
       !cancelled() &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
@@ -755,6 +1309,15 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+
+      - name: Fetch log and screenshot from log branch
+        env:
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+          SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
+        run: |
+          git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
+          git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
 
       - uses: actions/setup-node@v6
         with:
@@ -763,17 +1326,17 @@ jobs:
       - name: Install project dependencies
         run: npm ci
 
-      - name: Install Playwright (for behaviour tests)
-        if: hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != ''
-        run: npx playwright install --with-deps chromium
-
       - name: Self-init (agentic-lib dev only)
         if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
         run: bash scripts/self-init.sh
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
-        run: npm ci
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
 
       - name: Load config
         id: config
@@ -793,12 +1356,16 @@ jobs:
       - name: Check mission-complete signal
         id: dev-mission-check
         run: |
-          if [ -f MISSION_COMPLETE.md ]; then
+          SUPERVISOR=$(grep '^\s*supervisor\s*=' agentic-lib.toml 2>/dev/null | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/')
+          if [ -f MISSION_COMPLETE.md ] && [ "$SUPERVISOR" != "maintenance" ]; then
             echo "mission-complete=true" >> $GITHUB_OUTPUT
             echo "Mission is complete — skipping dev transformation"
             cat MISSION_COMPLETE.md
           else
             echo "mission-complete=false" >> $GITHUB_OUTPUT
+            if [ "$SUPERVISOR" = "maintenance" ] && [ -f MISSION_COMPLETE.md ]; then
+              echo "Maintenance mode — ignoring MISSION_COMPLETE.md"
+            fi
           fi
 
       - name: Find target issue
@@ -810,6 +1377,17 @@ jobs:
             const specificIssue = '${{ needs.params.outputs.issue-number }}';
             if (specificIssue) {
               core.setOutput('issue-number', specificIssue);
+              return;
+            }
+            // W7: Mechanical instability override — prioritise instability issues
+            // before any other ready issues, regardless of supervisor decisions
+            const { data: instabilityIssues } = await github.rest.issues.listForRepo({
+              ...context.repo, state: 'open', labels: 'instability',
+              sort: 'created', direction: 'asc', per_page: 1,
+            });
+            if (instabilityIssues.length > 0) {
+              core.setOutput('issue-number', String(instabilityIssues[0].number));
+              core.info(`Instability override: targeting issue #${instabilityIssues[0].number}: ${instabilityIssues[0].title}`);
               return;
             }
             // Find oldest open issue with 'ready' label
@@ -843,7 +1421,7 @@ jobs:
         with:
           task: "transform"
           config: ${{ needs.params.outputs.config-path }}
-          instructions: ".github/agentic-lib/agents/agent-issue-resolution.md"
+          instructions: ".github/agents/agent-issue-resolution.md"
           # test-command read from [execution].test in agentic-lib.toml
           model: ${{ needs.params.outputs.model }}
           issue-number: ${{ steps.issue.outputs.issue-number }}
@@ -871,26 +1449,48 @@ jobs:
             echo "WARNING: Unit tests failed (exit $EXIT_CODE) — skipping commit and PR"
             exit 0
           fi
-          # Run behaviour tests if available
-          if npm run --if-present test:behaviour; then
-            echo "Behaviour tests passed"
-          else
-            echo "tests-passed=false" >> $GITHUB_OUTPUT
-            echo "WARNING: Behaviour tests failed — skipping commit and PR"
-            exit 0
-          fi
           echo "tests-passed=true" >> $GITHUB_OUTPUT
           echo "All tests passed"
 
+#      - name: Run behaviour tests before committing
+#        id: pre-commit-behaviour-test
+#        if: steps.issue.outputs.issue-number != '' && steps.pre-commit-test.outputs.tests-passed == 'true' && (hashFiles('playwright.config.js') != '' || hashFiles('playwright.config.ts') != '')
+#        run: |
+#          npx playwright install --with-deps chromium 2>/dev/null || true
+#          npm run build:web 2>/dev/null || true
+#          set +e
+#          npm run --if-present test:behaviour 2>&1 | tail -30
+#          EXIT_CODE=$?
+#          if [ $EXIT_CODE -ne 0 ]; then
+#            echo "::warning::Behaviour test attempt 1 failed — retrying"
+#            sleep 2
+#            npm run --if-present test:behaviour 2>&1 | tail -30
+#            EXIT_CODE=$?
+#          fi
+#          set -e
+#          if [ $EXIT_CODE -ne 0 ]; then
+#            echo "tests-passed=false" >> $GITHUB_OUTPUT
+#            echo "WARNING: Behaviour tests failed (exit $EXIT_CODE) — skipping commit and PR"
+#            exit 0
+#          fi
+#          echo "tests-passed=true" >> $GITHUB_OUTPUT
+#          echo "Behaviour tests passed"
+
       - name: Commit and push
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true' && steps.pre-commit-behaviour-test.outputs.tests-passed != 'false'
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
           commit-message: "agentic-step: transform issue #${{ steps.issue.outputs.issue-number }}"
           push-ref: ${{ steps.branch.outputs.branchName }}
 
+      - name: Push log to log branch
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        env:
+          LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
+        run: bash .github/agentic-lib/scripts/push-to-logs.sh agent-log-*.md
+
       - name: Create PR and attempt merge
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true' && steps.pre-commit-behaviour-test.outputs.tests-passed != 'false'
         uses: actions/github-script@v8
         with:
           script: |
@@ -979,13 +1579,14 @@ jobs:
 
   # ─── Post-merge: stats, schedule, mission check ────────────────────
   post-merge:
-    needs: [params, dev, pr-cleanup]
+    needs: [params, maintain, dev, pr-cleanup]
     if: ${{ !cancelled() && needs.params.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
       - name: Summary
         run: |
@@ -1000,12 +1601,25 @@ jobs:
           echo "- Dry-run: ${{ needs.params.outputs.dry-run }}" >> $GITHUB_STEP_SUMMARY
           echo "- Website: [${SITE_URL}](${SITE_URL})" >> $GITHUB_STEP_SUMMARY
 
+  # ─── Post-commit validation: call test workflow to verify branch health ───
+  post-commit-test:
+    needs: [params, maintain, dev, fix-stuck, post-merge]
+    if: >-
+      !cancelled()
+      && needs.params.outputs.dry-run != 'true'
+      && needs.params.result == 'success'
+    uses: ./.github/workflows/agentic-lib-test.yml
+    with:
+      ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+    secrets: inherit
+
   # ─── Schedule change (if requested) ────────────────────────────────
   update-schedule:
-    needs: [params, dev]
+    needs: [params, maintain, dev]
     if: ${{ !cancelled() && needs.params.outputs.dry-run != 'true' && needs.params.outputs.schedule != '' && needs.params.result == 'success' }}
     uses: ./.github/workflows/agentic-lib-schedule.yml
     with:
+      ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
       frequency: ${{ needs.params.outputs.schedule }}
       model: ${{ needs.params.outputs.model }}
       profile: ${{ needs.params.outputs.profile }}

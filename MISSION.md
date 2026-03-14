@@ -1,37 +1,26 @@
 # Mission
 
-A JavaScript library that explores the frontier of binary-to-text encoding density using printable characters. The benchmark: produce the shortest possible printable representation of a v7 UUID.
+A JavaScript library exporting FizzBuzz functions. This is the simplest possible mission — if the pipeline can't complete this and stop, something is fundamentally broken.
 
 ## Core Functions
 
-- `encode(buffer, encoding)` / `decode(str, encoding)` — encode/decode arbitrary binary data using a named encoding.
-- `encodeUUID(uuid)` / `decodeUUID(str)` — shorthand for UUID encoding (strip dashes, encode the 16 bytes).
-- `createEncoding(name, charset)` — define a custom encoding from a character set string.
-- `listEncodings()` — return available encodings with their bit density and charset info.
-
-## Built-in Encodings
-
-The library should implement progressively denser encodings:
-
-- `base62` — `[0-9a-zA-Z]`, ~5.95 bits/char, URL-safe, 22 chars for a UUID
-- `base85` (Ascii85/Z85) — ~6.41 bits/char, 20 chars for a UUID
-- `base91` — ~6.50 bits/char, ~20 chars for a UUID
-- Optionally: custom higher bases cherry-picking from safe printable Unicode
+- `fizzBuzz(n)` — return an array of strings from 1 to n, replacing multiples of 3 with "Fizz", multiples of 5 with "Buzz", and multiples of both with "FizzBuzz".
+- `fizzBuzzSingle(n)` — return the FizzBuzz string for a single positive integer.
 
 ## Requirements
 
-- Round-trip property: `decode(encode(x, enc), enc)` must equal `x` for all inputs and all encodings.
-- No control characters, no ambiguous characters (0/O, 1/l/I in contexts where they matter).
-- Test across edge cases: all-zero bytes, all-0xFF bytes, single byte, empty buffer.
-- Compare encoded UUID lengths across all encodings.
-- Export all functions as named exports from `src/lib/main.js`.
-- README with UUID encoding comparison table.
+- Handle edge cases: `n = 0` returns an empty array, negative numbers throw `RangeError`, non-integers throw `TypeError`.
+- Export both functions as named exports from `src/lib/main.js`.
+- Comprehensive unit tests covering normal operation and all edge cases.
+- README with usage examples.
 
 ## Acceptance Criteria
 
-- [ ] At least 3 working encodings (base62, base85, one higher)
-- [ ] Round-trip correct for arbitrary binary data including edge cases
-- [ ] UUID encoding shorter than base64 (< 24 chars) for the densest encoding
-- [ ] `listEncodings()` returns encoding metadata
+- [ ] `fizzBuzz(15)` returns the correct 15-element array ending with "FizzBuzz"
+- [ ] `fizzBuzzSingle(3)` returns "Fizz"
+- [ ] `fizzBuzzSingle(5)` returns "Buzz"
+- [ ] `fizzBuzzSingle(15)` returns "FizzBuzz"
+- [ ] `fizzBuzzSingle(7)` returns "7"
+- [ ] `fizzBuzz(0)` returns `[]`
 - [ ] All unit tests pass
-- [ ] README shows UUID encoding comparison table
+- [ ] README documents usage with examples

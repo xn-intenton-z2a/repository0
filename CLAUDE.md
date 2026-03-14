@@ -1,5 +1,11 @@
 # Claude Code Memory - intentïon repository0
 
+> **DO NOT USE `cd <dir> && git ...` — USE `git -C <dir> ...` ALWAYS.**
+> This is a multi-repo workspace. Each subdirectory is its own git repo.
+> Using `cd` in compound commands triggers security prompts every time.
+> This applies to YOU and to ANY AGENT YOU SPAWN. Never use the Agent tool
+> for simple file reads or git operations in subdirectories either.
+
 ## Context Survival (CRITICAL — read this first after every compaction)
 
 **After compaction or at session start:**
@@ -49,19 +55,16 @@ All files in this repo except user content are **distributed from `agentic-lib`*
 
 ### Workflows → `.github/workflows/`
 
-Source: `agentic-lib/src/workflows/*.yml` + `agentic-lib/src/seeds/{test,init}.yml`
+Source: `agentic-lib/.github/workflows/agentic-lib-*.yml` (transformed via `#@dist` markers)
 
 | Distributed file | Source in agentic-lib |
 |------------------|-----------------------|
-| `agent-discussions-bot.yml` | `src/workflows/agent-discussions-bot.yml` |
-| `agent-flow-fix-code.yml` | `src/workflows/agent-flow-fix-code.yml` |
-| `agent-flow-maintain.yml` | `src/workflows/agent-flow-maintain.yml` |
-| `agent-flow-review.yml` | `src/workflows/agent-flow-review.yml` |
-| `agent-flow-transform.yml` | `src/workflows/agent-flow-transform.yml` |
-| `agent-supervisor.yml` | `src/workflows/agent-supervisor.yml` |
-| `ci-automerge.yml` | `src/workflows/ci-automerge.yml` |
-| `test.yml` | `src/seeds/test.yml` |
-| `init.yml` | `src/seeds/init.yml` |
+| `agentic-lib-bot.yml` | `.github/workflows/agentic-lib-bot.yml` |
+| `agentic-lib-init.yml` | `.github/workflows/agentic-lib-init.yml` |
+| `agentic-lib-schedule.yml` | `.github/workflows/agentic-lib-schedule.yml` |
+| `agentic-lib-test.yml` | `.github/workflows/agentic-lib-test.yml` |
+| `agentic-lib-update.yml` | `.github/workflows/agentic-lib-update.yml` |
+| `agentic-lib-workflow.yml` | `.github/workflows/agentic-lib-workflow.yml` |
 
 ### Actions → `.github/agentic-lib/actions/`
 
@@ -79,13 +82,13 @@ Source: `agentic-lib/src/agents/*` (all files copied)
 
 ### Seeds → `.github/agentic-lib/seeds/`
 
-Source: `agentic-lib/src/seeds/*` (all files copied)
+Source: `agentic-lib/src/seeds/*` (zero-state files + `missions/` subdirectory)
 
 ### Scripts → `.github/agentic-lib/scripts/`
 
 Source: `agentic-lib/src/scripts/` (selected files only)
 
-Distributed: `accept-release.sh`, `activate-schedule.sh`, `clean.sh`, `initialise.sh`, `md-to-html.js`, `update.sh`
+Distributed: `accept-release.sh`, `activate-schedule.sh`, `build-web.cjs`, `clean.sh`, `initialise.sh`, `md-to-html.js`, `push-to-logs.sh`, `update.sh`
 
 ### Seed files (purge only) → project root
 

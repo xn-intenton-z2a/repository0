@@ -16,9 +16,9 @@ inputs:
       maintain-library, enhance-issue, review-issue, discussions, supervise
     required: true
   config:
-    description: "Path to agentic-lib.yml configuration file"
+    description: "Path to agentic-lib.toml configuration file"
     required: false
-    default: ".github/agentic-lib/agents/agentic-lib.yml"
+    default: "agentic-lib.toml"
   instructions:
     description: "Path to agent prompt/instructions file (.md)"
     required: false

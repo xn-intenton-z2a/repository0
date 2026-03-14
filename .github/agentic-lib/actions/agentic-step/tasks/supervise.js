@@ -2,12 +2,15 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/supervise.js — Supervisor orchestration via LLM
 //
-// Gathers repository context (issues, PRs, workflows, features, library, activity),
-// asks the Copilot SDK to choose multiple concurrent actions, then dispatches them.
+// Uses runCopilotSession with lean prompts: the model explores issues, PRs,
+// and repository state via tools, then reports its chosen actions via a
+// report_supervisor_plan tool whose handler executes them.
 
 import * as core from "@actions/core";
-import { existsSync, readFileSync, writeFileSync } from "fs";
-import { runCopilotTask, readOptionalFile, scanDirectory, filterIssues } from "../copilot.js";
+import { existsSync, readFileSync, readdirSync, statSync } from "fs";
+import { readOptionalFile, scanDirectory, filterIssues, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
+import { createGitHubTools, createDiscussionTools, createGitTools } from "../../../copilot/github-tools.js";
 
 /**
  * Look up the "Talk to the repository" discussion URL via GraphQL.
@@ -103,12 +106,20 @@ async function postDirectReply(octokit, repo, nodeId, body) {
 
 async function gatherContext(octokit, repo, config, t) {
   const mission = readOptionalFile(config.paths.mission.path);
-  const intentionLogFull = readOptionalFile(config.intentionBot.intentionFilepath);
-  const recentActivity = intentionLogFull.split("\n").slice(-20).join("\n");
-
-  // Read cumulative transformation cost from the activity log
-  const costMatches = intentionLogFull.matchAll(/\*\*agentic-lib transformation cost:\*\* (\d+)/g);
-  const cumulativeTransformationCost = [...costMatches].reduce((sum, m) => sum + parseInt(m[1], 10), 0);
+  // Read recent activity from agent-log files
+  let recentActivity = "";
+  let cumulativeTransformationCost = 0;
+  try {
+    const { readdirSync } = await import("fs");
+    const logFiles = readdirSync(".").filter(f => f.startsWith("agent-log-") && f.endsWith(".md")).sort();
+    const recent = logFiles.slice(-5);
+    recentActivity = recent.map(f => readOptionalFile(f)).join("\n---\n").split("\n").slice(-40).join("\n");
+    for (const f of logFiles) {
+      const content = readOptionalFile(f);
+      const costMatches = content.matchAll(/\*\*agentic-lib transformation cost:\*\* (\d+)/g);
+      cumulativeTransformationCost += [...costMatches].reduce((sum, m) => sum + parseInt(m[1], 10), 0);
+    }
+  } catch { /* no agent-log files yet */ }
 
   // Check mission-complete signal
   const missionComplete = existsSync("MISSION_COMPLETE.md");
@@ -184,7 +195,8 @@ async function gatherContext(octokit, repo, config, t) {
     const { data: closedIssuesRaw } = await octokit.rest.issues.listForRepo({
       ...repo,
       state: "closed",
-      per_page: 5,
+      labels: "automated",
+      per_page: 10,
       sort: "updated",
       direction: "desc",
     });
@@ -195,15 +207,34 @@ async function gatherContext(octokit, repo, config, t) {
     for (const ci of closedIssuesFiltered) {
       let closeReason = "closed";
       try {
+        // Check for review-closed (Automated Review Result comment)
         const { data: comments } = await octokit.rest.issues.listComments({
           ...repo,
           issue_number: ci.number,
-          per_page: 1,
+          per_page: 5,
           sort: "created",
           direction: "desc",
         });
-        if (comments.length > 0 && comments[0].body?.includes("Automated Review Result")) {
-          closeReason = "closed by review as RESOLVED";
+        if (comments.some((c) => c.body?.includes("Automated Review Result"))) {
+          closeReason = "RESOLVED";
+        } else {
+          // Check for PR-linked closure (GitHub auto-closes via "Closes #N")
+          const { data: events } = await octokit.rest.issues.listEvents({
+            ...repo,
+            issue_number: ci.number,
+            per_page: 10,
+          });
+          const closedByPR = events.some((e) => e.event === "closed" && e.commit_id);
+          if (closedByPR) {
+            closeReason = "RESOLVED";
+          }
+        }
+        // Check for automerge closure (issue has "merged" label — set by ci-automerge)
+        if (closeReason !== "RESOLVED") {
+          const issueLabels = ci.labels.map((l) => (typeof l === "string" ? l : l.name));
+          if (issueLabels.includes("merged")) {
+            closeReason = "RESOLVED";
+          }
         }
       } catch (_) { /* ignore */ }
       recentlyClosedSummary.push(`#${ci.number}: ${ci.title} — ${closeReason}`);
@@ -292,6 +323,61 @@ async function gatherContext(octokit, repo, config, t) {
     }
   } catch { /* ignore */ }
 
+  // Count dedicated test files (not just seed tests)
+  // A dedicated test imports from the source directory (src/lib/) rather than being a seed test
+  let dedicatedTestCount = 0;
+  let dedicatedTestFiles = [];
+  try {
+    const testDirs = ["tests", "__tests__"];
+    for (const dir of testDirs) {
+      if (existsSync(dir)) {
+        const testFiles = scanDirectory(dir, [".js", ".ts", ".mjs"], { limit: 20 });
+        for (const tf of testFiles) {
+          // Skip seed test files (main.test.js, web.test.js, behaviour.test.js)
+          if (/^(main|web|behaviour)\.test\.[jt]s$/.test(tf.name)) continue;
+          const content = readFileSync(tf.path, "utf8");
+          // Check if it imports from src/lib/ (mission-specific code)
+          if (/from\s+['"].*src\/lib\//.test(content) || /require\s*\(\s*['"].*src\/lib\//.test(content)) {
+            dedicatedTestCount++;
+            dedicatedTestFiles.push(tf.name);
+          }
+        }
+      }
+    }
+  } catch { /* ignore */ }
+
+  // W9: Count TODO comments in source directory
+  let sourceTodoCount = 0;
+  try {
+    const sourcePath = config.paths.source?.path || "src/lib/";
+    const sourceDir = sourcePath.endsWith("/") ? sourcePath.slice(0, -1) : sourcePath;
+    const srcRoot = sourceDir.includes("/") ? sourceDir.split("/").slice(0, -1).join("/") || "src" : "src";
+    // Inline recursive TODO counter (avoids circular import with index.js)
+    const countTodos = (dir) => {
+      let n = 0;
+      if (!existsSync(dir)) return 0;
+      try {
+        const entries = readdirSync(dir);
+        for (const entry of entries) {
+          if (entry === "node_modules" || entry.startsWith(".")) continue;
+          const fp = `${dir}/${entry}`;
+          try {
+            const stat = statSync(fp);
+            if (stat.isDirectory()) {
+              n += countTodos(fp);
+            } else if (/\.(js|ts|mjs)$/.test(entry)) {
+              const content = readFileSync(fp, "utf8");
+              const m = content.match(/\bTODO\b/gi);
+              if (m) n += m.length;
+            }
+          } catch { /* skip */ }
+        }
+      } catch { /* skip */ }
+      return n;
+    };
+    sourceTodoCount = countTodos(srcRoot);
+  } catch { /* ignore */ }
+
   return {
     mission,
     recentActivity,
@@ -320,10 +406,20 @@ async function gatherContext(octokit, repo, config, t) {
     cumulativeTransformationCost,
     recentlyClosedSummary,
     sourceExports,
+    dedicatedTestCount,
+    dedicatedTestFiles,
+    sourceTodoCount,
   };
 }
 
-function buildPrompt(ctx, agentInstructions) {
+function buildPrompt(ctx, agentInstructions, config) {
+  // Build mission-complete metrics inline for the LLM
+  const thresholds = config?.missionCompleteThresholds || {};
+  const minResolved = thresholds.minResolvedIssues ?? 3;
+  const minTests = thresholds.minDedicatedTests ?? 1;
+  const maxTodos = thresholds.maxSourceTodos ?? 0;
+  const resolvedCount = ctx.recentlyClosedSummary.filter((s) => s.includes("RESOLVED")).length;
+
   return [
     "## Instructions",
     agentInstructions,
@@ -331,58 +427,32 @@ function buildPrompt(ctx, agentInstructions) {
     "## Mission",
     ctx.mission || "(no mission defined)",
     "",
-    "## Repository State",
-    `### Open Issues (${ctx.issuesSummary.length})`,
-    ctx.issuesSummary.join("\n") || "none",
+    "## Repository Summary",
+    `Open issues: ${ctx.issuesSummary.length}`,
+    ctx.issuesSummary.join("\n") || "(none)",
     "",
-    `### Recently Closed Issues (${ctx.recentlyClosedSummary.length})`,
-    ctx.recentlyClosedSummary.join("\n") || "none",
+    `Recently closed issues: ${ctx.recentlyClosedSummary.length}`,
+    ctx.recentlyClosedSummary.join("\n") || "(none)",
     "",
-    `### Open PRs (${ctx.prsSummary.length})`,
-    ctx.prsSummary.join("\n") || "none",
+    `Open PRs: ${ctx.prsSummary.length}`,
+    ctx.prsSummary.join("\n") || "(none)",
     "",
-    `### Features (${ctx.featureNames.length}/${ctx.featuresLimit})`,
-    ctx.featureNames.join(", ") || "none",
+    `Features: ${ctx.featureNames.length}/${ctx.featuresLimit}`,
+    `Library docs: ${ctx.libraryNames.length}/${ctx.libraryLimit}`,
+    `Dedicated test files: ${ctx.dedicatedTestCount}`,
+    `Source TODOs: ${ctx.sourceTodoCount}`,
     "",
-    `### Library Docs (${ctx.libraryNames.length}/${ctx.libraryLimit})`,
-    ctx.libraryNames.join(", ") || "none",
-    "",
-    ...(ctx.sourceExports?.length > 0
-      ? [
-          `### Source Exports`,
-          "Functions and constants exported from source files:",
-          ...ctx.sourceExports.map((e) => `- ${e}`),
-          "",
-        ]
-      : []),
-    `### Recent Workflow Runs`,
-    ctx.workflowsSummary.join("\n") || "none",
-    "",
-    ...(ctx.actionsSinceInit.length > 0
-      ? [
-          `### Actions Since Last Init${ctx.initTimestamp ? ` (${ctx.initTimestamp})` : ""}`,
-          "Each entry: workflow | outcome | commit | branch | changes",
-          ...ctx.actionsSinceInit.map((a) => {
-            let line = `- ${a.name}: ${a.conclusion} (${a.created}) [${a.commitSha}] ${a.commitMessage}`;
-            if (a.prNumber) {
-              line += ` — PR #${a.prNumber}: +${a.additions}/-${a.deletions} in ${a.changedFiles} file(s)`;
-            }
-            return line;
-          }),
-          "",
-        ]
-      : []),
-    `### Recent Activity`,
-    ctx.recentActivity || "none",
+    `### Mission-Complete Metrics`,
+    "| Metric | Value | Target | Status |",
+    "|--------|-------|--------|--------|",
+    `| Open issues | ${ctx.issuesSummary.length} | 0 | ${ctx.issuesSummary.length === 0 ? "MET" : "NOT MET"} |`,
+    `| Open PRs | ${ctx.prsSummary.length} | 0 | ${ctx.prsSummary.length === 0 ? "MET" : "NOT MET"} |`,
+    `| Issues resolved (RESOLVED) | ${resolvedCount} | >= ${minResolved} | ${resolvedCount >= minResolved ? "MET" : "NOT MET"} |`,
+    `| Dedicated test files | ${ctx.dedicatedTestCount} | >= ${minTests} | ${ctx.dedicatedTestCount >= minTests ? "MET" : "NOT MET"} |`,
+    `| Source TODO count | ${ctx.sourceTodoCount} | <= ${maxTodos} | ${ctx.sourceTodoCount <= maxTodos ? "MET" : "NOT MET"} |`,
+    `| Budget used | ${ctx.cumulativeTransformationCost}/${ctx.transformationBudget} | < ${ctx.transformationBudget || "unlimited"} | ${ctx.transformationBudget > 0 && ctx.cumulativeTransformationCost >= ctx.transformationBudget ? "EXHAUSTED" : "OK"} |`,
     "",
     `### Supervisor: ${ctx.supervisor}`,
-    "",
-    "### Configuration (agentic-lib.toml)",
-    "```toml",
-    ctx.configToml || "",
-    "```",
-    "",
-    ...(ctx.packageJson ? ["### Dependencies (package.json)", "```json", ctx.packageJson, "```", ""] : []),
     ...(ctx.activeDiscussionUrl ? [`### Active Discussion`, `${ctx.activeDiscussionUrl}`, ""] : []),
     ...(ctx.oldestReadyIssue
       ? [`### Oldest Ready Issue`, `#${ctx.oldestReadyIssue.number}: ${ctx.oldestReadyIssue.title}`, ""]
@@ -390,18 +460,14 @@ function buildPrompt(ctx, agentInstructions) {
     ...(ctx.missionComplete
       ? [
           `### Mission Status: COMPLETE`,
-          ctx.missionCompleteInfo,
           "Transformation budget is frozen — no transform, maintain, or fix-code dispatches allowed.",
-          "You may still: review/close issues, respond to discussions, adjust schedule.",
           "",
         ]
       : []),
     ...(ctx.missionFailed
       ? [
           `### Mission Status: FAILED`,
-          ctx.missionFailedInfo,
           "The mission has been declared failed. The schedule should be set to off.",
-          "You may still: review/close issues, respond to discussions.",
           "",
         ]
       : []),
@@ -413,46 +479,38 @@ function buildPrompt(ctx, agentInstructions) {
     `Maintenance WIP limit: ${ctx.maintenanceIssuesWipLimit}`,
     `Open issues: ${ctx.issuesSummary.length} (capacity for ${Math.max(0, ctx.featureIssuesWipLimit - ctx.issuesSummary.length)} more)`,
     "",
-    "## Available Actions",
-    "Pick one or more actions. Output them in the format below.",
+    `### Recent Activity`,
+    ctx.recentActivity || "none",
     "",
-    "### Workflow Dispatches",
-    "- `dispatch:agentic-lib-workflow | mode: dev-only | issue-number: <N>` — Pick up issue #N, generate code, open PR. Always specify the issue-number of the oldest ready issue.",
-    "- `dispatch:agentic-lib-workflow | mode: maintain-only` — Refresh feature definitions and library docs",
-    "- `dispatch:agentic-lib-workflow | mode: review-only` — Close resolved issues, enhance issue criteria",
-    "- `dispatch:agentic-lib-workflow | mode: pr-cleanup-only` — Merge open PRs with the automerge label if checks pass",
-    "- `dispatch:agentic-lib-bot` — Proactively post in discussions",
+    ...(process.env.REVIEW_ADVICE ? [
+      "### Implementation Review",
+      `**Completeness:** ${process.env.REVIEW_ADVICE}`,
+      ...((() => {
+        try {
+          const gaps = JSON.parse(process.env.REVIEW_GAPS || "[]");
+          if (gaps.length > 0) {
+            return [
+              "",
+              "**Gaps Found:**",
+              ...gaps.map((g) => `- [${g.severity}] ${g.element}: ${g.description} (${g.gapType})`),
+              "",
+              "Consider creating issues with label 'implementation-gap' for critical gaps.",
+            ];
+          }
+        } catch { /* ignore */ }
+        return [];
+      })()),
+      "",
+    ] : []),
+    "## Your Task",
+    "Use list_issues, list_prs, read_file, and search_discussions to explore the repository state.",
+    "Then call report_supervisor_plan with your chosen actions and reasoning.",
     "",
-    "### GitHub API Actions",
-    "- `github:create-issue | title: <text> | labels: <comma-separated>` — Create a new issue",
-    "- `github:label-issue | issue-number: <N> | labels: <comma-separated>` — Add labels to an issue",
-    "- `github:close-issue | issue-number: <N>` — Close an issue",
-    "",
-    "### Communication",
-    "- `respond:discussions | message: <text> | discussion-url: <url>` — Reply via discussions bot",
-    "",
-    "### Mission Lifecycle",
-    "- `mission-complete | reason: <text>` — Declare mission accomplished. Writes MISSION_COMPLETE.md and sets schedule to off. Use when: all acceptance criteria in MISSION.md are satisfied, tests pass, and recently-closed issues confirm resolution.",
-    "- `mission-failed | reason: <text>` — Declare mission failed. Writes MISSION_FAILED.md and sets schedule to off. Use when: transformation budget is exhausted with no progress, pipeline is stuck in a loop, or the mission is unachievable.",
-    "",
-    "### Schedule Control",
-    "- `set-schedule:<frequency>` — Change supervisor schedule (off, weekly, daily, hourly, continuous). Use `set-schedule:weekly` when mission is substantially complete, `set-schedule:continuous` to ramp up.",
-    "",
-    "- `nop` — No action needed this cycle",
-    "",
-    "## Output Format",
-    "Respond with EXACTLY this structure:",
-    "```",
-    "[ACTIONS]",
-    "action-name | param: value | param: value",
-    "[/ACTIONS]",
-    "[REASONING]",
-    "Why you chose these actions...",
-    "[/REASONING]",
-    "```",
+    "**You MUST call report_supervisor_plan exactly once.**",
   ].join("\n");
 }
 
+// Legacy text parsers — kept as fallback if the model doesn't call report_supervisor_plan
 function parseActions(content) {
   const actionsMatch = content.match(/\[ACTIONS\]([\s\S]*?)\[\/ACTIONS\]/);
   if (!actionsMatch) return [];
@@ -520,11 +578,12 @@ async function executeDispatch(octokit, repo, actionName, params, ctx) {
   return `dispatched:${workflowFile}`;
 }
 
-async function executeCreateIssue(octokit, repo, params) {
+async function executeCreateIssue(octokit, repo, params, ctx) {
   const title = params.title || "Untitled issue";
   const labels = params.labels ? params.labels.split(",").map((l) => l.trim()) : ["automated"];
 
   // Dedup guard: skip if a similarly-titled issue was closed in the last hour
+  // Exclude issues closed before the init timestamp (cross-scenario protection)
   try {
     const { data: recent } = await octokit.rest.issues.listForRepo({
       ...repo,
@@ -533,12 +592,14 @@ async function executeCreateIssue(octokit, repo, params) {
       direction: "desc",
       per_page: 5,
     });
+    const initTimestamp = ctx?.initTimestamp;
     const titlePrefix = title.toLowerCase().substring(0, 30);
     const duplicate = recent.find(
       (i) =>
         !i.pull_request &&
         i.title.toLowerCase().includes(titlePrefix) &&
-        Date.now() - new Date(i.closed_at).getTime() < 3600000,
+        Date.now() - new Date(i.closed_at).getTime() < 3600000 &&
+        (!initTimestamp || new Date(i.closed_at) > new Date(initTimestamp)),
     );
     if (duplicate) {
       core.info(`Skipping duplicate issue (similar to recently closed #${duplicate.number})`);
@@ -589,79 +650,11 @@ async function executeRespondDiscussions(octokit, repo, params, ctx) {
   return "skipped:respond-no-message";
 }
 
-async function executeMissionComplete(octokit, repo, params, ctx) {
-  const reason = params.reason || "All acceptance criteria satisfied";
-  const signal = [
-    "# Mission Complete",
-    "",
-    `- **Timestamp:** ${new Date().toISOString()}`,
-    `- **Detected by:** supervisor`,
-    `- **Reason:** ${reason}`,
-    "",
-    "This file was created automatically. To restart transformations, delete this file or run `npx @xn-intenton-z2a/agentic-lib init --reseed`.",
-  ].join("\n");
-  writeFileSync("MISSION_COMPLETE.md", signal);
-  core.info(`Mission complete signal written: ${reason}`);
-  if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
-    try {
-      await octokit.rest.actions.createWorkflowDispatch({
-        ...repo,
-        workflow_id: "agentic-lib-schedule.yml",
-        ref: "main",
-        inputs: { frequency: "off" },
-      });
-    } catch (err) {
-      core.warning(`Could not set schedule to off: ${err.message}`);
-    }
-
-    // Announce mission complete via bot
-    const websiteUrl = getWebsiteUrl(repo);
-    const discussionUrl = ctx?.activeDiscussionUrl || "";
-    await dispatchBot(octokit, repo, `Mission complete! ${reason}\n\nWebsite: ${websiteUrl}`, discussionUrl);
-  }
-  return `mission-complete:${reason.substring(0, 100)}`;
-}
-
-async function executeMissionFailed(octokit, repo, params, ctx) {
-  const reason = params.reason || "Mission could not be completed";
-  const signal = [
-    "# Mission Failed",
-    "",
-    `- **Timestamp:** ${new Date().toISOString()}`,
-    `- **Detected by:** supervisor`,
-    `- **Reason:** ${reason}`,
-    "",
-    "This file was created automatically. To restart, delete this file and run `npx @xn-intenton-z2a/agentic-lib init --reseed`.",
-  ].join("\n");
-  writeFileSync("MISSION_FAILED.md", signal);
-  core.info(`Mission failed signal written: ${reason}`);
-  if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
-    try {
-      await octokit.rest.actions.createWorkflowDispatch({
-        ...repo,
-        workflow_id: "agentic-lib-schedule.yml",
-        ref: "main",
-        inputs: { frequency: "off" },
-      });
-    } catch (err) {
-      core.warning(`Could not set schedule to off: ${err.message}`);
-    }
-
-    // Announce mission failed via bot
-    const websiteUrl = getWebsiteUrl(repo);
-    const discussionUrl = ctx?.activeDiscussionUrl || "";
-    await dispatchBot(octokit, repo, `Mission failed. ${reason}\n\nWebsite: ${websiteUrl}`, discussionUrl);
-  }
-  return `mission-failed:${reason.substring(0, 100)}`;
-}
-
 const ACTION_HANDLERS = {
   "github:create-issue": executeCreateIssue,
   "github:label-issue": executeLabelIssue,
   "github:close-issue": executeCloseIssue,
   "respond:discussions": executeRespondDiscussions,
-  "mission-complete": executeMissionComplete,
-  "mission-failed": executeMissionFailed,
 };
 
 async function executeSetSchedule(octokit, repo, frequency) {
@@ -689,7 +682,7 @@ async function executeAction(octokit, repo, action, params, ctx) {
   if (action === "nop") return "nop";
   const handler = ACTION_HANDLERS[action];
   if (handler) return handler(octokit, repo, params, ctx);
-  core.warning(`Unknown action: ${action}`);
+  core.debug(`Ignoring unrecognised action: ${action}`);
   return `unknown:${action}`;
 }
 
@@ -700,7 +693,7 @@ async function executeAction(octokit, repo, action, params, ctx) {
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function supervise(context) {
-  const { octokit, repo, config, instructions, model } = context;
+  const { octokit, repo, config, instructions, model, logFilePath, screenshotFilePath } = context;
   const t = config.tuning || {};
 
   const ctx = await gatherContext(octokit, repo, config, t);
@@ -709,11 +702,9 @@ export async function supervise(context) {
   // --- Deterministic lifecycle posts (before LLM) ---
 
   // Step 2: Auto-announce on first run after init
-  // Detect first supervisor run: initTimestamp exists but no prior supervisor workflow runs since init
   if (ctx.initTimestamp && !ctx.missionComplete && !ctx.missionFailed) {
-    // Check for any prior agentic-lib-workflow runs since init (count > 1 because current run is included)
     const supervisorRunCount = ctx.actionsSinceInit.filter(
-      (a) => a.name === "agentic-lib-workflow",
+      (a) => a.name.startsWith("agentic-lib-workflow"),
     ).length;
     const hasPriorSupervisor = supervisorRunCount > 1 || ctx.recentActivity.includes("supervised:");
     if (!hasPriorSupervisor && ctx.mission && ctx.activeDiscussionUrl) {
@@ -723,66 +714,115 @@ export async function supervise(context) {
     }
   }
 
-  // --- LLM decision ---
+  // --- LLM decision via hybrid session ---
   const agentInstructions = instructions || "You are the supervisor. Decide what actions to take.";
-  const prompt = buildPrompt(ctx, agentInstructions);
+  const prompt = buildPrompt(ctx, agentInstructions, config);
 
-  const { content, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
+  const systemPrompt =
+    "You are the supervisor of an autonomous coding repository. Your job is to advance the mission by choosing which workflows to dispatch and which GitHub actions to take. Pick multiple actions when appropriate. Be strategic — consider what's already in progress, what's blocked, and what will make the most impact." +
+    NARRATIVE_INSTRUCTION;
+
+  // Shared mutable state to capture the plan
+  const planResult = { actions: [], reasoning: "" };
+
+  const createTools = (defineTool, _wp, logger) => {
+    const ghTools = createGitHubTools(octokit, repo, defineTool, logger);
+    const discTools = createDiscussionTools(octokit, repo, defineTool, logger);
+    const gitTools = createGitTools(defineTool, logger);
+
+    const reportPlan = defineTool("report_supervisor_plan", {
+      description: "Report the supervisor's chosen actions and reasoning. Call this exactly once. Actions will be executed automatically.",
+      parameters: {
+        type: "object",
+        properties: {
+          actions: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                action: { type: "string", description: "Action name (e.g. dispatch:agentic-lib-workflow, github:create-issue, set-schedule:weekly, nop)" },
+                params: { type: "object", description: "Action parameters (e.g. mode, issue-number, title, labels, message, discussion-url, frequency)" },
+              },
+              required: ["action"],
+            },
+            description: "List of actions to execute",
+          },
+          reasoning: { type: "string", description: "Why you chose these actions" },
+        },
+        required: ["actions", "reasoning"],
+      },
+      handler: async ({ actions, reasoning }) => {
+        planResult.reasoning = reasoning || "";
+
+        // Execute each action using existing handlers
+        const results = [];
+        for (const { action, params } of (actions || [])) {
+          try {
+            const result = await executeAction(octokit, repo, action, params || {}, ctx);
+            results.push(result);
+            logger.info(`Action result: ${result}`);
+          } catch (err) {
+            logger.warning(`Action ${action} failed: ${err.message}`);
+            results.push(`error:${action}:${err.message}`);
+          }
+        }
+
+        planResult.actions = actions || [];
+        planResult.results = results;
+        return { textResultForLlm: `Executed ${results.length} action(s): ${results.join(", ")}` };
+      },
+    });
+
+    return [...ghTools, ...discTools, ...gitTools, reportPlan];
+  };
+
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
+  const result = await runCopilotSession({
+    workspacePath: process.cwd(),
     model,
-    systemMessage:
-      "You are the supervisor of an autonomous coding repository. Your job is to advance the mission by choosing which workflows to dispatch and which GitHub actions to take. Pick multiple actions when appropriate. Be strategic — consider what's already in progress, what's blocked, and what will make the most impact.",
-    prompt,
-    writablePaths: [],
     tuning: t,
+    agentPrompt: systemPrompt,
+    userPrompt: prompt,
+    writablePaths: [],
+    createTools,
+    attachments,
+    excludedTools: ["write_file", "run_command", "run_tests"],
+    logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
 
-  const actions = parseActions(content);
-  const reasoning = parseReasoning(content);
+  const tokensUsed = result.tokensIn + result.tokensOut;
 
-  core.info(`Supervisor reasoning: ${reasoning.substring(0, 200)}`);
-  core.info(`Supervisor chose ${actions.length} action(s)`);
+  // Extract actions — prefer tool result, fall back to text parsing
+  let actions = planResult.actions;
+  let reasoning = planResult.reasoning;
+  let results = planResult.results || [];
 
-  const results = [];
-  for (const { action, params } of actions) {
-    try {
-      const result = await executeAction(octokit, repo, action, params, ctx);
-      results.push(result);
-      core.info(`Action result: ${result}`);
-    } catch (err) {
-      core.warning(`Action ${action} failed: ${err.message}`);
-      results.push(`error:${action}:${err.message}`);
-    }
-  }
+  if (actions.length === 0 && result.agentMessage) {
+    actions = parseActions(result.agentMessage);
+    reasoning = parseReasoning(result.agentMessage);
 
-  // --- Deterministic lifecycle posts (after LLM) ---
-
-  // Strategy A: Deterministic mission-complete fallback
-  // If the LLM didn't choose mission-complete but conditions are clearly met, auto-execute it.
-  if (!ctx.missionComplete && !ctx.missionFailed) {
-    const llmChoseMissionComplete = results.some((r) => r.startsWith("mission-complete:"));
-    if (!llmChoseMissionComplete) {
-      const resolvedCount = ctx.recentlyClosedSummary.filter((s) => s.includes("closed by review as RESOLVED")).length;
-      const hasNoOpenIssues = ctx.issuesSummary.length === 0;
-      const hasNoOpenPRs = ctx.prsSummary.length === 0;
-      if (hasNoOpenIssues && hasNoOpenPRs && resolvedCount >= 2) {
-        core.info(`Deterministic mission-complete: 0 open issues, 0 open PRs, ${resolvedCount} recently resolved — LLM did not detect completion`);
-        try {
-          const autoResult = await executeMissionComplete(octokit, repo,
-            { reason: `All acceptance criteria satisfied (${resolvedCount} issues closed by review as RESOLVED, 0 open issues, 0 open PRs)` },
-            ctx);
-          results.push(autoResult);
-        } catch (err) {
-          core.warning(`Deterministic mission-complete failed: ${err.message}`);
-        }
+    // Execute fallback-parsed actions
+    for (const { action, params } of actions) {
+      try {
+        const r = await executeAction(octokit, repo, action, params, ctx);
+        results.push(r);
+        core.info(`Action result: ${r}`);
+      } catch (err) {
+        core.warning(`Action ${action} failed: ${err.message}`);
+        results.push(`error:${action}:${err.message}`);
       }
     }
   }
 
+  core.info(`Supervisor reasoning: ${reasoning.substring(0, 200)}`);
+  core.info(`Supervisor chose ${actions.length} action(s)`);
+
+  // --- Deterministic lifecycle posts (after LLM) ---
+
   // Step 3: Auto-respond when a message referral is present
-  // If the workflow was triggered with a message (from bot's request-supervisor),
-  // and the LLM didn't include a respond:discussions action, post back directly.
-  // Posts directly via GraphQL to avoid triggering the bot workflow (which would
-  // request-supervisor again, creating an infinite loop).
   const workflowMessage = context.discussionUrl ? "" : (process.env.INPUT_MESSAGE || "");
   if (workflowMessage && ctx.activeDiscussionUrl) {
     const hasDiscussionResponse = results.some((r) => r.startsWith("respond-discussions:"));
@@ -798,24 +838,18 @@ export async function supervise(context) {
 
   // Build changes list from executed actions
   const changes = results
-    .filter((r) => r.startsWith("created-issue:") || r.startsWith("mission-complete:") || r.startsWith("mission-failed:"))
-    .map((r) => {
-      if (r.startsWith("created-issue:")) return { action: "created-issue", file: r.replace("created-issue:", ""), sizeInfo: "" };
-      if (r.startsWith("mission-complete:")) return { action: "mission-complete", file: "MISSION_COMPLETE.md", sizeInfo: r.replace("mission-complete:", "") };
-      if (r.startsWith("mission-failed:")) return { action: "mission-failed", file: "MISSION_FAILED.md", sizeInfo: r.replace("mission-failed:", "") };
-      return null;
-    })
-    .filter(Boolean);
+    .filter((r) => r.startsWith("created-issue:"))
+    .map((r) => ({ action: "created-issue", file: r.replace("created-issue:", ""), sizeInfo: "" }));
 
   return {
     outcome: actions.length === 0 ? "nop" : `supervised:${actions.length}-actions`,
     tokensUsed,
-    inputTokens,
-    outputTokens,
-    cost,
+    inputTokens: result.tokensIn,
+    outputTokens: result.tokensOut,
+    cost: 0,
     model,
     details: `Actions: ${results.join(", ")}\nReasoning: ${reasoning.substring(0, 300)}`,
-    narrative: reasoning.substring(0, 500),
+    narrative: result.narrative || reasoning.substring(0, 500),
     changes,
   };
 }

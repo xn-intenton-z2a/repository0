@@ -13,14 +13,14 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-schedule=$(grep '^schedule:' .github/agentic-lib/agents/agentic-lib.yml | awk '{print $2}' | sed 's/schedule-//')
+schedule=$(grep '^supervisor' agentic-lib.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
 if [ -z "${schedule}" ]; then
-  echo "No schedule found in .github/agentic-lib/agents/agentic-lib.yml, looking for line of the form 'schedule: schedule-<number>', using schedule-1"
+  echo "No schedule found in agentic-lib.toml [schedule] section, using schedule-1"
   schedule=1
 fi
-echo "Workflow schedule: schedule-${schedule?}"
+echo "Workflow schedule: ${schedule?}"
 ./scripts/activate-schedule.sh "${schedule?}"
-git add .github/agentic-lib/agents/*
+git add .github/agents/*
 git add .github/agentic-lib/actions/*
 git add .github/workflows/*
 git add scripts/*

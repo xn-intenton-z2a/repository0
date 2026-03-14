@@ -2,26 +2,45 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/review-issue.js — Review issues and close resolved ones
 //
-// Checks open issues against the current codebase to determine
-// if they have been resolved, and closes them if so.
-// Supports batch mode: when no issueNumber is provided, reviews up to 3 issues.
+// Uses runCopilotSession with lean prompts: the model reads source files
+// via tools to determine if issues have been resolved.
 
 import * as core from "@actions/core";
-import { runCopilotTask, scanDirectory } from "../copilot.js";
+import { existsSync, readdirSync, statSync } from "fs";
+import { join } from "path";
+import { extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
+import { runCopilotSession } from "../../../copilot/copilot-session.js";
+import { createGitHubTools, createGitTools } from "../../../copilot/github-tools.js";
+
+/**
+ * Build a file listing summary (names + sizes, not content).
+ */
+function buildFileListing(dirPath, extensions) {
+  if (!dirPath || !existsSync(dirPath)) return [];
+  const exts = Array.isArray(extensions) ? extensions : [extensions];
+  try {
+    const files = readdirSync(dirPath, { recursive: true });
+    return files
+      .filter((f) => exts.some((ext) => String(f).endsWith(ext)))
+      .map((f) => {
+        const fullPath = join(dirPath, String(f));
+        try {
+          const stat = statSync(fullPath);
+          return `${f} (~${Math.round(stat.size / 40)} lines)`;
+        } catch {
+          return String(f);
+        }
+      })
+      .slice(0, 30);
+  } catch {
+    return [];
+  }
+}
 
 /**
  * Review a single issue against the current codebase.
- *
- * @param {Object} params
- * @param {Object} params.octokit - GitHub API client
- * @param {Object} params.repo - { owner, repo }
- * @param {Object} params.config - Loaded config
- * @param {number} params.targetIssueNumber - Issue number to review
- * @param {string} params.instructions - Agent instructions
- * @param {string} params.model - Model name
- * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
-async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, instructions, model, tuning: t }) {
+async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, instructions, model, tuning: t, logFilePath, screenshotFilePath }) {
   const { data: issue } = await octokit.rest.issues.get({
     ...repo,
     issue_number: Number(targetIssueNumber),
@@ -31,52 +50,14 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
     return { outcome: "nop", details: `Issue #${targetIssueNumber} is already closed` };
   }
 
-  const sourceFiles = scanDirectory(config.paths.source.path, [".js", ".ts"], {
-    contentLimit: t.sourceContent || 5000,
-    fileLimit: t.sourceScan || 20,
-    recursive: true,
-    sortByMtime: true,
-    clean: true,
-    outline: true,
-  });
-  const testFiles = scanDirectory(config.paths.tests.path, [".test.js", ".test.ts"], {
-    contentLimit: t.testContent || t.sourceContent || 5000,
-    fileLimit: t.sourceScan || 20,
-    recursive: true,
-    sortByMtime: true,
-    clean: true,
-  });
-  const webFiles = scanDirectory(config.paths.web?.path || "src/web/", [".html", ".css", ".js"], {
-    fileLimit: t.sourceScan || 20,
-    contentLimit: t.sourceContent || 5000,
-    recursive: true,
-    sortByMtime: true,
-    clean: true,
-  });
-  const docsFiles = scanDirectory(config.paths.documentation?.path || "docs/", [".md"], {
-    fileLimit: t.featuresScan || 10,
-    contentLimit: t.documentSummary || 2000,
-  });
+  const sourceFiles = buildFileListing(config.paths.source.path, [".js", ".ts"]);
+  const testFiles = buildFileListing(config.paths.tests.path, [".js", ".ts"]);
+  const webFiles = buildFileListing(config.paths.web?.path || "src/web/", [".html", ".css", ".js"]);
 
   const agentInstructions = instructions || "Review whether this issue has been resolved by the current codebase.";
 
-  // Gather recent commits since init for context
-  let recentCommitsSummary = [];
-  try {
-    const initTimestamp = config.init?.timestamp || null;
-    const since = initTimestamp || new Date(Date.now() - 7 * 86400000).toISOString();
-    const { data: commits } = await octokit.rest.repos.listCommits({
-      ...repo,
-      sha: "main",
-      since,
-      per_page: 10,
-    });
-    recentCommitsSummary = commits.map((c) => {
-      const msg = c.commit.message.split("\n")[0];
-      const sha = c.sha.substring(0, 7);
-      return `- [${sha}] ${msg} (${c.commit.author?.date || ""})`;
-    });
-  } catch { /* ignore */ }
+  // Shared mutable state to capture the verdict
+  const verdictResult = { verdict: "", resolved: false };
 
   const prompt = [
     "## Instructions",
@@ -85,53 +66,76 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
     `## Issue #${targetIssueNumber}: ${issue.title}`,
     issue.body || "(no description)",
     "",
-    `## Current Source (${sourceFiles.length} files)`,
-    ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
-    "",
-    `## Current Tests (${testFiles.length} files)`,
-    ...testFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
-    "",
-    ...(webFiles.length > 0
-      ? [
-          `## Website Files (${webFiles.length} files)`,
-          "The website in `src/web/` uses the JS library.",
-          ...webFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
-          "",
-        ]
-      : []),
-    ...(docsFiles.length > 0
-      ? [`## Documentation (${docsFiles.length} files)`, ...docsFiles.map((f) => `- ${f.name}`), ""]
-      : []),
-    ...(recentCommitsSummary.length > 0
-      ? [`## Recent Commits (since init)`, ...recentCommitsSummary, ""]
-      : []),
-    config.configToml ? `## Configuration (agentic-lib.toml)\n\`\`\`toml\n${config.configToml}\n\`\`\`` : "",
-    config.packageJson ? `## Dependencies (package.json)\n\`\`\`json\n${config.packageJson}\n\`\`\`` : "",
+    "## Repository Structure",
+    `Source files (${sourceFiles.length}): ${sourceFiles.join(", ") || "none"}`,
+    `Test files (${testFiles.length}): ${testFiles.join(", ") || "none"}`,
+    ...(webFiles.length > 0 ? [`Website files (${webFiles.length}): ${webFiles.join(", ")}`] : []),
     "",
     "## Your Task",
-    "Determine if this issue has been resolved by the current code.",
-    "Respond with exactly one of:",
-    '- "RESOLVED: <reason>" if the issue is satisfied by the current code',
-    '- "OPEN: <reason>" if the issue is not yet resolved',
+    "Read the relevant source and test files using read_file to determine if this issue has been resolved.",
+    "Use git_diff or git_status for additional context if needed.",
+    "Then call report_verdict with your determination.",
+    "",
+    "**You MUST call report_verdict exactly once.**",
   ].join("\n");
 
-  const {
-    content: verdict,
-    tokensUsed,
-    inputTokens,
-    outputTokens,
-    cost,
-  } = await runCopilotTask({
+  const systemPrompt =
+    "You are a code reviewer determining if a GitHub issue has been resolved by the current codebase. Read the source files, analyze them against the issue requirements, and report your verdict." +
+    NARRATIVE_INSTRUCTION;
+
+  const createTools = (defineTool, _wp, logger) => {
+    const ghTools = createGitHubTools(octokit, repo, defineTool, logger);
+    const gitTools = createGitTools(defineTool, logger);
+
+    const reportVerdict = defineTool("report_verdict", {
+      description: "Report whether the issue is resolved or still open. Call this exactly once.",
+      parameters: {
+        type: "object",
+        properties: {
+          resolved: { type: "boolean", description: "true if the issue is resolved, false if still open" },
+          reason: { type: "string", description: "Explanation of why the issue is or is not resolved" },
+          files_reviewed: { type: "number", description: "Number of source files read during review" },
+        },
+        required: ["resolved", "reason"],
+      },
+      handler: async ({ resolved, reason, files_reviewed }) => {
+        verdictResult.verdict = `${resolved ? "RESOLVED" : "OPEN"}: ${reason}`;
+        verdictResult.resolved = resolved;
+        verdictResult.filesReviewed = files_reviewed || 0;
+        return { textResultForLlm: `Verdict recorded: ${resolved ? "RESOLVED" : "OPEN"}` };
+      },
+    });
+
+    return [...ghTools, ...gitTools, reportVerdict];
+  };
+
+  const attachments = [];
+  if (logFilePath) attachments.push({ type: "file", path: logFilePath });
+  if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
+
+  const result = await runCopilotSession({
+    workspacePath: process.cwd(),
     model,
-    systemMessage: "You are a code reviewer determining if GitHub issues have been resolved.",
-    prompt,
-    writablePaths: [],
     tuning: t,
+    agentPrompt: systemPrompt,
+    userPrompt: prompt,
+    writablePaths: [],
+    createTools,
+    attachments,
+    excludedTools: ["write_file", "run_command", "run_tests", "dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment"],
+    logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
 
-  // Strip leading markdown formatting (e.g., **RESOLVED** or *RESOLVED*)
-  const normalised = verdict.replace(/^[*_`#>\s-]+/, "").toUpperCase();
-  if (normalised.startsWith("RESOLVED")) {
+  const tokensUsed = result.tokensIn + result.tokensOut;
+
+  // If the model didn't call report_verdict, try to infer from the message
+  if (!verdictResult.verdict && result.agentMessage) {
+    const normalised = result.agentMessage.replace(/^[*_`#>\s-]+/, "").toUpperCase();
+    verdictResult.resolved = normalised.startsWith("RESOLVED");
+    verdictResult.verdict = result.agentMessage.substring(0, 500);
+  }
+
+  if (verdictResult.resolved) {
     await octokit.rest.issues.createComment({
       ...repo,
       issue_number: Number(targetIssueNumber),
@@ -140,10 +144,9 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
         "",
         `**Task:** review-issue`,
         `**Model:** ${model}`,
-        `**Source files reviewed:** ${sourceFiles.length}`,
-        `**Test files reviewed:** ${testFiles.length}`,
+        `**Files reviewed:** ${verdictResult.filesReviewed || "unknown"}`,
         "",
-        verdict,
+        verdictResult.verdict,
       ].join("\n"),
     });
     await octokit.rest.issues.update({
@@ -156,25 +159,25 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
     return {
       outcome: "issue-closed",
       tokensUsed,
-      inputTokens,
-      outputTokens,
-      cost,
+      inputTokens: result.tokensIn,
+      outputTokens: result.tokensOut,
+      cost: 0,
       model,
-      details: `Closed issue #${targetIssueNumber}: ${verdict.substring(0, 200)}`,
-      narrative: `Reviewed issue #${targetIssueNumber} and closed it as resolved.`,
+      details: `Closed issue #${targetIssueNumber}: ${verdictResult.verdict.substring(0, 200)}`,
+      narrative: result.narrative || `Reviewed issue #${targetIssueNumber} and closed it as resolved.`,
     };
   }
 
-  core.info(`Issue #${targetIssueNumber} still open: ${verdict.substring(0, 100)}`);
+  core.info(`Issue #${targetIssueNumber} still open: ${verdictResult.verdict.substring(0, 100)}`);
   return {
     outcome: "issue-still-open",
     tokensUsed,
-    inputTokens,
-    outputTokens,
-    cost,
+    inputTokens: result.tokensIn,
+    outputTokens: result.tokensOut,
+    cost: 0,
     model,
-    details: `Issue #${targetIssueNumber} remains open: ${verdict.substring(0, 200)}`,
-    narrative: `Reviewed issue #${targetIssueNumber} — still open, not yet resolved.`,
+    details: `Issue #${targetIssueNumber} remains open: ${verdictResult.verdict.substring(0, 200)}`,
+    narrative: result.narrative || `Reviewed issue #${targetIssueNumber} — still open, not yet resolved.`,
   };
 }
 
@@ -221,18 +224,17 @@ async function findUnreviewedIssues(octokit, repo, limit) {
 
 /**
  * Review open issues and close those that have been resolved.
- * When no issueNumber is provided, reviews up to 3 issues in batch mode.
  *
  * @param {Object} context - Task context from index.js
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function reviewIssue(context) {
-  const { octokit, repo, config, issueNumber, instructions, model } = context;
+  const { octokit, repo, config, issueNumber, instructions, model, logFilePath, screenshotFilePath } = context;
   const t = config.tuning || {};
 
   // Single issue mode
   if (issueNumber) {
-    return reviewSingleIssue({ octokit, repo, config, targetIssueNumber: issueNumber, instructions, model, tuning: t });
+    return reviewSingleIssue({ octokit, repo, config, targetIssueNumber: issueNumber, instructions, model, tuning: t, logFilePath, screenshotFilePath });
   }
 
   // Batch mode: find up to 3 unreviewed issues
@@ -245,18 +247,16 @@ export async function reviewIssue(context) {
   let totalTokens = 0;
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
-  let totalCost = 0;
 
   for (const num of issueNumbers) {
     core.info(`Batch reviewing issue #${num} (${results.length + 1}/${issueNumbers.length})`);
     const result = await reviewSingleIssue({
-      octokit, repo, config, targetIssueNumber: num, instructions, model, tuning: t,
+      octokit, repo, config, targetIssueNumber: num, instructions, model, tuning: t, logFilePath, screenshotFilePath,
     });
     results.push(result);
     totalTokens += result.tokensUsed || 0;
     totalInputTokens += result.inputTokens || 0;
     totalOutputTokens += result.outputTokens || 0;
-    totalCost += result.cost || 0;
   }
 
   const closed = results.filter((r) => r.outcome === "issue-closed").length;
@@ -267,7 +267,7 @@ export async function reviewIssue(context) {
     tokensUsed: totalTokens,
     inputTokens: totalInputTokens,
     outputTokens: totalOutputTokens,
-    cost: totalCost,
+    cost: 0,
     model,
     details: `Batch reviewed ${reviewed} issues, closed ${closed}. ${results
       .map((r) => r.details)

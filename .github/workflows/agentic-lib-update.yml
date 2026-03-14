@@ -1,0 +1,131 @@
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2025-2026 Polycode Limited
+# .github/workflows/agentic-lib-update.yml
+#
+# Update agentic-lib to latest, extract workflows/actions/scripts, run tests,
+# commit and push to main [skip ci]. Does NOT reseed or purge user content.
+#
+# In agentic-lib: schedule trigger is commented out.
+# During init:
+
+name: agentic-lib-update
+run-name: "agentic-lib-update [${{ github.ref_name }}]"
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: false
+        default: ""
+      dry-run:
+        type: string
+        required: false
+        default: "false"
+      skip-tests:
+        type: string
+        required: false
+        default: "false"
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Preview changes without committing"
+        type: boolean
+        required: false
+        default: false
+
+permissions: write-all
+
+jobs:
+  params:
+    runs-on: ubuntu-latest
+    outputs:
+      dry-run: ${{ steps.resolve.outputs.dry-run }}
+    steps:
+      - id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.setOutput('dry-run', context.payload.inputs?.['dry-run'] || 'false');
+
+  update:
+    needs: [params]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        if: inputs.dry-run == 'true' || inputs.dry-run == true
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+      - uses: actions/checkout@v6
+        if: inputs.dry-run != 'true' && inputs.dry-run != true
+        with:
+          ref: ${{ inputs.ref || 'main' }}
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Update agentic-lib to latest
+        run: npm update @xn-intenton-z2a/agentic-lib
+
+      - name: Run init (update mode)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Use local CLI if available (agentic-lib dev), otherwise npx
+          if [ -f "bin/agentic-lib.js" ]; then
+            node bin/agentic-lib.js init
+          else
+            npx @xn-intenton-z2a/agentic-lib init
+          fi
+
+      - run: npm install
+
+      - name: Install agentic-step deps
+        if: hashFiles('.github/agentic-lib/actions/agentic-step/package.json') != ''
+        run: cd .github/agentic-lib/actions/agentic-step && npm ci
+
+      - name: Install sub-project dependencies (agentic-lib dev only)
+        if: hashFiles('src/actions/agentic-step/package.json') != ''
+        run: cd src/actions/agentic-step && npm ci
+
+      - name: Run tests
+        if: inputs.skip-tests != 'true'
+        run: npm test
+
+      - name: Commit and push to main [skip ci]
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && inputs.dry-run != 'true' && inputs.dry-run != true
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: |
+          TOKEN_USER=$(gh api /user --jq '.login')
+          TOKEN_ID=$(gh api /user --jq '.id')
+          git config user.name "${TOKEN_USER}"
+          git config user.email "${TOKEN_ID}+${TOKEN_USER}@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && echo "No changes" && exit 0
+          VERSION=$(npx @xn-intenton-z2a/agentic-lib version 2>/dev/null || echo "latest")
+          git commit -m "update agentic-lib@${VERSION} [skip ci]"
+          for attempt in 1 2 3; do
+            # Use HEAD:refs/heads/main to handle detached HEAD state
+            git push origin HEAD:refs/heads/main && break
+            echo "Push failed (attempt $attempt) — pulling and retrying"
+            git pull --rebase origin main || {
+              echo "Rebase conflict — aborting rebase and retrying"
+              git rebase --abort 2>/dev/null || true
+            }
+            sleep $((attempt * 2))
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::Failed to push after 3 attempts"
+              exit 1
+            fi
+          done
+
+      - name: Job Summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `## Job: update\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |\n| Dry Run | ${{ inputs.dry-run }} |`;
+            core.summary.addRaw(summary).write();

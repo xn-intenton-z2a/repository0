@@ -13,6 +13,10 @@ run-name: "agentic-lib-schedule -> ${{ inputs.frequency }} (${{ inputs.model }}$
 on:
   workflow_call:
     inputs:
+      ref:
+        type: string
+        required: false
+        default: ""
       frequency:
         description: "How often the workflow should run"
         required: true
@@ -21,7 +25,7 @@ on:
         description: "Copilot SDK model to use"
         required: false
         type: string
-        default: "gpt-5-mini"
+        default: ""
       profile:
         description: "Tuning profile"
         required: false
@@ -35,21 +39,23 @@ on:
   workflow_dispatch:
     inputs:
       frequency:
-        description: "How often the workflow should run"
+        description: "How often the workflow should run (maintenance = weekly + remove mission-complete + unlimited budget)"
         required: true
         type: choice
         options:
           - "off"
+          - "maintenance"
           - "weekly"
           - "daily"
           - "hourly"
           - "continuous"
       model:
-        description: "Copilot SDK model to use"
+        description: "Copilot SDK model to use (empty = read from agentic-lib.toml)"
         required: false
         type: choice
-        default: "gpt-5-mini"
+        default: ""
         options:
+          - ""
           - gpt-5-mini
           - claude-sonnet-4
           - gpt-4.1
@@ -73,15 +79,36 @@ permissions:
   contents: write
 
 jobs:
+  params:
+    runs-on: ubuntu-latest
+    outputs:
+      frequency: ${{ steps.resolve.outputs.frequency }}
+      model: ${{ steps.resolve.outputs.model }}
+      profile: ${{ steps.resolve.outputs.profile }}
+      maintenance: ${{ steps.resolve.outputs.maintenance }}
+    steps:
+      - id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const frequency = context.payload.inputs?.['frequency'] || 'off';
+            core.setOutput('frequency', frequency);
+            core.setOutput('model', context.payload.inputs?.['model'] || '');
+            core.setOutput('profile', context.payload.inputs?.['profile'] || '');
+            core.setOutput('maintenance', frequency === 'maintenance' ? 'true' : 'false');
+
   update-schedule:
+    needs: [params]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         if: inputs.dry-run == 'true' || inputs.dry-run == true
+        with:
+          ref: ${{ inputs.ref || github.sha }}
       - uses: actions/checkout@v6
         if: inputs.dry-run != 'true' && inputs.dry-run != true
         with:
-          ref: main
+          ref: ${{ inputs.ref || 'main' }}
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: Update workflow schedule and model
@@ -90,28 +117,63 @@ jobs:
           script: |
             const fs = require('fs');
             const frequency = '${{ inputs.frequency }}';
-            const model = '${{ inputs.model || 'gpt-5-mini' }}';
-            const profile = '${{ inputs.profile }}';
             const workflowPath = '.github/workflows/agentic-lib-workflow.yml';
             const tomlPath = 'agentic-lib.toml';
+            let model = '${{ inputs.model }}';
+            if (!model && fs.existsSync(tomlPath)) {
+              const toml = fs.readFileSync(tomlPath, 'utf8');
+              const m = toml.match(/^\s*model\s*=\s*"([^"]*)"/m);
+              if (m) model = m[1];
+            }
+            if (!model) model = 'gpt-5-mini';
+            const profile = '${{ inputs.profile }}';
 
+            const isMaintenance = frequency === 'maintenance';
+            const effectiveFrequency = isMaintenance ? 'weekly' : frequency;
+
+            // Problem 4 fix: Use a "never fires" cron for off instead of removing the block.
+            // Keeping the schedule: block permanently avoids GitHub cron de-registration issues.
             const SCHEDULE_MAP = {
-              off: null,
-              weekly: '15 6 * * 1',
-              daily: '15 6 * * *',
-              hourly: '15 * * * *',
-              continuous: '5,15,25,35,45,55 * * * *',
+              off: '0 0 31 2 *',
+              weekly: '25 6 * * 1',
+              daily: '25 6 * * *',
+              hourly: '25 * * * *',
+              continuous: '5,25,45 * * * *',
             };
 
             // Update agentic-lib-workflow.yml schedule
             let content = fs.readFileSync(workflowPath, 'utf8');
-            const cron = SCHEDULE_MAP[frequency];
+            const cron = SCHEDULE_MAP[effectiveFrequency];
 
-            // Remove any existing schedule block
-            content = content.replace(/\n  schedule:\n    - cron: "[^"]*"\n/g, '\n');
+            // Check if the frequency is already set — skip if no-op (but never skip maintenance)
+            // Must check BOTH the config file AND the workflow file to avoid desynchronisation
+            const supervisorRegex2 = /^\s*supervisor\s*=\s*"([^"]*)"/m;
+            if (!isMaintenance && fs.existsSync(tomlPath)) {
+              const currentToml = fs.readFileSync(tomlPath, 'utf8');
+              const currentMatch = currentToml.match(supervisorRegex2);
+              const currentFreq = currentMatch ? currentMatch[1] : '';
+              // Also check the workflow file has the expected cron schedule
+              const cronRegex = /- cron: "([^"]*)"/;
+              const workflowCronMatch = content.match(cronRegex);
+              const currentCron = workflowCronMatch ? workflowCronMatch[1] : null;
+              const expectedCron = cron; // from SCHEDULE_MAP
+              const configMatches = currentFreq === frequency;
+              const workflowMatches = currentCron === expectedCron;
+              if (configMatches && workflowMatches) {
+                core.info(`Schedule already set to ${frequency} — no change needed`);
+                return;
+              }
+              if (configMatches && !workflowMatches) {
+                core.info(`Config says ${frequency} but workflow cron is "${currentCron}" (expected "${expectedCron}") — updating workflow`);
+              }
+            }
 
-            if (cron) {
-              // Insert schedule block after the 'on:' line
+            // Replace existing schedule cron or insert a new block
+            const cronRegexReplace = /- cron: "[^"]*"/;
+            if (cronRegexReplace.test(content)) {
+              content = content.replace(cronRegexReplace, `- cron: "${cron}"`);
+            } else {
+              // No schedule block exists — insert one after 'on:'
               const scheduleBlock = `\n  schedule:\n    - cron: "${cron}"\n`;
               content = content.replace(
                 /\non:\n/,
@@ -132,7 +194,17 @@ jobs:
             }
 
             fs.writeFileSync(workflowPath, content);
-            core.info(`Updated workflow schedule to: ${frequency} (cron: ${cron || 'none'})`);
+            core.info(`Updated workflow schedule to: ${effectiveFrequency} (cron: ${cron || 'none'})`);
+
+            // Maintenance mode: remove mission-complete/failed signals
+            if (isMaintenance) {
+              for (const f of ['MISSION_COMPLETE.md', 'MISSION_FAILED.md']) {
+                if (fs.existsSync(f)) {
+                  fs.unlinkSync(f);
+                  core.info(`Maintenance mode: removed ${f}`);
+                }
+              }
+            }
 
             // Update agentic-lib.toml with model and supervisor settings
             if (fs.existsSync(tomlPath)) {
@@ -162,6 +234,15 @@ jobs:
                 }
               }
 
+              // Maintenance mode: set transformation-budget to 0 (unlimited)
+              if (isMaintenance) {
+                const budgetRegex = /^(\s*transformation-budget\s*=\s*)\d+/m;
+                if (budgetRegex.test(toml)) {
+                  toml = toml.replace(budgetRegex, '$10');
+                  core.info('Maintenance mode: set transformation-budget = 0 (unlimited)');
+                }
+              }
+
               fs.writeFileSync(tomlPath, toml);
               core.info(`Updated agentic-lib.toml: model=${model}, supervisor=${frequency}${profile ? ', profile=' + profile : ''}`);
             } else {
@@ -180,10 +261,17 @@ jobs:
           FREQUENCY="${{ inputs.frequency }}"
           MODEL="${{ inputs.model }}"
           git add .github/workflows/agentic-lib-workflow.yml agentic-lib.toml
+          # Stage removed mission files if maintenance mode deleted them
+          git rm --ignore-unmatch MISSION_COMPLETE.md MISSION_FAILED.md 2>/dev/null || true
           git diff --cached --quiet && echo "No changes to commit" && exit 0
-          git commit -m "schedule: set to ${FREQUENCY}, model ${MODEL:-gpt-5-mini}"
+          if [ "$FREQUENCY" = "maintenance" ]; then
+            git commit -m "schedule: switch to maintenance mode (weekly, unlimited budget, mission reset)"
+          else
+            git commit -m "schedule: set to ${FREQUENCY}, model ${MODEL:-gpt-5-mini}"
+          fi
           for attempt in 1 2 3; do
-            git push origin main && break
+            # Use HEAD:refs/heads/main to handle detached HEAD state
+            git push origin HEAD:refs/heads/main && break
             echo "Push failed (attempt $attempt) — pulling and retrying"
             git pull --rebase origin main || {
               echo "Rebase conflict — aborting rebase and retrying"
@@ -195,3 +283,33 @@ jobs:
               exit 1
             fi
           done
+
+      - name: "Problem 2 fix: Verify schedule registered with GitHub"
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && inputs.dry-run != 'true' && inputs.dry-run != true
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: |
+          echo "Waiting 10s for GitHub to process the push..."
+          sleep 10
+          WORKFLOW_STATE=$(gh api "repos/${{ github.repository }}/actions/workflows/agentic-lib-workflow.yml" --jq '.state' 2>/dev/null || echo "unknown")
+          echo "Workflow state: ${WORKFLOW_STATE}"
+          if [ "$WORKFLOW_STATE" != "active" ]; then
+            echo "::warning::Workflow state is '${WORKFLOW_STATE}', attempting to enable..."
+            gh api "repos/${{ github.repository }}/actions/workflows/agentic-lib-workflow.yml/enable" -X PUT 2>/dev/null || true
+            WORKFLOW_STATE=$(gh api "repos/${{ github.repository }}/actions/workflows/agentic-lib-workflow.yml" --jq '.state' 2>/dev/null || echo "unknown")
+            echo "Workflow state after enable: ${WORKFLOW_STATE}"
+          fi
+          # Verify the cron was registered by checking the workflow definition
+          FREQUENCY="${{ inputs.frequency }}"
+          if [ "$FREQUENCY" != "off" ]; then
+            echo "Verifying cron schedule is active..."
+            gh api "repos/${{ github.repository }}/actions/workflows" --jq '.workflows[] | select(.name == "agentic-lib-workflow") | "state=\(.state)"' 2>/dev/null || true
+          fi
+
+      - name: Job Summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `## Job: update-schedule\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |\n| Frequency | ${{ inputs.frequency }} |\n| Model | ${{ inputs.model || 'default' }} |\n| Profile | ${{ inputs.profile || 'default' }} |`;
+            core.summary.addRaw(summary).write();

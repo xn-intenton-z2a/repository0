@@ -5,8 +5,9 @@
 // Appends structured entries to the intentïon.md activity log,
 // including commit URLs and safety-check outcomes.
 
-import { writeFileSync, readFileSync, appendFileSync, existsSync, mkdirSync } from "fs";
+import { writeFileSync, readFileSync, appendFileSync, existsSync, mkdirSync, readdirSync } from "fs";
 import { dirname } from "path";
+import { join } from "path";
 import * as core from "@actions/core";
 
 /**
@@ -35,6 +36,8 @@ import * as core from "@actions/core";
  * @param {string} [options.closingNotes] - Auto-generated limit concern notes
  * @param {number} [options.transformationCost] - Transformation cost for this entry (0 or 1)
  * @param {string} [options.narrative] - LLM-generated narrative description of the change
+ * @param {string} [options.missionReadiness] - Mission-complete readiness narrative
+ * @param {Array} [options.missionMetrics] - Mission metrics entries { metric, value, target, status }
  */
 export function logActivity({
   filepath,
@@ -56,6 +59,8 @@ export function logActivity({
   contextNotes,
   limitsStatus,
   promptBudget,
+  missionReadiness,
+  missionMetrics,
   closingNotes,
   transformationCost,
   narrative,
@@ -108,6 +113,18 @@ export function logActivity({
       parts.push(`| ${pb.section} | ${pb.size} chars | ${pb.files || "—"} | ${pb.notes || ""} |`);
     }
   }
+  if (missionReadiness) {
+    parts.push("", "### Mission-Complete Readiness");
+    parts.push(missionReadiness);
+  }
+  if (missionMetrics && missionMetrics.length > 0) {
+    parts.push("", "### Mission Metrics");
+    parts.push("| Metric | Value | Target | Status |");
+    parts.push("|--------|-------|--------|--------|");
+    for (const m of missionMetrics) {
+      parts.push(`| ${m.metric} | ${m.value} | ${m.target} | ${m.status} |`);
+    }
+  }
   if (closingNotes) {
     parts.push("", "### Closing Notes");
     parts.push(closingNotes);
@@ -142,6 +159,91 @@ export function logActivity({
   } else {
     writeFileSync(filepath, `# intentïon Activity Log\n${entry}`);
   }
+
+}
+
+/**
+ * Write a standalone agent log file for a single task execution.
+ * Each file is uniquely named with a filesystem-safe datetime stamp.
+ *
+ * @param {Object} options
+ * @param {string} options.task - The task name
+ * @param {string} options.outcome - The task outcome
+ * @param {string} [options.model] - Model used
+ * @param {number} [options.durationMs] - Task duration in milliseconds
+ * @param {string} [options.narrative] - LLM-generated narrative
+ * @param {Array}  [options.reviewTable] - Implementation review table rows
+ * @param {string} [options.completenessAdvice] - English completeness assessment
+ * @param {string} [options.contextNotes] - Additional context notes
+ * @param {Array}  [options.missionMetrics] - Mission metrics entries
+ * @param {number} [options.tokensUsed] - Total tokens consumed
+ * @returns {string} The filename of the written log file
+ */
+export function writeAgentLog({
+  task, outcome, model, durationMs, narrative,
+  reviewTable, completenessAdvice, contextNotes,
+  missionMetrics, tokensUsed, sequence,
+}) {
+  const now = new Date();
+  const stamp = now.toISOString().replace(/:/g, "-").replace(/\./g, "-");
+  // C4: Include zero-padded sequence number in filename
+  const seq = String(sequence || 0).padStart(3, "0");
+  const filename = `agent-log-${stamp}-${seq}.md`;
+
+  const parts = [
+    `# Agent Log: ${task} at ${now.toISOString()}`,
+    "",
+    "## Summary",
+    `**Sequence:** ${seq}`,
+    `**Task:** ${task}`,
+    `**Outcome:** ${outcome}`,
+  ];
+
+  if (model) parts.push(`**Model:** ${model}`);
+  if (tokensUsed) parts.push(`**Tokens:** ${tokensUsed}`);
+  if (durationMs) {
+    const secs = Math.round(durationMs / 1000);
+    parts.push(`**Duration:** ${secs}s`);
+  }
+
+  if (reviewTable && reviewTable.length > 0) {
+    parts.push("", "## Implementation Review");
+    parts.push("| Element | Implemented | Unit Tested | Behaviour Tested | Website Used | Notes |");
+    parts.push("|---------|-------------|-------------|------------------|--------------|-------|");
+    for (const row of reviewTable) {
+      parts.push(`| ${row.element || ""} | ${row.implemented || ""} | ${row.unitTested || ""} | ${row.behaviourTested || ""} | ${row.websiteUsed || ""} | ${row.notes || ""} |`);
+    }
+  }
+
+  if (completenessAdvice) {
+    parts.push("", "## Completeness Assessment");
+    parts.push(completenessAdvice);
+  }
+
+  if (missionMetrics && missionMetrics.length > 0) {
+    parts.push("", "## Mission Metrics");
+    parts.push("| Metric | Value | Target | Status |");
+    parts.push("|--------|-------|--------|--------|");
+    for (const m of missionMetrics) {
+      parts.push(`| ${m.metric} | ${m.value} | ${m.target} | ${m.status} |`);
+    }
+  }
+
+  if (narrative) {
+    parts.push("", "## Narrative");
+    parts.push(narrative);
+  }
+
+  if (contextNotes) {
+    parts.push("", "## Context Notes");
+    parts.push(contextNotes);
+  }
+
+  parts.push("", "---");
+  parts.push(`Generated by agentic-step ${task} at ${now.toISOString()}`);
+
+  writeFileSync(filename, parts.join("\n"));
+  return filename;
 }
 
 /**
