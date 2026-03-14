@@ -31,26 +31,4 @@ describe("Website", () => {
     expect(html).toContain("lib-name");
     expect(html).toContain("lib-version");
   });
-
-  test('index.html contains Hamming demo elements and wiring', () => {
-    const html = readFileSync('src/web/index.html', 'utf8');
-    expect(html).toContain('input-a');
-    expect(html).toContain('input-b');
-    expect(html).toContain('compute-hamming');
-    expect(html).toContain('hamming-result');
-    // Ensure the page attempts to use computeHamming from the library
-    expect(html).toContain('computeHamming');
-  });
-
-  test('index.html contains FizzBuzz demo elements and wiring', () => {
-    const html = readFileSync('src/web/index.html', 'utf8');
-    expect(html).toContain('fizz-n');
-    expect(html).toContain('compute-fizz');
-    expect(html).toContain('compute-fizz-single');
-    expect(html).toContain('fizz-list-output');
-    expect(html).toContain('fizz-single-output');
-    // Ensure the page attempts to use fizzBuzz and fizzBuzzSingle from the library
-    expect(html).toMatch(/fizzBuzz/);
-    expect(html).toMatch(/fizzBuzzSingle/);
-  });
 });

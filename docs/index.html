@@ -15,12 +15,6 @@
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
-    .demo { margin-top: 1rem; }
-    .demo input { padding: 0.5rem; font-size: 1rem; }
-    .demo button { padding: 0.5rem 1rem; font-size: 1rem; }
-    #hamming-result { margin-top: 0.5rem; font-weight: bold; }
-    .error { color: #b00020; }
-    .fizz-output { margin-top: 0.5rem; font-family: monospace; white-space: pre-wrap; background: #f6f6f6; padding: 0.5rem; border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -33,90 +27,18 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
-
-  <h2>Hamming Distance Demo</h2>
-  <div class="demo">
-    <label for="input-a">Input A:</label>
-    <input id="input-a" type="text" value="karolin" />
-    <label for="input-b">Input B:</label>
-    <input id="input-b" type="text" value="kathrin" />
-    <button id="compute-hamming">Compute Hamming</button>
-    <div id="hamming-result" aria-live="polite"></div>
-  </div>
-
-  <h2>FizzBuzz Demo</h2>
-  <div class="demo">
-    <label for="fizz-n">n:</label>
-    <input id="fizz-n" type="number" value="15" min="0" />
-    <button id="compute-fizz">Compute FizzBuzz List</button>
-    <button id="compute-fizz-single">Compute Single</button>
-    <div id="fizz-list-output" class="fizz-output" aria-live="polite"></div>
-    <div id="fizz-single-output" class="fizz-output" aria-live="polite"></div>
-  </div>
-
   <h2>Output</h2>
   <div id="demo-output">Loading library...</div>
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
     try {
-      const { name, version, description, computeHamming, fizzBuzz, fizzBuzzSingle } = await import('./lib.js');
+      const { name, version, description } = await import('./lib.js');
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
       document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
-
-      // Hamming wiring
-      const inputA = document.getElementById('input-a');
-      const inputB = document.getElementById('input-b');
-      const btn = document.getElementById('compute-hamming');
-      const out = document.getElementById('hamming-result');
-
-      btn.addEventListener('click', () => {
-        try {
-          const a = inputA.value || '';
-          const b = inputB.value || '';
-          const result = computeHamming(a, b);
-          out.classList.remove('error');
-          out.textContent = String(result);
-        } catch (err) {
-          out.classList.add('error');
-          out.textContent = err?.message || 'Error computing Hamming distance';
-        }
-      });
-
-      // FizzBuzz wiring
-      const fizzN = document.getElementById('fizz-n');
-      const fizzListBtn = document.getElementById('compute-fizz');
-      const fizzSingleBtn = document.getElementById('compute-fizz-single');
-      const fizzListOut = document.getElementById('fizz-list-output');
-      const fizzSingleOut = document.getElementById('fizz-single-output');
-
-      fizzListBtn.addEventListener('click', () => {
-        try {
-          const n = Number(fizzN.value);
-          const list = fizzBuzz(n);
-          fizzListOut.classList.remove('error');
-          fizzListOut.textContent = JSON.stringify(list, null, 2);
-        } catch (err) {
-          fizzListOut.classList.add('error');
-          fizzListOut.textContent = err?.message || 'Error computing fizzBuzz list';
-        }
-      });
-
-      fizzSingleBtn.addEventListener('click', () => {
-        try {
-          const n = Number(fizzN.value);
-          const s = fizzBuzzSingle(n);
-          fizzSingleOut.classList.remove('error');
-          fizzSingleOut.textContent = String(s);
-        } catch (err) {
-          fizzSingleOut.classList.add('error');
-          fizzSingleOut.textContent = err?.message || 'Error computing fizzBuzz single';
-        }
-      });
-
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
       document.getElementById('lib-description').textContent = e.message;
