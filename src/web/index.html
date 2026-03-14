@@ -152,10 +152,14 @@
       document.getElementById('btn-save').addEventListener('click', async () => {
         try {
           const out = await lib.save('data');
-          document.getElementById('persistence-output').textContent = `Saved to ${out}`;
-          log(`Saved ontology to ${out}`);
+          if (typeof out === 'string') {
+            document.getElementById('persistence-output').textContent = `Saved to ${out}`;
+          } else {
+            document.getElementById('persistence-output').textContent = JSON.stringify(out, null, 2);
+          }
+          log(`Saved ontology to ${typeof out === 'string' ? out : 'in-memory summary'}`);
         } catch (e) {
-          document.getElementById('persistence-output').textContent = `Save not supported in browser: ${e.message}`;
+          document.getElementById('persistence-output').textContent = `Save failed: ${e.message}`;
           log(`Save failed: ${e.message}`);
         }
       });
