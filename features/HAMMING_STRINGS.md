@@ -2,30 +2,33 @@
 
 Purpose
 
-Provide a precise specification for computing the Hamming distance between two strings of equal length using Unicode code points (not UTF-16 code units). This feature defines expected behaviour, error handling, and testable acceptance criteria for the string-based Hamming distance API.
+Define string-based Hamming distance behaviour using Unicode code points and validation rules for the library.
 
-Behavior
+Summary
 
-- Export a named function hammingString(a, b) from src/lib/main.js.
-- Accept exactly two arguments. Both arguments must be strings.
-- Compare strings by Unicode code points (grapheme clusters are out of scope; compare by Unicode scalar/code point sequence). Positions are compared by code point index; the Hamming distance is the count of positions where code points differ.
-- If strings are equal, return 0. If empty, return 0.
-- If strings have different lengths (in code point count), throw RangeError.
+Provide a named export hammingString(a, b) from src/lib/main.js that computes the Hamming distance between two strings of equal length, comparing by Unicode code points (Array.from semantics), not UTF-16 code units.
 
-Inputs and Validation
+Behaviour
+
+- Accept exactly two arguments; both must be strings.
+- Convert strings to code point arrays (for example using Array.from) and compare positions by code point index.
+- Return the number of positions where the two code points differ.
+- Return 0 for identical strings, including empty strings.
+
+Validation
 
 - If either argument is not a string, throw TypeError.
-- If either argument is null or undefined, throw TypeError.
+- If the two strings differ in code point length, throw RangeError.
 
-Acceptance criteria
+Acceptance criteria (testable)
 
 - hammingString("karolin", "kathrin") returns 3.
 - hammingString("", "") returns 0.
-- hammingString("a", "á") returns 1 (different code points).
+- hammingString("a", "á") returns 1.
 - hammingString("ab", "a") throws RangeError due to unequal lengths.
-- Passing non-string arguments (e.g., 1, {}) throws TypeError.
+- Passing non-string arguments (e.g., 1 or null) throws TypeError.
 
-Test notes
+Notes
 
-- Tests should count code points correctly for Unicode supplementary characters (e.g., emoji or characters outside the BMP).
-- Unit tests should cover empty strings, multi-byte code points, and error cases described above.
+- Tests should include supplementary Unicode characters (emoji or characters outside BMP) to verify code point counting.
+- Grapheme clusters (user-visible combined characters) are out of scope; compare by Unicode code point sequence.

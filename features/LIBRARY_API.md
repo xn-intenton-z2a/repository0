@@ -2,24 +2,27 @@
 
 Purpose
 
-Define the public API surface and README requirements so the library is easily consumable and demonstrable on the website.
+Document the public API surface exported from src/lib/main.js and the README requirements so consumers and tests know how to use the library.
 
-Exports
+API Surface
 
-- src/lib/main.js must export the following named exports:
-  - hammingString: function to compute Hamming distance between two strings (see HAMMING_STRINGS).
-  - hammingBits: function to compute Hamming distance between two non-negative integers (see HAMMING_BITS).
+- Named exports (must exist):
+  - hammingString(a, b): compute Hamming distance between two strings (see HAMMING_STRINGS).
+  - hammingBits(a, b): compute Hamming distance between two non-negative integers (see HAMMING_BITS).
+  - name, version, description, getIdentity(), main(args) may also be exported but are secondary.
 
-Documentation and README
+Documentation and examples
 
-- README must include usage examples showing both hammingString and hammingBits usage and the expected return values for the acceptance examples.
-- Provide at least one plain usage example that can be copied into a unit test or run via node when start:cli is used.
+- README.md must include copy-paste usage examples that demonstrate the acceptance examples:
+  - Example: hammingString("karolin", "kathrin") -> 3
+  - Example: hammingBits(1, 4) -> 2
+- Provide a short CLI note showing that start:cli calls main and how to print version or identity.
 
-Testing
+Testing obligations
 
-- Unit tests must cover examples in the mission acceptance criteria and those in feature descriptions.
+- Unit tests must import the named exports and assert the exact functional acceptance criteria from HAMMING_BITS and HAMMING_STRINGS.
 
-Acceptance criteria
+Acceptance criteria (testable)
 
-- The two named exports exist and are described in the README.
-- README usage examples include hammingString("karolin", "kathrin") -> 3 and hammingBits(1, 4) -> 2.
+- The library exports hammingString and hammingBits as named exports from src/lib/main.js.
+- README contains the two usage examples above and they match unit-test expectations.

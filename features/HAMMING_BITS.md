@@ -2,29 +2,33 @@
 
 Purpose
 
-Specify the behaviour for counting differing bits between two non-negative integers. This feature documents the integer-based Hamming distance API, validation rules, and acceptance criteria.
+Define the integer (bit-level) Hamming distance behaviour and validation for the library.
 
-Behavior
+Summary
 
-- Export a named function hammingBits(x, y) from src/lib/main.js.
-- Accept exactly two arguments. Both must be integers and non-negative.
-- Compute the Hamming distance by XOR-ing the two integers and counting set bits (population count) in the result.
-- Return 0 if values are identical.
+Provide a named export hammingBits(a, b) from src/lib/main.js that computes the Hamming distance between two non-negative integers by counting differing bits.
 
-Inputs and Validation
+Behaviour
 
-- If either argument is not a number or not an integer, throw TypeError.
+- Accept exactly two arguments. Each argument must be an integer (Number) or BigInt.
+- Treat inputs as non-negative integers; operate on BigInt internally for safety with large values.
+- Compute distance by XOR-ing the two values and counting set bits (population count) in the result.
+- Return 0 for identical values.
+
+Validation
+
+- If either argument is not an integer (neither Number integer nor BigInt), throw TypeError.
 - If either integer is negative, throw RangeError.
-- Work correctly for zero and for large non-negative integers that fit in JavaScript safe integer range; tests should include edge examples.
 
-Acceptance criteria
+Acceptance criteria (testable)
 
-- hammingBits(1, 4) returns 2 (binary 001 vs 100 differ in two bit positions).
+- hammingBits(1, 4) returns 2.
 - hammingBits(0, 0) returns 0.
 - hammingBits(255, 0) returns 8.
-- Passing negative integers throws RangeError.
-- Passing non-integer numbers (e.g., 1.5) or non-number types throws TypeError.
+- Passing a negative integer (e.g., -1) throws RangeError.
+- Passing a non-integer (e.g., 1.5 or '1') throws TypeError.
+- Works with large integer values within JavaScript safe/BigInt ranges; tests include a value close to Number.MAX_SAFE_INTEGER and the same value as BigInt.
 
-Test notes
+Notes
 
-- Use explicit integer values in tests and include a test for a large integer within Number.MAX_SAFE_INTEGER.
+- Implementation may accept BigInt for large values; tests should exercise both Number and BigInt inputs where relevant.
