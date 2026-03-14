@@ -44,3 +44,9 @@ Storage and persistence
 - PERSISTENCE
 - DEFINE_PROPERTY
 - STATS
+
+# Implementation
+
+- Status: Implemented in src/lib/main.js via defineClass export (createOntology().defineClass and top-level defineClass wrapper).
+- Behaviour implemented: duplicate avoidance (returns existing class descriptor), optional superclass recording, and persistence to Class-{kebab}.jsonld via save().
+- Tests: tests/unit/define-class.test.js is recommended to validate edge cases; the implementation aligns with acceptance criteria and can be asserted using stats() and listClasses().

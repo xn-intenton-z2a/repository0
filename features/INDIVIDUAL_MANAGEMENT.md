@@ -77,3 +77,9 @@ Behavioral rules
 
 - If the current code base exposes only addIndividual, add updateIndividual and removeIndividual as thin wrappers around the underlying individual map and ensure they are exported as named functions.
 - Add tests first (red), implement the minimal behaviour to satisfy tests (green), then refactor if needed to optimise lookups.
+
+# Implementation
+
+- Status: Implemented in src/lib/main.js. The library exports addIndividual, updateIndividual, removeIndividual, and getIndividual wrappers around the default ontology instance.
+- Behaviour implemented: addIndividual normalises property values to arrays, updateIndividual supports merge and replace semantics, removeIndividual returns true/false, and stats() is updated accordingly.
+- Tests: tests/unit/individuals.test.js is recommended to exercise all CRUD and persistence round-trips; current code aligns with the acceptance criteria described above.

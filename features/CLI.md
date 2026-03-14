@@ -53,3 +53,11 @@ User-facing flags
 - PERSISTENCE
 - STATS
 - QUERY
+
+# Implementation
+
+- Status: Implemented in src/lib/main.js (exported main() function and CLI command handlers).
+- Implemented commands observed: define-class, define-property, add-individual, seed, stats, save, load, export, import; the Node CLI prints machine-friendly JSON and uses exit codes as described in acceptance criteria.
+- Notes: save/load/write operations are implemented for Node environments; browser usage returns summaries without file writes.
+- Tests: a dedicated tests/unit/cli.test.js is recommended to assert CLI JSON outputs and exit codes; the repository contains unit test scaffolding but may not include a full CLI integration test yet.
+- Action: Mark CLI feature as implemented; keep acceptance criteria for test coverage and platform-specific behaviour (Node vs browser).

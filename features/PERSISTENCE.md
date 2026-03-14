@@ -138,3 +138,10 @@ The mission requires the pipeline to populate example ontology data over success
 
 - SEED_DATA should use the persistence API to write example ontology into data/ during pipeline runs so documentation and website examples are populated automatically.
 - CONTEXT management responsibilities are part of the persistence contract and should be verified by persistence tests.
+
+# Implementation
+
+- Status: Implemented in src/lib/main.js. The library exports save(), load(), validate(), migrate(), getContext(), setContext(), and getModelVersion() via the default ontology wrappers.
+- Behaviour implemented: save(dir) writes context.jsonld and Class-{kebab}.jsonld files for each class when run under Node; load(dir) reads JSON-LD files and restores classes/properties/individuals. validate() reports errors for unknown domains/ranges and unknown classes; migrate() supports a basic modelVersion set operation and reports actions.
+- Notes: Persistence writes stable JSON (stringifySorted) and avoids non-deterministic metadata. Migration facility is minimal but present and can be extended to run deterministic transformations in future cycles.
+- Tests: tests/unit/persistence.test.js and tests/unit/versioning.test.js are recommended to exercise round-trip save/load and migrate behaviours; ensure temporary directories are used to isolate test runs.

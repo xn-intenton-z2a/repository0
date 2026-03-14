@@ -74,3 +74,11 @@ Behavior
 - DEFINE_CLASS
 - PERSISTENCE
 - STATS
+
+# Implementation
+
+- Status: PARTIALLY IMPLEMENTED in src/lib/main.js.
+- Subclass inference: implemented. The current query implementation computes a transitive chain of superclasses so queries for a superclass match instances of subclasses.
+- Property inheritance: NOT IMPLEMENTED. The current query() checks property values only on individuals themselves (ind.properties) and does not yet consider properties declared on a class or its superclasses as inherited for matching purposes.
+- Action: Add a small enhancement to implement property inheritance to fully satisfy Query feature expectations; this can be either an update to query() to consult property declarations on class and superclasses or a precomputed property-availability map updated on defineProperty()/defineClass().
+- Tests: update tests/unit/query.test.js to include a failing test demonstrating the missing property-inheritance behaviour, then implement the enhancement and assert pass.

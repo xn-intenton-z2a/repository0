@@ -35,3 +35,9 @@ Acceptance Criteria
 - DEFINE_CLASS
 - DEFINE_PROPERTY
 - INDIVIDUAL_MANAGEMENT
+
+# Implementation
+
+- Status: PARTIALLY IMPLEMENTED. A deterministic seed sequence is included in src/lib/main.js and is accessible via the CLI command seed. The seed sequence defines classes (Animal, Mammal, Bird), declares hasName property, and creates example individuals (dog1, cat1, sparrow1).
+- Notes: The repository does not currently expose a dedicated exported seed() function; the seed behaviour is embedded in the CLI handler. For programmatic reuse and tests it is recommended to expose a named seed function (for example seedOntology()) from src/lib/main.js or a small module that calls the public API and performs save(dir).
+- Tests: tests/unit/seed.test.js is recommended to assert deterministic output and a save/load round-trip. The CLI seed command can be used in integration tests as a temporary workaround.

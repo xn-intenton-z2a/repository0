@@ -36,3 +36,9 @@ API
 - DEFINE_PROPERTY
 - INDIVIDUAL_MANAGEMENT
 - PERSISTENCE
+
+# Implementation
+
+- Status: Implemented in src/lib/main.js via stats() exported wrapper over the default ontology instance.
+- Behavior: stats() returns deterministic counts for classes, properties, and individuals; it is intentionally inexpensive and suitable for use in tests and UI summaries.
+- Tests: tests/unit/stats.test.js is recommended to assert counts before and after persistence round-trips.

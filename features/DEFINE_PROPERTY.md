@@ -42,3 +42,9 @@ Storage
 - PERSISTENCE
 - DEFINE_CLASS
 - QUERY
+
+# Implementation
+
+- Status: Implemented in src/lib/main.js via defineProperty export. The implementation stores properties in a Map and includes them in per-class save() files when their domain matches a class name.
+- Behaviour: domain and range are accepted even if referenced classes are not yet defined; validate() checks unknown domains/ranges and reports errors.
+- Tests: tests/unit/define-property.test.js is recommended to verify persistence round-trips and validation behaviour. The current library aligns with the acceptance criteria.
