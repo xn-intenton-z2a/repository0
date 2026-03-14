@@ -25,3 +25,23 @@ export function computeHamming(a, b) {
   }
   return diff;
 }
+
+export function fizzBuzzSingle(n) {
+  assertInteger(n, 'n');
+  if (n <= 0) throw new RangeError('n must be a positive integer');
+  if (n % 15 === 0) return 'FizzBuzz';
+  if (n % 3 === 0) return 'Fizz';
+  if (n % 5 === 0) return 'Buzz';
+  return String(n);
+}
+
+export function fizzBuzz(n) {
+  assertInteger(n, 'n');
+  if (n < 0) throw new RangeError('n must be >= 0');
+  if (n === 0) return [];
+  const out = new Array(n);
+  for (let i = 0; i < n; i++) {
+    out[i] = fizzBuzzSingle(i + 1);
+  }
+  return out;
+}
