@@ -27,52 +27,6 @@ export function getIdentity() {
   return { name, version, description };
 }
 
-// Hamming distance for strings (by Unicode code points)
-export function hammingString(a, b) {
-  if (typeof a !== "string" || typeof b !== "string") {
-    throw new TypeError("hammingString expects two strings");
-  }
-  // Use Array.from to iterate by Unicode code points (not UTF-16 code units)
-  const pa = Array.from(a);
-  const pb = Array.from(b);
-  if (pa.length !== pb.length) {
-    throw new RangeError("Strings must have equal length (in Unicode code points)");
-  }
-  let dist = 0;
-  for (let i = 0; i < pa.length; i++) {
-    if (pa[i] !== pb[i]) dist++;
-  }
-  return dist;
-}
-
-// Hamming distance for non-negative integers (bit differences).
-export function hammingBits(a, b) {
-  const okNumber = (v) => (typeof v === "number" && Number.isInteger(v));
-  const okBigInt = (v) => typeof v === "bigint";
-
-  if (!(okNumber(a) || okBigInt(a))) {
-    throw new TypeError("hammingBits expects integers (Number or BigInt)");
-  }
-  if (!(okNumber(b) || okBigInt(b))) {
-    throw new TypeError("hammingBits expects integers (Number or BigInt)");
-  }
-
-  // Convert to BigInt for safe bitwise operations on large integers
-  const na = BigInt(a);
-  const nb = BigInt(b);
-  if (na < 0n || nb < 0n) {
-    throw new RangeError("hammingBits expects non-negative integers");
-  }
-
-  let x = na ^ nb;
-  let count = 0;
-  while (x) {
-    count += Number(x & 1n);
-    x >>= 1n;
-  }
-  return count;
-}
-
 export function main(args) {
   if (args?.includes("--version")) {
     console.log(version);

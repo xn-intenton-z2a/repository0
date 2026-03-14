@@ -27,26 +27,17 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
-  <h2>Hamming Distance Demo</h2>
-  <div id="demo-output">Loading library demo...</div>
+  <h2>Output</h2>
+  <div id="demo-output">Loading library...</div>
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
     try {
-      const lib = await import('./lib.js');
-      const { name, version, description, hammingString, hammingBits } = lib;
+      const { name, version, description } = await import('./lib.js');
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
-
-      // Demo examples required by mission
-      const examples = [];
-      try { examples.push({ input: ["karolin", "kathrin"], fn: 'hammingString', result: hammingString('karolin','kathrin') }); } catch (e) { examples.push({ error: e.message }); }
-      try { examples.push({ input: ["",""], fn: 'hammingString', result: hammingString('','') }); } catch (e) { examples.push({ error: e.message }); }
-      try { examples.push({ input: [1,4], fn: 'hammingBits', result: hammingBits(1,4) }); } catch (e) { examples.push({ error: e.message }); }
-      try { examples.push({ input: [0,0], fn: 'hammingBits', result: hammingBits(0,0) }); } catch (e) { examples.push({ error: e.message }); }
-
-      document.getElementById('demo-output').textContent = JSON.stringify({ examples, identity: { name, version } }, null, 2);
+      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
