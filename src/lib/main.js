@@ -219,6 +219,17 @@ export function load(...args) { return defaultOntology.load(...args); }
 export function save(...args) { return defaultOntology.save(...args); }
 export function stats(...args) { return defaultOntology.stats(...args); }
 
+// Utility accessors for UI
+export function listClasses() {
+  return Array.from(defaultOntology.classes.values()).map(c => ({ name: c.name, superclass: c.superclass }));
+}
+export function listProperties() {
+  return Array.from(defaultOntology.properties.values()).map(p => ({ name: p.name, domain: p.domain, range: p.range }));
+}
+export function listIndividuals() {
+  return Array.from(defaultOntology.individuals.values()).map(i => ({ id: i.id, class: i.class, properties: { ...i.properties } }));
+}
+
 // CLI helpers
 export function main(args) {
   if (args?.includes("--version")) {
