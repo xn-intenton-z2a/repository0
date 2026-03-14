@@ -6,8 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "weekly"              # off | weekly | daily | hourly | continuous
-model = "gpt-5-mini"
+supervisor = "off"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -39,7 +38,7 @@ test = "npm ci && npm test"
 [tuning]
 # Profile sets defaults for all tuning and limit knobs: min | recommended | max
 # Profile definitions live in [profiles.*] sections below.
-profile = "min"
+profile = "recommended"
 #
 # Model selection — each has different strengths:
 #   gpt-5-mini      — Fast, cheap, supports reasoning-effort. Best for CI and iteration.
@@ -110,7 +109,7 @@ library-limit = 64                     # max library entries in library/ directo
 [mission-complete]
 # Thresholds for deterministic mission-complete declaration.
 # All conditions must be met simultaneously.
-min-resolved-issues = 2            # minimum closed-as-RESOLVED issues since init
+min-resolved-issues = 1            # minimum closed-as-RESOLVED issues since init
 max-source-todos = 0               # max TODO comments allowed in ./src (0 = none)
 # C6: Removed min-dedicated-tests (replaced by cumulative transforms and acceptance criteria)
 
@@ -120,7 +119,7 @@ log-branch = "agentic-lib-logs"
 screenshot-file = "SCREENSHOT_INDEX.png"
 
 [init]
-timestamp = "2026-03-14T17:36:31.006Z"
+timestamp = "2026-03-14T20:04:16.536Z"
 mode = "purge"
-mission = "7-kyu-understand-fizz-buzz"
-version = "7.4.15"
+mission = "6-kyu-understand-hamming-distance"
+version = "7.4.16"

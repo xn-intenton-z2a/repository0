@@ -1,3 +1,4 @@
 // SPDX-License-Identifier: MIT
-// src/web/lib.js — re-export public API for the browser demo
-export { name, version, description, getIdentity, fizzBuzz, fizzBuzzSingle } from "../lib/main.js";
+// Copyright (C) 2025-2026 Polycode Limited
+// src/web/lib.js — Browser entry point, re-exports from the library.
+export { name, version, description, getIdentity } from "../lib/main.js";

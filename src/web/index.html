@@ -4,14 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>repository0</title>
+  <meta property="og:title" content="repository0">
+  <meta property="og:description" content="An autonomous repository powered by agentic-lib">
+  <meta property="og:type" content="website">
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
     h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
+    a { color: #0366d6; }
     .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
+    .identity dt { font-weight: bold; color: #666; }
+    .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
-    input[type=number] { width: 6rem; }
-    button { margin-left: 0.5rem; }
-    ul.fizz-list { padding-left: 1.25rem; }
   </style>
 </head>
 <body>
@@ -24,55 +27,21 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
-
-  <h2>FizzBuzz Demo</h2>
-  <p>Enter a positive integer (max 10000): <input id="n-input" type="number" value="15" min="0" max="10000"> <button id="run-btn">Run</button> <label><input id="json-check" type="checkbox"> JSON</label></p>
+  <h2>Output</h2>
   <div id="demo-output">Loading library...</div>
-
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
-
   <script type="module">
     try {
-      const lib = await import('./lib.js');
-      const { name, version, description, fizzBuzz } = lib;
+      const { name, version, description } = await import('./lib.js');
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
-      document.title = `${name} v${version}`;
-
-      const outEl = document.getElementById('demo-output');
-      const input = document.getElementById('n-input');
-      const btn = document.getElementById('run-btn');
-      const jsonCheck = document.getElementById('json-check');
-
-      function renderResult(n) {
-        try {
-          const nVal = Number(input.value);
-          const result = fizzBuzz(nVal);
-          if (jsonCheck.checked) {
-            outEl.textContent = JSON.stringify(result, null, 2);
-          } else {
-            // render as list
-            outEl.innerHTML = '';
-            const ul = document.createElement('ul');
-            ul.className = 'fizz-list';
-            for (const item of result) {
-              const li = document.createElement('li');
-              li.textContent = item;
-              ul.appendChild(li);
-            }
-            outEl.appendChild(ul);
-          }
-        } catch (err) {
-          outEl.textContent = 'Error: ' + err.message;
-        }
-      }
-
-      btn.addEventListener('click', () => renderResult());
-      // initial render
-      renderResult();
+      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
+      document.title = name + ' v' + version;
     } catch (e) {
+      document.getElementById('lib-version').textContent = '(error)';
+      document.getElementById('lib-description').textContent = e.message;
       document.getElementById('demo-output').textContent = 'Failed to load library: ' + e.message;
     }
   </script>
