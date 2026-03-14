@@ -1,4 +1,3 @@
 // SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
-// src/web/lib.js — Browser entry point, re-exports from the library.
-export { name, version, description, getIdentity } from "../lib/main.js";
+// src/web/lib.js — re-export browser-safe API from the library
+export { name, version, description, getIdentity, defineClass, defineProperty, addIndividual, query, load, save, stats } from "../lib/main.js";
