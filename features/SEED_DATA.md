@@ -1,3 +1,90 @@
+# WEB_DEMO
+
+# Summary
+
+Provide an interactive, deterministic web demo for the ontology library that loads persisted JSON-LD from data/ (or an in-memory model when in-browser), displays classes, properties and individuals, and exposes seed, load, save and query operations via a small web API surface. The web demo must be usable by the site at src/web/ and must rely on the library public API so behaviour is shared between the CLI, tests and website.
+
+# Motivation
+
+A first-class web demo makes the library accessible to users and reviewers, demonstrates the mission features in a live context, and provides a behaviour-level integration test that verifies seed, persistence and query features work together. The demo should be deterministic and testable so CI can assert UI-level outcomes without flakiness.
+
+# Specification
+
+Behavior
+
+- The web demo loads ontology data using the library loader (load(dir?) or a lightweight web loader) and renders:
+  - A Classes list with the ability to expand a class to view its properties and individuals.
+  - A Properties list showing domain and range.
+  - An Individuals panel listing instances with their properties and links to view details.
+  - A Query panel where users can enter class, property and value/target and run queries using the same query(pattern, opts) API the library exports.
+  - Controls: Seed example ontology (delegates to seedOntology), Load ontology (from data/ or sample payload), Reset in-memory model, Save (Node-only) which calls save(dir).
+
+- The web demo must not attempt filesystem writes when running in a browser; Node-only features (save, atomic write) must detect the runtime and surface a friendly message instead of throwing.
+
+- The web demo must render a deterministic snapshot of stats() and update immediately after seed, load or mutation operations.
+
+API surface for web
+
+- Expose a small adapter module at src/web/adapter.js (or similar) that provides the following functions for the website and tests:
+  - getWebData(dir?): Promise<{ classes, properties, individuals, stats }>
+  - runQuery(pattern, opts?): Promise<Array<Result> | { results, explain }>
+  - seedForWeb(dir?, opts?): Promise<summary> (delegates to seedOntology but operates without filesystem writes in browser)
+  - resetModel(): void
+
+- The adapter should use the library's named exports (defineClass, defineProperty, addIndividual, load, save, query, stats) to construct viewable data and ensure consistency with programmatic usage.
+
+Determinism and accessibility
+
+- The web demo must present data in stable, deterministic order (sort classes, properties and individuals by id) to make behaviour tests simple and robust.
+- UI elements must include clear data-test-id attributes to let behaviour tests reliably select and assert content.
+- The demo should degrade gracefully in non-JS or limited environments and not expose raw stack traces to end-users.
+
+User interactions
+
+- Seed example ontology: clicking this button runs seedForWeb() and refreshes the UI with the seeded model.
+- Load ontology: triggers the adapter to load persisted dataset (Node-only) or parse an uploaded JSON-LD fixture in the browser.
+- Query: users supply Class, Property and Value/Target and results show a deterministic list of individuals. When explain mode is enabled, each result includes matchedBy and inferenceChain shown in a collapsible panel.
+
+Acceptance Criteria
+
+- Adapter: src/web/adapter.js (or equivalent) exists and exports getWebData, runQuery, seedForWeb and resetModel; these functions are unit-testable and documented in README.
+- Deterministic UI: The demo sorts and displays classes, properties and individuals in stable order; behaviour tests assert exact expected textual content for seeded data.
+- Integration tests:
+  - A behaviour test seeds the dataset using seedForWeb(tempDir) or seedOntology(tempDir), launches the demo (headless), and asserts the Classes panel lists Animal and Mammal and Individuals panel shows dog1 and cat1.
+  - A behaviour test runs a query via the UI (or via runQuery) and asserts expected results and explain chains for inferred matches.
+- No filesystem writes in-browser: when run in a browser environment the save control does not attempt to write files and returns a friendly message; tests assert that browser-mode save does not throw.
+- The web demo uses the same library API as CLI tests; unit tests demonstrate the adapter functions call library functions and return compatible shapes for the UI.
+
+Testing Recommendations
+
+- Unit tests (tests/unit/web-adapter.test.js): test getWebData, runQuery and seedForWeb behaviour by stubbing or using the in-memory library instance and asserting returned shapes and sorting.
+- Behaviour tests (tests/behaviour/web-demo.spec.js): use Playwright to start a headless browser, seed a temporary dataset, start a minimal static server serving the demo (or run the demo loader against the adapter), and assert the UI shows seeded classes and individuals and that query/explain UI works. Mark Playwright tests optional in CI when environment cannot run browsers.
+- Use data-test-id attributes consistently to select UI elements in behaviour tests.
+- Tests should avoid relying on timestamps or system-specific values; use deterministic checksums or canonical JSON where file content assertions are required.
+
+Implementation notes
+
+- Reuse library functions: adapter should import named exports from src/lib/main.js so the same logic backs CLI, tests and web UI.
+- When seeding in the browser, avoid file IO by using an in-memory save summary and by exposing file contents for download rather than writing to disk.
+- Keep UI minimal: a simple list and query form is sufficient to demonstrate the library. Prefer clarity and determinism over fanciness.
+- Provide small accessibility and ARIA attributes for panels used by tests.
+- Keep the adapter small and well-tested; the UI should be a thin layer over adapter functions.
+
+Related features
+
+- SEED_DATA (the seed button delegates to seedOntology)
+- PERSISTENCE (save/load; Node-only save control)
+- QUERY (runs the library query with explain mode enabled)
+- CLI (consistent behaviour between CLI and web demo)
+
+Status
+
+- PROPOSED: plan and API recommended; implement adapter, UI stubs and behaviour tests in a follow-up change.
+
+---
+
+# INCLUDED: SEED_DATA (full original spec preserved)
+
 # SEED_DATA
 
 # Summary
