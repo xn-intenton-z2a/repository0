@@ -84,9 +84,18 @@ Create an engaging web interface that demonstrates all encoding capabilities, al
 - Memory usage visualization where possible
 - Comparison with built-in browser functions like btoa/atob
 
+## UI Requirements
+
+### Demo Output Element
+- Main demo output element with ID `demo-output` must be present
+- This element displays primary demonstration results
+- Required for behaviour tests and user interaction validation
+- Should show real-time feedback for encoding operations
+
 ## Acceptance Criteria
 
 - Interactive web interface built in src/web/
+- Main demo output element with ID `demo-output` visible on page load
 - All library functions demonstrated with real-time feedback
 - UUID encoding comparison table shows character counts
 - File upload works for binary data encoding
@@ -94,3 +103,4 @@ Create an engaging web interface that demonstrates all encoding capabilities, al
 - Mobile-responsive design works on all devices
 - Web demo uses main.js library directly without modifications
 - Educational content explains encoding concepts clearly
+- Behaviour tests pass with visible `demo-output` element
