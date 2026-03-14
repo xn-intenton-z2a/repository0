@@ -2,6 +2,270 @@
 
 ## Table of Contents
 
+1. Unique String ID Generation Overview
+2. Security and Randomness Requirements
+3. URL-Safe Alphabet and Character Selection
+4. API Specifications and Usage Patterns
+5. Performance Benchmarks and Comparisons
+6. Implementation Variants and Customization
+
+## Unique String ID Generation Overview
+
+### Core Design Principles
+
+NanoID provides secure, URL-friendly unique string ID generation with:
+- **Compact size**: 118 bytes (minified and brotlied) with zero dependencies
+- **Hardware security**: Uses hardware random generator for cryptographic strength
+- **Shorter IDs**: Reduced from UUID's 36 characters to 21 characters default
+- **Broad portability**: Ported to over 20 programming languages
+
+### Efficiency Improvements over UUID
+
+**Size Comparison**:
+- **UUID v4**: 36 characters using limited character set
+- **NanoID**: 21 characters using expanded character set
+- **Character set**: A-Za-z0-9_- (64 characters vs UUID's effective alphabet)
+- **Implementation**: 4x smaller than uuid/v4 package (130 vs 423 bytes)
+
+### Collision Probability Analysis
+
+NanoID provides comparable collision resistance to UUID v4:
+- **Random bits**: 126 in NanoID vs 122 in UUID v4
+- **Collision threshold**: One in billion chance requires 103 trillion IDs
+- **Practical safety**: Sufficient for distributed systems and high-volume generation
+- **Mathematical foundation**: Birthday paradox calculations confirm safety margins
+
+## Security and Randomness Requirements
+
+### Hardware Random Generation
+
+**Unpredictability Sources**:
+- **Node.js**: crypto module for server-side generation
+- **Browser**: Web Crypto API for client-side generation
+- **Hardware basis**: Both use unpredictable hardware random generators
+- **Avoids Math.random()**: Eliminates predictable pseudo-random vulnerabilities
+
+### Uniform Distribution Requirements
+
+**Algorithm Design**:
+- **Avoids modulo bias**: Does not use simple `random % alphabet` approach
+- **Uniform distribution**: Each character has equal probability of selection
+- **Brute force resistance**: Uniform distribution maximizes entropy per character
+- **Testing verification**: Distribution uniformity validated through statistical tests
+
+### Security Vulnerability Management
+
+**Responsible Disclosure**:
+- **Security contact**: Tidelift security coordination
+- **Vulnerability reporting**: Coordinated fix and disclosure process
+- **Code documentation**: All implementation details documented in source
+- **Audit trail**: Security decisions and trade-offs explicitly documented
+
+## URL-Safe Alphabet and Character Selection
+
+### Default Character Set
+
+NanoID uses 64 URL-safe characters:
+```
+A-Z (26 uppercase letters)
+a-z (26 lowercase letters)  
+0-9 (10 digits)
+_ (underscore)
+- (hyphen)
+```
+
+### Character Exclusion Rationale
+
+**Problematic characters avoided**:
+- **+ and /**: Base64 characters problematic in URLs
+- **Ambiguous pairs**: No 0/O or 1/I/l confusion (unlike some alternatives)
+- **Special symbols**: Avoids characters requiring URL encoding
+- **Whitespace**: No spaces or control characters
+
+### Safety Characteristics
+
+**Cross-platform compatibility**:
+- **Filesystem safe**: Works in filenames across operating systems
+- **URL safe**: No percent-encoding required in URLs
+- **Programming safe**: Safe in strings without escaping
+- **Database safe**: Works in database identifiers and queries
+
+## API Specifications and Usage Patterns
+
+### Core API Functions
+
+**Basic Generation**:
+```javascript
+import { nanoid } from 'nanoid'
+const id = nanoid() // => "V1StGXR8_Z5jdHi6B-myT"
+```
+
+**Custom Length**:
+```javascript
+const shortId = nanoid(10) // => "IRFa-VaY2b"
+```
+
+**Non-Secure Variant**:
+```javascript
+import { nanoid } from 'nanoid/non-secure'
+const id = nanoid() // => "Uakgb_J5m9g-0JDMbcJqLJ"
+```
+
+### Customization APIs
+
+**Custom Alphabet**:
+```javascript
+import { customAlphabet } from 'nanoid'
+const nanoid = customAlphabet('1234567890abcdef', 10)
+const id = nanoid() // => "4f90d13a42"
+```
+
+**Custom Random Generator**:
+```javascript
+import { customRandom } from 'nanoid'
+const nanoid = customRandom('abcdef', 10, size => {
+  return (new Uint8Array(size)).map(() => 256 * rng())
+})
+```
+
+### Safety Requirements
+
+**Alphabet Size Limits**:
+- **Maximum characters**: 256 symbols or fewer
+- **Security guarantee**: Larger alphabets compromise internal algorithm security
+- **Collision calculator**: Tool available for safety verification
+- **Length recommendations**: Balance between collision resistance and practicality
+
+## Performance Benchmarks and Comparisons
+
+### Benchmark Results (Node.js 21.6, Framework 13 7840U)
+
+**Secure Generation**:
+```
+crypto.randomUUID          7,619,041 ops/sec
+uuid v4                    7,436,626 ops/sec
+@napi-rs/uuid              4,730,614 ops/sec
+uid/secure                 4,729,185 ops/sec
+@lukeed/uuid               4,015,673 ops/sec
+nanoid                     3,693,964 ops/sec
+customAlphabet             2,799,255 ops/sec
+nanoid for browser           380,915 ops/sec
+secure-random-string         362,316 ops/sec
+uid-safe.sync                354,234 ops/sec
+shortid                       38,808 ops/sec
+```
+
+**Non-Secure Generation**:
+```
+uid                       11,872,105 ops/sec
+nanoid/non-secure          2,226,483 ops/sec
+rndm                       2,308,044 ops/sec
+```
+
+### Performance Analysis
+
+**Secure vs Non-Secure**:
+- **Security trade-off**: 5x slower for cryptographic security
+- **Blocking risk**: Hardware random generation may block CPU briefly
+- **Production recommendation**: Use secure version for production systems
+- **Development usage**: Non-secure acceptable for non-critical applications
+
+**Competitive Position**:
+- **vs UUID libraries**: Comparable performance with additional features
+- **vs shortid**: 95x faster while maintaining security
+- **vs custom generators**: Good balance of performance and safety
+
+## Implementation Variants and Customization
+
+### Environment-Specific Implementations
+
+**React Integration**:
+- **Key generation**: Safe for React component keys
+- **State management**: Suitable for dynamic element identification
+- **Server-side rendering**: Consistent generation across environments
+
+**React Native**:
+- **Mobile compatibility**: Works in React Native applications
+- **Performance considerations**: Hardware random generation on mobile devices
+- **Cross-platform consistency**: Same API across iOS and Android
+
+**CLI Usage**:
+```bash
+npx nanoid        # Generate single ID
+npx nanoid --size 10  # Custom length
+npx nanoid --alphabet 1234567890abcdef  # Custom alphabet
+```
+
+### Multi-Language Support
+
+**Available Implementations**:
+- **JavaScript**: Original implementation with full features
+- **TypeScript**: Full type definitions and support
+- **Python**: pythonic API with same security guarantees
+- **Go**: High-performance implementation
+- **Rust**: Memory-safe implementation
+- **C++**: Systems programming support
+- **20+ others**: Consistent API across language ecosystem
+
+### Integration Patterns
+
+**Database Usage**:
+- **Primary keys**: Suitable for database primary key generation
+- **URL parameters**: Safe in query strings and path components  
+- **API tokens**: Appropriate for non-cryptographic token generation
+- **Session identifiers**: Suitable for session management
+
+**Framework Integration**:
+- **PouchDB/CouchDB**: Document ID generation
+- **Express.js**: Request ID and session management
+- **Next.js**: Static site generation with unique identifiers
+- **Various frameworks**: Consistent behavior across JavaScript ecosystem
+
+## Reference Details
+
+### Project Information
+
+- **Creator**: Andrey Sitnik (@ai)
+- **Organization**: Evil Martians (product consulting for developer tools)
+- **Repository**: https://github.com/ai/nanoid
+- **License**: MIT License
+- **Package size**: 118 bytes (minified and brotlied)
+
+### Distribution Channels
+
+**NPM Installation**:
+```bash
+npm install nanoid
+```
+
+**JSR (JavaScript Registry)**:
+```bash
+npx jsr add @sitnik/nanoid
+```
+
+**CDN Usage**:
+```javascript
+import { nanoid } from 'https://cdn.jsdelivr.net/npm/nanoid/nanoid.js'
+```
+
+### Quality Assurance
+
+**Size Monitoring**: Size Limit tool controls package size growth
+**Security Auditing**: Tidelift security vulnerability coordination
+**Distribution Testing**: Uniformity validation through statistical analysis
+**Cross-Platform Testing**: Verification across supported environments
+
+## Digest
+
+Complete technical specification for NanoID unique string ID generator extracted from GitHub project documentation. Content includes security requirements, API specifications, performance benchmarks, implementation variants, and multi-language support details. Provides 126-bit entropy in 21-character URL-safe format with hardware random generation and extensive ecosystem support.
+
+Retrieved: 2026-03-14
+Sources: https://github.com/ai/nanoid
+
+Data size: Approximately 10KB of project documentation and technical specifications.
+
+## Table of Contents
+
 1. Core Architecture and Design
 2. Character Set and Alphabet
 3. Security Implementation

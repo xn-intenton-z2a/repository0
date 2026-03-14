@@ -1,4 +1,228 @@
-# RFC 1924 IPv6 Base85 Encoding
+# RFC 1924: IPv6 Base85 Compact Representation
+
+## Table of Contents
+
+1. Compact IPv6 Address Specification
+2. Base85 Character Set Selection  
+3. Encoding Algorithm and Mathematics
+4. Implementation Requirements
+5. Security and Address Privacy
+6. Practical Examples and Conversion
+
+## Compact IPv6 Address Specification
+
+### Address Length Optimization
+
+RFC 1924 defines a Base85 encoding that represents any IPv6 address in exactly 20 ASCII characters, compared to the standard representation's variable 15-39 characters.
+
+### Current IPv6 Format Problems
+
+Standard IPv6 representations suffer from:
+- **Variable length**: 15 to 39 characters depending on zero compression
+- **Colon complexity**: Multiple colons for zero suppression (::)
+- **Case sensitivity**: Hex digits allow upper/lowercase variants
+- **Punctuation density**: Frequent colon separators reduce readability
+
+### Base85 Solution Benefits
+
+The Base85 approach provides:
+- **Fixed length**: Always exactly 20 characters
+- **Higher density**: No punctuation separators
+- **Consistent format**: No special zero-compression rules
+- **Reduced ambiguity**: Single canonical representation
+
+## Base85 Character Set Selection
+
+### Mathematical Requirements
+
+IPv6 addresses are 128-bit values requiring specific encoding capacity:
+- **Address space**: 2¹²⁸ = 340,282,366,920,938,463,463,374,607,431,768,211,456
+- **Base85 capacity**: 85²⁰ = 387,595,310,845,143,558,731,231,784,820,556,640,625
+- **Margin**: Base85 provides sufficient space with room for growth
+
+### Base Selection Analysis
+
+| Base | Characters Needed | Capacity Check |
+|------|-------------------|----------------|
+| 84   | 21               | 84²⁰ insufficient |
+| 85   | 20               | 85²⁰ sufficient |
+| 94   | 19               | 94¹⁹ insufficient |
+| 95   | 20               | No improvement over 85 |
+
+85 is optimal: smallest character set achieving 20-character representation.
+
+### Character Set Definition
+
+The RFC 1924 Base85 alphabet (85 characters):
+```
+0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~
+```
+
+### Excluded Characters and Rationale
+
+Nine characters deliberately excluded from the 94 printable ASCII set:
+
+| Character | Reason for Exclusion |
+|-----------|---------------------|
+| "         | Enable quoted IPv6 addresses |
+| '         | Enable quoted IPv6 addresses |
+| ,         | Allow comma-separated address lists |
+| .         | Permit sentence-ending addresses |
+| /         | Support CIDR notation (address/length) |
+| :         | Avoid mail header and URL conflicts |
+| [         | Enable address delimiting |
+| ]         | Enable address delimiting |
+| \         | Prevent escape character complications |
+
+## Encoding Algorithm and Mathematics
+
+### Conversion Process
+
+IPv6 to Base85 conversion follows standard base conversion:
+1. **Integer interpretation**: Treat 128-bit address as single integer
+2. **Division algorithm**: Repeatedly divide by 85, collect remainders
+3. **Character mapping**: Map each remainder to Base85 alphabet
+4. **Digit ordering**: Read remainders in reverse order
+
+### Detailed Example
+
+IPv6 address `1080:0:0:0:8:800:200C:417A` conversion:
+
+**Step 1**: Convert to decimal integer
+- Hexadecimal: 1080:0:0:0:8:800:200C:417A
+- Decimal: 21,932,261,930,451,111,902,915,077,091,070,067,066
+
+**Step 2**: Base85 division sequence
+```
+21932261930451111902915077091070067066 ÷ 85 = remainder 51
+... (continue division) ...
+Final remainders: 51,34,65,57,58,0,75,53,37,4,19,61,31,63,12,66,46,70,68,4
+```
+
+**Step 3**: Character mapping
+- Remainders: 4,68,70,46,66,12,63,31,61,19,4,37,53,75,0,58,57,65,34,51
+- Characters: 4)+k&C#VzJ4br>0wv%Yp
+
+### Reversal Process
+
+Base85 to IPv6 decoding:
+1. **Character validation**: Ensure all characters in valid alphabet
+2. **Remainder extraction**: Map characters back to 0-84 values
+3. **Integer reconstruction**: Calculate sum of (remainder × 85^position)
+4. **Hex conversion**: Convert integer to 128-bit hex representation
+5. **IPv6 formatting**: Apply standard colon formatting
+
+## Implementation Requirements
+
+### Arithmetic Precision
+
+**128-bit Integer Support**: Many processors lack native 128-bit arithmetic, requiring:
+- Multi-precision arithmetic libraries
+- Careful overflow handling
+- Consistent cross-platform behavior
+- Performance optimization for repeated operations
+
+### Algorithm Complexity
+
+**Division-Heavy Process**: Base conversion requires:
+- Repeated division by 85 (encoding direction)
+- Multiplication and addition (decoding direction)  
+- Handling of large integer values
+- Precision maintenance throughout process
+
+### Validation Requirements
+
+Implementations must validate:
+- **Character validity**: All input characters in defined alphabet
+- **Length verification**: Exactly 20 characters for complete addresses
+- **Range checking**: Result fits within IPv6 address space
+- **Canonical output**: Consistent formatting for identical inputs
+
+## Security and Address Privacy
+
+### Address Obfuscation Benefits
+
+Base85 representation provides indirect security benefits:
+- **Reduced recognition**: Casual observers cannot immediately identify binary form
+- **Pattern masking**: Standard IPv6 patterns become less obvious
+- **Tool compatibility**: Many tools expect standard IPv6 format
+
+### Privacy Considerations
+
+**Not a Security Measure**: RFC 1924 encoding is NOT designed for:
+- Cryptographic protection
+- Access control mechanisms  
+- Address hiding from determined observers
+- Prevention of reverse engineering
+
+The encoding provides convenience, not security.
+
+### Memorization Challenges
+
+IPv6 addresses are inherently difficult to memorize regardless of representation:
+- **Address purpose**: Not intended for human memorization
+- **Length factor**: 20 characters still exceed comfortable memory limits
+- **Character density**: Base85 characters less familiar than hex
+- **Network tools**: Most utilities can handle both representations
+
+## Practical Examples and Conversion
+
+### Standard Format Comparison
+
+| Standard IPv6 | Length | Base85 Equivalent | Length |
+|---------------|--------|-------------------|--------|
+| 1080::8:800:200C:417A | 21 | 4)+k&C#VzJ4br>0wv%Yp | 20 |
+| FEDC:BA98:7654:3210:FEDC:BA98:7654:3210 | 39 | (example not provided) | 20 |
+| :: | 2 | 00000000000000000000 | 20 |
+
+### Edge Cases
+
+**All Zero Address** (::):
+- Standard: :: (2 characters, minimal case)
+- Base85: 4)+k&C#VzJ4br>0wv%Yp (20 characters, consistent length)
+
+**Maximum Address** (all F's):
+- Standard: FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF (39 characters)
+- Base85: (20 characters, specific encoding not shown in RFC)
+
+### Implementation Status Note
+
+RFC 1924 was published as an **April 1st RFC** (April Fools' Day), indicating its primary purpose as demonstration rather than serious deployment recommendation. However, the technical approach remains mathematically sound and could be implemented if desired.
+
+## Reference Details
+
+### RFC Information
+
+- **Document**: RFC 1924
+- **Title**: A Compact Representation of IPv6 Addresses
+- **Date**: April 1, 1996
+- **Status**: Informational  
+- **Category**: April Fools' RFC
+- **Author**: R. Elz, University of Melbourne
+
+### Technical Specifications
+
+- **Character set**: 85 carefully selected ASCII printable characters
+- **Fixed length**: Always 20 characters per IPv6 address
+- **Mathematical foundation**: Base85 number system
+- **Precision requirements**: 128-bit integer arithmetic
+- **Error handling**: Character validation and range checking
+
+### Implementation Considerations
+
+- **Processor limitations**: 128-bit arithmetic not universally available
+- **Library dependencies**: Multi-precision math libraries typically required
+- **Performance characteristics**: Division-heavy algorithm impacts speed
+- **Compatibility**: Standard tools expect conventional IPv6 format
+
+## Digest
+
+Technical specification for RFC 1924 Base85 IPv6 address encoding extracted from IETF documentation. Content includes mathematical foundations, character set design, encoding algorithms, security considerations, and practical examples. Provides fixed 20-character representation using carefully selected 85-character alphabet with detailed implementation guidance.
+
+Retrieved: 2026-03-14
+Sources: https://rfc-editor.org/rfc/rfc1924.html
+
+Data size: Approximately 10KB of RFC specifications with mathematical examples and implementation details.
 
 ## Table of Contents
 

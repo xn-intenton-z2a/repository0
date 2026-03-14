@@ -1,4 +1,195 @@
-# Ascii85 and Base85 Encoding
+# ASCII85 (Base85) Encoding
+
+## Table of Contents
+
+1. Encoding Fundamentals and Efficiency
+2. Character Set and Mathematical Basis
+3. Adobe Ascii85 Implementation
+4. Encoding Algorithm and Process
+5. Special Cases and Optimizations
+6. Practical Example Demonstration
+
+## Encoding Fundamentals and Efficiency
+
+### Efficiency Specifications
+
+Ascii85 achieves superior efficiency compared to common alternatives:
+- **Efficiency**: 80% (5 ASCII characters represent 4 bytes)
+- **Overhead**: 25% expansion (vs 33.3% for Base64)
+- **Mathematical basis**: 85⁵ ≥ 256⁴ = 2³²
+- **Minimum symbols**: 85 is the minimum integer where n⁵ ≥ 2³²
+
+### Comparison Metrics
+
+| Encoding | Characters | Efficiency | Overhead | Use Case |
+|----------|------------|------------|----------|----------|
+| uuencode | Variable   | ~75%       | ~33%     | Legacy systems |
+| Base64   | 4 per 3    | 75%        | 33.3%    | Web/email standard |
+| Ascii85  | 5 per 4    | 80%        | 25%      | Adobe formats |
+
+### Mathematical Foundation
+
+The encoding capacity calculation:
+- 85⁵ = 4,437,053,124 possible 5-character sequences
+- 256⁴ = 4,294,967,296 possible 4-byte sequences
+- Sufficient margin: 85⁵ > 256⁴ by 142,085,828
+
+## Character Set and Mathematical Basis
+
+### ASCII Character Range
+
+Ascii85 uses ASCII characters 33-117 plus special case characters:
+```
+!"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstu
+```
+
+### Character Mapping
+
+- **Base characters**: ASCII 33 (!) through 117 (u) - 85 characters
+- **Special compression**: 'z' represents four zero bytes
+- **Adobe delimiter**: '<~' prefix and '~>' suffix markers
+- **Whitespace**: Ignored during decoding
+
+### Big-Endian Convention
+
+Ascii85 processes bytes in big-endian order:
+1. Most significant byte first in 32-bit conversion
+2. Most significant radix-85 digit encoded first
+3. Consistent byte ordering across platforms
+
+## Adobe Ascii85 Implementation
+
+### Adobe-Specific Features
+
+Adobe's implementation includes several enhancements:
+- **Delimiters**: '<~' and '~>' mark encoded data boundaries
+- **Whitespace tolerance**: Line breaks and spaces ignored anywhere
+- **Truncation handling**: Partial final groups handled via padding
+- **No 'y' exception**: Unlike btoa, Adobe omits space character optimization
+
+### Encoding Process for Partial Groups
+
+When final block contains fewer than 4 bytes:
+1. Pad block with null bytes to reach 4 bytes
+2. Encode padded block normally
+3. Remove as many characters from output as bytes added in padding
+4. Decoder reverses by padding with 'u' characters during decode
+
+### Adobe vs btoa Differences
+
+| Feature | btoa Original | Adobe Ascii85 |
+|---------|---------------|---------------|
+| Prefix/Suffix | "xbtoa Begin"/"xbtoa End" | "<~" / "~>" |
+| File length | Included in output | Not included |
+| Checksums | Three 32-bit checksums | None |
+| 'y' exception | All-space optimization | Not supported |
+| Alphabet | Same (! through u) | Same (! through u) |
+
+## Encoding Algorithm and Process
+
+### Step-by-Step Encoding
+
+1. **Group Formation**: Collect 4-byte sequences from input
+2. **Integer Conversion**: Convert 4 bytes to 32-bit big-endian integer
+3. **Base Conversion**: Divide repeatedly by 85, collect remainders
+4. **Character Mapping**: Add 33 to each remainder for ASCII character
+5. **Special Cases**: Replace "!!!!!" with "z" for all-zero groups
+
+### Decoding Algorithm
+
+1. **Character Validation**: Verify all characters in valid range
+2. **Special Handling**: Expand 'z' to "!!!!!"
+3. **Integer Reconstruction**: Convert characters back to remainders
+4. **Binary Conversion**: Reconstruct 32-bit integer
+5. **Byte Extraction**: Extract 4 bytes in big-endian order
+
+### Padding Mathematics
+
+The padding calculation ensures correctness:
+- **Encoding pad**: Add null bytes, remove excess output characters
+- **Decoding pad**: Add 'u' characters, remove excess output bytes
+- **High-bit preservation**: Zero padding low, 'u' padding high maintains integrity
+
+## Special Cases and Optimizations
+
+### Zero Compression
+
+All-zero 4-byte sequences receive special treatment:
+- **Normal encoding**: 0x00000000 → "!!!!!" (5 characters)
+- **Compressed**: 0x00000000 → "z" (1 character)
+- **Decoder handling**: "z" expands to "!!!!!" before normal decoding
+- **Invalid sequences**: "z" within partial groups causes decode error
+
+### Error Conditions
+
+Implementations must handle:
+- **Overflow values**: Groups decoding > 2³²-1 (encoded as "s8W-!")
+- **Invalid characters**: Characters outside ASCII 33-117 range  
+- **Misplaced 'z'**: 'z' appearing in middle of 5-character group
+- **Truncated input**: Incomplete final groups during decoding
+
+### Performance Considerations
+
+- **Whitespace handling**: Ignore but don't require specific formatting
+- **Buffer management**: Process in 4-byte input / 5-character output chunks
+- **Memory efficiency**: Stream processing avoids large intermediate buffers
+
+## Practical Example Demonstration
+
+### Thomas Hobbes Quote Encoding
+
+Input text (269 characters):
+```
+Man is distinguished, not only by his reason, but by this singular passion from other animals, which is a lust of the mind, that by a perseverance of delight in the continued and indefatigable generation of knowledge, exceeds the short vehemence of any carnal pleasure.
+```
+
+Encoded output (337 characters, excluding delimiters):
+```
+9jqo^BlbD-BleB1DJ+*+F(f,q/0JhKF<GL>Cj@.4Gp$d7F!,L7@<6@)/0JDEF<G%<+EV:2F!,O<
+DJ+*.@<*K0@<6L(Df-\0Ec5e;DffZ(EZee.Bl.9pF"AGXBPCsi+DGm>@3BB/F*&OCAfu2/AKYi(
+DIb:@FD,*)+C]U=@3BN#EcYf8ATD3s@q?d$AftVqCh[NqF<G:8+EV:.+Cf>-FD5W8ARlolDIal(
+DId<j@<?3r@:F%a+D58'ATD4$Bl@l3De:,-DJs`8ARoFb/0JMK@qB4^F!,R<AKZ&-DfTqBG%G>u
+D.RTpAKYo'+CT/5+Cei#DII?(E,9)oF*2M7/c
+```
+
+### Encoding Detail Example
+
+First 4 bytes "Man " (0x4D 0x61 0x6E 0x20):
+- **32-bit value**: 1,298,230,816
+- **Base-85 conversion**: 24×85⁴ + 73×85³ + 80×85² + 78×85¹ + 61×85⁰
+- **Character mapping**: 24→'9', 73→'j', 80→'q', 78→'o', 61→'^'
+- **Result**: "9jqo^"
+
+Final incomplete group "." (0x2E padded with 0x00 0x00 0x00):
+- **Padded value**: 771,751,936 
+- **Base-85 digits**: 14, 66, 56, 74, 46 → "/", "c", "Y", "k", "O"
+- **Truncation**: Remove 3 characters (YkO), result: "/c"
+
+## Reference Details
+
+### Standards and History
+
+- **Origin**: Paul E. Rutter's btoa utility
+- **Adobe adoption**: PostScript and PDF file formats
+- **Git usage**: Binary patch encoding format
+- **Variants**: Z85, RFC 1924 provide alternative implementations
+
+### Implementation Specifications
+
+- **Character set**: ASCII 33-117 (85 characters) plus 'z'
+- **Group size**: 4 input bytes → 5 output characters
+- **Byte order**: Big-endian throughout encoding process
+- **Special cases**: All-zero compression, whitespace handling
+- **Error handling**: Overflow detection, invalid character rejection
+
+## Digest
+
+Complete technical specification for Ascii85 (Base85) encoding extracted from Wikipedia documentation. Content includes mathematical foundations, Adobe implementation details, encoding algorithms, special case handling, and practical examples. Provides 80% encoding efficiency with comprehensive error handling and optimization features.
+
+Retrieved: 2026-03-14
+Sources: https://en.wikipedia.org/wiki/Ascii85
+
+Data size: Approximately 10KB of technical specifications and implementation examples.
 
 ## Table of Contents
 

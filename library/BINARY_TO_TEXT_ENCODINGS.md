@@ -142,7 +142,7 @@ Common exclusions and reasons:
 
 Technical specifications for binary-to-text encoding schemes extracted from Wikipedia and RFC documentation. Content includes efficiency calculations, character set selection criteria, implementation guidelines, and standards compliance requirements.
 
-Retrieved: 2026-03-13
+Retrieved: 2026-03-14
 Sources: https://en.wikipedia.org/wiki/Binary-to-text_encoding, https://tools.ietf.org/rfc/rfc4648.txt
 
-Data size: Approximately 45KB of technical documentation condensed into focused implementation guidance.
+Data size: Approximately 15KB of Wikipedia content plus 15KB RFC specifications condensed into focused implementation guidance.

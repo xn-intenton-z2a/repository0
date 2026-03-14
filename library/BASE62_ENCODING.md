@@ -2,6 +2,145 @@
 
 ## Table of Contents
 
+1. Character Set Specification
+2. Alphabet Mapping Table
+3. Efficiency Characteristics
+4. Implementation Considerations
+5. Comparison with Related Encodings
+
+## Character Set Specification
+
+Base62 represents arbitrary binary data using 62 printable ASCII characters: digits 0-9, uppercase letters A-Z, and lowercase letters a-z. This encoding scheme excludes special characters and punctuation to maximize compatibility across different systems and programming environments.
+
+### Character Range Definition
+
+- Digits: 0123456789 (10 characters)
+- Uppercase: ABCDEFGHIJKLMNOPQRSTUVWXYZ (26 characters)  
+- Lowercase: abcdefghijklmnopqrstuvwxyz (26 characters)
+- Total: 62 characters
+
+### Safety Characteristics
+
+The Base62 alphabet contains only alphanumeric characters, making it:
+- Safe for use in URLs and filenames
+- Compatible with programming language identifiers
+- Readable in case-sensitive and case-insensitive contexts
+- Free of shell-escaping requirements
+
+## Alphabet Mapping Table
+
+| Value | Char | Value | Char | Value | Char | Value | Char |
+|-------|------|-------|------|-------|------|-------|------|
+| 0     | 0    | 16    | G    | 32    | W    | 48    | m    |
+| 1     | 1    | 17    | H    | 33    | X    | 49    | n    |
+| 2     | 2    | 18    | I    | 34    | Y    | 50    | o    |
+| 3     | 3    | 19    | J    | 35    | Z    | 51    | p    |
+| 4     | 4    | 20    | K    | 36    | a    | 52    | q    |
+| 5     | 5    | 21    | L    | 37    | b    | 53    | r    |
+| 6     | 6    | 22    | M    | 38    | c    | 54    | s    |
+| 7     | 7    | 23    | N    | 39    | d    | 55    | t    |
+| 8     | 8    | 24    | O    | 40    | e    | 56    | u    |
+| 9     | 9    | 25    | P    | 41    | f    | 57    | v    |
+| 10    | A    | 26    | Q    | 42    | g    | 58    | w    |
+| 11    | B    | 27    | R    | 43    | h    | 59    | x    |
+| 12    | C    | 28    | S    | 44    | i    | 60    | y    |
+| 13    | D    | 29    | T    | 45    | j    | 61    | z    |
+| 14    | E    | 30    | U    | 46    | k    |       |      |
+| 15    | F    | 31    | V    | 47    | l    |       |      |
+
+## Efficiency Characteristics
+
+### Performance Metrics
+
+- **Efficiency**: 74.4% (log₂(62)/8 ≈ 5.95/8)
+- **Overhead**: 34.4% expansion from binary input
+- **Bits per character**: ~5.95 bits encoded per output character
+- **Character density**: Higher than Base64 alphabet utilization
+
+### Encoding Mathematics
+
+Base62 encoding efficiency calculation:
+- Characters available: 62
+- Bits representable per character: log₂(62) ≈ 5.95 bits
+- Encoding efficiency: 5.95/8 = 74.4%
+- Overhead ratio: (8 - 5.95)/5.95 ≈ 34.4%
+
+## Implementation Considerations
+
+### Encoding Algorithm
+
+Base62 conversion follows standard base conversion principles:
+1. Treat input binary data as large integer
+2. Perform repeated division by 62
+3. Map remainders to Base62 character alphabet
+4. Reverse remainder sequence for final encoding
+
+### Padding Requirements
+
+Unlike Base64, Base62 typically does not use padding characters since 62 is not a power of 2. Implementation must handle:
+- Variable-length output based on input
+- Proper handling of leading zero preservation
+- Deterministic encoding for identical inputs
+
+### Character Case Sensitivity
+
+Base62 implementations must preserve case sensitivity:
+- Uppercase letters (A-Z) map to values 10-35
+- Lowercase letters (a-z) map to values 36-61
+- Case conversion changes encoded values
+- Cross-platform case handling consistency required
+
+## Comparison with Related Encodings
+
+### Character Set Evolution
+
+| Encoding | Characters | Notable Exclusions | Efficiency |
+|----------|------------|-------------------|------------|
+| Base58   | 58         | 0, O, I, l (ambiguous) | 73.2% |
+| Base62   | 62         | Special characters only | 74.4% |
+| Base64   | 64         | +, / (URL-problematic) | 75.0% |
+
+### Use Case Positioning
+
+Base62 fills the niche between Base58 and Base64:
+- More efficient than Base58 (includes all alphanumeric)
+- Safer than Base64 (excludes URL-problematic characters)
+- Suitable for URL shorteners, identifiers, tokens
+- Optimal for systems requiring alphanumeric-only output
+
+### Academic and Standards Context
+
+Base62 appears in academic literature for:
+- Secure lossless compressed encoding (He et al., 2008)
+- Multilingual identifier transformation (Wu, 2001)
+- Alphanumeric identifier generation systems
+- URL shortening and token generation applications
+
+## Reference Details
+
+### Research Citations
+
+1. Kejing He, Xiancheng Xu, Qiang Yue (2008): "A secure, lossless, and compressed Base62 encoding" - IEEE Singapore International Conference on Communication Systems
+2. Pei-Chi Wu (2001): "A base62 transformation format of ISO 10646 for multilingual identifiers" - Software: Practice and Experience
+
+### Implementation Specifications
+
+- Character set: 0-9, A-Z, a-z (62 total characters)
+- Case sensitivity: Required for correct encoding/decoding
+- Padding: Generally not used due to non-power-of-2 base
+- Output length: Variable based on input size and value
+
+## Digest
+
+Technical specification for Base62 encoding extracted from Wikipedia documentation. Content includes complete character mapping table, efficiency calculations, implementation algorithms, and academic research context. Base62 provides alphanumeric-only encoding with 74.4% efficiency, suitable for URL-safe and programming-friendly applications.
+
+Retrieved: 2026-03-14
+Sources: https://en.wikipedia.org/wiki/Base62
+
+Data size: Approximately 2KB of technical specifications and research references.
+
+## Table of Contents
+
 1. Character Alphabet and Mapping
 2. Mathematical Foundations
 3. Implementation Specifications

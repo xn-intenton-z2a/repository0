@@ -1,4 +1,219 @@
-# RFC 4648 Base Encodings Standard
+# RFC 4648: Base16, Base32, and Base64 Encodings
+
+## Table of Contents
+
+1. Standard Specifications Overview
+2. Base64 Encoding Specification
+3. Base64URL Encoding Variant
+4. Base32 Encoding Specification  
+5. Base32 Extended Hex Variant
+6. Base16 Encoding Specification
+7. Implementation Requirements
+8. Security and Canonical Encoding
+
+## Standard Specifications Overview
+
+RFC 4648 establishes the definitive standards for Base16, Base32, and Base64 data encodings. Published as an Internet Standards Track protocol in October 2006, it obsoletes RFC 3548 and provides common alphabet and encoding considerations for interoperability.
+
+### Scope and Purpose
+
+The standard addresses encoding arbitrary binary data for transmission over text-based protocols that may have restrictions on character sets, line lengths, or other formatting constraints. It establishes canonical implementations to reduce ambiguity in protocol specifications.
+
+### Encoding Principles
+
+All Base-N encodings in RFC 4648 follow these principles:
+- Convert binary input into restricted ASCII character sets
+- Enable reliable transmission through 7-bit clean channels
+- Provide deterministic encoding and decoding processes
+- Support various alphabet sizes for different requirements
+
+## Base64 Encoding Specification
+
+### Character Alphabet
+
+Base64 uses a 65-character subset of US-ASCII, with 64 characters for encoding plus padding:
+
+| Value | Char | Value | Char | Value | Char | Value | Char |
+|-------|------|-------|------|-------|------|-------|------|
+| 0     | A    | 17    | R    | 34    | i    | 51    | z    |
+| 1     | B    | 18    | S    | 35    | j    | 52    | 0    |
+| 2     | C    | 19    | T    | 36    | k    | 53    | 1    |
+| 3     | D    | 20    | U    | 37    | l    | 54    | 2    |
+| 4     | E    | 21    | V    | 38    | m    | 55    | 3    |
+| 5     | F    | 22    | W    | 39    | n    | 56    | 4    |
+| 6     | G    | 23    | X    | 40    | o    | 57    | 5    |
+| 7     | H    | 24    | Y    | 41    | p    | 58    | 6    |
+| 8     | I    | 25    | Z    | 42    | q    | 59    | 7    |
+| 9     | J    | 26    | a    | 43    | r    | 60    | 8    |
+| 10    | K    | 27    | b    | 44    | s    | 61    | 9    |
+| 11    | L    | 28    | c    | 45    | t    | 62    | +    |
+| 12    | M    | 29    | d    | 46    | u    | 63    | /    |
+| 13    | N    | 30    | e    | 47    | v    | (pad) | =    |
+| 14    | O    | 31    | f    | 48    | w    |       |      |
+| 15    | P    | 32    | g    | 49    | x    |       |      |
+| 16    | Q    | 33    | h    | 50    | y    |       |      |
+
+### Encoding Process
+
+1. **Group Formation**: Process input in 24-bit groups (3 bytes)
+2. **Bit Splitting**: Treat 24 bits as four 6-bit groups
+3. **Character Mapping**: Map each 6-bit value to alphabet character
+4. **Padding**: Add '=' characters for incomplete final groups
+
+### Padding Rules
+
+- **8 bits remaining**: Two characters + two '=' padding
+- **16 bits remaining**: Three characters + one '=' padding  
+- **24 bits (complete)**: Four characters, no padding
+
+## Base64URL Encoding Variant
+
+### Modified Alphabet
+
+Base64URL replaces URL-problematic characters for safe usage in URLs and filenames:
+
+| Standard Base64 | Base64URL | Position |
+|----------------|-----------|----------|
+| +              | -         | 62       |
+| /              | _         | 63       |
+| =              | (omitted) | padding  |
+
+### URL Safety Features
+
+- Hyphen (-) and underscore (_) are URL-safe
+- Padding can be omitted when length is known implicitly
+- No percent-encoding required for URLs
+- File system compatible (avoids problematic characters)
+
+## Base32 Encoding Specification
+
+### Standard Base32 Alphabet
+
+Uses 32 characters: A-Z (uppercase) and 2-7 (digits):
+
+```
+ABCDEFGHIJKLMNOPQRSTUVWXYZ234567
+```
+
+### Encoding Characteristics
+
+- **Input grouping**: 40 bits (5 bytes) per encoding group
+- **Output grouping**: 8 characters per group
+- **Bits per character**: 5 bits
+- **Efficiency**: 62.5% (5/8)
+- **Padding character**: '='
+
+### Case Sensitivity
+
+Base32 standard specifies uppercase letters, but decoders may accept lowercase. For consistent interpretation:
+- Encoders should output uppercase
+- Decoders may accept both cases
+- '0' (zero) and '1' (one) are not present to avoid confusion
+
+## Base32 Extended Hex Variant
+
+### Extended Hex Alphabet
+
+Alternative Base32 using hexadecimal-style characters:
+
+```
+0123456789ABCDEFGHIJKLMNOPQRSTUV
+```
+
+### Usage Context
+
+- Maintains hexadecimal familiarity
+- Useful for applications transitioning from hex
+- Same encoding rules as standard Base32
+- Different character set only
+
+## Base16 Encoding Specification
+
+### Hexadecimal Alphabet
+
+Standard hexadecimal representation using 16 characters:
+
+```
+0123456789ABCDEF (uppercase)
+0123456789abcdef (lowercase)
+```
+
+### Encoding Properties
+
+- **Input grouping**: 4 bits per character
+- **Efficiency**: 50% (4/8 bits)
+- **No padding**: Each byte maps to exactly 2 characters
+- **Case variants**: Uppercase or lowercase acceptable
+
+## Implementation Requirements
+
+### Mandatory Behaviors
+
+**Line Feeds**: Implementations MUST NOT add line feeds unless explicitly directed by referring specification.
+
+**Padding**: Implementations MUST include appropriate padding unless specification states otherwise.
+
+**Non-Alphabet Characters**: Implementations MUST reject encoded data containing characters outside the base alphabet, unless specification explicitly permits ignoring such characters.
+
+**Canonical Encoding**: Pad bits MUST be set to zero by conforming encoders.
+
+### Character Handling Requirements
+
+**Whitespace**: May be ignored during decoding if specification permits
+**Case Sensitivity**: Depends on specific encoding variant
+**Error Handling**: Must reject invalid character sequences
+**Buffer Overflow**: Must validate against implementation limits
+
+## Security and Canonical Encoding
+
+### Canonical Encoding Requirements
+
+To ensure unique representation of data:
+- Pad bits must be zero in canonical encoding
+- Consistent character case usage
+- Proper padding application
+- No extraneous characters in output
+
+### Security Considerations
+
+**Covert Channels**: Non-alphabet characters could carry hidden information
+**Buffer Attacks**: Invalid sequences might exploit implementation errors  
+**Padding Validation**: Improper padding could indicate corruption or attack
+**Character Interpretation**: Ambiguous characters may cause security issues
+
+### Validation Requirements
+
+Decoders should:
+- Verify character validity before processing
+- Validate padding correctness
+- Check canonical encoding properties
+- Reject malformed input appropriately
+
+## Reference Details
+
+### Standard Information
+
+- **Document**: RFC 4648
+- **Status**: Standards Track
+- **Date**: October 2006
+- **Obsoletes**: RFC 3548
+- **Category**: Internet Standards
+
+### Implementation Guidance
+
+- Character set size must not exceed available alphabet
+- Alphabet selection affects usage context suitability
+- Line length limits may require specification-specific handling
+- Cross-platform compatibility requires consistent implementation
+
+## Digest
+
+Complete technical specifications for Base16, Base32, and Base64 encodings from RFC 4648. Content includes character alphabets, encoding algorithms, padding rules, security requirements, and implementation mandates. Establishes definitive standards for Internet protocol usage with emphasis on canonical encoding and interoperability.
+
+Retrieved: 2026-03-14
+Sources: https://tools.ietf.org/rfc/rfc4648.txt
+
+Data size: Approximately 15KB of RFC specifications condensed into implementation-focused guidance.
 
 ## Table of Contents
 
