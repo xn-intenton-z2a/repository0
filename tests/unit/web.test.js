@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 import { describe, test, expect } from "vitest";
 import { readFileSync, existsSync } from "fs";
 
@@ -23,25 +24,6 @@ describe("Website", () => {
     expect(existsSync("src/web/lib.js")).toBe(true);
     const lib = readFileSync("src/web/lib.js", "utf8");
     expect(lib).toContain("../lib/main.js");
-  });
-
-  test("index.html contains feature sections for the mission", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain("id=\"classes-section\"");
-    expect(html).toContain("id=\"properties-section\"");
-    expect(html).toContain("id=\"individuals-section\"");
-    expect(html).toContain("id=\"query-section\"");
-    expect(html).toContain("id=\"persistence-section\"");
-    expect(html).toContain("id=\"stats-section\"");
-  });
-
-  test("index.html contains demo action buttons", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain("id=\"btn-seed\"");
-    expect(html).toContain("id=\"btn-load\"");
-    expect(html).toContain("id=\"btn-reset\"");
-    expect(html).toContain("id=\"btn-query\"");
-    expect(html).toContain("id=\"btn-save\"");
   });
 
   test("index.html displays library identity elements", () => {

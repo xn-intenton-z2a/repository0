@@ -1,34 +1,26 @@
 # Mission
 
-A JavaScript library that manages a simple OWL-like ontology stored as JSON-LD files in a `data/` directory. The pipeline should both build the library AND populate it with example ontology data over successive transform cycles.
-
-This is an ongoing mission. Do not set schedule to off.
+A JavaScript library exporting FizzBuzz functions. This is the simplest possible mission — if the pipeline can't complete this and stop, something is fundamentally broken.
 
 ## Core Functions
 
-- `defineClass(name, superclass?)` — define an ontology class, optionally as a subclass.
-- `defineProperty(name, domain, range, opts?)` — define a property linking two classes.
-- `addIndividual(className, id, properties)` — add an instance of a class with property values.
-- `query(pattern)` — basic pattern matching over the ontology (e.g. find all instances of a class, find by property value).
-- `load(dir?)` — load ontology from JSON-LD files in the data directory.
-- `save(dir?)` — persist the ontology to JSON-LD files.
-- `stats()` — return counts of classes, properties, and individuals.
+- `fizzBuzz(n)` — return an array of strings from 1 to n, replacing multiples of 3 with "Fizz", multiples of 5 with "Buzz", and multiples of both with "FizzBuzz".
+- `fizzBuzzSingle(n)` — return the FizzBuzz string for a single positive integer.
 
 ## Requirements
 
-- Store data as JSON-LD files in `data/` (one file per class or a single graph file — implementer's choice).
-- The library should be usable both programmatically and to build up ontology data over time.
-- Export all functions as named exports from `src/lib/main.js`.
-- Include seed ontology data (e.g. a simple animal taxonomy) to demonstrate the library works.
-- Unit tests covering CRUD operations, querying, and persistence.
+- Handle edge cases: `n = 0` returns an empty array, negative numbers throw `RangeError`, non-integers throw `TypeError`.
+- Export both functions as named exports from `src/lib/main.js`.
+- Comprehensive unit tests covering normal operation and all edge cases.
 - README with usage examples.
 
 ## Acceptance Criteria
 
-- [ ] Can define classes and properties
-- [ ] Can add individuals and query them
-- [ ] Data persists to and loads from JSON-LD files
-- [ ] At least one example ontology (e.g. animals) is populated in `data/`
-- [ ] `stats()` returns correct counts
+- [ ] `fizzBuzz(15)` returns the correct 15-element array ending with "FizzBuzz"
+- [ ] `fizzBuzzSingle(3)` returns "Fizz"
+- [ ] `fizzBuzzSingle(5)` returns "Buzz"
+- [ ] `fizzBuzzSingle(15)` returns "FizzBuzz"
+- [ ] `fizzBuzzSingle(7)` returns "7"
+- [ ] `fizzBuzz(0)` returns `[]`
 - [ ] All unit tests pass
-- [ ] README documents the API with examples
+- [ ] README documents usage with examples
