@@ -12,7 +12,7 @@ Seed data demonstrates the library in action, powers the website demo, and provi
 
 API
 
-- seedOntology(dir?: string, opts?: object) -> Promise<summary>
+- seedOntology(dir?: string, opts?: object) -> Promise/summary
   - dir defaults to data/ when not provided.
   - opts may include:
     - overwrite: boolean (default false) — when true, overwrite target dataset atomically.
@@ -82,3 +82,67 @@ Implementation Notes
 # Status
 
 - Status: PARTIALLY_IMPLEMENTED — seed logic exists in the repository but must be refactored into a reusable seedOntology export, be made idempotent and canonical, and covered with the unit tests described above.
+
+
+
+# ATOMIC_SEED
+
+# Summary
+
+Specify and enforce atomic, idempotent writes for the seed pipeline so that seedOntology produces either a complete dataset or no dataset on failure, and repeated runs without changes perform no writes.
+
+# Motivation
+
+Partial writes from interrupted seed runs produce inconsistent data/ states and noisy diffs that break transform cycles; atomic, idempotent seed semantics make the pipeline robust, testable, and safe to run in CI and automated transforms.
+
+# Specification
+
+Behavior
+
+- seedOntology(dir, { overwrite, canonicalize, version }) uses an atomic-write pattern:
+  - Create a temporary directory adjacent to dir (for example dir.tmp-<random>) and write the canonicalised dataset into it.
+  - Compute deterministic checksums (for example SHA256) for each produced file when canonicalize is enabled.
+  - Compare checksums/manifest against the existing dir (if present). If identical and overwrite is false, return summary.ok true and filesWritten: [] with no file system modifications.
+  - When changes are required or overwrite is true, rename the temp directory into place atomically where possible, or write a manifest.json that indicates completion and then swap manifests to avoid half-written datasets.
+  - On any failure during writing, clean up the temp directory and return a descriptive error; do not mutate dir.
+
+Manifest contract
+
+- The dataset root contains manifest.json with at minimum:
+  - modelVersion: string
+  - files: [{ path: string, sha256: string }]
+  - createdBy: string (library name + version)
+  - completed: boolean
+- A consumer must treat a dataset as complete only when manifest.json exists and manifest.completed === true and all listed files exist with matching checksums.
+
+IDEMPOTENCE
+
+- Deterministic file contents and checksums are required so that seedOntology can reliably detect identical datasets and skip writes.
+- Generated ids in seed must be stable and not randomized unless seeded by opts.version.
+
+# Acceptance Criteria
+
+- seedOntology implements atomic write semantics as described and returns a summary that includes manifest checksums and a flag indicating whether writes occurred.
+- tests/unit/seed-atomic.test.js performs the following checks:
+  - Create a temp dir and run seedOntology(tempDir) to create the dataset; assert manifest.completed === true and files exist.
+  - Run seedOntology(tempDir) again with identical options and assert no files were modified (filesWritten empty and checksums unchanged).
+  - Simulate a failure during the seed write (for example by injecting an error in the write path) and assert that the original dir remains unchanged and no partial dataset remains; the temp dir is cleaned up.
+  - Run seedOntology(tempDir, { overwrite: true }) and assert the dataset is replaced atomically and manifest.completed === true.
+- The manifest schema is enforced by tests and manifest.completed is only set after successful full write.
+
+# Testing Recommendations
+
+- Use mkdtempSync for isolated temporary directories and rmSync for cleanup.
+- To simulate write failure, monkeypatch or stub the filesystem write function used by seedOntology in a unit test and trigger an error during the temp dir write; assert no durable changes to dir.
+- Verify checksum stability by computing SHA256 on canonicalized outputs and comparing across runs.
+
+# Implementation Notes
+
+- Prefer atomic operations available on POSIX systems (rename) and fall back to manifest-based atomicity on filesystems or environments where atomic rename across directories is not available.
+- Keep temporary directory names isolated and remove them on both success and failure.
+- Reuse existing save(dir, { canonicalize: true }) logic to produce deterministic file contents before performing atomic swap.
+- Export manifest schema and a helper verifyManifest(dir) to allow tests and consumers to assert dataset completeness.
+
+# Status
+
+- Status: PROPOSED — new feature section appended to SEED_DATA to record atomic/idempotent write requirements and explicit unit tests.
