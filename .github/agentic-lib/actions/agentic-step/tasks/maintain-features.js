@@ -58,6 +58,8 @@ export async function maintainFeatures(context) {
     return { outcome: "wip-limit-reached", details: `Maintenance WIP limit reached (${wipCheck.count}/${config.maintenanceIssuesWipLimit})` };
   }
 
+  const maxTokens = config.maxTokensPerMaintain || 200000;
+
   const mission = readOptionalFile(config.paths.mission.path);
   const featureLimit = config.paths.features.limit;
   const featureFiles = buildFileListing(config.paths.features.path, ".md");
@@ -89,6 +91,7 @@ export async function maintainFeatures(context) {
     "## Constraints",
     `- Maximum ${featureLimit} feature files`,
     "- Feature files must be markdown with a descriptive filename (e.g. HTTP_SERVER.md)",
+    `- Token budget: ~${maxTokens} tokens. Be concise — avoid verbose explanations or unnecessary tool calls.`,
   ].join("\n");
 
   const systemPrompt =
@@ -103,6 +106,9 @@ export async function maintainFeatures(context) {
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
+  // Derive a tool-call cap from the token budget (rough: ~5000 tokens per tool call)
+  const maxToolCalls = Math.max(10, Math.floor(maxTokens / 5000));
+
   const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
@@ -112,6 +118,7 @@ export async function maintainFeatures(context) {
     writablePaths,
     createTools,
     attachments,
+    maxToolCalls,
     excludedTools: ["dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment", "run_tests"],
     logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });

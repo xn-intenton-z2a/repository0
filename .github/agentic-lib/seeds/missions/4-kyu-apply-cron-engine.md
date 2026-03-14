@@ -2,34 +2,32 @@
 
 A JavaScript library that parses cron expressions, computes next run times, and checks schedule matches.
 
-## Core Functions
+## Required Capabilities
 
-- `parseCron(expression)` — parse a cron expression (standard 5-field, or 6-field with seconds) into a structured object. Supports ranges (`1-5`), lists (`1,3,5`), steps (`*/15`), and wildcards (`*`).
-- `nextRun(expression, after?)` — compute the next run time after the given date (default: now). Returns a `Date`.
-- `nextRuns(expression, count, after?)` — compute the next N run times. Returns an array of `Date`.
-- `matches(expression, date)` — check if a date matches a cron expression. Returns boolean.
-- `toString(parsed)` — convert a parsed cron object back to a cron string.
-
-## Special Strings
-
-Support these shortcuts: `@yearly` (`0 0 1 1 *`), `@monthly` (`0 0 1 * *`), `@weekly` (`0 0 * * 0`), `@daily` (`0 0 * * *`), `@hourly` (`0 * * * *`).
+- Parse a cron expression (standard 5-field, or 6-field with seconds) into a structured object. Support ranges (`1-5`), lists (`1,3,5`), steps (`*/15`), and wildcards (`*`).
+- Compute the next run time after a given date (default: now).
+- Compute the next N run times after a given date.
+- Check whether a specific date matches a cron expression.
+- Convert a parsed cron object back to a cron string.
+- Support shortcuts: `@yearly` (`0 0 1 1 *`), `@monthly` (`0 0 1 * *`), `@weekly` (`0 0 * * 0`), `@daily` (`0 0 * * *`), `@hourly` (`0 * * * *`).
 
 ## Requirements
 
-- Handle edge cases: DST transitions, month-end boundaries (e.g. "30th of February"), leap years.
+- Handle edge cases: month-end boundaries (e.g. `0 0 31 * *` fires only in months with 31 days — skip months with fewer days, do not fire on the last day as a fallback), leap years (Feb 29 fires only in leap years).
+- All times are UTC. Timezone support is out of scope.
 - Validate expressions: throw on invalid syntax with a descriptive error message.
-- No external dependencies required (but allowed if beneficial).
-- Export all functions as named exports from `src/lib/main.js`.
+- No external runtime dependencies.
+- Export all public API as named exports from `src/lib/main.js`.
 - Comprehensive unit tests covering field combinations, special strings, edge cases, and invalid input.
 - README with usage examples.
 
 ## Acceptance Criteria
 
-- [ ] `parseCron("*/15 * * * *")` returns a valid parsed object
-- [ ] `nextRun("0 9 * * 1")` returns the next Monday at 09:00
-- [ ] `matches("0 0 25 12 *", new Date("2025-12-25"))` returns `true`
-- [ ] `nextRuns("@daily", 7)` returns 7 consecutive daily dates
-- [ ] DST transitions handled correctly (no skipped or duplicated runs)
+- [ ] Parsing `"*/15 * * * *"` returns a valid structured object
+- [ ] Next run for `"0 9 * * 1"` returns the next Monday at 09:00 UTC
+- [ ] Matching `"0 0 25 12 *"` against `2025-12-25T00:00:00Z` returns `true`
+- [ ] Next 7 runs for `"@daily"` returns 7 consecutive daily dates
+- [ ] Next 3 runs for `"0 0 31 * *"` starting from `2025-01-01` returns dates in Jan, Mar, May (skips months without 31 days)
 - [ ] Invalid expressions throw descriptive errors
 - [ ] All unit tests pass
 - [ ] README documents usage with examples

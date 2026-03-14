@@ -240,11 +240,10 @@ export function loadConfig(configPath) {
   const bot = toml.bot || {};
 
   // Mission-complete thresholds (with safe defaults)
+  // C6: Removed minDedicatedTests and requireDedicatedTests
   const mc = toml["mission-complete"] || {};
   const missionCompleteThresholds = {
     minResolvedIssues: mc["min-resolved-issues"] ?? 3,
-    minDedicatedTests: mc["min-dedicated-tests"] ?? 1,
-    requireDedicatedTests: mc["require-dedicated-tests"] ?? true,
     maxSourceTodos: mc["max-source-todos"] ?? 0,
   };
 
@@ -268,6 +267,7 @@ export function loadConfig(configPath) {
     init: toml.init || null,
     tdd: toml.tdd === true,
     missionCompleteThresholds,
+    maxTokensPerMaintain: resolvedLimits.maxTokensPerMaintain || 200000,
     writablePaths,
     readOnlyPaths,
     configToml: rawToml,

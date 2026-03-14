@@ -591,6 +591,7 @@ jobs:
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
           git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
+          git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
 
       - name: Check mission-complete signal
         id: mission-check
@@ -725,6 +726,7 @@ jobs:
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
           git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
+          git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
           mkdir -p .agent-logs
           git fetch origin "${LOG_BRANCH}" 2>/dev/null || true
           for f in $(git ls-tree --name-only "origin/${LOG_BRANCH}" 2>/dev/null | grep '^agent-log-' || true); do
@@ -790,6 +792,7 @@ jobs:
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
           git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
+          git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
 
       - uses: actions/setup-node@v6
         with:
@@ -838,20 +841,47 @@ jobs:
       needs.director.outputs.decision != 'mission-complete' &&
       needs.director.outputs.decision != 'mission-failed'
     runs-on: ubuntu-latest
+    outputs:
+      backoff-skip: ${{ steps.backoff.outputs.skip }}
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
 
-      - name: Fetch log and screenshot from log branch
+      - name: Fetch log, screenshot and state from log branch
         env:
           LOG_BRANCH: ${{ needs.params.outputs.log-branch }}
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
           git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
+          git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
+
+      - name: "C15: Check nop backoff"
+        id: backoff
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let nopCount = 0;
+            try {
+              const content = fs.readFileSync('agentic-lib-state.toml', 'utf8');
+              const match = content.match(/cumulative-nop-cycles\s*=\s*(\d+)/);
+              if (match) nopCount = parseInt(match[1], 10);
+            } catch { /* no state file yet */ }
+            core.info(`Consecutive nop cycles: ${nopCount}`);
+            let shouldSkip = false;
+            if (nopCount > 3) {
+              const pow = Math.pow(2, Math.floor(Math.log2(nopCount)));
+              if (nopCount !== pow) {
+                shouldSkip = true;
+                core.info(`Backoff: skipping (nop count ${nopCount}, next run at ${pow * 2})`);
+              }
+            }
+            core.setOutput('skip', shouldSkip ? 'true' : 'false');
 
       - uses: actions/setup-node@v6
+        if: steps.backoff.outputs.skip != 'true'
         with:
           node-version: "24"
 
@@ -1286,6 +1316,7 @@ jobs:
           SCREENSHOT_FILE: ${{ needs.params.outputs.screenshot-file }}
         run: |
           git show "origin/${LOG_BRANCH}:${SCREENSHOT_FILE}" > "${SCREENSHOT_FILE}" 2>/dev/null || true
+          git show "origin/${LOG_BRANCH}:agentic-lib-state.toml" > "agentic-lib-state.toml" 2>/dev/null || true
 
       - uses: actions/setup-node@v6
         with:

@@ -4,6 +4,27 @@ description: Review GitHub issues and enhance with testable acceptance criteria
 
 Please review the GitHub issue and determine if it should be enhanced, closed or if no operation is needed.
 
+## Available Tools
+
+- `report_enhanced_body` — **Required.** Record the enhanced issue body with testable acceptance criteria. You MUST call this exactly once with the improved issue body text.
+- `read_file` — Read feature specs, source code, tests, and documentation for context when writing acceptance criteria
+- `list_files` — Browse repository structure to understand what exists
+- `list_issues` — Query open or closed issues to find related work and avoid duplicates
+- `get_issue` — Get full details of a specific issue including comments
+- `list_prs` — List pull requests for additional context
+- `comment_on_issue` — Add comments to issues (though the handler adds its own comment automatically)
+
+Note: This agent is read-only with respect to code. Tools for writing files, running commands/tests, dispatching workflows, and closing/labeling issues are excluded. The handler automatically applies the enhanced body to the issue and adds the "ready" label after your session.
+
+## Context Provided
+
+The task handler provides the following in your prompt:
+
+- **Issue number, title, and body** — the current state of the issue to enhance
+- **Contributing guidelines** — project-specific coding standards and conventions (from CONTRIBUTING.md)
+- **Feature file listing** — names of feature spec files that can be read with `read_file` for detailed requirements
+- **Agent instructions** — from the workflow configuration
+
 If the issue is relevant to the mission statement and features:
 
 1. Decide if the issue should be refined, closed or if no operation is needed.

@@ -51,6 +51,8 @@ export async function maintainLibrary(context) {
     return { outcome: "nop", details: "Mission already complete (MISSION_COMPLETE.md signal)" };
   }
 
+  const maxTokens = config.maxTokensPerMaintain || 200000;
+
   const sourcesPath = config.paths.librarySources.path;
   const sources = readOptionalFile(sourcesPath);
   const mission = readOptionalFile(config.paths.mission.path);
@@ -83,6 +85,9 @@ export async function maintainLibrary(context) {
       `Write the URLs as a markdown list in ${sourcesPath}, keeping the existing header text.`,
       "",
       formatPathsSection(writablePaths, config.readOnlyPaths, config),
+      "",
+      "## Constraints",
+      `- Token budget: ~${maxTokens} tokens. Be concise — avoid verbose explanations or unnecessary tool calls.`,
     ].join("\n");
   } else {
     prompt = [
@@ -105,6 +110,7 @@ export async function maintainLibrary(context) {
       "",
       "## Constraints",
       `- Maximum ${libraryLimit} library documents`,
+      `- Token budget: ~${maxTokens} tokens. Be concise — avoid verbose explanations or unnecessary tool calls.`,
     ].join("\n");
   }
 
@@ -116,6 +122,9 @@ export async function maintainLibrary(context) {
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
+  // Derive a tool-call cap from the token budget (rough: ~5000 tokens per tool call)
+  const maxToolCalls = Math.max(10, Math.floor(maxTokens / 5000));
+
   const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
@@ -124,6 +133,7 @@ export async function maintainLibrary(context) {
     userPrompt: prompt,
     writablePaths,
     attachments,
+    maxToolCalls,
     excludedTools: ["dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment", "run_tests"],
     logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });

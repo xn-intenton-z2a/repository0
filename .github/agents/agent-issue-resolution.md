@@ -9,6 +9,38 @@ beyond the scope of the original issue. Implement whole features and do not leav
 
 Apply the contributing guidelines to your response.
 
+## Available Tools
+
+The following tools are available during the Copilot SDK session:
+
+- `read_file` — Read the contents of any file in the repository
+- `write_file` — Write content to files (writable paths only, parent dirs created automatically)
+- `list_files` — List files and directories at a given path
+- `run_command` — Run a shell command and return stdout/stderr (git write commands blocked)
+- `run_tests` — Execute the project's test suite (`npm test`) and return pass/fail with output
+- `list_issues` — List GitHub issues with optional state/label/sort filters
+- `get_issue` — Get full details of a GitHub issue including comments
+- `comment_on_issue` — Add a comment to a GitHub issue
+- `create_issue` — Create a new GitHub issue with title, body, and labels
+- `list_prs` — List open pull requests for the repository
+- `list_discussions` / `search_discussions` / `fetch_discussion` — Query GitHub Discussions
+- `git_diff` — Show uncommitted changes (staged or unstaged)
+- `git_status` — Show the working tree status
+
+Note: `dispatch_workflow`, `close_issue`, `label_issue`, and `post_discussion_comment` are excluded — the task handler manages issue lifecycle and workflow dispatch externally.
+
+## Context Provided
+
+The task handler passes the following context in the prompt:
+
+- **Issue details** — Issue number, title, body text, and up to 10 issue comments
+- **Contributing guidelines** — Contents of CONTRIBUTING.md (if present)
+- **Writable paths** — Which file paths you may write to
+- **Read-only paths** — Which file paths are for context only (do not modify)
+- **Test command** — The command to run via `run_tests` to validate changes
+- **Agent instructions** — Task-specific instructions (or default: "Resolve the GitHub issue by writing code that satisfies the requirements")
+- **Attachments** — intentïon.md log file and/or screenshot (if available)
+
 Do as much as you can all at once. Your goal is mission complete — if the mission can be fully
 accomplished in this single transform, it should be. Deliver all acceptance criteria, tests, website,
 docs, and README in one pass. Only leave work for a follow-up if it genuinely cannot fit.

@@ -44,6 +44,10 @@ on:
         type: string
         required: false
         default: ""
+      create-seed-issues:
+        type: string
+        required: false
+        default: "false"
   workflow_dispatch:
     inputs:
       mode:
@@ -71,19 +75,20 @@ on:
           - 7-kyu-understand-fizz-buzz
           - 6-kyu-understand-hamming-distance
           - 6-kyu-understand-roman-numerals
-          - 5-kyu-create-ascii-face
+          - 5-kyu-apply-ascii-face
           - 5-kyu-apply-string-utils
           - 4-kyu-apply-cron-engine
           - 4-kyu-apply-dense-encoding
           - 4-kyu-analyze-json-schema-diff
+          - 4-kyu-apply-owl-ontology
           - 3-kyu-analyze-lunar-lander
           - 3-kyu-evaluate-time-series-lab
-          - 3-kyu-evaluate-owl-ontology
-          - 2-kyu-evaluate-markdown-compiler
+          - 2-kyu-create-markdown-compiler
           - 2-kyu-create-plot-code-lib
           - 1-kyu-create-ray-tracer
           - 1-dan-create-c64-emulator
-          - 2-dan-create-agi
+          - 1-dan-create-planning-engine
+          - 2-dan-create-self-hosted
       mission-text:
         description: "Freeform mission text for MISSION.md (overrides mission-seed if provided)"
         type: string
@@ -121,13 +126,38 @@ on:
           - min
           - recommended
           - max
+      create-seed-issues:
+        description: "Create initial seed issues after purge"
+        type: boolean
+        required: false
+        default: false
 
 permissions: write-all
 
 jobs:
+  params:
+    runs-on: ubuntu-latest
+    outputs:
+      dry-run: ${{ steps.resolve.outputs.dry-run }}
+      mission: ${{ steps.resolve.outputs.mission }}
+      profile: ${{ steps.resolve.outputs.profile }}
+      model: ${{ steps.resolve.outputs.model }}
+      create-seed-issues: ${{ steps.resolve.outputs.create-seed-issues }}
+    steps:
+      - id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.setOutput('dry-run', context.payload.inputs?.['dry-run'] || 'false');
+            core.setOutput('mission', context.payload.inputs?.['mission-seed'] || '6-kyu-understand-hamming-distance');
+            core.setOutput('profile', context.payload.inputs?.['profile'] || '');
+            core.setOutput('model', context.payload.inputs?.['model'] || '');
+            core.setOutput('create-seed-issues', context.payload.inputs?.['create-seed-issues'] || 'false');
+
   # Step 1: Update agentic-lib and infrastructure (commits to main)
   # Skip tests when purge/reseed will replace all user code anyway
   update:
+    needs: [params]
     uses: ./.github/workflows/agentic-lib-update.yml
     with:
       ref: ${{ inputs.ref }}
@@ -138,7 +168,7 @@ jobs:
   # Step 2: Reseed/purge and configure (only if mode != update)
   # Use !cancelled() so purge runs even if update's npm test failed
   init:
-    needs: update
+    needs: [params, update]
     if: "!cancelled() && (inputs.mode == 'reseed' || inputs.mode == 'purge')"
     runs-on: ubuntu-latest
     env:
@@ -255,8 +285,9 @@ jobs:
             }
             if (!model) model = 'gpt-5-mini';
 
+            // Problem 4 fix: Use "never fires" cron for off instead of removing the block
             const SCHEDULE_MAP = {
-              off: null,
+              off: '0 0 31 2 *',
               weekly: '25 6 * * 1',
               daily: '25 6 * * *',
               hourly: '25 * * * *',
@@ -266,8 +297,11 @@ jobs:
             if (fs.existsSync(workflowPath)) {
               let content = fs.readFileSync(workflowPath, 'utf8');
               const cron = SCHEDULE_MAP[frequency];
-              content = content.replace(/\n  schedule:\n    - cron: "[^"]*"\n/g, '\n');
-              if (cron) {
+              // Replace existing cron or insert new schedule block
+              const cronRegex = /- cron: "[^"]*"/;
+              if (cronRegex.test(content)) {
+                content = content.replace(cronRegex, `- cron: "${cron}"`);
+              } else {
                 const scheduleBlock = `\n  schedule:\n    - cron: "${cron}"\n`;
                 content = content.replace(/\non:\n/, `\non:${scheduleBlock}`);
               }
@@ -296,7 +330,7 @@ jobs:
               core.info(`Updated agentic-lib.toml: model=${model}, supervisor=${frequency}`);
             }
 
-      - name: Commit and push to main [skip ci]
+      - name: Commit and push to main
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && inputs.dry-run != 'true' && inputs.dry-run != true
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
@@ -308,7 +342,14 @@ jobs:
           git add -A
           git diff --cached --quiet && echo "No changes" && exit 0
           VERSION=$(npx @xn-intenton-z2a/agentic-lib version 2>/dev/null || echo "latest")
-          git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION}) [skip ci]"
+          # Problem 1 fix: Don't use [skip ci] when workflow files changed.
+          # GitHub may not register cron schedule changes from [skip ci] commits.
+          WORKFLOW_CHANGED=$(git diff --cached --name-only -- '.github/workflows/' | head -1)
+          if [ -n "$WORKFLOW_CHANGED" ]; then
+            git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION})"
+          else
+            git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION}) [skip ci]"
+          fi
           for attempt in 1 2 3; do
             # Use HEAD:refs/heads/main to handle detached HEAD state
             git push origin HEAD:refs/heads/main && break
@@ -324,8 +365,24 @@ jobs:
             fi
           done
 
+      - name: "Verify schedule registered with GitHub"
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && inputs.schedule != '' && inputs.dry-run != 'true' && inputs.dry-run != true
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: |
+          echo "Waiting 10s for GitHub to process the push..."
+          sleep 10
+          WORKFLOW_STATE=$(gh api "repos/${{ github.repository }}/actions/workflows/agentic-lib-workflow.yml" --jq '.state' 2>/dev/null || echo "unknown")
+          echo "Workflow state: ${WORKFLOW_STATE}"
+          if [ "$WORKFLOW_STATE" != "active" ]; then
+            echo "::warning::Workflow state is '${WORKFLOW_STATE}', attempting to enable..."
+            gh api "repos/${{ github.repository }}/actions/workflows/agentic-lib-workflow.yml/enable" -X PUT 2>/dev/null || true
+            WORKFLOW_STATE=$(gh api "repos/${{ github.repository }}/actions/workflows/agentic-lib-workflow.yml" --jq '.state' 2>/dev/null || echo "unknown")
+            echo "Workflow state after enable: ${WORKFLOW_STATE}"
+          fi
+
       - name: Create initial seed issues
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.INIT_MODE == 'purge' && inputs.dry-run != 'true' && inputs.dry-run != true
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.INIT_MODE == 'purge' && inputs.dry-run != 'true' && inputs.dry-run != true && (inputs.create-seed-issues == 'true' || inputs.create-seed-issues == true)
         uses: actions/github-script@v8
         with:
           script: |
@@ -375,3 +432,11 @@ jobs:
               labels: ['automated', 'ready'],
             });
             core.info(`Created issue #${issue2.number}: Initial web layout`);
+
+      - name: Job Summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `## Job: init\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |\n| Mode | ${{ inputs.mode }} |\n| Dry Run | ${{ inputs.dry-run }} |\n| Create Seed Issues | ${{ inputs.create-seed-issues }} |`;
+            core.summary.addRaw(summary).write();

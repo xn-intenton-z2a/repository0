@@ -6,6 +6,22 @@ Does the combination of library source, unit tests, website, web tests, behaviou
 and dependencies resolve the following issue? Check that the solution satisfies the issue's
 acceptance criteria and moves the mission toward complete.
 
+## Available Tools
+
+- `report_verdict` — **Required.** Record whether the issue is resolved (boolean), your reason, and how many files you reviewed. Call this exactly once.
+- `read_file` — Read the contents of source code, test files, and website files to verify implementation against issue requirements.
+- `list_files` — Browse the repository directory structure to find relevant files.
+- `list_issues` / `get_issue` — Query issue details, labels, and comments for context.
+- `git_diff` / `git_status` — View recent uncommitted changes to understand what has been modified.
+
+> **Note:** This agent is read-only. Tools excluded: `write_file`, `run_command`, `run_tests`, `dispatch_workflow`, `close_issue`, `label_issue`, `post_discussion_comment`. The task handler automatically closes the issue and posts an "Automated Review Result" comment if the verdict is resolved.
+
+## Context Provided
+
+The task handler passes the following in the prompt:
+- **Issue number, title, and body** for the issue under review
+- **Repository structure** — source files (names + approximate line counts), test files, and website files enumerated from the configured paths
+
 An issue is NOT resolved unless ALL of the following are true:
 1. The **library source** (`src/lib/main.js`) has the implementation and matches what the issue asks for
 2. **Unit tests** (`tests/unit/`) exist that specifically test the implemented functionality

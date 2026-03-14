@@ -58,7 +58,19 @@ permissions:
   issues: write
 
 jobs:
+  params:
+    runs-on: ubuntu-latest
+    outputs:
+      dry-run: ${{ steps.resolve.outputs.dry-run }}
+    steps:
+      - id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.setOutput('dry-run', context.payload.inputs?.['dry-run'] || 'false');
+
   test:
+    needs: [params]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -85,6 +97,14 @@ jobs:
 
       - name: Run tests
         run: ${{ steps.config.outputs.test-command }}
+
+      - name: Job Summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `## Job: test\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |`;
+            core.summary.addRaw(summary).write();
 
   behaviour:
     if: github.repository != 'xn-intenton-z2a/agentic-lib'
@@ -139,9 +159,17 @@ jobs:
           LOG_BRANCH: ${{ inputs.log-branch || 'agentic-lib-logs' }}
         run: bash .github/agentic-lib/scripts/push-to-logs.sh "${SCREENSHOT_FILE:-SCREENSHOT_INDEX.png}"
 
+      - name: Job Summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `## Job: behaviour\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |\n| Tests Failed | ${{ steps.result.outputs.tests-failed }} |`;
+            core.summary.addRaw(summary).write();
+
   # ─── Dispatch fix workflow when unit tests fail on main ─────────────
   dispatch-fix:
-    needs: [test]
+    needs: [params, test]
     if: >-
       !cancelled()
       && github.ref == 'refs/heads/main'
@@ -183,7 +211,7 @@ jobs:
 
   # ─── Report instability: install or unit test failure → automated + instability ──
   report-instability:
-    needs: [test]
+    needs: [params, test]
     if: >-
       !cancelled()
       && github.ref == 'refs/heads/main'
@@ -293,7 +321,7 @@ jobs:
 
   # ─── Report behaviour failure: behaviour test failure → automated only ──
   report-behaviour:
-    needs: [behaviour]
+    needs: [params, behaviour]
     if: >-
       !cancelled()
       && github.ref == 'refs/heads/main'

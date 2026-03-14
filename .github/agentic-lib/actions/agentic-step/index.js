@@ -18,6 +18,7 @@ import {
   checkInstabilityLabel, countDedicatedTests,
   countOpenIssues, countResolvedIssues, countMdFiles,
 } from "./metrics.js";
+import { readState, writeState, updateStateAfterTask } from "../../copilot/state.js";
 
 // Task implementations
 import { resolveIssue } from "./tasks/resolve-issue.js";
@@ -92,6 +93,9 @@ async function run() {
       logFilePath, screenshotFilePath,
     };
 
+    // C1: Read persistent state from agentic-lib-state.toml
+    const state = readState(".");
+
     const startTime = Date.now();
     const result = await handler(context);
     const durationMs = Date.now() - startTime;
@@ -109,14 +113,17 @@ async function run() {
       && await checkInstabilityLabel(context, issueNumber);
     if (isInstability) core.info(`Issue #${issueNumber} has instability label — does not count against budget`);
     const transformationCost = computeTransformationCost(task, result.outcome, isInstability);
-    const cumulativeCost = transformationCost;
 
-    if (result.dedicatedTestCount == null || result.dedicatedTestCount === 0) {
-      try {
-        const { scanDirectory: scanDir } = await import("./copilot.js");
-        result.dedicatedTestCount = countDedicatedTests(scanDir);
-      } catch { /* ignore */ }
-    }
+    // C1/C2: Update persistent state with this task's results
+    updateStateAfterTask(state, {
+      task,
+      outcome: result.outcome || "completed",
+      transformationCost,
+      tokensUsed: result.tokensUsed || 0,
+    });
+    // C2: Use cumulative cost from persistent state (not just this task)
+    const cumulativeCost = state.counters["cumulative-transforms"] || 0;
+    state.budget["transformation-budget-cap"] = config.transformationBudget || 0;
 
     const { featureIssueCount, maintenanceIssueCount } = await countOpenIssues(context);
     if (result.resolvedCount == null) result.resolvedCount = await countResolvedIssues(context);
@@ -133,20 +140,35 @@ async function run() {
       }
     }
 
-    const missionMetrics = buildMissionMetrics(config, result, limitsStatus, cumulativeCost, featureIssueCount, maintenanceIssueCount);
+    // C5: Pass per-task costs for split display
+    const taskCosts = {
+      transformationCost,
+      tokensUsed: result.tokensUsed || 0,
+      cumulativeTokens: state.counters["total-tokens"] || 0,
+    };
+    const missionMetrics = buildMissionMetrics(config, result, limitsStatus, cumulativeCost, featureIssueCount, maintenanceIssueCount, taskCosts);
 
-    // Write standalone agent log file (pushed to agentic-lib-logs branch by workflow)
+    // C4: Write standalone agent log file with sequence number
+    const seq = state.counters["log-sequence"] || 0;
     try {
       const agentLogFile = writeAgentLog({
         task, outcome: result.outcome || "completed",
         model: result.model || model, durationMs, tokensUsed: result.tokensUsed,
         narrative: result.narrative, contextNotes: result.contextNotes,
         reviewTable: result.reviewTable, completenessAdvice: result.completenessAdvice,
-        missionMetrics,
+        missionMetrics, sequence: seq,
       });
       core.info(`Agent log written: ${agentLogFile}`);
     } catch (err) {
       core.warning(`Could not write agent log: ${err.message}`);
+    }
+
+    // C1: Write updated state back to agentic-lib-state.toml
+    try {
+      writeState(".", state);
+      core.info(`State written: seq=${seq}, transforms=${cumulativeCost}, nops=${state.counters["cumulative-nop-cycles"]}`);
+    } catch (err) {
+      core.warning(`Could not write state: ${err.message}`);
     }
 
     core.info(`agentic-step completed: outcome=${result.outcome}`);

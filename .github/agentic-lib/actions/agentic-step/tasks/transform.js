@@ -6,7 +6,7 @@
 // instead of having all context front-loaded into the prompt.
 
 import * as core from "@actions/core";
-import { existsSync, readdirSync, statSync } from "fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "fs";
 import { join, resolve } from "path";
 import { readOptionalFile, formatPathsSection, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
 import { runCopilotSession } from "../../../copilot/copilot-session.js";
@@ -35,6 +35,35 @@ function buildFileListing(dirPath, extensions) {
       .slice(0, 30); // cap listing at 30 files
   } catch {
     return [];
+  }
+}
+
+/**
+ * Build a library index: filename + first 2 lines of each library doc, capped at 2000 chars.
+ */
+function buildLibraryIndex(libraryPath) {
+  if (!libraryPath || !existsSync(libraryPath)) return "";
+  try {
+    const files = readdirSync(libraryPath).filter((f) => f.endsWith(".md")).sort();
+    if (files.length === 0) return "";
+    const entries = [];
+    let totalLen = 0;
+    for (const f of files) {
+      const fullPath = join(libraryPath, f);
+      try {
+        const content = readFileSync(fullPath, "utf8");
+        const lines = content.split("\n").slice(0, 2).join(" ").trim();
+        const entry = `- ${f}: ${lines}`;
+        if (totalLen + entry.length > 2000) break;
+        entries.push(entry);
+        totalLen += entry.length;
+      } catch {
+        entries.push(`- ${f}: (unreadable)`);
+      }
+    }
+    return entries.join("\n");
+  } catch {
+    return "";
   }
 }
 
@@ -89,6 +118,7 @@ export async function transform(context) {
   const testFiles = buildFileListing(config.paths.tests.path, [".js", ".ts"]);
   const webFiles = buildFileListing(config.paths.web?.path || "src/web/", [".html", ".css", ".js"]);
   const featureFiles = buildFileListing(config.paths.features.path, [".md"]);
+  const libraryIndex = buildLibraryIndex(config.paths.library?.path || "library/");
 
   const prompt = [
     "## Instructions",
@@ -106,6 +136,12 @@ export async function transform(context) {
       `Website files (${webFiles.length}): ${webFiles.join(", ")}`,
       "The website in `src/web/` uses the JS library. `src/web/lib.js` re-exports from `../lib/main.js`.",
       "When transforming source code, also update the website to use the library's new/changed features.",
+    ] : []),
+    ...(libraryIndex ? [
+      "",
+      "## Library Index",
+      "Reference documents available in `library/` (use read_file for full content):",
+      libraryIndex,
     ] : []),
     "",
     "## Your Task",

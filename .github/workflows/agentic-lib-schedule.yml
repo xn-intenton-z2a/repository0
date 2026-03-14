@@ -79,7 +79,26 @@ permissions:
   contents: write
 
 jobs:
+  params:
+    runs-on: ubuntu-latest
+    outputs:
+      frequency: ${{ steps.resolve.outputs.frequency }}
+      model: ${{ steps.resolve.outputs.model }}
+      profile: ${{ steps.resolve.outputs.profile }}
+      maintenance: ${{ steps.resolve.outputs.maintenance }}
+    steps:
+      - id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const frequency = context.payload.inputs?.['frequency'] || 'off';
+            core.setOutput('frequency', frequency);
+            core.setOutput('model', context.payload.inputs?.['model'] || '');
+            core.setOutput('profile', context.payload.inputs?.['profile'] || '');
+            core.setOutput('maintenance', frequency === 'maintenance' ? 'true' : 'false');
+
   update-schedule:
+    needs: [params]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -112,8 +131,10 @@ jobs:
             const isMaintenance = frequency === 'maintenance';
             const effectiveFrequency = isMaintenance ? 'weekly' : frequency;
 
+            // Problem 4 fix: Use a "never fires" cron for off instead of removing the block.
+            // Keeping the schedule: block permanently avoids GitHub cron de-registration issues.
             const SCHEDULE_MAP = {
-              off: null,
+              off: '0 0 31 2 *',
               weekly: '25 6 * * 1',
               daily: '25 6 * * *',
               hourly: '25 * * * *',
@@ -147,11 +168,12 @@ jobs:
               }
             }
 
-            // Remove any existing schedule block
-            content = content.replace(/\n  schedule:\n    - cron: "[^"]*"\n/g, '\n');
-
-            if (cron) {
-              // Insert schedule block after the 'on:' line
+            // Replace existing schedule cron or insert a new block
+            const cronRegexReplace = /- cron: "[^"]*"/;
+            if (cronRegexReplace.test(content)) {
+              content = content.replace(cronRegexReplace, `- cron: "${cron}"`);
+            } else {
+              // No schedule block exists — insert one after 'on:'
               const scheduleBlock = `\n  schedule:\n    - cron: "${cron}"\n`;
               content = content.replace(
                 /\non:\n/,
@@ -261,3 +283,33 @@ jobs:
               exit 1
             fi
           done
+
+      - name: "Problem 2 fix: Verify schedule registered with GitHub"
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && inputs.dry-run != 'true' && inputs.dry-run != true
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: |
+          echo "Waiting 10s for GitHub to process the push..."
+          sleep 10
+          WORKFLOW_STATE=$(gh api "repos/${{ github.repository }}/actions/workflows/agentic-lib-workflow.yml" --jq '.state' 2>/dev/null || echo "unknown")
+          echo "Workflow state: ${WORKFLOW_STATE}"
+          if [ "$WORKFLOW_STATE" != "active" ]; then
+            echo "::warning::Workflow state is '${WORKFLOW_STATE}', attempting to enable..."
+            gh api "repos/${{ github.repository }}/actions/workflows/agentic-lib-workflow.yml/enable" -X PUT 2>/dev/null || true
+            WORKFLOW_STATE=$(gh api "repos/${{ github.repository }}/actions/workflows/agentic-lib-workflow.yml" --jq '.state' 2>/dev/null || echo "unknown")
+            echo "Workflow state after enable: ${WORKFLOW_STATE}"
+          fi
+          # Verify the cron was registered by checking the workflow definition
+          FREQUENCY="${{ inputs.frequency }}"
+          if [ "$FREQUENCY" != "off" ]; then
+            echo "Verifying cron schedule is active..."
+            gh api "repos/${{ github.repository }}/actions/workflows" --jq '.workflows[] | select(.name == "agentic-lib-workflow") | "state=\(.state)"' 2>/dev/null || true
+          fi
+
+      - name: Job Summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `## Job: update-schedule\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |\n| Frequency | ${{ inputs.frequency }} |\n| Model | ${{ inputs.model || 'default' }} |\n| Profile | ${{ inputs.profile || 'default' }} |`;
+            core.summary.addRaw(summary).write();

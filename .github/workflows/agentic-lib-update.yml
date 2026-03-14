@@ -37,7 +37,19 @@ on:
 permissions: write-all
 
 jobs:
+  params:
+    runs-on: ubuntu-latest
+    outputs:
+      dry-run: ${{ steps.resolve.outputs.dry-run }}
+    steps:
+      - id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.setOutput('dry-run', context.payload.inputs?.['dry-run'] || 'false');
+
   update:
+    needs: [params]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -109,3 +121,11 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Job Summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `## Job: update\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |\n| Dry Run | ${{ inputs.dry-run }} |`;
+            core.summary.addRaw(summary).write();

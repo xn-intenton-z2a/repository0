@@ -38,17 +38,67 @@ export function countSourceTodos(dir, extensions = [".js", ".ts", ".mjs"]) {
 }
 
 /**
+ * Count source lines in a directory (recursive, .js/.ts/.mjs files).
+ * @param {string} dir
+ * @returns {number}
+ */
+export function countSourceLines(dir) {
+  if (!dir || !existsSync(dir)) return 0;
+  let count = 0;
+  try {
+    const entries = readdirSync(dir);
+    for (const entry of entries) {
+      if (entry === "node_modules" || entry.startsWith(".")) continue;
+      const fullPath = join(dir, entry);
+      try {
+        const stat = statSync(fullPath);
+        if (stat.isDirectory()) {
+          count += countSourceLines(fullPath);
+        } else if (/\.(js|ts|mjs)$/.test(entry)) {
+          const content = readFileSync(fullPath, "utf8");
+          count += content.split("\n").length;
+        }
+      } catch { /* skip */ }
+    }
+  } catch { /* skip */ }
+  return count;
+}
+
+/**
+ * Count acceptance criteria checkboxes in MISSION.md.
+ * @param {string} missionPath
+ * @returns {{ met: number, total: number }}
+ */
+export function countAcceptanceCriteria(missionPath) {
+  if (!missionPath || !existsSync(missionPath)) return { met: 0, total: 0 };
+  try {
+    const content = readFileSync(missionPath, "utf8");
+    const checked = (content.match(/- \[x\]/gi) || []).length;
+    const unchecked = (content.match(/- \[ \]/g) || []).length;
+    return { met: checked, total: checked + unchecked };
+  } catch { return { met: 0, total: 0 }; }
+}
+
+/**
  * Build mission-complete metrics array for the intentïon.md dashboard.
+ *
+ * C2: Uses cumulativeCost from persistent state (not per-run).
+ * C5: Includes both per-task and cumulative values.
+ * C6: Replaces "Dedicated test files" with dynamic metrics.
  *
  * @param {Object} config - Parsed agentic-lib config
  * @param {Object} result - Task result object
  * @param {Array} _limitsStatus - Limits status array (unused but kept for signature compatibility)
- * @param {number} cumulativeCost - Cumulative transformation cost
+ * @param {number} cumulativeCost - Cumulative transformation cost (from state.toml)
  * @param {number} featureIssueCount - Number of open feature issues
  * @param {number} maintenanceIssueCount - Number of open maintenance issues
+ * @param {Object} [taskCosts] - Per-task costs for split display
+ * @param {number} [taskCosts.transformationCost] - This task's transformation cost (0 or 1)
+ * @param {number} [taskCosts.tokensUsed] - This task's token usage
+ * @param {number} [taskCosts.cumulativeTokens] - Cumulative tokens from state
  * @returns {Array} Mission metrics entries
  */
-export function buildMissionMetrics(config, result, _limitsStatus, cumulativeCost, featureIssueCount, maintenanceIssueCount) {
+export function buildMissionMetrics(config, result, _limitsStatus, cumulativeCost, featureIssueCount, maintenanceIssueCount, taskCosts) {
   const openIssues = featureIssueCount + maintenanceIssueCount;
   const budgetCap = config.transformationBudget || 0;
   const resolvedCount = result.resolvedCount || 0;
@@ -61,24 +111,52 @@ export function buildMissionMetrics(config, result, _limitsStatus, cumulativeCos
   const srcRoot = sourceDir.includes("/") ? sourceDir.split("/").slice(0, -1).join("/") || "src" : "src";
   const todoCount = countSourceTodos(srcRoot);
 
-  const dedicatedTestCount = result.dedicatedTestCount ?? 0;
-
   const thresholds = config.missionCompleteThresholds || {};
   const minResolved = thresholds.minResolvedIssues ?? 3;
-  const minTests = thresholds.minDedicatedTests ?? 1;
   const maxTodos = thresholds.maxSourceTodos ?? 0;
+
+  // C6: Dynamic metrics
+  const sourceLines = countSourceLines(sourceDir);
+  const featuresPath = config.paths?.features?.path || "features/";
+  const featureSpecCount = countMdFilesInDir(featuresPath);
+  const missionPath = config.paths?.mission?.path || "MISSION.md";
+  const acceptance = countAcceptanceCriteria(missionPath);
+
+  // C5: Per-task costs (optional)
+  const tc = taskCosts || {};
+  const thisTaskCost = tc.transformationCost ?? 0;
+  const thisTaskTokens = tc.tokensUsed ?? 0;
+  const cumulativeTokens = tc.cumulativeTokens ?? 0;
 
   return [
     { metric: "Open issues", value: String(openIssues), target: "0", status: openIssues === 0 ? "MET" : "NOT MET" },
     { metric: "Open PRs", value: String(openPrs), target: "0", status: openPrs === 0 ? "MET" : "NOT MET" },
     { metric: "Issues resolved (review or PR merge)", value: String(resolvedCount), target: `>= ${minResolved}`, status: resolvedCount >= minResolved ? "MET" : "NOT MET" },
-    { metric: "Dedicated test files", value: String(dedicatedTestCount), target: `>= ${minTests}`, status: dedicatedTestCount >= minTests ? "MET" : "NOT MET" },
     { metric: "Source TODO count", value: String(todoCount), target: `<= ${maxTodos}`, status: todoCount <= maxTodos ? "MET" : "NOT MET" },
-    { metric: "Transformation budget used", value: `${cumulativeCost}/${budgetCap}`, target: budgetCap > 0 ? `< ${budgetCap}` : "unlimited", status: budgetCap > 0 && cumulativeCost >= budgetCap ? "EXHAUSTED" : "OK" },
-    { metric: "Cumulative transforms", value: String(cumulativeCost), target: ">= 1", status: cumulativeCost >= 1 ? "MET" : "NOT MET" },
+    { metric: "Source lines", value: String(sourceLines), target: "—", status: "—" },
+    { metric: "Feature specs", value: String(featureSpecCount), target: "—", status: "—" },
+    { metric: "Acceptance criteria", value: acceptance.total > 0 ? `${acceptance.met}/${acceptance.total}` : "—", target: "—", status: "—" },
+    { metric: "Transforms (this task)", value: String(thisTaskCost), target: "—", status: "—" },
+    { metric: "Transforms (cumulative)", value: String(cumulativeCost), target: ">= 1", status: cumulativeCost >= 1 ? "MET" : "NOT MET" },
+    { metric: "Budget (this task)", value: String(thisTaskCost), target: "—", status: "—" },
+    { metric: "Budget (cumulative)", value: `${cumulativeCost}/${budgetCap}`, target: budgetCap > 0 ? `< ${budgetCap}` : "unlimited", status: budgetCap > 0 && cumulativeCost >= budgetCap ? "EXHAUSTED" : "OK" },
+    { metric: "Tokens (this task)", value: String(thisTaskTokens), target: "—", status: "—" },
+    { metric: "Tokens (cumulative)", value: String(cumulativeTokens), target: "—", status: "—" },
     { metric: "Mission complete declared", value: missionComplete ? "YES" : "NO", target: "—", status: "—" },
     { metric: "Mission failed declared", value: missionFailed ? "YES" : "NO", target: "—", status: "—" },
   ];
+}
+
+/**
+ * Count .md files in a directory (non-recursive).
+ * @param {string} dir
+ * @returns {number}
+ */
+function countMdFilesInDir(dir) {
+  if (!dir || !existsSync(dir)) return 0;
+  try {
+    return readdirSync(dir).filter(f => f.endsWith(".md")).length;
+  } catch { return 0; }
 }
 
 /**
@@ -91,8 +169,8 @@ export function buildMissionReadiness(metrics) {
   const openIssues = parseInt(metrics.find((m) => m.metric === "Open issues")?.value || "0", 10);
   const openPrs = parseInt(metrics.find((m) => m.metric === "Open PRs")?.value || "0", 10);
   const resolved = parseInt(metrics.find((m) => m.metric === "Issues resolved (review or PR merge)")?.value || "0", 10);
-  const dedicatedTests = parseInt(metrics.find((m) => m.metric === "Dedicated test files")?.value || "0", 10);
   const todoCount = parseInt(metrics.find((m) => m.metric === "Source TODO count")?.value || "0", 10);
+  const sourceLines = parseInt(metrics.find((m) => m.metric === "Source lines")?.value || "0", 10);
   const missionComplete = metrics.find((m) => m.metric === "Mission complete declared")?.value === "YES";
   const missionFailed = metrics.find((m) => m.metric === "Mission failed declared")?.value === "YES";
 
@@ -105,7 +183,7 @@ export function buildMissionReadiness(metrics) {
 
   if (allMet) {
     parts.push("Mission complete conditions ARE met.");
-    parts.push(`0 open issues, 0 open PRs, ${resolved} issue(s) resolved, ${dedicatedTests} dedicated test(s), TODOs: ${todoCount}.`);
+    parts.push(`0 open issues, 0 open PRs, ${resolved} issue(s) resolved, ${sourceLines} source lines, TODOs: ${todoCount}.`);
   } else {
     parts.push("Mission complete conditions are NOT met.");
     if (openIssues > 0) parts.push(`${openIssues} open issue(s) remain.`);

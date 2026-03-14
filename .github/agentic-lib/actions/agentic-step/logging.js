@@ -182,16 +182,19 @@ export function logActivity({
 export function writeAgentLog({
   task, outcome, model, durationMs, narrative,
   reviewTable, completenessAdvice, contextNotes,
-  missionMetrics, tokensUsed,
+  missionMetrics, tokensUsed, sequence,
 }) {
   const now = new Date();
   const stamp = now.toISOString().replace(/:/g, "-").replace(/\./g, "-");
-  const filename = `agent-log-${stamp}.md`;
+  // C4: Include zero-padded sequence number in filename
+  const seq = String(sequence || 0).padStart(3, "0");
+  const filename = `agent-log-${stamp}-${seq}.md`;
 
   const parts = [
     `# Agent Log: ${task} at ${now.toISOString()}`,
     "",
     "## Summary",
+    `**Sequence:** ${seq}`,
     `**Task:** ${task}`,
     `**Outcome:** ${outcome}`,
   ];

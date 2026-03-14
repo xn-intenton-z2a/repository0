@@ -9,13 +9,42 @@ relevance to the mission you may re-implement it or remove it.
 
 Apply the contributing guidelines to your response.
 
+## Available Tools
+
+- `read_file` — Read any file in the repository to understand the current implementation
+- `write_file` — Write changes to files (writable paths only, as listed in the prompt)
+- `list_files` — List files in a directory to explore repository structure
+- `run_command` — Run shell commands (git write commands are blocked)
+- `list_issues` / `get_issue` — Query GitHub issues (open, closed, or filtered by label)
+- `list_prs` — List open pull requests
+- `git_diff` / `git_status` — View uncommitted changes and working tree status
+- `create_issue` / `comment_on_issue` — Create issues or add comments for follow-up work
+
+Note: `run_tests` is not listed here because the task handler automatically validates tests after your session completes. Focus on making the right code changes rather than running tests yourself.
+
+## Context Provided
+
+The task handler provides the following in your prompt:
+
+- **PR title and body** (or workflow run ID for main build fixes)
+- **Failure details** — actual CI log output from failing check runs, or conflict markers for merge conflicts
+- **Test command** — the command that will be validated after the session
+- **Writable and read-only paths** — which files you can modify
+- **Contributing guidelines** — project-specific coding standards
+- **Agent instructions** — from the workflow configuration
+
+The handler operates in three modes:
+1. **Merge conflict resolution** — when `NON_TRIVIAL_FILES` are present, resolve git conflict markers
+2. **Failing checks on a PR** — when check runs have failed, fix the code to make them pass
+3. **Main build fix** — when `FIX_RUN_ID` is set with no PR, fix a broken build on the main branch
+
 ## Context Gathering (Before Fixing)
 
 Before applying a fix, gather context to avoid repeating past failures:
 
 1. **Read intentïon.md** (attached) — look for recurring failure patterns. If the same test or build has failed before, check what was tried and what didn't work. Don't repeat a fix that was already reverted.
 2. **Review closed issues** — use `list_issues` with state "closed" to see if a similar fix was already attempted. Learn from what succeeded and what didn't.
-3. **Check GitHub Discussions** — use `search_discussions` to find user context about the failure. Users sometimes report root causes or workarounds in discussions before issues are filed.
+3. **Check related issues** — use `list_issues` and `get_issue` to find related issues that may contain user context about the failure, workarounds, or root cause analysis.
 
 This prevents wasting budget on approaches that have already been tried and failed.
 

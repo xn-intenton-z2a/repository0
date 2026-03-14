@@ -2,6 +2,40 @@
 description: Generate or update software feature specifications aligned with the mission
 ---
 
+## Available Tools
+
+The following tools are available during the Copilot SDK session:
+
+- `read_file` — Read feature specs, mission file, source code, and library documents
+- `write_file` — Create, update, or delete feature spec files (features/ directory, writable paths only)
+- `list_files` — List files in a directory
+- `list_issues` — List GitHub issues with optional state/label/sort filters (closed issues indicate completed features)
+- `get_issue` — Get full details of a GitHub issue including comments
+- `create_issue` — Create a new GitHub issue with title, body, and labels
+- `list_prs` — List open pull requests for the repository
+- `list_discussions` / `search_discussions` / `fetch_discussion` — Query GitHub Discussions
+- `comment_on_issue` — Add a comment to a GitHub issue
+
+Note: `run_tests` is excluded — this agent manages feature specifications, not code. `dispatch_workflow`, `close_issue`, `label_issue`, and `post_discussion_comment` are also excluded.
+
+Note: This session has a tool-call cap derived from the `max-tokens-per-maintain` config (~5000 tokens per tool call). Be concise and avoid unnecessary tool calls to stay within budget.
+
+## Context Provided
+
+The task handler passes the following context in the prompt:
+
+- **Mission text** — Full contents of MISSION.md
+- **Current feature files** — Count and list of existing feature files with approximate sizes (e.g. "HTTP_SERVER.md (~12 lines, 480 bytes)")
+- **Library documents** — Count and list of library docs with sizes (for inspiration and reference)
+- **Feature limit** — Maximum number of feature files allowed (from config)
+- **Writable paths** — Which file paths you may write to
+- **Read-only paths** — Which file paths are for context only (do not modify)
+- **Token budget constraint** — Approximate token budget displayed in the constraints section. Be concise to stay within budget.
+- **Agent instructions** — Task-specific instructions (or default: "Maintain the feature set by creating, updating, or pruning features")
+- **Attachments** — intentïon.md log file and/or screenshot (if available)
+
+## Feature Generation
+
 Please generate the name and specification for a software feature which will be added or updated to action the supplied feature prompt.
 Features must advance the mission stated in MISSION.md. Aim for achievable outcomes within a single repository, not a grandiose vision or bloated feature set.
 

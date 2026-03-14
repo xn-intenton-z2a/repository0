@@ -1,41 +1,35 @@
 # Mission
 
-A JavaScript library that finds, normalises, refreshes, and analyses temporal data. The repo's `data/` directory accumulates CSV/JSON datasets over successive transform cycles.
+A JavaScript library for generating, normalising, forecasting, and correlating time series data. Uses deterministic data generators rather than external APIs, making results reproducible.
 
-This is an ongoing mission. Do not set schedule to off.
+## Required Capabilities
 
-## Core Capabilities
-
-- **Discover** — find publicly available time series data (APIs, open data portals) and fetch snapshots into `data/`.
-- **Normalise** — parse heterogeneous date/time formats, resample to uniform intervals, handle missing values.
-- **Refresh** — on each transform cycle, update existing datasets with newer observations (append, not replace).
-- **Forecast** — implement basic forecasting: moving average, exponential smoothing, linear regression.
-- **Correlate** — find relationships between datasets: cross-correlation, lag analysis.
-- **Report** — generate a `REPORT.md` summarising datasets, trends, and discovered correlations.
-
-## Core Functions
-
-- `discover(sources?)` — search for and download time series data into `data/`.
-- `load(file)` — load a CSV or JSON dataset, auto-detect date format.
-- `normalise(dataset, interval)` — resample to uniform intervals, interpolate missing values.
-- `refresh(file)` — update an existing dataset with newer data from its source.
-- `forecast(dataset, method, horizon)` — predict future values using the specified method.
-- `correlate(datasetA, datasetB)` — compute cross-correlation between two time series.
-- `report(datasets)` — generate a markdown summary report.
+- Generate a sine wave dataset with configurable periods, noise level, and sample rate. Returns an array of `{ time, value }` objects.
+- Generate a seeded random walk for a given number of steps. Returns an array of `{ time, value }` objects.
+- Load time series from a CSV file with columns `time,value`. Auto-detect ISO 8601 and Unix timestamp date formats.
+- Normalise a dataset to uniform intervals using linear interpolation for missing values.
+- Forecast future values using:
+  - Simple moving average (window size N, horizon M).
+  - Exponential smoothing (alpha 0.0–1.0, horizon M).
+- Compute Pearson cross-correlation between two datasets for lags from -maxLag to +maxLag (default 20). Return an array of `{ lag, r }` objects.
+- Generate a markdown report summarising datasets (row count, min, max, mean, trend direction).
 
 ## Requirements
 
-- Export all functions as named exports from `src/lib/main.js`.
-- Store datasets in `data/` as CSV or JSON with consistent schema.
-- Each dataset file should include metadata (source URL, last updated, interval).
-- Unit tests covering normalisation, forecasting accuracy, and correlation.
+- Export all public API as named exports from `src/lib/main.js`.
+- No external runtime dependencies.
+- All random generators must accept a seed for deterministic output.
+- Comprehensive unit tests covering generation, normalisation, forecasting accuracy, and correlation.
 - README with usage examples.
 
 ## Acceptance Criteria
 
-- [ ] Can load and normalise at least one real-world dataset
-- [ ] Forecast produces reasonable predictions (tested against known data)
-- [ ] `data/` directory contains at least one dataset
-- [ ] `REPORT.md` is generated with dataset summaries
+- [ ] Generating a sine wave with 2 periods, 0 noise, 100 samples produces 200 data points tracing a clean sine wave
+- [ ] Generating a random walk with seed 42 produces identical output on repeated calls (deterministic)
+- [ ] Normalising fills gaps with linearly interpolated values
+- [ ] Moving average forecast with window 10, horizon 20 returns 20 predicted values
+- [ ] Forecast of a known sine wave has RMSE < 0.5 for a 10-point horizon
+- [ ] Cross-correlation of two offset sine waves shows peak correlation at the correct lag
+- [ ] Report produces a markdown string with dataset summaries
 - [ ] All unit tests pass
 - [ ] README documents the API with examples

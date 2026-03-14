@@ -68,7 +68,6 @@ function detectDedicatedTests() {
 function buildMetricAssessment(ctx, config) {
   const thresholds = config.missionCompleteThresholds || {};
   const minResolved = thresholds.minResolvedIssues ?? 3;
-  const minTests = thresholds.minDedicatedTests ?? 1;
   const maxTodos = thresholds.maxSourceTodos ?? 0;
 
   // Implementation review gaps (passed from workflow via env)
@@ -79,12 +78,13 @@ function buildMetricAssessment(ctx, config) {
   } catch { /* ignore parse errors */ }
   const criticalGaps = reviewGaps.filter((g) => g.severity === "critical");
 
+  // C6: Removed "Dedicated tests" metric; using cumulative transforms instead
   const metrics = [
     { metric: "Open issues", value: ctx.issuesSummary.length, target: 0, met: ctx.issuesSummary.length === 0 },
     { metric: "Open PRs", value: ctx.prsSummary.length, target: 0, met: ctx.prsSummary.length === 0 },
     { metric: "Issues resolved", value: ctx.resolvedCount, target: minResolved, met: ctx.resolvedCount >= minResolved },
-    { metric: "Dedicated tests", value: ctx.dedicatedTestCount, target: minTests, met: ctx.dedicatedTestCount >= minTests },
     { metric: "Source TODOs", value: ctx.sourceTodoCount, target: maxTodos, met: ctx.sourceTodoCount <= maxTodos },
+    { metric: "Cumulative transforms", value: ctx.cumulativeTransformationCost, target: 1, met: ctx.cumulativeTransformationCost >= 1 },
     { metric: "Budget", value: ctx.cumulativeTransformationCost, target: ctx.transformationBudget || "unlimited", met: !(ctx.transformationBudget > 0 && ctx.cumulativeTransformationCost >= ctx.transformationBudget) },
     { metric: "Implementation review", value: criticalGaps.length === 0 ? "No critical gaps" : `${criticalGaps.length} critical gap(s)`, target: "No critical gaps", met: criticalGaps.length === 0 },
   ];
@@ -129,8 +129,8 @@ function buildPrompt(ctx, agentInstructions, metricAssessment) {
     `Open issues: ${ctx.issuesSummary.length}`,
     `Recently closed issues: ${ctx.recentlyClosedSummary.length}`,
     `Open PRs: ${ctx.prsSummary.length}`,
-    `Dedicated test files: ${ctx.dedicatedTestCount}`,
     `Source TODOs: ${ctx.sourceTodoCount}`,
+    `Cumulative transforms: ${ctx.cumulativeTransformationCost}`,
     `Transformation budget: ${ctx.cumulativeTransformationCost}/${ctx.transformationBudget || "unlimited"}`,
     "",
     ...(process.env.REVIEW_ADVICE ? [
@@ -216,18 +216,29 @@ async function executeMissionComplete(octokit, repo, reason) {
 /**
  * Execute mission-failed: write signal file and commit via Contents API.
  */
-async function executeMissionFailed(octokit, repo, reason) {
+async function executeMissionFailed(octokit, repo, reason, metricAssessment) {
+  // C16: Build a detailed reason including specific failed metrics
+  const metricDetail = metricAssessment?.notMet?.length > 0
+    ? `Failed metrics: ${metricAssessment.notMet.map(m => `${m.metric}=${m.value} (target: ${typeof m.target === "number" ? (m.metric.includes("TODO") ? `<= ${m.target}` : `>= ${m.target}`) : m.target})`).join(", ")}.`
+    : reason;
+  const metsMet = metricAssessment?.metrics?.filter(m => m.met).map(m => `${m.metric}=${m.value}`) || [];
+  const detailedReason = metsMet.length > 0
+    ? `${metricDetail} Passing metrics: ${metsMet.join(", ")}.`
+    : metricDetail;
+
   const signal = [
     "# Mission Failed",
     "",
     `- **Timestamp:** ${new Date().toISOString()}`,
     `- **Detected by:** director`,
-    `- **Reason:** ${reason}`,
+    `- **Reason:** ${detailedReason}`,
     "",
     "This file was created automatically. To restart, delete this file and run `npx @xn-intenton-z2a/agentic-lib init --reseed`.",
   ].join("\n");
   writeFileSync("MISSION_FAILED.md", signal);
 
+  // C16: Use detailed commit message
+  const commitMsg = `mission-failed: ${metricDetail.substring(0, 200)}`;
   try {
     const contentBase64 = Buffer.from(signal).toString("base64");
     let existingSha;
@@ -238,7 +249,7 @@ async function executeMissionFailed(octokit, repo, reason) {
     await octokit.rest.repos.createOrUpdateFileContents({
       ...repo,
       path: "MISSION_FAILED.md",
-      message: "mission-failed: " + reason.substring(0, 72),
+      message: commitMsg,
       content: contentBase64,
       branch: "main",
       ...(existingSha ? { sha: existingSha } : {}),
@@ -246,6 +257,33 @@ async function executeMissionFailed(octokit, repo, reason) {
     core.info("MISSION_FAILED.md committed to main");
   } catch (err) {
     core.warning(`Could not commit MISSION_FAILED.md: ${err.message}`);
+  }
+
+  // C3: Auto-disable schedule on mission-failed
+  try {
+    const { readState, writeState } = await import("../../../copilot/state.js");
+    const state = readState(".");
+    state.status["mission-failed"] = true;
+    state.status["mission-failed-reason"] = metricDetail.substring(0, 500);
+    state.schedule["auto-disabled"] = true;
+    state.schedule["auto-disabled-reason"] = "mission-failed";
+    writeState(".", state);
+    core.info("State updated: mission-failed, schedule auto-disabled");
+  } catch (err) {
+    core.warning(`Could not update state for mission-failed: ${err.message}`);
+  }
+
+  // C3: Dispatch schedule change to weekly
+  try {
+    await octokit.rest.actions.createWorkflowDispatch({
+      ...repo,
+      workflow_id: "agentic-lib-schedule.yml",
+      ref: "main",
+      inputs: { frequency: "weekly" },
+    });
+    core.info("Dispatched schedule change to weekly after mission-failed");
+  } catch (err) {
+    core.warning(`Could not dispatch schedule change: ${err.message}`);
   }
 }
 
@@ -261,17 +299,13 @@ export async function direct(context) {
 
   // --- Gather context (similar to supervisor but focused on metrics) ---
   const mission = readOptionalFile(config.paths.mission.path);
-  // Read cumulative cost from agent-log files
+  // C2: Read cumulative cost from persistent state
   let cumulativeTransformationCost = 0;
   try {
-    const { readdirSync } = await import("fs");
-    const logFiles = readdirSync(".").filter(f => f.startsWith("agent-log-") && f.endsWith(".md")).sort();
-    for (const f of logFiles) {
-      const content = readOptionalFile(f);
-      const costMatches = content.matchAll(/\*\*agentic-lib transformation cost:\*\* (\d+)/g);
-      cumulativeTransformationCost += [...costMatches].reduce((sum, m) => sum + parseInt(m[1], 10), 0);
-    }
-  } catch { /* no agent-log files yet */ }
+    const { readState } = await import("../../../copilot/state.js");
+    const state = readState(".");
+    cumulativeTransformationCost = state.counters["cumulative-transforms"] || 0;
+  } catch { /* state not available yet */ }
 
   const missionComplete = existsSync("MISSION_COMPLETE.md");
   const missionFailed = existsSync("MISSION_FAILED.md");
@@ -458,7 +492,7 @@ export async function direct(context) {
     outcome = "directed";
   } else if (decision === "mission-failed") {
     if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
-      await executeMissionFailed(octokit, repo, reason);
+      await executeMissionFailed(octokit, repo, reason, metricAssessment);
       outcome = "mission-failed";
     }
   }

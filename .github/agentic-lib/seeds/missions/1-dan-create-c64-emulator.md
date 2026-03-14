@@ -55,19 +55,19 @@ During web-search and document-gathering workflow phases, the agent should look 
 
 The opcode table in particular should be assembled from reference data during the research phase and stored as `src/lib/opcodes.js` — a data-driven 256-entry array — rather than hand-coded instruction by instruction. This avoids the agent losing track of which opcodes are implemented and reduces the chance of transcription errors.
 
-## Core API
+## Required Capabilities
 
-Export from `src/lib/main.js` (re-exporting from submodules):
+The emulator must provide a public API (exported from `src/lib/main.js`, re-exporting from submodules) that supports:
 
-- `createC64(opts?)` — create an emulator instance with 64KB RAM and subsystem objects (`cpu`, `memory`, `vic`, `sid`, `cia1`, `cia2`).
-- `loadROMs(c64, { kernal, basic, chargen })` — load ROM images (Uint8Arrays). Must be called before running.
-- `loadPRG(c64, data)` — load a `.prg` file (Uint8Array) into memory at the address from its two-byte header.
-- `step(c64)` — execute one CPU instruction, advance cycle count, update timers. Returns the updated state.
-- `runFrame(c64)` — execute one PAL video frame (~19656 cycles). Fire raster interrupts. Returns the RGBA framebuffer.
-- `getFramebuffer(c64)` — return the current screen as a Uint8Array RGBA pixel buffer (320x200).
-- `pressKey(c64, key)` / `releaseKey(c64, key)` — simulate keyboard input via CIA1 keyboard matrix.
-- `joystickInput(c64, port, directions)` — set joystick state (up/down/left/right/fire) on port 1 or 2.
-- `reset(c64)` — hardware reset (CPU to reset vector, clear subsystem state).
+- Creating an emulator instance with 64KB RAM and all subsystem objects (CPU, memory, VIC-II, SID, CIAs).
+- Loading ROM images (KERNAL, BASIC, character generator) as Uint8Arrays. Must be called before running.
+- Loading `.prg` files into memory at the address from their two-byte header.
+- Single-stepping one CPU instruction with cycle-accurate timing and timer updates.
+- Running a full PAL video frame (~19656 cycles) with raster interrupt handling, returning an RGBA framebuffer.
+- Reading the current screen as a Uint8Array RGBA pixel buffer (320x200).
+- Simulating keyboard input via the CIA1 keyboard matrix (press and release).
+- Setting joystick state (up/down/left/right/fire) on port 1 or 2.
+- Hardware reset (CPU to reset vector, clear subsystem state).
 
 ## CPU (src/lib/cpu.js, src/lib/opcodes.js)
 
