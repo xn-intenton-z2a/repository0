@@ -1,4 +1,4 @@
-# QUERY_AND_INFERENCE
+# QUERY
 
 # Summary
 
