@@ -29,6 +29,15 @@ File format
 - All produced files are valid JSON-LD and include an @context that matches or references context.jsonld.
 - Individuals reference their class using the same short names or IRIs as used by the model so load can resolve references deterministically.
 
+Context management
+
+- Provide a deterministic, canonical context.jsonld at the root of the saved data dir that defines the prefix aliases, datatype and vocabulary mappings used by the ontology.
+- The library exposes helpers to read and write the context: getContext() returns the in-memory context object, setContext(context) replaces it, and mergeContext(partial) merges provided prefix mappings deterministically.
+- When saving, save writes context.jsonld with stable key ordering and minimal formatting to reduce unrelated diffs; timestamps or non-deterministic metadata must be avoided in the canonical context file.
+- Prefix aliases defined in context.jsonld must be honoured when serialising IRIs in class/property/individual files: short prefixed names are allowed where unambiguous, otherwise full IRIs should be emitted.
+- load(dir) should prefer an explicit context.jsonld when present; if absent, the loader should accept an inline @context in graph files but log a warning and normalise the combined context into the in-memory context for later save operations.
+- The persistence API should surface a machine-friendly summary of context differences when loading an ontology produced by a different context (for example, mismatched prefix expansions) so tools can programmatically decide to accept or normalise contexts.
+
 Error handling
 
 - save should create dir if it does not exist and report a descriptive error if writing fails.
@@ -71,18 +80,6 @@ Behavior
 - A unit test creates a small invalid model to demonstrate at least one error-level issue and asserts validate reports it; another test runs the seeded model and asserts validate reports valid: true.
 - When save is invoked with opts.validate true on an invalid model, save rejects or throws a descriptive error and does not write files.
 
-# Testing Recommendations
-
-- Add tests in tests/unit/persistence.test.js (or tests/unit/validation.test.js) that cover both valid and invalid scenarios described above.
-- Use temporary directories for save/load tests and assert that no files are written when validation blocks a save.
-
-# Implementation Notes
-
-- Export validate as a named export from src/lib/main.js along with save and load.
-- Keep validations conservative and focused on deterministic, easily testable checks; avoid expensive or non-deterministic checks.
-- Integrate validate into save as an optional pre-flight step guarded by opts.validate to preserve backwards compatibility for callers who rely on current save behaviour.
-- Use clear machine-friendly issue codes (e.g., MISSING_CLASS, DUPLICATE_ID, BROKEN_REFERENCE) to aid automated CI checks and quick filtering in test assertions.
-
 # Acceptance Criteria (persistence, repeated)
 
 - Calling save(dir) when N classes, M properties, and K individuals are present produces a context.jsonld and one Class-{kebab}.jsonld file per class under dir.
@@ -106,3 +103,4 @@ Behavior
 # Related features
 
 - SEED_DATA should use the persistence API to write example ontology into data/ during pipeline runs so documentation and website examples are populated automatically.
+- CONTEXT management responsibilities are part of the persistence contract and should be verified by persistence tests.
