@@ -18,7 +18,7 @@ concurrency:
 
 on:
   schedule:
-    - cron: "5,25,45 * * * *"
+    - cron: "5,25,44 * * * *"
   workflow_call:
     inputs:
       ref:
