@@ -12,10 +12,11 @@ Persisting the ontology as JSON-LD enables long-term storage, reproducible examp
 
 API
 
-- save(dir?)
+- save(dir?, opts?)
   - Writes an on-disk representation of the current ontology into dir (defaults to data/).
   - Creates a context file named context.jsonld at dir/ containing the shared JSON-LD context.
   - For each defined class, creates a file named Class-{kebab-case-classname}.jsonld containing a JSON-LD graph that includes the class declaration, relevant property definitions, and the individuals belonging to that class.
+  - If opts.validate is true, runs validate() before writing and fails with a descriptive error if validation issues are found.
   - Returns a summary object describing counts of classes, properties, and individuals and a list of files written.
 
 - load(dir?)
@@ -33,7 +34,56 @@ Error handling
 - save should create dir if it does not exist and report a descriptive error if writing fails.
 - load should attempt to process all files and return per-file errors rather than aborting on the first parse failure; the returned summary includes a details array with file-level errors.
 
-# Acceptance Criteria
+# Validation
+
+# Summary
+
+Provide a lightweight, deterministic validation API to detect common model inconsistencies before persisting or serving data. The validation API helps keep saved JSON-LD stable and reduces noisy diffs by detecting issues early in the pipeline.
+
+# Specification
+
+API
+
+- validate()
+  - Runs a set of deterministic checks against the in-memory model and returns a result object of the shape:
+    - valid: boolean
+    - issues: array of issue objects where each issue includes { level: "error" | "warning", code: string, message: string, context?: object }
+  - Does not throw on non-fatal issues; it reports them via the issues array. Fatal problems (for example, inability to read persistence files during load) are surfaced by load/save as appropriate.
+
+Checks performed (minimum set)
+
+- Missing class references: properties that reference domain or range classes that are not defined.
+- Individual-type consistency: individuals assigned to undefined classes.
+- Duplicate IDs: individuals with the same id within the same class.
+- Broken references: property values that reference individual ids that do not exist.
+- Context sanity: saved JSON-LD context keys are present and do not contain unexpected top-level values.
+
+Behavior
+
+- validate is fast and deterministic given the same in-memory state.
+- save(dir, { validate: true }) runs validate and fails the save if any issues with level error are reported.
+
+# Acceptance Criteria (added)
+
+- validate is exported as a named function from src/lib/main.js.
+- validate returns { valid: true, issues: [] } for a known-good seeded model (for example the deterministic animal taxonomy provided by SEED_DATA).
+- validate returns a non-empty issues array when a model contains one of the checked problems (for example an individual referencing a non-existent class).
+- A unit test creates a small invalid model to demonstrate at least one error-level issue and asserts validate reports it; another test runs the seeded model and asserts validate reports valid: true.
+- When save is invoked with opts.validate true on an invalid model, save rejects or throws a descriptive error and does not write files.
+
+# Testing Recommendations
+
+- Add tests in tests/unit/persistence.test.js (or tests/unit/validation.test.js) that cover both valid and invalid scenarios described above.
+- Use temporary directories for save/load tests and assert that no files are written when validation blocks a save.
+
+# Implementation Notes
+
+- Export validate as a named export from src/lib/main.js along with save and load.
+- Keep validations conservative and focused on deterministic, easily testable checks; avoid expensive or non-deterministic checks.
+- Integrate validate into save as an optional pre-flight step guarded by opts.validate to preserve backwards compatibility for callers who rely on current save behaviour.
+- Use clear machine-friendly issue codes (e.g., MISSING_CLASS, DUPLICATE_ID, BROKEN_REFERENCE) to aid automated CI checks and quick filtering in test assertions.
+
+# Acceptance Criteria (persistence, repeated)
 
 - Calling save(dir) when N classes, M properties, and K individuals are present produces a context.jsonld and one Class-{kebab}.jsonld file per class under dir.
 - All files produced by save parse as JSON and include an @context key.
@@ -41,13 +91,13 @@ Error handling
 - A round-trip unit test defines two classes, one property, and two individuals, calls save(tempDir), loads the data into a fresh model using load(tempDir), and asserts that stats() match the original values.
 - save returns a summary that matches stats() and lists files written; load returns a summary that lists files read and any per-file errors.
 
-# Testing Recommendations
+# Testing Recommendations (repeated)
 
 - Add tests in tests/unit/persistence.test.js that perform the round-trip save/load and assert file existence and content keys.
 - Use a temporary directory for each test and clean up artifacts after assertions complete.
 - Keep file naming deterministic (Class-{kebab}.jsonld) to make existence assertions stable.
 
-# Implementation Notes
+# Implementation Notes (repeated)
 
 - Export save and load as named exports from src/lib/main.js to satisfy the public API requirement.
 - Prefer one-file-per-class layout for ease of incremental writes; support a single graph.jsonld as a convenience for imports.
