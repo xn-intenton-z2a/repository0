@@ -43,7 +43,7 @@ Error handling
 - save should create dir if it does not exist and report a descriptive error if writing fails.
 - load should attempt to process all files and return per-file errors rather than aborting on the first parse failure; the returned summary includes a details array with file-level errors.
 
-# Validation
+# MODEL_VALIDATION
 
 # Summary
 
