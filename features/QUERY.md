@@ -76,35 +76,118 @@ Compatibility and migration
 - Default reasonLevel is simple to give users the benefit of intuitive inference; an opt-out via reasonLevel = none preserves previous behaviour for consumers needing exact-match semantics.
 - Implement new behaviour behind unit tests incrementally: add failing tests first and then implement property-availability mapping and query changes.
 
+# End of spec
+
+
+# HTTP_SERVER
+
+Summary
+
+Provide a minimal, Node-friendly HTTP JSON REST API that exposes core library operations for programmatic access, integration testing, and simple automation. The server is intended for development, CI, demos and lightweight service usage and must be easy to start/stop programmatically from tests.
+
+Motivation
+
+An HTTP API makes the ontology library accessible over the network for integration tests, small services, and demos without requiring direct imports. A single-file, dependency-free server keeps the runtime footprint small and is easy to exercise from unit and behaviour tests.
+
+Specification
+
+Public API
+
+- The library exports a startServer(opts?) named function from src/lib/main.js that starts the HTTP server and returns an object { port, url, close() }.
+  - opts may include: port (0 for ephemeral), host (default 127.0.0.1), basePath (default /), and nodeOnly: boolean to indicate save/load endpoints will be enabled only when true.
+  - When port: 0 is used the server binds to an available ephemeral port and the returned object contains the resolved port.
+
+HTTP endpoints
+
+All endpoints return application/json and a top-level { ok: boolean, result?: any, error?: string } wrapper for machine-friendly assertions.
+
+- GET /health
+  - Returns { ok: true, uptime: seconds, timestamp: ISO } to allow basic readiness checks.
+
+- GET /stats
+  - Returns the stats() object.
+
+- GET /classes
+  - Returns an array of class descriptors sorted by name.
+
+- GET /classes/:className
+  - Returns the class descriptor with properties and individuals belonging to the class.
+
+- GET /properties
+  - Returns an array of property descriptors sorted by name.
+
+- GET /individuals
+  - Accepts optional query string parameters: class, property, value, target.
+  - Performs a query equivalent to query(pattern) and returns matched individuals sorted by id.
+
+- GET /individuals/:id
+  - Returns the individual object or 404-like { ok: false, error: 'not found' } when missing.
+
+- POST /individuals
+  - Body: { class: string, id?: string, properties: object }
+  - Adds an individual via addIndividual; when id omitted the server generates a unique id.
+  - Returns the created individual object.
+
+- PUT /individuals/:id
+  - Body: { properties: object, merge?: boolean }
+  - Updates the individual using updateIndividual semantics and returns the updated individual.
+
+- DELETE /individuals/:id
+  - Removes the individual and returns { ok: true, removed: boolean }.
+
+- POST /query
+  - Body: { pattern: object, opts?: object }
+  - Runs query(pattern, opts) and returns an array of results; supports opts.explain = true.
+
+- POST /seed
+  - Triggers seedOntology(dir?, opts?) and returns the summary. Node-only: when server is running in non-Node or nodeOnly=false the endpoint must return a friendly message explaining that filesystem writes are disabled.
+
+- POST /save and POST /load
+  - Node-only endpoints that call save(dir, opts) and load(dir) respectively and return their summaries. When not available they return { ok: false, error: 'node-only' }.
+
+Security and environment
+
+- The server is intended for development and test-only usage; it is not hardened for production use.
+- No authentication is required by default to simplify test harness use; tests needing isolation should bind to 127.0.0.1 and ephemeral ports.
+- The server must detect runtime environment and safely disable file-system endpoints when running in restricted environments.
+
+Behavioral details
+
+- Determinism: results from list endpoints and query endpoints are sorted deterministically (classes, properties and individuals by id/name) to make tests stable.
+- Error handling: validation errors return HTTP 400 with { ok: false, error: string } and non-recoverable server errors return HTTP 500.
+- Programmatic shutdown: the object returned by startServer includes a close() method that stops listening and releases the port; tests must call close() to avoid port leakage.
+- Minimal dependencies: prefer Node built-in http module to avoid adding runtime dependencies. If express or a framework is chosen, add it to package.json and document it in README.
+
+Acceptance Criteria
+
+- startServer(opts?) is exported from src/lib/main.js and starts a local HTTP server bound to the requested host/port.
+- All endpoints listed above are implemented and return machine-friendly JSON wrappers with ok/result/error keys and deterministic ordering where applicable.
+- Node-only endpoints (save/load/seed) return a descriptive node-only response when filesystem writes are disabled.
+- Server can be started programmatically in tests on an ephemeral port and cleanly closed via close(); tests that start the server must reliably shut it down.
+- A unit test exists at tests/unit/http-server.test.js that starts the server, exercises at least these flows: health -> seed -> stats -> add individual -> query -> get individual -> delete -> close, asserting JSON shapes and HTTP status codes.
+- Tests use temporary directories for any save/load operations and bind to host 127.0.0.1 with port 0 to avoid collisions in CI.
+
+Testing recommendations
+
+- Use a small helper in tests to start the server with port: 0 and await the resolved port before HTTP requests begin.
+- Use a minimal HTTP client such as fetch (node 18+) or a tiny helper based on http.request to avoid adding test-time dependencies.
+- Tests should not depend on side effects from previous tests: use resetModel() or start a fresh server instance with a clean in-memory model between tests.
+- For integration tests that exercise save/load, use mkdtempSync to create a temporary directory and pass that to seed/save/load; clean up the directory after the test.
+
+Implementation notes
+
+- Implement server using Node's http module and a small router helper to keep footprint minimal and avoid adding dependencies.
+- Keep request/response bodies JSON and small; implement basic input validation and return clear error messages for invalid payloads.
+- Provide convenience helpers to serialize and sort results deterministically and to catch and translate library errors into HTTP responses.
+- Export startServer and ensure it returns an object with { port, url, close } to make test harnesses simple.
+- If an external library is chosen (express/fastify), add it to package.json and keep the server file small and reversible.
+
 Related features
 
-- DEFINE_CLASS
-- DEFINE_PROPERTY
-- INDIVIDUAL_MANAGEMENT
-- PERSISTENCE
-- STATS
+- CLI (consistent behaviour with REST endpoints)
+- WEB_DEMO (the demo can call the HTTP API when running on the same host)
+- PERSISTENCE (save/load endpoints are node-only wrappers around persistence API)
+- SEED_DATA (seed endpoint delegates to seedOntology)
+- QUERY (query endpoint delegates to query())
 
-Implementation plan
-
-- Status: PARTIALLY_IMPLEMENTED — subclass closure exists in the codebase but property-availability inheritance and explain mode require enhancement.
-- Tasks:
-  - Add or update tests in tests/unit/query.test.js to codify acceptance criteria and demonstrate failing tests for current gaps.
-  - Implement property-availability mapping and update query() to consult class/property inheritance rules and produce explanation chains when explain true.
-  - Ensure deterministic ordering and add memoisation for class closure and property maps.
-  - Run unit tests and iterate until all tests pass.
-
-Acceptance test examples (high-level steps for tests)
-
-- Create classes: defineClass("Animal"), defineClass("Mammal", "Animal").
-- Define property: defineProperty("hasHabitat", "Animal", "Literal").
-- Add individual: addIndividual("Mammal", "m1", { hasHabitat: "forest" }).
-- Assert: query({ class: "Animal" }) returns individual m1.
-- Assert: query({ property: "hasHabitat", value: "forest" }) returns m1.
-- Assert: query({ class: "Animal", property: "hasHabitat", value: "forest" }, { explain: true }) returns m1 with matchedBy "inferred" and inferenceChain including "Mammal rdfs:subClassOf Animal".
-
-Notes
-
-- Keep the implementation focused and small; avoid adding full OWL reasoning. The goal is pragmatic: small useful inference that is auditable and testable.
-- Ensure tests are fast and deterministic by operating on in-memory models.
-
-# End of spec
+# End of HTTP_SERVER
