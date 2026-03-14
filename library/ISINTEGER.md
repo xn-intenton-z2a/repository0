@@ -11,25 +11,25 @@ TABLE OF CONTENTS
 
 NORMALISED EXTRACT
 1. Purpose
-Number.isInteger(x) determines whether the provided value is an integer (number type and mathematically integer) without coercion.
+Number.isInteger(value) determines whether the provided value is an integer number without coercion.
 
 2. Definition and algorithm
-- Returns true if typeof value === 'number', isFinite(value), and floor(value) === value (or value % 1 === 0).
+- Returns true if typeof value === 'number', isFinite(value), and Math.floor(value) === value (or value % 1 === 0).
 - Does not coerce non-number types (e.g., '2' returns false).
 
 3. Edge cases
 - NaN and Infinity return false.
 - Negative zero is considered an integer (Number.isInteger(-0) === true) because -0 === 0 in numeric equality.
-- BigInt values are not numbers and return false; use typeof to check.
+- BigInt values are not numbers and return false.
 
-4. JavaScript reference implementation (conceptual)
+4. JavaScript reference implementation
 function isInteger(value) {
   return typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
 }
 
 REFERENCE DETAILS
 - Signature: Number.isInteger(value) -> boolean
-- Use when accepting numeric input where integer semantics are required; prefer this over legacy global isInteger-like coercing checks.
+- Use when validating numeric input where integer semantics are required; prefer over legacy coercing checks.
 
 DETAILED DIGEST
 Source: MDN — Number.isInteger — retrieved 2026-03-14

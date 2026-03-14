@@ -18,18 +18,18 @@ TABLE OF CONTENTS
 NORMALISED EXTRACT — Practical primitives
 2.1 Isolate lowest set bit
 - Expression: y = x & -x
-  Behavior: yields a mask containing only the least significant 1 bit of x (assuming two's complement).
+  Behavior: yields a mask containing only the least significant 1 bit of x (two's complement semantics).
 
 2.2 Clear lowest set bit
 - Expression: x & (x - 1)
   Behavior: clears the least significant 1 bit of x; useful for iterating set bits (Kernighan loop).
 
 2.3 Set/Clear/Toggle bits
-- Set: x |= (1 << n)
-- Clear: x &= ~(1 << n)
-- Toggle: x ^= (1 << n)
+- Set bit n: x |= (1 << n)
+- Clear bit n: x &= ~(1 << n)
+- Toggle bit n: x ^= (1 << n)
 
-2.4 Round up to next power of two (for 32-bit x)
+2.4 Round up to next power of two (32-bit example)
 - Sequence:
   x -= 1;
   x |= x >> 1;
@@ -38,24 +38,23 @@ NORMALISED EXTRACT — Practical primitives
   x |= x >> 8;
   x |= x >> 16;
   x += 1;
-- Result: smallest power of two >= original value (undefined if result overflows width).
+- Result: smallest power of two >= original value (undefined if overflow beyond width).
 
 2.5 Count trailing zeros (De Bruijn)
-- Use isolated-LSB times de Bruijn constant and table lookup to compute index of trailing zero for word-sized integers with O(1) ops.
-- Outline: y = (x & -x) * deBruijnConstant >> shift; index = table[y]; where deBruijnConstant and shift depend on word width.
+- Procedure: isolate LSB, multiply by deBruijn constant, shift, and table-lookup to get index of trailing zero in O(1) operations. Constants and table depend on word width (32/64).
 
 2.6 Parity
-- Compute parity (odd/even number of set bits) via XOR folds and a small lookup: fold via successive XOR-right shifts then map 4-bit value to parity using constant table (e.g., 0x6996).
+- Compute parity via successive XOR folds and small lookup (e.g., map 4-bit value to parity using 0x6996 constant) or via reduction of popcount modulo 2.
 
 3. SWAR popcount
-- See Hamming weight SWAR sequence (in Hamming weight doc). The bithacks page contains multiple optimized variants and language-specific notes.
+- SWAR (SIMD Within A Register) sequences aggregate counts across subfields to compute popcount without table or loop; see Hamming weight doc for standard 32-bit sequence.
 
 PLATFORM NOTES
-- Prefer hardware intrinsics (POPCNT) on x86_64 when performance matters. For portability, include fallback SWAR or table-based routines.
-- Beware signed shifts in some languages; use unsigned shifts where required.
+- Prefer hardware POPCNT or compiler intrinsics when available. Use SWAR or table-based fallbacks for portability.
+- Be careful with signed right shifts in languages where sign-propagating shift differs from logical shift; use unsigned shifts for logical behavior.
 
 REFERENCE DETAILS
-- Useful functions:
+- Useful function signatures (language-agnostic):
   isolateLSB(x) -> mask
   clearLSB(x) -> value
   nextPowerOfTwo(x) -> value
@@ -66,4 +65,4 @@ Source: https://graphics.stanford.edu/~seander/bithacks.html — retrieved 2026-
 Data obtained: canonical bit-manipulation tricks (isolate/clear LSB, next power-of-two, de Bruijn ctz, parity, SWAR popcount) with code patterns and constants.
 
 ATTRIBUTION
-Source: Sean Eron Anderson — Bit Twiddling Hacks (graphics.stanford.edu/~seander/bithacks.html) — retrieved 2026-03-14. Data size retrieved: ~98 KB (HTML). Public-domain snippets per page; aggregate descriptions copyrighted by author (see original page).
+Source: Sean Eron Anderson — Bit Twiddling Hacks (graphics.stanford.edu/~seander/bithacks.html). Retrieved 2026-03-14. Data size retrieved: ~98 KB (HTML). Public-domain code snippets on page; aggregate descriptions copyrighted by author; consult original page for licensing details.
