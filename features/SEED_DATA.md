@@ -1,256 +1,84 @@
-# WEB_DEMO
-
-# Summary
-
-Provide an interactive, deterministic web demo for the ontology library that loads persisted JSON-LD from data/ (or an in-memory model when in-browser), displays classes, properties and individuals, and exposes seed, load, save and query operations via a small web API surface. The web demo must be usable by the site at src/web/ and must rely on the library public API so behaviour is shared between the CLI, tests and website.
-
-# Motivation
-
-A first-class web demo makes the library accessible to users and reviewers, demonstrates the mission features in a live context, and provides a behaviour-level integration test that verifies seed, persistence and query features work together. The demo should be deterministic and testable so CI can assert UI-level outcomes without flakiness.
-
-# Specification
-
-Behavior
-
-- The web demo loads ontology data using the library loader (load(dir?) or a lightweight web loader) and renders:
-  - A Classes list with the ability to expand a class to view its properties and individuals.
-  - A Properties list showing domain and range.
-  - An Individuals panel listing instances with their properties and links to view details.
-  - A Query panel where users can enter class, property and value/target and run queries using the same query(pattern, opts) API the library exports.
-  - Controls: Seed example ontology (delegates to seedOntology), Load ontology (from data/ or sample payload), Reset in-memory model, Save (Node-only) which calls save(dir).
-
-- The web demo must not attempt filesystem writes when running in a browser; Node-only features (save, atomic write) must detect the runtime and surface a friendly message instead of throwing.
-
-- The web demo must render a deterministic snapshot of stats() and update immediately after seed, load or mutation operations.
-
-API surface for web
-
-- Expose a small adapter module at src/web/adapter.js (or similar) that provides the following functions for the website and tests:
-  - getWebData(dir?): Promise<{ classes, properties, individuals, stats }>
-  - runQuery(pattern, opts?): Promise<Array<Result> | { results, explain }>
-  - seedForWeb(dir?, opts?): Promise<summary> (delegates to seedOntology but operates without filesystem writes in browser)
-  - resetModel(): void
-
-- The adapter should use the library's named exports (defineClass, defineProperty, addIndividual, load, save, query, stats) to construct viewable data and ensure consistency with programmatic usage.
-
-Determinism and accessibility
-
-- The web demo must present data in stable, deterministic order (sort classes, properties and individuals by id) to make behaviour tests simple and robust.
-- UI elements must include clear data-test-id attributes to let behaviour tests reliably select and assert content.
-- The demo should degrade gracefully in non-JS or limited environments and not expose raw stack traces to end-users.
-
-User interactions
-
-- Seed example ontology: clicking this button runs seedForWeb() and refreshes the UI with the seeded model.
-- Load ontology: triggers the adapter to load persisted dataset (Node-only) or parse an uploaded JSON-LD fixture in the browser.
-- Query: users supply Class, Property and Value/Target and results show a deterministic list of individuals. When explain mode is enabled, each result includes matchedBy and inferenceChain shown in a collapsible panel.
-
-Acceptance Criteria
-
-- Adapter: src/web/adapter.js (or equivalent) exists and exports getWebData, runQuery, seedForWeb and resetModel; these functions are unit-testable and documented in README.
-- Deterministic UI: The demo sorts and displays classes, properties and individuals in stable order; behaviour tests assert exact expected textual content for seeded data.
-- Integration tests:
-  - A behaviour test seeds the dataset using seedForWeb(tempDir) or seedOntology(tempDir), launches the demo (headless), and asserts the Classes panel lists Animal and Mammal and Individuals panel shows dog1 and cat1.
-  - A behaviour test runs a query via the UI (or via runQuery) and asserts expected results and explain chains for inferred matches.
-- No filesystem writes in-browser: when run in a browser environment the save control does not attempt to write files and returns a friendly message; tests assert that browser-mode save does not throw.
-- The web demo uses the same library API as CLI tests; unit tests demonstrate the adapter functions call library functions and return compatible shapes for the UI.
-
-Testing Recommendations
-
-- Unit tests (tests/unit/web-adapter.test.js): test getWebData, runQuery and seedForWeb behaviour by stubbing or using the in-memory library instance and asserting returned shapes and sorting.
-- Behaviour tests (tests/behaviour/web-demo.spec.js): use Playwright to start a headless browser, seed a temporary dataset, start a minimal static server serving the demo (or run the demo loader against the adapter), and assert the UI shows seeded classes and individuals and that query/explain UI works. Mark Playwright tests optional in CI when environment cannot run browsers.
-- Use data-test-id attributes consistently to select UI elements in behaviour tests.
-- Tests should avoid relying on timestamps or system-specific values; use deterministic checksums or canonical JSON where file content assertions are required.
-
-Implementation notes
-
-- Reuse library functions: adapter should import named exports from src/lib/main.js so the same logic backs CLI, tests and web UI.
-- When seeding in the browser, avoid file IO by using an in-memory save summary and by exposing file contents for download rather than writing to disk.
-- Keep UI minimal: a simple list and query form is sufficient to demonstrate the library. Prefer clarity and determinism over fanciness.
-- Provide small accessibility and ARIA attributes for panels used by tests.
-- Keep the adapter small and well-tested; the UI should be a thin layer over adapter functions.
-
-Related features
-
-- SEED_DATA (the seed button delegates to seedOntology)
-- PERSISTENCE (save/load; Node-only save control)
-- QUERY (runs the library query with explain mode enabled)
-- CLI (consistent behaviour between CLI and web demo)
-
-Status
-
-- PROPOSED: plan and API recommended; implement adapter, UI stubs and behaviour tests in a follow-up change.
-
----
-
-# INCLUDED: SEED_DATA (full original spec preserved)
-
 # SEED_DATA
 
 # Summary
 
-Provide a deterministic, programmatic seed generator for the repository that builds a minimal example ontology (animal taxonomy) using the public library API and persists it to disk as JSON-LD. The seed generator must be usable programmatically and via the CLI and website build so example data is always reproducible across transform cycles.
+Provide a deterministic, idempotent seed generator that builds a canonical example ontology (an animal taxonomy) using the public library API and persists it as JSON-LD into the data/ directory. The seed function must be usable programmatically, via the CLI, and from the web demo (browser-friendly mode) and must produce stable, testable output suitable for CI and automated transforms.
 
 # Motivation
 
-Seed data demonstrates the library in action, powers the website demo, and enables reproducible unit and behaviour tests. Making seed generation a testable, exported API reduces duplication, makes CI deterministic, and enables automated data upgrades via migrations.
+Seed data demonstrates the library in action, powers the website demo, and provides repeatable fixtures for unit and behaviour tests. Making the seed generator deterministic and idempotent reduces noisy diffs across transform cycles and enables automated migrations and dataset diffs.
 
 # Specification
-
-Behavior
-
-- Expose a named function seedOntology(dir?, opts?) exported from src/lib/main.js (or a small module re-exported by src/lib/main.js).
-- The seed function uses defineClass, defineProperty, and addIndividual to build a small example ontology including at minimum: classes Animal and Mammal (Mammal subclass of Animal), a property hasName linking individuals to a literal, and at least two individuals (for example dog1, cat1).
-- seedOntology writes persisted JSON-LD files using the persistence API (save) into dir (defaults to data/). When running under Node, files are written; in browser environments the function returns the intended file manifest and summaries without performing filesystem writes.
-- The seed output must be deterministic and idempotent: repeated runs with the same target dir produce identical file contents (no timestamps or non-deterministic metadata).
-- The CLI command seed should delegate to seedOntology so the same code path is used for programmatic and command-line seeding.
 
 API
 
 - seedOntology(dir?: string, opts?: object) -> Promise<summary>
   - dir defaults to data/ when not provided.
-  - opts may include: { overwrite: boolean } to control overwriting an existing dataset and { version?: string } to write modelVersion in output.
-  - The returned summary includes at minimum: { ok: boolean, filesWritten: string[], counts: { classes, properties, individuals }, errors?: [] }
-
-Determinism and format requirements
-
-- Files must be valid JSON-LD and include an @context or reference context.jsonld in the same dir.
-- File ordering and JSON serialisation must be stable (canonical key ordering) to avoid noisy diffs across runs.
-- Seed data should include a modelVersion marker so migrations can be applied in later cycles.
-
-Idempotence and safety
-
-- By default seedOntology should be idempotent: running it multiple times without opts.overwrite should be a no-op if the existing dataset matches the canonical seed (returns ok: true and filesWritten: []).
-- When opts.overwrite is true the seed should replace the target dataset atomically (write to a temporary directory and rename or write a manifest to indicate completion).
-
-# Acceptance Criteria
-
-- A named export seedOntology is available from src/lib/main.js and is documented in README with usage examples.
-- The CLI seed command uses seedOntology rather than containing an independent seed sequence.
-- Running seedOntology into a temporary directory produces a deterministic set of JSON-LD files: a context.jsonld and one Class-{kebab-case}.jsonld per class, plus any manifest or modelVersion markers when opts.version is provided.
-- Unit test tests/unit/seed.test.js programmatically calls seedOntology(tempDir) and asserts:
-  - The summary.ok is true and filesWritten list matches expected file names.
-  - The saved files parse as JSON and contain an @context.
-  - stats() loaded from the saved dataset equals expected { classes: >=2, properties: >=1, individuals: >=2 } and matches a load(tempDir) round-trip.
-  - Running seedOntology(tempDir) a second time without opts.overwrite results in no changes (filesWritten empty or unchanged checksums).
-- The website build (src/web/) can load data/ after seeding and the demo UI shows at least the seeded classes and individuals; an integration test or behaviour test should exercise the website loading of the seeded dataset.
-
-# Testing recommendations
-
-- Implement tests/unit/seed.test.js that use mkdtempSync to create a temporary directory; run seedOntology(dir); assert files exist and load correctly using load(dir); then run seedOntology(dir) again and assert idempotence.
-- Add a small behaviour test that seeds into a test fixtures directory used by the web demo, runs the site build step (or the web loader function) and asserts the page lists seeded classes and individuals. Mark web test as optional in CI if environment lacks headless browser dependencies.
-- Where possible compute a stable checksum of written files (for example canonical JSON string) to assert determinism rather than relying on file timestamps.
-
-# Implementation notes
-
-- Implement the canonical seed sequence as a small module (for example src/seed/index.js) that imports the public library API. Re-export seedOntology from src/lib/main.js so single public entrypoint exists.
-- Avoid embedding timestamps or machine-specific metadata in seed output. Use stable serialization and sorted keys when writing JSON-LD files.
-- Implement atomic writes by writing to a temporary directory and moving or writing a manifest; this prevents partially written datasets being consumed by other processes.
-- Use the persistence API save(dir, { validate: true, version: opts.version }) to ensure saved seed data validates cleanly.
-- Ensure the CLI handler for seed invokes the same seedOntology(dir, opts) function and prints the returned summary as machine-friendly JSON when invoked with --quiet.
-
-# Related features
-
-- PERSISTENCE (save/load, validate, modelVersion)
-- DEFINE_CLASS
-- DEFINE_PROPERTY
-- INDIVIDUAL_MANAGEMENT
-- CLI (seed command should delegate to this feature)
-
-# Status
-
-- PARTIALLY_IMPLEMENTED: a seed sequence exists in the codebase and the CLI exposes a seed command, but the repository does not currently export a reusable seedOntology function and lacks deterministic idempotent guarantees and unit tests verifying idempotence. This feature spec formalises what is required to complete and test the seed generator.
-
-# Migration guidance
-
-- If existing seed logic is embedded in the CLI handler, extract it into a small module and re-export it as seedOntology from src/lib/main.js; add unit tests against the extracted module before changing CLI behavior.
-
-# Acceptance checklist (for reviewers)
-
-- seedOntology exported and documented
-- seed writes deterministic JSON-LD with @context and modelVersion marker
-- seed is idempotent by default; overwrite option exists
-- tests/unit/seed.test.js added and passing
-- CLI seed command delegates to seedOntology
-- Web demo loads seeded dataset successfully
-
-# DATASET_DIFF
-
-# Summary
-
-Provide a deterministic dataset diff and change detection feature that computes compact, stable changesets between two saved datasets (directories) or between in-memory model states, enabling precise, auditable transforms and automated migrations during pipeline runs.
-
-# Motivation
-
-To advance the mission of evolving seed data across successive transform cycles, the pipeline needs a stable way to detect what changed between datasets to drive targeted migrations, generate release notes, and avoid noisy diffs that make automated transforms brittle.
-
-# Specification
+  - opts may include:
+    - overwrite: boolean (default false) — when true, overwrite target dataset atomically.
+    - version: string — optional modelVersion to record in the saved dataset.
+    - canonicalize: boolean (default true) — instruct save to canonicalize outputs for deterministic files.
+  - The returned summary is an object: { ok: boolean, counts: { classes, properties, individuals }, filesWritten: string[], errors?: [] }
 
 Behavior
 
-- diffDatasets(dirA, dirB, opts?)
-  - Computes a deterministic changeset representing additions, deletions, and updates at the file, class, property and individual level between dataset A and dataset B.
-  - Returns a machine-friendly JSON changeset and a compact human-readable summary suitable for release notes.
+- seedOntology constructs the ontology using defineClass, defineProperty and addIndividual and then persists the model using the existing persistence API (save) so the same persistence contract is used by seed and other writers.
+- When running under Node the function writes files to disk; when running in a browser environment the function returns the intended file manifest and file contents without performing filesystem writes.
+- The seed sequence must be deterministic: given the same version and options the produced file contents are identical across runs (canonical ordering, stable ids, no timestamps or machine-specific metadata).
+- By default seedOntology is idempotent: if the target dir already contains an identical canonical dataset, seedOntology returns ok: true and filesWritten: [] (no writes). When overwrite: true the dataset is replaced atomically.
+- Atomic writes: when overwrite is true or when creating a new dataset seedOntology writes into a temporary directory and then atomically moves or writes a final manifest to indicate completion to avoid partial datasets.
 
-- diffModels(modelA, modelB, opts?)
-  - Computes a changeset between two in-memory models without touching the filesystem.
+Seed contents
 
-- applyChangeset(dir, changeset, opts?)
-  - Applies a deterministic list of changes to a target dataset, writing files atomically and returning a summary of files changed and any validation issues.
+- The canonical seed must include at minimum:
+  - Classes: Animal, Mammal (Mammal rdfs:subClassOf Animal)
+  - Properties: hasName (domain: Animal, range: literal)
+  - Individuals: at least two individuals (for example dog1 of class Mammal and cat1 of class Mammal or Animal) with literal properties demonstrating property values and at least one reference property if relevant
+  - context.jsonld: a deterministic JSON-LD context file at the data root defining prefixes used by the seed files
+  - modelVersion marker: written into either a manifest.json or included in saved files when opts.version provided
 
-Changeset format
+Idempotence and determinism rules
 
-- Changesets are JSON objects with the top-level shape:
-  - { files: { added: string[], removed: string[], modified: string[] }, classes: { added:[], removed:[], changed:[] }, properties: {...}, individuals: {...}, metadata: { algorithm: 'dataset-diff-v1', canonicalized: boolean } }
-- For modified files the changeset includes before/after canonical hashes and a minimal structural patch describing which classes/properties/individuals changed.
-- The algorithm uses canonicalized JSON-LD for file content comparison to avoid spurious diffs caused by key ordering or blank node labels (invokes canonicalize() when available).
+- Deterministic id generation: when seed requires generating ids, use stable, human-readable ids (for example dog1, cat1) or deterministic algorithms seeded by the provided opts.version rather than random UUIDs.
+- No timestamps or environment-specific metadata are embedded in files written by seedOntology.
+- When canonicalize is true the save() call is invoked with canonicalize enabled so blank nodes, ordering, and key sorting are deterministic.
 
-API
+CLI and web integration
 
-- export function diffDatasets(dirA, dirB, opts?) -> Promise<changeset>
-  - opts may include { canonicalize: boolean (default true), ignoreContext: boolean, keysToIgnore: string[] }
-
-- export function diffModels(modelA, modelB, opts?) -> changeset
-
-- export function formatChangeset(changeset, format = 'json' | 'text') -> string
-  - format='text' produces a compact human readable patch suitable for release notes.
-
-- export function applyChangeset(dir, changeset, opts?) -> Promise<{ applied: boolean, summary: object }>
-  - applyChangeset performs atomic writes (write to temp dir then rename) and validates the resulting dataset using validate().
-
-Determinism
-
-- The diff output must be deterministic: re-running diffDatasets on the same inputs produces bit-for-bit identical JSON when opts.canonicalize is true and stable key ordering is used.
-- formatChangeset(text) must produce stable textual summaries for inclusion in automated release notes.
+- The CLI seed command must delegate directly to seedOntology so the same codepath is used for CLI and programmatic usage.
+- The web demo must call seedOntology in browser-friendly mode: generate the same in-memory model and return a file manifest and contents for download instead of attempting filesystem writes.
 
 Acceptance Criteria
 
-- diffDatasets correctly identifies additions, deletions, and modifications for small test fixtures with known edits; tests assert exact expected changes.
-- The changeset JSON is canonicalised such that re-running the diff on identical inputs returns identical bytes (unit test assertion using checksums).
-- formatChangeset(changeset,'text') produces a concise human readable summary and includes a deterministic header with metadata.algorithm and timestamp-free content.
-- applyChangeset can apply a minimal change (for example: rename a property or add an individual) atomically to a dataset; the target dataset then loads successfully via load(dir) and validate() reports no new errors.
-- tests/unit/dataset-diff.test.js covers diffDatasets, formatChangeset, and applyChangeset using temporary directories and fixture datasets.
+- A named export seedOntology is available from src/lib/main.js and documented in README with usage examples.
+- Running seedOntology into a temporary directory produces a deterministic set of JSON-LD files: context.jsonld and one Class-{kebab-case}.jsonld per class, plus an optional manifest or modelVersion marker when opts.version is provided.
+- Unit test tests/unit/seed.test.js programmatically calls seedOntology(tempDir) and asserts:
+  - summary.ok is true and counts reflect at least 2 classes, 1 property and 2 individuals
+  - filesWritten lists expected file names and those files parse as JSON and contain an @context
+  - Running seedOntology(tempDir) a second time without opts.overwrite results in no changes (filesWritten empty or identical checksums)
+- The CLI seed command prints the summary as machine-friendly JSON when invoked with --quiet and uses exit codes to indicate success/failure.
+- The web demo can obtain the seed manifest and display seeded classes and individuals without filesystem writes; a behaviour-level test demonstrates the UI showing the seeded classes and at least the seeded individuals.
 
 Testing Recommendations
 
-- Create small fixture datasets under tests/fixtures/diff/{a,b} that differ by a few deterministic changes; assert diffDatasets finds exactly the expected changes.
-- Verify canonicalization reduces noisy diffs by modifying JSON key order or blank node labels in a fixture and asserting the diff remains unchanged when opts.canonicalize is true.
-- Test applyChangeset by applying the computed changeset to a copy of dataset A and asserting load(copy) produces the same stats and validate() results as dataset B.
+- Unit test: tests/unit/seed.test.js
+  - Use mkdtempSync to create a temporary directory, run seedOntology(dir, { version: '0.1.0' }), assert files exist and saved counts match expected values, load the saved dataset with load(dir) and assert stats() match.
+  - Run seedOntology(dir) again and assert idempotence by comparing file contents or checksums.
+
+- Integration test: tests/behaviour/seed-web.spec.js (Playwright optional)
+  - Start the demo in a predictable environment, call the web adapter's seed function, and assert the UI lists Animal and Mammal and shows the seeded individuals. Mark these tests optional in CI where browsers are unavailable.
+
+- Edge case tests:
+  - Test overwrite: run seedOntology(dir) then seedOntology(dir, { overwrite: true }) and assert files are replaced but final load(dir) yields the same stats.
+  - Test browser mode: call seedOntology with a browser flag or simulated non-Node environment and assert no writes occur and a manifest with file contents is returned.
 
 Implementation Notes
 
-- Reuse canonicalize() from PERSISTENCE to normalise file contents prior to diffing and to compute content hashes used in the changeset.
-- Compare per-file canonical JSON strings; for modified files compute a shallow structural diff to classify changed classes/properties/individuals instead of emitting full file diffs to keep changesets compact.
-- Keep the changeset format stable (dataset-diff-v1) and add unit tests that assert fields and structure to avoid regressions.
-- When applying changes write to a temporary directory and atomically replace the target dataset or write a manifest indicating completion to avoid partial updates being consumed.
-- Expose a CLI helper (repo diff --a data/old --b data/new --format text) and surface the text-formatted changeset on the web adapter for release notes and pipeline automation.
+- Implement the canonical seed generator as a small module that imports the public library API and returns a single exported function seedOntology; re-export it from src/lib/main.js to keep a single public surface.
+- Use save(dir, { canonicalize: true, validate: true, version: opts.version }) to persist files and leverage existing persistence and validation code paths.
+- Ensure seedOntology does not depend on external network resources and that all required IRIs and prefixes are local to the repo to keep the seed self-contained.
+- Keep the seed code small and declarative: construct class and property declarations then add individuals with fixed ids and property values; avoid runtime-randomness.
 
-Related features
+# Status
 
-- PERSISTENCE (canonicalize, save/load), MODEL_VERSIONING (migrate(), modelVersion), SEED_DATA
-
-Status
-
-- PROPOSED: specification ready; implement as src/lib/diff.js and export named functions from src/lib/main.js; add unit tests in tests/unit/dataset-diff.test.js and small fixtures in tests/fixtures/diff.
-
-# End of DATASET_DIFF
+- Status: PARTIALLY_IMPLEMENTED — seed logic exists in the repository but must be refactored into a reusable seedOntology export, be made idempotent and canonical, and covered with the unit tests described above.
