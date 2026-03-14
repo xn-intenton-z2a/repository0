@@ -190,3 +190,76 @@ The mission requires the pipeline to populate example ontology data over success
 - Canonicalisation: The canonicalisation contract is specified here but the repository does not yet export canonicalize() nor does save accept and report { canonicalized, algorithm } in its summary; add a small canonicalize() helper and wire save(dir, { canonicalize: true }) to use it in order to make canonicalization tests pass.
 - Notes: Persistence writes stable JSON (stringifySorted) and avoids non-deterministic metadata. Migration facility is minimal but present and can be extended to run deterministic transformations in future cycles.
 - Tests: tests/unit/persistence.test.js and tests/unit/versioning.test.js are recommended and partially present; add tests/unit/canonicalization.test.js and ensure canonicalize is implemented and exported so the test suite can validate bit-for-bit identity when opts.canonicalize is used.
+
+
+# EXPORT_FORMATS
+
+# Summary
+
+Provide a standardised format translation and export feature so the ontology persistence layer can produce interoperable serialisations (JSON-LD, Turtle, N-Triples) and drive CLI/server export operations in a deterministic, testable way.
+
+# Motivation
+
+Interoperability with RDF tools and downstream consumers often requires non-JSON-LD serialisations. Offering a stable, tested export API that builds on canonicalisation and validation increases the library's usefulness for integrations, demonstrations, and data interchange without coupling the core persistence layer to optional format dependencies.
+
+# Specification
+
+API
+
+- serialize(format, options?)
+  - format: one of jsonld | turtle | ntriples
+  - options may include: target (path to write when running under Node), canonicalize: boolean, validate: boolean
+  - When target is provided and filesystem writes are available, serialize writes the produced bytes to the target path and returns a summary describing the written file(s). When target omitted, serialize returns the serialized string or Buffer.
+  - When format is jsonld, behaviour is equivalent to save with canonicalize options applied to a single file serialisation.
+  - When optional translator dependencies are required (for example n3 for Turtle), serialize attempts to use them and yields a clear machine-friendly error if the requested format is unsupported in the current runtime.
+
+- supportedFormats()
+  - Returns an array of format names available in the current environment. Must always include jsonld and include turtle/ntriples only when translators are available.
+
+Integration
+
+- The CLI export and import commands delegate to serialize() for format translation and to save/load for on-disk persistence. The HTTP server export endpoints call serialize() and either stream the result or write files server-side when Node filesystem is available.
+- serialize() must apply canonicalization and validation when requested so exported artifacts are deterministic and correct.
+
+Determinism and canonicalisation
+
+- When canonicalize: true is passed, serialize must canonicalise the internal graph before translation so produced representations are deterministic and suitable for byte-for-byte comparisons in CI.
+- When translating to triple-based syntaxes, prefer producing canonical N-Quads or sorted triples and then convert to Turtle/N-Triples using the chosen translator to maintain deterministic ordering.
+
+Error handling and fallbacks
+
+- If a requested format requires an optional dependency that is not installed, serialize should return a descriptive error and the CLI/server should map that to a non-zero exit or error response rather than crashing.
+- Implement a graceful fallback strategy: if the translator library is missing, supportedFormats() excludes that format and help text indicates how to enable it.
+
+# Acceptance Criteria
+
+- serialize and supportedFormats are exported as named functions from src/lib/main.js.
+- supportedFormats() returns at least ["jsonld"]; when the environment has the optional n3 dependency available supportedFormats() includes "turtle" and "ntriples".
+- serialize("jsonld") returns a parseable JSON-LD string and, when canonicalize: true, repeated serializations of the same model produce identical byte sequences.
+- When optional translator is present, serialize("turtle") returns a string that a Turtle parser can parse (tests may conditionally run this check); when translator missing, serialize returns a machine-friendly error explaining the missing dependency.
+- CLI and server export flows call serialize() to implement format export; tests assert the CLI export command writes the expected file and that supportedFormats() governs available choices.
+- Unit tests exist in tests/unit/serialize.test.js that:
+  - Verify jsonld serialization and canonicalization identity when canonicalize is enabled.
+  - Conditionally verify turtle/ntriples serialization only when translators are available (skip otherwise).
+  - Verify that serialize(target=path) writes files under Node and that the returned summary lists the written file and its size.
+
+# Testing Recommendations
+
+- Tests must be deterministic. Use canonicalize: true in tests that assert byte-for-byte equality.
+- Detect optional translator availability at test run-time and skip format-specific assertions when dependencies are absent to keep CI stable.
+- For translator-enabled tests prefer using the translator library (n3) directly in assertions to parse produced Turtle/N-Triples and confirm graph equivalence by round-trip through an N-Quads intermediate or by comparing parsed triple sets.
+- Use temporary files and cleanup after tests to avoid interfering with other test runs.
+
+# Implementation Notes
+
+- Implement serialize by canonicalising the model into a JSON-LD graph and then converting to the requested format:
+  - jsonld: stringify the canonical JSON-LD graph with stable key ordering
+  - ntriples/nquads: convert canonical JSON-LD to N-Quads string deterministically
+  - turtle: convert N-Quads -> Turtle via an optional translator library (for Node, n3 provides converters)
+- Keep translator dependencies optional: require them at runtime and document how to enable them for CI or local runs.
+- Ensure serialize honours canonicalization and validation options so exported artifacts are deterministic and verified before writing.
+- When writing to disk, use atomic-write patterns consistent with seedOntology and persistence atomicity to avoid partial writes.
+
+# Status
+
+- Status: PROPOSED — this feature formalises export and translator behaviour and provides testable acceptance criteria; implement serialize and supportedFormats as thin wrappers around the canonicalisation and translation stages and add tests to verify deterministic outputs and graceful handling of optional dependencies.
