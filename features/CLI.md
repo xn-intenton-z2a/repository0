@@ -60,4 +60,107 @@ User-facing flags
 - Implemented commands observed: define-class, define-property, add-individual, seed, stats, save, load, export, import; the Node CLI prints machine-friendly JSON and uses exit codes as described in acceptance criteria.
 - Notes: save/load/write operations are implemented for Node environments; browser usage returns summaries without file writes.
 - Tests: a dedicated tests/unit/cli.test.js is recommended to assert CLI JSON outputs and exit codes; the repository contains unit test scaffolding but may not include a full CLI integration test yet.
-- Action: Mark CLI feature as implemented; keep acceptance criteria for test coverage and platform-specific behaviour (Node vs browser).
+
+
+# HTTP_SERVER
+
+# Summary
+
+Provide a minimal, Node-friendly HTTP JSON REST API that exposes core library operations for programmatic access, integration testing, and simple automation. The server is intended for development, CI, demos and lightweight service usage and must be easy to start and stop programmatically from tests.
+
+# Motivation
+
+An HTTP API makes the ontology library accessible over the network for integration tests, small services, and demos without requiring direct imports. It enables the web demo and CLI-driven automation to interact with the same public API over HTTP and provides a stable surface for behaviour tests and external tooling.
+
+# Specification
+
+API surface
+
+- startServer(opts?)
+  - Exposed as a named export from src/lib/main.js so tests and consumers can start and stop the server programmatically.
+  - opts may include: port (0 for ephemeral), host (default 127.0.0.1), basePath (default /), and nodeOnly: boolean to indicate whether filesystem endpoints (save/load/seed) are enabled.
+  - Returns an object { port, url, close } where close() stops the server and releases the port.
+
+Server behaviour
+
+- The server returns application/json for all endpoints with a stable wrapper: { ok: boolean, result?: any, error?: string } to simplify assertions in tests.
+- Deterministic ordering: list results for classes, properties and individuals are sorted by id or name before being returned to ensure tests are stable.
+- Node-only endpoints: save/load/seed endpoints are available only when the runtime supports filesystem writes (or when nodeOnly is true); otherwise they return a machine-friendly error message explaining their absence.
+- No authentication: the server is for development and CI; do not gate endpoints behind auth by default. Tests needing isolation should bind to 127.0.0.1 and ephemeral ports.
+
+HTTP endpoints
+
+- GET /health
+  - Returns { ok: true, uptime: number, timestamp: ISO } for simple readiness checks.
+
+- GET /stats
+  - Returns stats() from the library as result.
+
+- GET /classes
+  - Returns an array of class descriptors sorted by name.
+
+- GET /classes/:className
+  - Returns the class descriptor including properties and the list of individuals belonging to the class.
+
+- GET /properties
+  - Returns an array of property descriptors sorted by name.
+
+- GET /individuals
+  - Query string parameters: class, property, value, target
+  - Delegates to query(pattern) and returns matched individuals sorted by id.
+
+- GET /individuals/:id
+  - Returns the individual object or a not-found wrapper when missing.
+
+- POST /individuals
+  - Body: { class: string, id?: string, properties: object }
+  - Adds an individual using addIndividual; when id is omitted the server generates a stable id or sequential id for demos.
+
+- PUT /individuals/:id
+  - Body: { properties: object, merge?: boolean }
+  - Updates the individual via updateIndividual semantics and returns the updated individual.
+
+- DELETE /individuals/:id
+  - Removes the individual and returns { ok: true, removed: boolean }.
+
+- POST /query
+  - Body: { pattern: object, opts?: object }
+  - Runs query(pattern, opts) and returns the results; supports explain: true in opts.
+
+- POST /seed
+  - Triggers seedOntology(dir?, opts?) and returns the summary. When filesystem write is not available return a clear node-only message.
+
+- POST /save and POST /load
+  - Node-only endpoints wrapping save(dir, opts) and load(dir) respectively, returning their summaries or a node-only error.
+
+Determinism and error handling
+
+- All list and query responses must be sorted deterministically to make tests stable across runs.
+- Validation and error responses use HTTP 400 for client errors and 500 for server errors, while always returning the JSON wrapper.
+- The server should catch library exceptions and translate them to the wrapper { ok: false, error: message } rather than crashing.
+
+Acceptance Criteria
+
+- startServer is exported as a named function from src/lib/main.js and starts a local HTTP server bound to the requested host/port.
+- The listed endpoints are implemented and return deterministic, machine-friendly JSON wrappers.
+- Node-only endpoints are disabled in restricted environments and return a clear node-only response when unavailable.
+- The server can be started in tests on an ephemeral port and closed via the returned close() method to avoid resource leakage.
+- Unit tests exercise the primary flows: health -> seed -> stats -> add individual -> query -> get individual -> delete -> close, asserting JSON shapes and HTTP status codes.
+
+Testing recommendations
+
+- Use port 0 to bind to an ephemeral port in tests and await the resolved port before calling endpoints.
+- Use native fetch or a minimal HTTP helper to avoid adding test-only dependencies.
+- Isolate tests by resetting the in-memory model between tests or starting a fresh server instance with a clean model.
+- Use temporary directories for save/load tests and ensure cleanup after tests.
+
+Implementation notes
+
+- Prefer Node's built-in http module for a minimal dependency footprint; expose a tiny routing helper to map endpoints to handlers.
+- Convert library errors into JSON wrapper responses and ensure stable ordering of list results.
+- Make the server easy to start and stop programmatically in tests by returning a close() method; ensure close() resolves when the server stops listening.
+- Document the server API in README and include an example for starting the server in tests.
+
+# Status
+
+- Status: PROPOSED — HTTP server behaviour is specified and recommended tests are provided; the repository contains partial server code in earlier commits but a dedicated startServer export and integration tests are recommended to satisfy the acceptance criteria and make the server reliable for CI and demos.
