@@ -1,0 +1,49 @@
+TABLE OF CONTENTS
+1. Definition and purpose
+2. Normalised extract (implementation-ready algorithm)
+3. Supplementary details (surrogate handling, return range)
+4. Reference details (signature and exact computation)
+5. Detailed digest
+6. Attribution and size
+
+1. Definition and purpose
+String.prototype.codePointAt(pos) returns the Unicode code point value at the given position in a string, correctly handling UTF-16 surrogate pairs so that astral characters (U+10000..U+10FFFF) are returned as a single code point.
+
+2. Normalised extract (implementation-ready algorithm)
+- Signature: codePointAt(string S, integer pos) -> integer | undefined
+- Behavior:
+  - If pos < 0 or pos >= S.length, return undefined.
+  - Let first = S.charCodeAt(pos).
+  - If first is a high surrogate (0xD800 <= first <= 0xDBFF) and pos+1 < S.length:
+    - Let second = S.charCodeAt(pos+1).
+    - If second is a low surrogate (0xDC00 <= second <= 0xDFFF):
+      - Return ((first - 0xD800) << 10) + (second - 0xDC00) + 0x10000.
+  - Otherwise return first.
+
+3. Supplementary details
+- Returned value is an integer in [0, 0x10FFFF].
+- For characters in BMP (Basic Multilingual Plane), the returned value equals charCodeAt(pos).
+- To iterate over code points safely in JS, use for...of over the string (iterator yields full characters) or iterate by codePointAt with index increments of 1 for BMP and 2 when surrogate pair detected.
+
+4. Reference details (exact computation)
+- Implementation snippet (pseudocode):
+  function codePointAt(S, pos){
+    if pos < 0 || pos >= S.length return undefined
+    const first = S.charCodeAt(pos)
+    if 0xD800 <= first && first <= 0xDBFF && pos+1 < S.length {
+      const second = S.charCodeAt(pos+1)
+      if 0xDC00 <= second && second <= 0xDFFF {
+        return ((first - 0xD800) * 0x400) + (second - 0xDC00) + 0x10000
+      }
+    }
+    return first
+  }
+
+5. Detailed digest
+- Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt
+- Retrieved: 2026-03-14
+- Core extracted content: exact positional semantics, surrogate-pair combining formula, return range, and undefined behavior when out of range.
+
+6. Attribution and size
+- Attribution: MDN Web Docs — String.prototype.codePointAt
+- Crawled approximate data size: 162.6 KB (HTTP fetch payload saved during crawl).

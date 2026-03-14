@@ -1,26 +1,37 @@
 # TEST_SUITE
 
-Summary
+Purpose
 
-Specify the unit test coverage, structure, and exact test cases required to validate the Hamming library. Tests must be executable with the repository's existing test script.
+Define the unit-test requirements and acceptance checks for the FizzBuzz library so CI can verify mission completion.
 
-Structure
+Required tests
 
-- Unit tests live in tests/unit/main.test.js and use Vitest.
-- Tests must cover: normal examples, edge cases, and error conditions described in the mission and in the feature specs.
+- Unit tests for fizzBuzzSingle:
+  - Input 3 => "Fizz".
+  - Input 5 => "Buzz".
+  - Input 15 => "FizzBuzz".
+  - Input 7 => "7" (string).
+  - Input 0 => RangeError (explicit behaviour: fizzBuzzSingle should throw RangeError for 0).
+  - Negative input => RangeError.
+  - Non-integer input => TypeError.
 
-Required test cases
+- Unit tests for fizzBuzz:
+  - fizzBuzz(0) returns [].
+  - fizzBuzz(1) returns ["1"].
+  - fizzBuzz(15) returns array length 15 with expected Fizz/Buzz substitutions at classic positions.
+  - Non-integer or negative inputs throw the right errors.
 
-- Strings: karolin vs kathrin => 3
-- Strings: empty vs empty => 0
-- Strings: unequal length => throws RangeError
-- Strings: code point comparisons for emoji and surrogate pairs (examples from UNICODE_SUPPORT)
-- Bits: 1 vs 4 => 2, 0 vs 0 => 0
-- Validation: wrong types throw TypeError, negative integers throw RangeError
-- Large integers: at least one test with a large but safe integer (e.g., Number.MAX_SAFE_INTEGER bit compare) to verify behaviour
+- Test style and constraints:
+  - Tests must be deterministic and not rely on global state.
+  - Use vitest for unit tests located in tests/unit/.
+  - Each acceptance criterion from FIZZBUZZ_CORE must be asserted by at least one test.
 
-Acceptance criteria
+Acceptance Criteria
 
-- Tests in tests/unit/main.test.js express the above cases with assertive expectations.
-- Tests run via npm test and all pass.
-- Tests serve as the canonical specification consumers can rely on when changing implementation.
+- tests/unit contains tests that cover all required cases above.
+- Running npm test exits with success in the repository environment when functions meet the spec.
+- Tests assert exact string values and error types (RangeError, TypeError) where specified.
+
+Notes
+
+Keep tests minimal but exhaustive for the contract described in the mission.

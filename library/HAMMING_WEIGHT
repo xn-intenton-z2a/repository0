@@ -1,0 +1,47 @@
+TABLE OF CONTENTS
+1. Definition
+2. Normalised extract (implementation-ready)
+3. Supplementary details (fast methods, lookups)
+4. Reference details (algorithms/signatures)
+5. Detailed digest (source + retrieval)
+6. Attribution and size
+
+1. Definition
+Hamming weight is the number of symbols equal to '1' in a binary string; equivalently, the population count (popcount) of an integer's binary representation.
+
+2. Normalised extract (implementation-ready)
+- Direct methods:
+  - Builtin instructions: use CPU POPCNT where available for 32/64-bit words.
+  - Kernighan loop: while(x){ x &= x-1; count++; } — loops once per set bit.
+  - Table lookup: precompute popcount for bytes (0..255) and sum values for each byte of the integer.
+  - SWAR/parallel bit count (constant-time for machine word): use mask-and-add sequence to accumulate counts across bit groups (see reference SWAR pattern below).
+
+3. Supplementary details
+- Complexity: O(k) with Kernighan where k = number of set bits; O(word_count) for SWAR/table methods.
+- Use cases: cryptography, error-detection metrics, bitmask population queries.
+- Portability: use table lookup or software SWAR if hardware POPCNT not available.
+
+4. Reference details (algorithms/signatures)
+- Kernighan algorithm:
+  count = 0
+  while x != 0:
+    x = x & (x - 1)
+    count += 1
+  return count
+- SWAR 32-bit implementation:
+  x = x - ((x >> 1) & 0x55555555)
+  x = (x & 0x33333333) + ((x >> 2) & 0x33333333)
+  x = (x + (x >> 4)) & 0x0F0F0F0F
+  x = x + (x >> 8)
+  x = x + (x >> 16)
+  return x & 0x0000003F
+- Byte table lookup: sum TABLE[byte_i] for i across bytes.
+
+5. Detailed digest
+- Source: https://en.wikipedia.org/wiki/Hamming_weight
+- Retrieved: 2026-03-14
+- Core extracted content: definition, popcount patterns (Kernighan, lookup table, SWAR), recommended use of CPU POPCNT where available.
+
+6. Attribution and data size
+- Attribution: Wikipedia (Hamming weight) — content retrieved and condensed.
+- Crawled approximate data size: 160.7 KB (HTTP fetch payload saved during crawl).

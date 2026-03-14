@@ -1,17 +1,23 @@
 # README_EXAMPLES
 
-Summary
+Purpose
 
-Provide concise README usage examples demonstrating the two primary APIs: string Hamming distance and bit Hamming distance, plus examples of thrown errors for invalid input.
+Specify the README examples and quickstart that demonstrate library usage for new users and validate the public API surface.
 
-Examples to include
+Content required
 
-- Import example showing named imports from src/lib/main.js and usage of both functions.
-- String example: computing hamming distance between karolin and kathrin and showing result 3.
-- Bit example: computing hamming distance between 1 and 4 and showing result 2.
-- Error example: calling hammingDistanceStrings with strings of unequal length demonstrates RangeError.
+- Short top-level example showing named imports and calling fizzBuzz and fizzBuzzSingle.
+- Example showing expected output for fizzBuzz(15) (an array ending with "FizzBuzz").
+- Examples for error cases: calling fizzBuzzSingle with a negative number and a non-integer, showing the thrown error type.
+- A brief CLI example (node src/lib/main.js) that prints fizzBuzz(15) to stdout.
 
-Acceptance criteria
+Acceptance Criteria
 
-- README contains working examples that map directly to tests in tests/unit and can be copy-pasted by users.
-- README documents the exported function names and the error types thrown for invalid inputs.
+- README contains a code usage example that imports { fizzBuzz, fizzBuzzSingle } from the library and prints results.
+- README shows expected output for fizzBuzz(15) matching mission acceptance criteria.
+- README documents error behavior for negative and non-integer inputs with the correct exception types.
+- A short CLI usage example is present and accurate.
+
+Notes
+
+Examples must avoid unnecessary complexity and show only the minimal commands and code required to reproduce results.

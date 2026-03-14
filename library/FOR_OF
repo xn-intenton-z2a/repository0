@@ -1,0 +1,42 @@
+TABLE OF CONTENTS
+1. Definition and behavior
+2. Normalised extract (implementation details)
+3. Iterable protocol and method resolution
+4. Performance and common patterns
+5. Troubleshooting and gotchas
+6. Detailed digest
+7. Attribution and size
+
+1. Definition and behavior
+for...of iterates over the values produced by an object's default iterator (its @@iterator method). It yields values (not keys) and is intended for iterables: arrays, strings, Maps, Sets, generators, TypedArrays, and user-defined iterables.
+
+2. Normalised extract (implementation details)
+- Syntax: for (var variable of iterable) statement
+- Evaluation steps (simplified):
+  - Retrieve iterator = iterable[Symbol.iterator]()
+  - Loop: let result = iterator.next(); if result.done is true, exit loop; else assign result.value to loop variable and execute body.
+- For strings: iteration yields complete characters (Unicode code points), handling surrogate pairs as single iteration values.
+- For Map: default iterator produces entries [key, value]; for (const [k,v] of map) destructuring extracts both.
+
+3. Iterable protocol and method resolution
+- An object is iterable if it has a function at the key Symbol.iterator.
+- Custom iterables must implement a next() method returning { value: any, done: boolean }.
+- The for...of construct does not iterate object property names (use for...in for keys) and does not expose the iterator object unless explicitly captured.
+
+4. Performance and common patterns
+- Use for...of when you need actual values and when the iterable implements a native fast iterator (arrays, typed arrays).
+- To iterate numeric ranges, prefer for (let i=0;i<n;i++) for performance-critical loops; for...of adds iterator overhead.
+- Use break/continue/return inside loop body as usual; 'continue' proceeds to next iterator.next() call.
+
+5. Troubleshooting and gotchas
+- Do not use for...of on plain objects (Object.prototype has no default iterator) — it will throw a TypeError; use Object.keys() or Object.entries() instead.
+- When modifying the iterable during iteration, behavior depends on the iterator implementation; arrays' built-in iterators reflect modifications to the array made before the next next() call in many engines but avoid relying on this.
+
+6. Detailed digest
+- Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of
+- Retrieved: 2026-03-14
+- Core extracted content: iteration mechanics based on Symbol.iterator, string surrogate-pair handling, example usage patterns.
+
+7. Attribution and size
+- Attribution: MDN Web Docs — for...of statement
+- Crawled approximate data size: 210.5 KB (HTTP fetch payload saved during crawl).

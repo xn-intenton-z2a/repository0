@@ -1,23 +1,21 @@
 # UNICODE_SUPPORT
 
-Summary
+Purpose
 
-Ensure string comparison is correct for full Unicode code points rather than UTF-16 code units. This feature defines expected behavior for surrogate pairs, astral symbols, and grapheme-like sequences when computing Hamming distance by code point position.
+Describe optional Unicode and formatting behaviour for outputs. This feature ensures the library can be safely used in environments that handle Unicode strings and that outputs remain plain strings (not special objects).
 
-Specification
+Behavior
 
-- The library must compare strings by Unicode code points. Splitting strings into arrays of code points using a standard JS technique (for example, Array.from or spread over string) is acceptable.
-- The function must treat each Unicode code point as a single position even when it is encoded as a surrogate pair in UTF-16.
-- Combining marks are considered separate code points and therefore occupy positions in the length check and comparison.
+- All return values must be JavaScript strings containing ASCII or Unicode characters as appropriate.
+- The library must not add non-printable control characters.
+- When called in locales that display digits differently, the library still returns ASCII digits for numeric results.
 
-Test cases (representative)
+Tests and Acceptance Criteria
 
-- Single astral emoji: hammingDistanceStrings('\u{1F600}', '\u{1F601}') equals 1.
-- Surrogate vs composed: comparing strings which differ only by a combining mark should count the combining mark as a differing position.
-- Length validation uses code point length; two strings that have equal UTF-16 unit length but different code point counts are treated by their code point lengths and may raise RangeError if not equal.
+- Calling fizzBuzzSingle for a non-substitution number (e.g. 7) returns the ASCII string "7" (no Unicode digit variants).
+- Outputs contain only printable characters; tests confirm no control characters are present in results for fizzBuzz(20).
+- Library usage in README examples must show plain string outputs (no special markup or escapes).
 
-Acceptance criteria
+Notes
 
-- Code point-aware comparisons are used for all string comparisons in the library.
-- Representative unit tests for astral symbols and combining mark scenarios are present in tests/unit and pass.
-- hammingDistanceStrings uses code point splitting and throws RangeError when code point lengths differ.
+This feature documents expectations for string outputs and prevents subtle platform-dependent differences from creeping into test assertions.
