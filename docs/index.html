@@ -8,13 +8,17 @@
   <meta property="og:description" content="An autonomous repository powered by agentic-lib">
   <meta property="og:type" content="website">
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 1000px; margin: 0 auto; padding: 2rem; color: #333; }
     h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
     a { color: #0366d6; }
     .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-    #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
+    #demo-output, #persistence-output, #query-results, #stats-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
+    section { margin-top: 1.5rem; }
+    button { margin-right: .5rem; margin-top: .5rem; }
+    ul { list-style: none; padding-left: 0; }
+    li { padding: 0.25rem 0; }
   </style>
 </head>
 <body>
@@ -27,18 +31,138 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
+
+  <section id="classes-section">
+    <h2>Classes</h2>
+    <div>
+      <button id="btn-seed">Seed example ontology</button>
+      <button id="btn-load">Load ontology from data/</button>
+      <button id="btn-reset">Reset ontology</button>
+      <button id="btn-save">Save (Node only)</button>
+    </div>
+    <ul id="classes-list"></ul>
+  </section>
+
+  <section id="properties-section">
+    <h2>Properties</h2>
+    <ul id="properties-list"></ul>
+  </section>
+
+  <section id="individuals-section">
+    <h2>Individuals</h2>
+    <ul id="individuals-list"></ul>
+  </section>
+
+  <section id="query-section">
+    <h2>Query</h2>
+    <div>
+      <label>Class: <input id="query-class" placeholder="e.g. Animal"></label>
+      <label>Property: <input id="query-property" placeholder="e.g. hasName"></label>
+      <label>Value: <input id="query-value" placeholder="e.g. Fido"></label>
+      <button id="btn-query">Run Query</button>
+    </div>
+    <pre id="query-results"></pre>
+  </section>
+
+  <section id="persistence-section">
+    <h2>Persistence</h2>
+    <div>
+      <p>Seeded ontology can be saved to <code>data/ontology.jsonld</code> when running under Node. In the browser this will show a message.</p>
+    </div>
+    <pre id="persistence-output"></pre>
+  </section>
+
+  <section id="stats-section">
+    <h2>Stats</h2>
+    <pre id="stats-output"></pre>
+  </section>
+
   <h2>Output</h2>
   <div id="demo-output">Loading library...</div>
+
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
+
   <script type="module">
     try {
-      const { name, version, description } = await import('./lib.js');
-      document.getElementById('lib-name').textContent = name;
-      document.getElementById('lib-version').textContent = version;
-      document.getElementById('lib-description').textContent = description || '(no description)';
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
-      document.title = name + ' v' + version;
+      const lib = await import('./lib.js');
+
+      document.getElementById('lib-name').textContent = lib.name;
+      document.getElementById('lib-version').textContent = lib.version;
+      document.getElementById('lib-description').textContent = lib.description || '(no description)';
+      document.title = lib.name + ' v' + lib.version;
+
+      function log(msg) {
+        const el = document.getElementById('demo-output');
+        const now = new Date().toISOString();
+        el.textContent = `${now} - ${msg}`;
+      }
+
+      async function updateAll() {
+        const classes = lib.listClasses();
+        const props = lib.listProperties();
+        const inds = lib.listIndividuals();
+
+        document.getElementById('classes-list').innerHTML = classes.map(c => `<li><strong>${c.name}</strong>${c.superclass ? ' ⊂ ' + c.superclass : ''}</li>`).join('') || '<li>(none)</li>';
+        document.getElementById('properties-list').innerHTML = props.map(p => `<li>${p.name} <small>(${p.domain} → ${p.range})</small></li>`).join('') || '<li>(none)</li>';
+        document.getElementById('individuals-list').innerHTML = inds.map(i => `<li>${i.id} : <em>${i.class}</em> ${JSON.stringify(i.properties)}</li>`).join('') || '<li>(none)</li>';
+
+        const s = lib.stats();
+        document.getElementById('stats-output').textContent = JSON.stringify(s, null, 2);
+      }
+
+      document.getElementById('btn-seed').addEventListener('click', async () => {
+        lib.resetDefaultOntology();
+        lib.defineClass('Animal');
+        lib.defineClass('Mammal', 'Animal');
+        lib.defineClass('Bird', 'Animal');
+        lib.defineProperty('hasName', 'Animal', 'xsd:string');
+        lib.addIndividual('Mammal', 'dog1', { hasName: 'Fido' });
+        lib.addIndividual('Mammal', 'cat1', { hasName: 'Whiskers' });
+        lib.addIndividual('Bird', 'sparrow1', { hasName: 'Jack' });
+        await updateAll();
+        log('Seeded example ontology');
+      });
+
+      document.getElementById('btn-load').addEventListener('click', async () => {
+        const count = await lib.load('data');
+        await updateAll();
+        log(`Loaded ${count} node(s) from data/ontology.jsonld`);
+      });
+
+      document.getElementById('btn-reset').addEventListener('click', async () => {
+        lib.resetDefaultOntology();
+        await updateAll();
+        log('Ontology reset');
+      });
+
+      document.getElementById('btn-query').addEventListener('click', async () => {
+        const cls = document.getElementById('query-class').value.trim();
+        const prop = document.getElementById('query-property').value.trim();
+        const value = document.getElementById('query-value').value.trim();
+        const pattern = {};
+        if (cls) pattern.class = cls;
+        if (prop) pattern.property = prop;
+        if (value) pattern.value = value;
+        const results = lib.query(pattern);
+        document.getElementById('query-results').textContent = JSON.stringify(results, null, 2);
+        log(`Query returned ${results.length} result(s)`);
+      });
+
+      document.getElementById('btn-save').addEventListener('click', async () => {
+        try {
+          const out = await lib.save('data');
+          document.getElementById('persistence-output').textContent = `Saved to ${out}`;
+          log(`Saved ontology to ${out}`);
+        } catch (e) {
+          document.getElementById('persistence-output').textContent = `Save not supported in browser: ${e.message}`;
+          log(`Save failed: ${e.message}`);
+        }
+      });
+
+      // initial render
+      await updateAll();
+      log('Library loaded');
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
       document.getElementById('lib-description').textContent = e.message;

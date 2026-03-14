@@ -11,6 +11,20 @@ Features:
 - load(dir?) / save(dir?) — load and persist JSON-LD data
 - stats() — counts of classes, properties, individuals
 
+Seed data and web demo
+
+A seed ontology is provided at `data/ontology.jsonld` (an animal taxonomy) to demonstrate load/save and the web demo.
+
+Web demo:
+
+Open `src/web/index.html` in a browser or run `npm run start` and visit the page; the web page imports the library via `src/web/lib.js` and exposes interactive buttons to:
+
+- Seed an example ontology (classes, properties, individuals)
+- Load the example ontology from `data/ontology.jsonld`
+- Reset the in-memory ontology
+- Run queries by class/property/value
+- Save the ontology to `data/ontology.jsonld` (works when running under Node)
+
 Usage (Node):
 
 ```js
@@ -24,10 +38,6 @@ o.addIndividual('Mammal', 'dog1', { hasName: 'Fido' });
 console.log(o.query({ class: 'Animal' }));
 console.log(o.stats());
 ```
-
-Web demo:
-
-Open `src/web/index.html` in a browser or run `npm run start` and visit the page; the web page imports the library via `src/web/lib.js`.
 
 Tests:
 
