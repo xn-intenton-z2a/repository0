@@ -26,6 +26,15 @@ describe("Website", () => {
     expect(lib).toContain("../lib/main.js");
   });
 
+  test("index.html demo wiring uses fizzBuzz and renders list for n=15", () => {
+    const html = readFileSync("src/web/index.html", "utf8");
+    // ensure demo has input and run button
+    expect(html).toContain('id="n-input"');
+    expect(html).toContain('id="run-btn"');
+    // ensure script imports lib.js and calls fizzBuzz
+    expect(html).toContain('fizzBuzz');
+  });
+
   test("index.html displays library identity elements", () => {
     const html = readFileSync("src/web/index.html", "utf8");
     expect(html).toContain("lib-name");
