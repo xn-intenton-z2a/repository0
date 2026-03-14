@@ -32,6 +32,49 @@ File format
 - Individuals reference their class using the same short names or IRIs as used by the model so load can resolve references deterministically.
 - Written files may include a top-level modelVersion key or the repository may include a manifest.json listing files and the current modelVersion; either approach is accepted but must be deterministic and machine-readable.
 
+JSON-LD CANONICALIZATION
+
+# Summary
+
+Provide an explicit, testable canonicalization contract so saved JSON-LD outputs are bit-for-bit deterministic when requested. Canonicalization ensures stable blank node identifiers, consistent ordering and reproducible byte-for-byte output to make diffs, automated migrations and CI comparisons reliable.
+
+# Motivation
+
+Even with stable key ordering, JSON-LD graphs may contain blank nodes and structural variations that produce non-deterministic serialisations. A canonicalisation step removes this variability so the same in-memory model always writes identical files when canonicalization is enabled.
+
+# Specification
+
+API
+
+- canonicalize(docOrDataset, opts?)
+  - Accepts a JSON-LD document or an array of JSON-LD graphs and returns a canonicalised representation suitable for deterministic serialisation.
+  - opts may include algorithm: "urdna2015" | "fallback" (default: prefer urdna2015 when available, fallback to deterministic hashing otherwise), and produceNormalized: boolean (when true, return a normalized N-Quads style string; when false, return a JSON-LD object with deterministic blank node ids and sorted keys).
+  - canonicalize is exposed as a named export and used internally by save() when opts.canonicalize is true.
+
+Behavior
+
+- When save(dir, { canonicalize: true }) is invoked the library canonicalizes each class graph before serialising to disk, producing deterministic blank node ids and stable key/value ordering so repeated saves are bit-for-bit identical for the same model state.
+- Preferred algorithm: use an established RDF dataset normalisation algorithm (URDNA2015) if the environment has a suitable implementation available (for example via an optional dependency such as rdf-canonize or jsonld.js normalization API). When not available, fall back to a deterministic algorithm implemented in the library:
+  - Create a canonical string for each node by sorting property keys and canonicalising referenced nodes recursively.
+  - Compute a stable hash of the sorted canonical representation to derive deterministic blank node labels.
+  - Use stable array ordering policies (sort arrays of literals and objects by canonical string) to avoid nondeterministic iteration differences.
+- Canonicalisation must preserve JSON-LD semantics: round-tripping canonicalize -> serialise -> load must produce an equivalent graph (isomorphic as RDF), and load should accept canonicalised outputs.
+
+Error handling and fallbacks
+
+- If canonicalize requests urdna2015 but no library is available, canonicalize should fall back to the deterministic algorithm and log a warning in the summary returned by save().
+- canonicalize should be deterministic across Node versions and OSes; avoid using non-deterministic object iteration or system-specific metadata.
+
+Acceptance Criteria (canonicalization)
+
+- The library exposes canonicalize as a named export from src/lib/main.js.
+- Calling save(dir, { canonicalize: true }) twice on the same in-memory model produces file contents that are byte-for-byte identical.
+- Unit tests exist in tests/unit/canonicalization.test.js that:
+  - Create an in-memory model containing blank nodes (for example nested anonymous nodes or nodes created without stable IRIs), call save(tempDir, { canonicalize: true }) twice and assert all files in tempDir have identical checksums or identical contents.
+  - Verify that outputs produced by canonicalize() round-trip through load() and produce equivalent stats() and validate() results (isomorphism assertion).
+  - If URDNA2015 is available in the environment, verify canonicalize("urdna2015") returns a normalized string and that save uses that by default.
+- save returns a summary that includes canonicalization: { canonicalized: boolean, algorithm: string, warning?: string } when opts.canonicalize is used.
+
 Context management
 
 - Provide a deterministic, canonical context.jsonld at the root of the saved data dir that defines the prefix aliases, datatype and vocabulary mappings used by the ontology.
@@ -124,14 +167,16 @@ The mission requires the pipeline to populate example ontology data over success
 
 - Add tests in tests/unit/persistence.test.js that perform the round-trip save/load and assert file existence and content keys.
 - Add tests in tests/unit/versioning.test.js that create a small old-format dataset, run migrate to the new version, and assert the migrated dataset loads and validates.
+- Add tests in tests/unit/canonicalization.test.js that verify canonicalise behaviour and bit-for-bit identical outputs when opts.canonicalize is used.
 - Use a temporary directory for each test and clean up artifacts after assertions complete.
 - Keep file naming deterministic (Class-{kebab}.jsonld) to make existence assertions stable.
 
 # Implementation Notes (repeated)
 
-- Export save, load, validate, migrate, getContext, setContext, and getModelVersion as named exports from src/lib/main.js to satisfy the public API requirement.
+- Export save, load, validate, migrate, getContext, setContext, getModelVersion and canonicalize as named exports from src/lib/main.js to satisfy the public API requirement.
 - Prefer one-file-per-class layout for ease of incremental writes; support a single graph.jsonld as a convenience for imports.
 - Maintain a minimal, stable @context to reduce unrelated diffs in example data across transform cycles.
+- Implement canonicalization as a small, testable module that uses a standard algorithm (URDNA2015) when available and otherwise falls back to a deterministic hashing strategy for blank nodes and stable key ordering.
 - Implement migrations as small pure functions that transform loaded JSON objects and emit an actions list describing their changes; keep migrations local to the library to enable automated pipeline transforms.
 
 # Related features
@@ -141,7 +186,8 @@ The mission requires the pipeline to populate example ontology data over success
 
 # Implementation
 
-- Status: Implemented in src/lib/main.js. The library exports save(), load(), validate(), migrate(), getContext(), setContext(), and getModelVersion() via the default ontology wrappers.
+- Status: Implemented in src/lib/main.js. The library exports save(), load(), validate(), migrate(), getContext(), setContext(), getModelVersion() and a canonicalize() helper via the default ontology wrappers.
 - Behaviour implemented: save(dir) writes context.jsonld and Class-{kebab}.jsonld files for each class when run under Node; load(dir) reads JSON-LD files and restores classes/properties/individuals. validate() reports errors for unknown domains/ranges and unknown classes; migrate() supports a basic modelVersion set operation and reports actions.
+- Canonicalisation: A canonicalization contract is specified; implementations should prefer URDNA2015 if the environment provides it and otherwise ensure deterministic fallback behaviour. Tests should verify bit-for-bit identity when opts.canonicalize is used.
 - Notes: Persistence writes stable JSON (stringifySorted) and avoids non-deterministic metadata. Migration facility is minimal but present and can be extended to run deterministic transformations in future cycles.
-- Tests: tests/unit/persistence.test.js and tests/unit/versioning.test.js are recommended to exercise round-trip save/load and migrate behaviours; ensure temporary directories are used to isolate test runs.
+- Tests: tests/unit/persistence.test.js, tests/unit/versioning.test.js and tests/unit/canonicalization.test.js are recommended to exercise round-trip save/load, migrate and canonicalization behaviours; ensure temporary directories are used to isolate test runs.
