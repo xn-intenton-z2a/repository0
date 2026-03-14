@@ -579,8 +579,61 @@ async function executeDispatch(octokit, repo, actionName, params, ctx) {
 }
 
 async function executeCreateIssue(octokit, repo, params, ctx) {
-  const title = params.title || "Untitled issue";
-  const labels = params.labels ? params.labels.split(",").map((l) => l.trim()) : ["automated"];
+  // Derive title: use params.title, fall back to first line of body, fall back to feature name
+  let title = (params.title || "").trim();
+  const bodyText = (params.body || params.details || "").trim();
+  const feature = (params.feature || "").trim();
+
+  if (!title && bodyText) {
+    // Extract title from body: use first heading or first non-empty line
+    const headingMatch = bodyText.match(/^#+ (.+)/m);
+    const titleMatch = bodyText.match(/^Title:\s*(.+)/im);
+    if (titleMatch) {
+      title = titleMatch[1].trim();
+    } else if (headingMatch) {
+      title = headingMatch[1].trim();
+    } else {
+      // Use first line, truncated
+      title = bodyText.split("\n")[0].substring(0, 120).trim();
+    }
+  }
+  if (!title && feature) {
+    title = `feat: implement ${feature}`;
+  }
+  if (!title) {
+    core.warning("create-issue: no title, body, or feature provided — skipping");
+    return "skipped:no-title";
+  }
+
+  const rawLabels = params.labels;
+  const labels = Array.isArray(rawLabels)
+    ? rawLabels.map((l) => String(l).trim()).filter(Boolean)
+    : typeof rawLabels === "string"
+      ? rawLabels.split(",").map((l) => l.trim()).filter(Boolean)
+      : ["automated"];
+  if (!labels.includes("automated")) labels.push("automated");
+
+  // Build rich issue body with context
+  const bodyParts = [];
+  if (bodyText) {
+    bodyParts.push(bodyText);
+  }
+  if (feature) {
+    bodyParts.push("");
+    bodyParts.push(`## Related Feature`);
+    bodyParts.push(`Feature spec: \`features/${feature}.md\``);
+  }
+  // Add mission context from MISSION.md
+  const missionText = ctx?.mission || "";
+  if (missionText) {
+    const missionHeading = missionText.match(/^#\s+(.+)/m);
+    const missionName = missionHeading ? missionHeading[1].trim() : "MISSION.md";
+    bodyParts.push("");
+    bodyParts.push(`## Context`);
+    bodyParts.push(`Mission: ${missionName}`);
+    bodyParts.push(`Created by: agentic-step supervisor`);
+  }
+  const body = bodyParts.join("\n");
 
   // Dedup guard: skip if a similarly-titled issue was closed in the last hour
   // Exclude issues closed before the init timestamp (cross-scenario protection)
@@ -610,13 +663,18 @@ async function executeCreateIssue(octokit, repo, params, ctx) {
   }
 
   core.info(`Creating issue: ${title}`);
-  const { data: issue } = await octokit.rest.issues.create({ ...repo, title, labels });
+  const { data: issue } = await octokit.rest.issues.create({ ...repo, title, body, labels });
   return `created-issue:#${issue.number}`;
 }
 
 async function executeLabelIssue(octokit, repo, params) {
   const issueNumber = Number(params["issue-number"]);
-  const labels = params.labels ? params.labels.split(",").map((l) => l.trim()) : [];
+  const rawLabels = params.labels;
+  const labels = Array.isArray(rawLabels)
+    ? rawLabels.map((l) => String(l).trim()).filter(Boolean)
+    : typeof rawLabels === "string"
+      ? rawLabels.split(",").map((l) => l.trim()).filter(Boolean)
+      : [];
   if (issueNumber && labels.length > 0) {
     core.info(`Labelling issue #${issueNumber}: ${labels.join(", ")}`);
     await octokit.rest.issues.addLabels({ ...repo, issue_number: issueNumber, labels });

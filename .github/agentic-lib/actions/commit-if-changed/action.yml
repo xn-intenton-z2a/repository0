@@ -58,6 +58,14 @@ runs:
                   sleep $((attempt * 2))
                   continue
                 }
+                # After rebase, check if our changes survived (rebase may drop empty commits)
+                LOCAL_SHA=$(git rev-parse HEAD)
+                REMOTE_SHA=$(git rev-parse "origin/$REF" 2>/dev/null || echo "")
+                if [ "$LOCAL_SHA" = "$REMOTE_SHA" ]; then
+                  echo "Rebase dropped local commit (already on remote) — nothing to push"
+                  PUSH_SUCCESS="true"
+                  break
+                fi
               fi
               # Use HEAD:refs/heads/$REF to handle detached HEAD state
               # (actions/checkout with a SHA puts us in detached HEAD, so
