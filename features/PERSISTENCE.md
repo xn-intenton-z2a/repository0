@@ -6,7 +6,7 @@ Provide a stable JSON-LD persistence feature for the ontology library. Implement
 
 # Motivation
 
-Persisting the ontology as JSON-LD enables long-term storage, reproducible example data for the website, and reliable transform cycles required by the mission. A canonical on-disk layout simplifies unit tests and example generation.
+Persisting the ontology as JSON-LD enables long-term storage, reproducible example data for the website, and reliable transform cycles required by the mission. A canonical on-disk layout simplifies unit tests and example generation and makes it feasible to evolve seed data across successive transform cycles without creating noisy diffs.
 
 # Specification
 
@@ -17,17 +17,20 @@ API
   - Creates a context file named context.jsonld at dir/ containing the shared JSON-LD context.
   - For each defined class, creates a file named Class-{kebab-case-classname}.jsonld containing a JSON-LD graph that includes the class declaration, relevant property definitions, and the individuals belonging to that class.
   - If opts.validate is true, runs validate() before writing and fails with a descriptive error if validation issues are found.
+  - If opts.version is provided, save records the model version in each written file or in a manifest (see Versioning section below).
   - Returns a summary object describing counts of classes, properties, and individuals and a list of files written.
 
 - load(dir?)
   - Loads JSON-LD files from dir (defaults to data/) and restores classes, properties, and individuals into the in-memory model.
   - Supports both the one-file-per-class layout and a single graph file named graph.jsonld if present.
+  - When files include a modelVersion, load attempts to detect mismatches with the library's current modelVersion and returns a migration plan in the summary when versions differ.
   - Returns a summary object describing counts and a list of files read, plus a details array for any per-file parse or validation errors.
 
 File format
 
 - All produced files are valid JSON-LD and include an @context that matches or references context.jsonld.
 - Individuals reference their class using the same short names or IRIs as used by the model so load can resolve references deterministically.
+- Written files may include a top-level modelVersion key or the repository may include a manifest.json listing files and the current modelVersion; either approach is accepted but must be deterministic and machine-readable.
 
 Context management
 
@@ -57,7 +60,7 @@ API
   - Runs a set of deterministic checks against the in-memory model and returns a result object of the shape:
     - valid: boolean
     - issues: array of issue objects where each issue includes { level: "error" | "warning", code: string, message: string, context?: object }
-  - Does not throw on non-fatal issues; it reports them via the issues array. Fatal problems (for example, inability to read persistence files during load) are surfaced by load/save as appropriate.
+  - Does not throw on non-fatal issues; it reports them via the issues array. Fatal problems (for example, inability to write persistence files during save) are surfaced by save/load as appropriate.
 
 Checks performed (minimum set)
 
@@ -72,16 +75,45 @@ Behavior
 - validate is fast and deterministic given the same in-memory state.
 - save(dir, { validate: true }) runs validate and fails the save if any issues with level error are reported.
 
-# Acceptance Criteria (added)
+# MODEL_VERSIONING AND MIGRATION
+
+# Summary
+
+Provide a minimal model versioning and migration contract so seed data and persisted JSON-LD can evolve across transform cycles without introducing noisy diffs or requiring human intervention for simple, well-scoped changes.
+
+# Motivation
+
+The mission requires the pipeline to populate example ontology data over successive transform cycles. As the library evolves, the persisted format, context, or canonical file layout may need small, deterministic migrations. A versioning and migration contract lets the repository evolve the seed data while providing repeatable automated transforms.
+
+# Specification
+
+- modelVersion semantics
+  - Each saved dataset should include a modelVersion identifier (string or semver-style) either at the file-level or as part of a manifest.json in the data dir.
+  - The library's current model version is available as getModelVersion() and save may accept an explicit version via opts.version.
+
+- Migration API
+  - Expose a migrate(summaryOrFiles, targetVersion) helper that accepts either a loaded summary or the path to an on-disk dataset and returns an object { migrated: boolean, summary: object, actions: [] } describing the actions taken.
+  - Built-in migrations should be small, deterministic functions that transform the on-disk JSON objects (for example: rename a property key, move a property from file A to file B, normalise context prefixes).
+  - Migrations MUST be idempotent (reapplying the same migration produces no further changes) and deterministic.
+  - For complex migrations that cannot be performed automatically, migrate should surface a plan that includes human-review recommendations rather than failing silently.
+
+- Manifest and atomic writes
+  - When performing migrations or save operations that update many files, the library should write to a temporary directory and then atomically rename or write a manifest to indicate completion, to avoid half-written datasets being consumed by other processes.
+
+# Acceptance Criteria (versioning)
+
+- save writes a modelVersion marker in the saved dataset when opts.version is provided or when the library has a non-empty current model version.
+- load detects modelVersion mismatches and returns a summary that includes a migrationRequired boolean and suggestedActions array when versions differ.
+- migrate(tempDirPath, targetVersion) can automatically perform at least one non-trivial deterministic migration in tests (for example: rename property hasOldName -> hasNewName across saved class files) and reports migrated: true and a concise actions list.
+- Unit tests demonstrate a migration round-trip: create an old-format dataset, run migrate to targetVersion, load the migrated dataset, and assert stats and validate() pass against the migrated model.
+- Migrations are idempotent: running migrate twice has no further effect and the second run reports migrated: false.
+
+# Acceptance Criteria (persistence, repeated)
 
 - validate is exported as a named function from src/lib/main.js.
 - validate returns { valid: true, issues: [] } for a known-good seeded model (for example the deterministic animal taxonomy provided by SEED_DATA).
 - validate returns a non-empty issues array when a model contains one of the checked problems (for example an individual referencing a non-existent class).
-- A unit test creates a small invalid model to demonstrate at least one error-level issue and asserts validate reports it; another test runs the seeded model and asserts validate reports valid: true.
 - When save is invoked with opts.validate true on an invalid model, save rejects or throws a descriptive error and does not write files.
-
-# Acceptance Criteria (persistence, repeated)
-
 - Calling save(dir) when N classes, M properties, and K individuals are present produces a context.jsonld and one Class-{kebab}.jsonld file per class under dir.
 - All files produced by save parse as JSON and include an @context key.
 - Calling load(dir) on the saved output restores the same counts for classes, properties, and individuals as reported by stats().
@@ -91,14 +123,16 @@ Behavior
 # Testing Recommendations (repeated)
 
 - Add tests in tests/unit/persistence.test.js that perform the round-trip save/load and assert file existence and content keys.
+- Add tests in tests/unit/versioning.test.js that create a small old-format dataset, run migrate to the new version, and assert the migrated dataset loads and validates.
 - Use a temporary directory for each test and clean up artifacts after assertions complete.
 - Keep file naming deterministic (Class-{kebab}.jsonld) to make existence assertions stable.
 
 # Implementation Notes (repeated)
 
-- Export save and load as named exports from src/lib/main.js to satisfy the public API requirement.
+- Export save, load, validate, migrate, getContext, setContext, and getModelVersion as named exports from src/lib/main.js to satisfy the public API requirement.
 - Prefer one-file-per-class layout for ease of incremental writes; support a single graph.jsonld as a convenience for imports.
 - Maintain a minimal, stable @context to reduce unrelated diffs in example data across transform cycles.
+- Implement migrations as small pure functions that transform loaded JSON objects and emit an actions list describing their changes; keep migrations local to the library to enable automated pipeline transforms.
 
 # Related features
 
