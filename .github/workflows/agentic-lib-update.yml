@@ -43,7 +43,7 @@ jobs:
       dry-run: ${{ steps.resolve.outputs.dry-run }}
     steps:
       - id: resolve
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             core.setOutput('dry-run', context.payload.inputs?.['dry-run'] || 'false');
@@ -124,7 +124,7 @@ jobs:
 
       - name: Job Summary
         if: always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const summary = `## Job: update\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |\n| Dry Run | ${{ inputs.dry-run }} |`;

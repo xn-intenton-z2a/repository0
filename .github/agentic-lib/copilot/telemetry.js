@@ -127,6 +127,8 @@ export function buildMissionMetrics(config, result, _limitsStatus, cumulativeCos
   const thisTaskCost = tc.transformationCost ?? 0;
   const thisTaskTokens = tc.tokensUsed ?? 0;
   const cumulativeTokens = tc.cumulativeTokens ?? 0;
+  const thisTaskDurationMs = tc.durationMs ?? 0;
+  const cumulativeDurationMs = tc.cumulativeDurationMs ?? 0;
 
   return [
     { metric: "Open issues", value: String(openIssues), target: "0", status: openIssues === 0 ? "MET" : "NOT MET" },
@@ -142,6 +144,8 @@ export function buildMissionMetrics(config, result, _limitsStatus, cumulativeCos
     { metric: "Budget (cumulative)", value: `${cumulativeCost}/${budgetCap}`, target: budgetCap > 0 ? `< ${budgetCap}` : "unlimited", status: budgetCap > 0 && cumulativeCost >= budgetCap ? "EXHAUSTED" : "OK" },
     { metric: "Tokens (this task)", value: String(thisTaskTokens), target: "—", status: "—" },
     { metric: "Tokens (cumulative)", value: String(cumulativeTokens), target: "—", status: "—" },
+    { metric: "Duration (this task)", value: thisTaskDurationMs > 0 ? `${Math.round(thisTaskDurationMs / 1000)}s` : "—", target: "—", status: "—" },
+    { metric: "Duration (cumulative)", value: cumulativeDurationMs > 0 ? `${Math.round(cumulativeDurationMs / 1000)}s` : "—", target: "—", status: "—" },
     { metric: "Mission complete declared", value: missionComplete ? "YES" : "NO", target: "—", status: "—" },
     { metric: "Mission failed declared", value: missionFailed ? "YES" : "NO", target: "—", status: "—" },
   ];

@@ -20,6 +20,7 @@ export function defaultState() {
       "cumulative-maintain-library": 0,
       "cumulative-nop-cycles": 0,
       "total-tokens": 0,
+      "total-duration-ms": 0,
     },
     budget: {
       "transformation-budget-used": 0,
@@ -176,14 +177,16 @@ export function resetConsecutiveNops(state) {
  * @param {string} params.outcome - Task outcome
  * @param {number} params.transformationCost - 0 or 1
  * @param {number} params.tokensUsed - Tokens consumed by this task
+ * @param {number} [params.durationMs] - Task wall-clock duration in milliseconds
  * @returns {Object} The same state object (mutated)
  */
-export function updateStateAfterTask(state, { task, outcome, transformationCost, tokensUsed }) {
+export function updateStateAfterTask(state, { task, outcome, transformationCost, tokensUsed, durationMs }) {
   const now = new Date().toISOString();
 
   // Update counters
   state.counters["log-sequence"] = (state.counters["log-sequence"] || 0) + 1;
   state.counters["total-tokens"] = (state.counters["total-tokens"] || 0) + (tokensUsed || 0);
+  state.counters["total-duration-ms"] = (state.counters["total-duration-ms"] || 0) + (durationMs || 0);
 
   if (transformationCost > 0) {
     state.counters["cumulative-transforms"] = (state.counters["cumulative-transforms"] || 0) + transformationCost;

@@ -120,6 +120,7 @@ async function run() {
       outcome: result.outcome || "completed",
       transformationCost,
       tokensUsed: result.tokensUsed || 0,
+      durationMs,
     });
     // C2: Use cumulative cost from persistent state (not just this task)
     const cumulativeCost = state.counters["cumulative-transforms"] || 0;
@@ -145,6 +146,8 @@ async function run() {
       transformationCost,
       tokensUsed: result.tokensUsed || 0,
       cumulativeTokens: state.counters["total-tokens"] || 0,
+      durationMs,
+      cumulativeDurationMs: state.counters["total-duration-ms"] || 0,
     };
     const missionMetrics = buildMissionMetrics(config, result, limitsStatus, cumulativeCost, featureIssueCount, maintenanceIssueCount, taskCosts);
 

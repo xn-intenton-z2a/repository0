@@ -242,11 +242,17 @@ export function createGitHubTools(octokit, repo, defineTool, logger = defaultLog
       required: ["title"],
     },
     handler: async ({ title, body, labels }) => {
+      const REJECTED_TITLES = ["untitled", "untitled issue", "no title", "new issue", "issue", ""];
+      const trimmed = (title || "").trim();
+      if (!trimmed || REJECTED_TITLES.includes(trimmed.toLowerCase())) {
+        logger.warning(`[tool] create_issue: rejected empty/generic title "${title}"`);
+        return { error: `Issue title "${title}" is too generic. Provide a specific, descriptive title.` };
+      }
       try {
         const { data: issue } = await octokit.rest.issues.create({
-          ...repo, title, body: body || "", labels: labels || [],
+          ...repo, title: trimmed, body: body || "", labels: labels || [],
         });
-        logger.info(`[tool] create_issue: #${issue.number} "${title}"`);
+        logger.info(`[tool] create_issue: #${issue.number} "${trimmed}"`);
         return { number: issue.number, url: issue.html_url, title: issue.title };
       } catch (err) {
         return { error: `Failed to create issue: ${err.message}` };

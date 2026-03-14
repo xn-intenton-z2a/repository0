@@ -88,7 +88,7 @@ jobs:
       maintenance: ${{ steps.resolve.outputs.maintenance }}
     steps:
       - id: resolve
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const frequency = context.payload.inputs?.['frequency'] || 'off';
@@ -308,7 +308,7 @@ jobs:
 
       - name: Job Summary
         if: always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const summary = `## Job: update-schedule\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |\n| Frequency | ${{ inputs.frequency }} |\n| Model | ${{ inputs.model || 'default' }} |\n| Profile | ${{ inputs.profile || 'default' }} |`;
