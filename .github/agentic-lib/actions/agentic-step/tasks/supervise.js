@@ -541,8 +541,17 @@ function parseReasoning(content) {
 async function executeDispatch(octokit, repo, actionName, params, ctx) {
   const workflowFile = actionName.replace("dispatch:", "") + ".yml";
   const inputs = {};
-  if (params["pr-number"]) inputs["pr-number"] = params["pr-number"];
-  if (params["issue-number"]) inputs["issue-number"] = params["issue-number"];
+  if (params["pr-number"]) inputs["pr-number"] = String(params["pr-number"]);
+  if (params["issue-number"]) {
+    const issueNum = String(params["issue-number"]);
+    // Guard: reject placeholder issue numbers from LLM (e.g. "<created_issue_number>")
+    if (/^\d+$/.test(issueNum)) {
+      inputs["issue-number"] = issueNum;
+    } else {
+      core.warning(`dispatch: ignoring non-numeric issue-number: ${issueNum}`);
+    }
+  }
+  if (params.mode) inputs.mode = String(params.mode);
 
   // Pass discussion-url when dispatching the bot
   if (workflowFile === "agentic-lib-bot.yml" && ctx?.activeDiscussionUrl) {
@@ -735,13 +744,36 @@ async function executeSetSchedule(octokit, repo, frequency) {
 }
 
 async function executeAction(octokit, repo, action, params, ctx) {
-  if (action.startsWith("dispatch:")) return executeDispatch(octokit, repo, action, params, ctx);
-  if (action.startsWith("set-schedule:")) return executeSetSchedule(octokit, repo, action.replace("set-schedule:", ""));
-  if (action === "nop") return "nop";
-  const handler = ACTION_HANDLERS[action];
-  if (handler) return handler(octokit, repo, params, ctx);
-  core.debug(`Ignoring unrecognised action: ${action}`);
-  return `unknown:${action}`;
+  // LLMs sometimes inline params in the action string as pipe-delimited key: value pairs
+  // e.g. "github:create-issue | title: foo | body: bar" instead of using the params object
+  let cleanAction = action;
+  let mergedParams = { ...params };
+  if (action.includes(" | ")) {
+    const parts = action.split(" | ");
+    cleanAction = parts[0].trim();
+    for (let i = 1; i < parts.length; i++) {
+      const colonIdx = parts[i].indexOf(":");
+      if (colonIdx > 0) {
+        const key = parts[i].substring(0, colonIdx).trim();
+        const value = parts[i].substring(colonIdx + 1).trim();
+        // Only add to params if not already set (explicit params take precedence)
+        if (!(key in mergedParams)) {
+          mergedParams[key] = value;
+        }
+      }
+    }
+    if (cleanAction !== action) {
+      core.info(`Parsed inline params from action string: ${cleanAction} + ${Object.keys(mergedParams).join(", ")}`);
+    }
+  }
+
+  if (cleanAction.startsWith("dispatch:")) return executeDispatch(octokit, repo, cleanAction, mergedParams, ctx);
+  if (cleanAction.startsWith("set-schedule:")) return executeSetSchedule(octokit, repo, cleanAction.replace("set-schedule:", ""));
+  if (cleanAction === "nop") return "nop";
+  const handler = ACTION_HANDLERS[cleanAction];
+  if (handler) return handler(octokit, repo, mergedParams, ctx);
+  core.debug(`Ignoring unrecognised action: ${cleanAction}`);
+  return `unknown:${cleanAction}`;
 }
 
 /**
