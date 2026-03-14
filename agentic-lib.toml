@@ -6,8 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "off"              # off | weekly | daily | hourly | continuous
-model = "gpt-5-mini"
+supervisor = "continuous"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -47,7 +46,7 @@ profile = "max"
 #   gpt-4.1         — High capability, large context. Best for thorough analysis.
 # Note: reasoning-effort only works with gpt-5-mini and o4-mini.
 # For other models it is automatically skipped.
-model = "claude-sonnet-4"
+model = "gpt-5-mini"
 #
 # Override individual knobs below. Omit or comment out to use profile defaults.
 # reasoning-effort = "low"       # low | medium | high | none (none = disable entirely)
@@ -115,12 +114,12 @@ min-dedicated-tests = 0            # minimum test files that import from src/lib
 max-source-todos = 0               # max TODO comments allowed in ./src (0 = none)
 
 [bot]
-log-file = "intentïon.md"
+log-prefix = "agent-log-"
 log-branch = "agentic-lib-logs"
 screenshot-file = "SCREENSHOT_INDEX.png"
 
 [init]
-timestamp = "2026-03-13T22:16:37.940Z"
+timestamp = "2026-03-14T01:08:14.501Z"
 mode = "purge"
-mission = "4-kyu-apply-dense-encoding"
-version = "7.4.13"
+mission = "3-kyu-evaluate-owl-ontology"
+version = "7.4.14"
