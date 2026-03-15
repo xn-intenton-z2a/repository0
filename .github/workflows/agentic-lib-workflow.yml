@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-15T01:28:26.219Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -18,7 +17,7 @@ concurrency:
 
 on:
   schedule:
-    - cron: "0 0 31 2 *"
+    - cron: "0 6 * * 1"
   workflow_call:
     inputs:
       ref:
@@ -559,11 +558,12 @@ jobs:
             const summary = JSON.stringify(telemetry);
             core.setOutput('telemetry', summary.slice(0, maxTelemetryChars));
 
-      #- name: Output telemetry
-      #  shell: bash
-      #  run: |
-      #    echo "Telemetry data:"
-      #    echo '${{ steps.gather.outputs.telemetry }}'
+      - name: Output telemetry summary
+        shell: bash
+        run: |
+          echo "=== Telemetry Summary ==="
+          cat /tmp/telemetry.json 2>/dev/null || echo "No telemetry file"
+          echo "=== End Telemetry ==="
 
     outputs:
       telemetry: ${{ steps.gather.outputs.telemetry }}
