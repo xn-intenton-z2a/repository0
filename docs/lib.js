@@ -10,18 +10,40 @@ export function getIdentity() {
   return { name, version, description };
 }
 
-export function fizzBuzzSingle(n) {
-  // Validate single number input
-  validateIntegerInput(n);
+export function fizzbuzzNumber(n) {
+  // Input validation: must be a finite integer
+  if (typeof n !== 'number' || !Number.isFinite(n) || !Number.isInteger(n)) {
+    throw new TypeError('n must be an integer');
+  }
   if (n % 15 === 0) return 'FizzBuzz';
   if (n % 3 === 0) return 'Fizz';
   if (n % 5 === 0) return 'Buzz';
   return String(n);
 }
 
+export function fizzbuzzRange(start, end) {
+  if (typeof start !== 'number' || !Number.isFinite(start) || !Number.isInteger(start) ||
+      typeof end !== 'number' || !Number.isFinite(end) || !Number.isInteger(end)) {
+    throw new TypeError('start and end must be integers');
+  }
+  if (start > end) {
+    throw new RangeError('start must be <= end');
+  }
+  const out = [];
+  for (let i = start; i <= end; i++) {
+    out.push(fizzbuzzNumber(i));
+  }
+  return out;
+}
+
+export function fizzBuzzSingle(n) {
+  return fizzbuzzNumber(n);
+}
+
 export function fizzBuzz(n) {
-  validateIntegerInput(n);
+  if (typeof n !== 'number' || !Number.isFinite(n) || !Number.isInteger(n)) {
+    throw new TypeError('n must be an integer');
+  }
   if (n === 0) return [];
-  const result = Array.from({ length: n }, (_, i) => fizzBuzzSingle(i + 1));
-  return result;
+  return fizzbuzzRange(1, n);
 }

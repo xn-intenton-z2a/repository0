@@ -39,31 +39,45 @@ export function main(args) {
   console.log(`${name}@${version}`);
 }
 
-// FizzBuzz library functions
+// New FizzBuzz API required by issue #3003
 
-function validateIntegerInput(n) {
-  if (typeof n !== 'number' || Number.isNaN(n) || !Number.isInteger(n)) {
-    throw new TypeError('Input must be an integer number');
+export function fizzbuzzNumber(n) {
+  // Input validation: must be a finite integer
+  if (typeof n !== 'number' || !Number.isFinite(n) || !Number.isInteger(n)) {
+    throw new TypeError('n must be an integer');
   }
-  if (n < 0) {
-    throw new RangeError('Input must be non-negative');
-  }
-}
-
-export function fizzBuzzSingle(n) {
-  // Validate single number input
-  validateIntegerInput(n);
   if (n % 15 === 0) return 'FizzBuzz';
   if (n % 3 === 0) return 'Fizz';
   if (n % 5 === 0) return 'Buzz';
   return String(n);
 }
 
+export function fizzbuzzRange(start, end) {
+  if (typeof start !== 'number' || !Number.isFinite(start) || !Number.isInteger(start) ||
+      typeof end !== 'number' || !Number.isFinite(end) || !Number.isInteger(end)) {
+    throw new TypeError('start and end must be integers');
+  }
+  if (start > end) {
+    throw new RangeError('start must be <= end');
+  }
+  const out = [];
+  for (let i = start; i <= end; i++) {
+    out.push(fizzbuzzNumber(i));
+  }
+  return out;
+}
+
+// Backwards-compatible aliases (existing site/tests expect these names)
+export function fizzBuzzSingle(n) {
+  return fizzbuzzNumber(n);
+}
+
 export function fizzBuzz(n) {
-  validateIntegerInput(n);
+  if (typeof n !== 'number' || !Number.isFinite(n) || !Number.isInteger(n)) {
+    throw new TypeError('n must be an integer');
+  }
   if (n === 0) return [];
-  const result = Array.from({ length: n }, (_, i) => fizzBuzzSingle(i + 1));
-  return result;
+  return fizzbuzzRange(1, n);
 }
 
 if (isNode) {
