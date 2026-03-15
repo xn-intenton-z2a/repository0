@@ -7,20 +7,20 @@ Usage examples
 Import from the library and call the functions:
 
 ```js
-import { fizzbuzzRange, fizzbuzzNumber } from './src/lib/main.js';
+import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js';
 
-console.log(fizzbuzzRange(1,15));
+console.log(fizzBuzz(15));
 // ["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]
 
-console.log(fizzbuzzNumber(3)); // 'Fizz'
-console.log(fizzbuzzNumber(5)); // 'Buzz'
-console.log(fizzbuzzNumber(15)); // 'FizzBuzz'
-console.log(fizzbuzzNumber(7)); // '7'
+console.log(fizzBuzzSingle(3)); // 'Fizz'
+console.log(fizzBuzzSingle(5)); // 'Buzz'
+console.log(fizzBuzzSingle(15)); // 'FizzBuzz'
+console.log(fizzBuzzSingle(7)); // '7'
 ```
 
 Demo
 
-Open src/web/fizzbuzz-demo.html in a browser to see a live demo of the library.
+Open src/web/fizzbuzz-demo.html in a browser to see a live demo of the library. The demo page exposes a "Single-n demo" where you can enter n and click Run; the results appear in the element with id="fizzbuzz-output".
 
 Running tests
 
