@@ -97,29 +97,6 @@ max-feature-issues = 2      # max concurrent feature issues
 max-attempts-per-issue = 2   # max retries per issue
 ```
 
-## String Utilities
-
-This repository includes a small collection of string utility functions exported from `src/lib/main.js`.
-
-Examples:
-
-```js
-import { slugify, truncate, camelCase, kebabCase, titleCase, wordWrap, stripHtml, escapeRegex, pluralize, levenshtein } from './src/lib/main.js';
-
-slugify('Hello World!'); // 'hello-world'
-truncate('Hello World', 8); // 'Hello…' (does not break mid-word)
-camelCase('foo-bar-baz'); // 'fooBarBaz'
-kebabCase('fooBarBaz'); // 'foo-bar-baz'
-titleCase('hello world'); // 'Hello World'
-wordWrap('The quick brown fox', 10); // 'The quick\nbrown fox'
-stripHtml('<p>Hello &amp; <strong>World</strong></p>'); // 'Hello & World'
-escapeRegex('a+b(c)'); // 'a\+b\(c\)'
-pluralize('box'); // 'boxes'
-levenshtein('kitten','sitting'); // 3
-```
-
-These utilities are implemented without external runtime dependencies and handle edge cases such as null/undefined inputs (treated as empty strings) and Unicode-aware operations where applicable.
-
 ## Updating
 
 The `init.yml` workflow runs daily and updates the agentic infrastructure automatically. To update manually:
