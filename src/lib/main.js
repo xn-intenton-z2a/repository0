@@ -27,6 +27,61 @@ export function getIdentity() {
   return { name, version, description };
 }
 
+/**
+ * Return the FizzBuzz string for a single positive integer.
+ * Rules:
+ * - Multiples of 3 => "Fizz"
+ * - Multiples of 5 => "Buzz"
+ * - Multiples of both => "FizzBuzz"
+ * - Otherwise return the number as a string
+ *
+ * Throws:
+ * - TypeError for non-integer inputs
+ * - RangeError for non-positive integers
+ */
+export function fizzBuzzSingle(n) {
+  if (typeof n !== 'number' || !Number.isFinite(n)) {
+    throw new TypeError('n must be a finite integer');
+  }
+  if (!Number.isInteger(n)) {
+    throw new TypeError('n must be an integer');
+  }
+  if (n <= 0) {
+    throw new RangeError('n must be a positive integer');
+  }
+
+  let out = '';
+  if (n % 3 === 0) out += 'Fizz';
+  if (n % 5 === 0) out += 'Buzz';
+  return out || String(n);
+}
+
+/**
+ * Return an array of FizzBuzz strings from 1..n.
+ * - fizzBuzz(0) returns []
+ * Throws:
+ * - TypeError for non-integers
+ * - RangeError for negative numbers
+ */
+export function fizzBuzz(n) {
+  if (typeof n !== 'number' || !Number.isFinite(n)) {
+    throw new TypeError('n must be a finite integer');
+  }
+  if (!Number.isInteger(n)) {
+    throw new TypeError('n must be an integer');
+  }
+  if (n < 0) {
+    throw new RangeError('n must be non-negative');
+  }
+  if (n === 0) return [];
+
+  const results = new Array(n);
+  for (let i = 1; i <= n; i++) {
+    results[i - 1] = fizzBuzzSingle(i);
+  }
+  return results;
+}
+
 export function main(args) {
   if (args?.includes("--version")) {
     console.log(version);
