@@ -9,26 +9,40 @@
     label { display:block; margin:0.5rem 0 0.25rem 0; }
     input { padding: 0.4rem; width: 6rem; }
     button { padding: 0.5rem 1rem; margin-top: 0.5rem; }
-    #fizz-output { white-space: pre-wrap; background:#f6f8fa; padding:1rem; border-radius:6px; margin-top:1rem; }
-    #fizz-error { color: #c00; margin-top: 0.5rem; }
+    #fizz-output, #fizzbuzz-output { white-space: pre-wrap; background:#f6f8fa; padding:1rem; border-radius:6px; margin-top:1rem; }
+    #fizz-error, #fizzbuzz-error { color: #c00; margin-top: 0.5rem; }
   </style>
 </head>
 <body>
   <h1>FizzBuzz Demo</h1>
-  <form id="fizz-form" onsubmit="return false;">
-    <label for="fizz-start">Start (integer)</label>
-    <input id="fizz-start" name="start" value="1" />
 
-    <label for="fizz-end">End (integer)</label>
-    <input id="fizz-end" name="end" value="5" />
+  <section>
+    <h2>Range demo</h2>
+    <form id="fizz-form" onsubmit="return false;">
+      <label for="fizz-start">Start (integer)</label>
+      <input id="fizz-start" name="start" value="1" />
 
-    <div>
-      <button id="fizz-gen" type="button">Generate</button>
-    </div>
-  </form>
+      <label for="fizz-end">End (integer)</label>
+      <input id="fizz-end" name="end" value="5" />
 
-  <div id="fizz-error" role="status" aria-live="polite"></div>
-  <div id="fizz-output" aria-live="polite"></div>
+      <div>
+        <button id="fizz-gen" type="button">Generate Range</button>
+      </div>
+    </form>
+
+    <div id="fizz-error" role="status" aria-live="polite"></div>
+    <div id="fizz-output" aria-live="polite"></div>
+  </section>
+
+  <section style="margin-top:1.5rem;">
+    <h2>Single-n demo</h2>
+    <label for="fizz-n">n (positive integer)</label>
+    <input id="fizz-n" name="n" value="15" />
+    <button id="fizz-run" type="button">Run</button>
+
+    <div id="fizzbuzz-error" role="status" aria-live="polite"></div>
+    <div id="fizzbuzz-output" aria-live="polite"></div>
+  </section>
 
   <script type="module">
     import { attachDemo } from './fizzbuzz-demo.js';

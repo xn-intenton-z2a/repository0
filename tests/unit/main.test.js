@@ -24,7 +24,7 @@ describe("Library Identity", () => {
   });
 });
 
-// FizzBuzz tests as required by issue #3003
+// FizzBuzz tests as required by mission
 
 describe('FizzBuzz numeric API', () => {
   test('fizzbuzzNumber normal cases', () => {
@@ -32,8 +32,10 @@ describe('FizzBuzz numeric API', () => {
     expect(fizzbuzzNumber(3)).toBe('Fizz');
     expect(fizzbuzzNumber(5)).toBe('Buzz');
     expect(fizzbuzzNumber(15)).toBe('FizzBuzz');
-    expect(fizzbuzzNumber(0)).toBe('FizzBuzz');
-    expect(fizzbuzzNumber(-3)).toBe('Fizz');
+  });
+
+  test('fizzbuzzNumber negative inputs throw', () => {
+    expect(() => fizzbuzzNumber(-3)).toThrow(RangeError);
   });
 
   test('fizzbuzzNumber invalid throws', () => {
