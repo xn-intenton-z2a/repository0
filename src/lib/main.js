@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2025-2026 Polycode Limited
+// src/lib/main.js
 
 const isNode = typeof process !== "undefined" && !!process.versions?.node;
 
@@ -8,7 +9,6 @@ let pkg;
 if (isNode) {
   const { createRequire } = await import("module");
   const requireFn = createRequire(import.meta.url);
-  // package.json at repo root
   pkg = requireFn("../../package.json");
 } else {
   try {
@@ -27,343 +27,22 @@ export function getIdentity() {
   return { name, version, description };
 }
 
-// ---------------- Expression parsing ----------------
-export function parseExpression(expr) {
-  if (typeof expr !== "string") throw new TypeError("expression must be a string");
-  let s = expr.trim();
-  const eq = s.indexOf("=");
-  if (eq !== -1) s = s.slice(eq + 1).trim();
-  if (s.endsWith(";")) s = s.slice(0, -1);
-  // Create a function that receives x and Math as parameter to limit globals
-  const fn = new Function("x", "Math", `return (${s});`);
-  return function (x) {
-    return fn(Number(x), Math);
-  };
-}
-
-// ---------------- Range parsing & sampling ----------------
-export function parseRange(rangeStr) {
-  if (typeof rangeStr !== "string") throw new TypeError("range must be a string");
-  const parts = rangeStr.split(":").map((p) => p.trim());
-  if (parts.length !== 3) throw new Error("range must be in format start:step:end");
-  const start = Number(parts[0]);
-  const step = Number(parts[1]);
-  const end = Number(parts[2]);
-  if (!Number.isFinite(start) || !Number.isFinite(step) || !Number.isFinite(end)) {
-    throw new Error("range values must be numbers");
-  }
-  if (step === 0) throw new Error("step must not be zero");
-  return { start, step, end };
-}
-
-export function sampleRange(rangeStr) {
-  const { start, step, end } = parseRange(rangeStr);
-  if (step > 0 && end <= start) return [];
-  if (step < 0 && end >= start) return [];
-  // Number of samples: use ceil((end - start) / step) to match expected counts (exclude final endpoint)
-  const n = Math.max(0, Math.ceil((end - start) / step));
-  const xs = new Array(n);
-  for (let i = 0; i < n; i++) {
-    xs[i] = start + i * step;
-  }
-  return xs;
-}
-
-export function sampleExpression(fn, rangeStr) {
-  if (typeof fn !== "function") throw new TypeError("fn must be a function");
-  const xs = sampleRange(rangeStr);
-  return xs.map((x) => ({ x, y: Number(fn(x)) }));
-}
-
-// ---------------- CSV loader ----------------
-export async function loadCSV(pathOrContent) {
-  const parse = (text) => {
-    const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-    if (lines.length === 0) return [];
-    // Header detection
-    const header = lines[0].split(/,|\t/).map((h) => h.trim().toLowerCase());
-    const hasHeader = header.includes("time") && header.includes("value");
-    const dataLines = hasHeader ? lines.slice(1) : lines;
-    const rows = dataLines.map((line) => {
-      const cols = line.split(/,|\t/).map((c) => c.trim());
-      // assume time,value
-      const t = Number(cols[0]);
-      const v = Number(cols[1]);
-      return { time: t, value: v };
-    });
-    return rows;
-  };
-
-  if (isNode) {
-    const { readFile } = await import("fs/promises");
-    const txt = await readFile(pathOrContent, "utf8");
-    return parse(txt);
-  } else {
-    // treat as fetchable resource or raw content
-    try {
-      const resp = await fetch(pathOrContent);
-      if (resp.ok) {
-        const txt = await resp.text();
-        return parse(txt);
-      }
-    } catch (e) {
-      // fallthrough: maybe pathOrContent is raw CSV content
-    }
-    return parse(String(pathOrContent));
-  }
-}
-
-// ---------------- SVG renderer ----------------
-export function renderSVG(points, options = {}) {
-  const width = options.width || 800;
-  const height = options.height || 400;
-  const padding = options.padding || 20;
-  if (!Array.isArray(points) || points.length === 0) {
-    return `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 ${width} ${height}\" width=\"${width}\" height=\"${height}\"></svg>`;
-  }
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  for (const p of points) {
-    if (p.x < minX) minX = p.x;
-    if (p.x > maxX) maxX = p.x;
-    if (p.y < minY) minY = p.y;
-    if (p.y > maxY) maxY = p.y;
-  }
-  if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) {
-    throw new Error("points must contain finite x and y values");
-  }
-  const xRange = maxX - minX || 1;
-  const yRange = maxY - minY || 1;
-  const toPx = (p) => {
-    const px = padding + ((p.x - minX) * (width - padding * 2)) / xRange;
-    const py = padding + ((maxY - p.y) * (height - padding * 2)) / yRange;
-    return `${px.toFixed(2)},${py.toFixed(2)}`;
-  };
-  const pointsAttr = points.map(toPx).join(" ");
-  const svg = `<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 ${width} ${height}\" width=\"${width}\" height=\"${height}\">\n  <polyline points=\"${pointsAttr}\" fill=\"none\" stroke=\"black\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n</svg>`;
-  return svg;
-}
-
-// ---------------- PNG rasterizer & encoder ----------------
-function createCRC32() {
-  const table = new Uint32Array(256);
-  for (let i = 0; i < 256; i++) {
-    let c = i;
-    for (let k = 0; k < 8; k++) {
-      if (c & 1) c = 0xedb88320 ^ (c >>> 1);
-      else c = c >>> 1;
-    }
-    table[i] = c >>> 0;
-  }
-  return function crc32(buf) {
-    let crc = 0xffffffff;
-    for (let i = 0; i < buf.length; i++) {
-      const byte = buf[i];
-      crc = (crc >>> 8) ^ table[(crc ^ byte) & 0xff];
-    }
-    return (crc ^ 0xffffffff) >>> 0;
-  };
-}
-const crc32 = createCRC32();
-
-function toUInt32BE(n) {
-  const b = Buffer.alloc(4);
-  b.writeUInt32BE(n >>> 0, 0);
-  return b;
-}
-
-function createChunk(type, data) {
-  const typeBuf = Buffer.from(type, "ascii");
-  const len = toUInt32BE(data.length);
-  const crc = toUInt32BE(crc32(Buffer.concat([typeBuf, data])));
-  return Buffer.concat([len, typeBuf, data, crc]);
-}
-
-function encodePNG(pixels, width, height) {
-  // pixels: Buffer length width*height*4 RGBA
-  const signature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(width >>> 0, 0);
-  ihdr.writeUInt32BE(height >>> 0, 4);
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = 6; // color type RGBA
-  ihdr[10] = 0; // compression
-  ihdr[11] = 0; // filter
-  ihdr[12] = 0; // interlace
-  const ihdrChunk = createChunk("IHDR", ihdr);
-
-  // Build image data with filter bytes
-  const rowSize = width * 4;
-  const raw = Buffer.alloc((rowSize + 1) * height);
-  let pos = 0;
-  for (let y = 0; y < height; y++) {
-    raw[pos++] = 0; // no filter
-    const offset = y * rowSize;
-    for (let x = 0; x < rowSize; x++) {
-      raw[pos++] = pixels[offset + x];
-    }
-  }
-
-  const zlib = require("zlib");
-  const compressed = zlib.deflateSync(raw);
-  const idatChunk = createChunk("IDAT", compressed);
-  const iendChunk = createChunk("IEND", Buffer.alloc(0));
-  return Buffer.concat([signature, ihdrChunk, idatChunk, iendChunk]);
-}
-
-function drawLine(pixels, width, height, x0, y0, x1, y1, color) {
-  x0 = Math.round(x0);
-  y0 = Math.round(y0);
-  x1 = Math.round(x1);
-  y1 = Math.round(y1);
-  const dx = Math.abs(x1 - x0);
-  const dy = Math.abs(y1 - y0);
-  const sx = x0 < x1 ? 1 : -1;
-  const sy = y0 < y1 ? 1 : -1;
-  let err = dx - dy;
-  while (true) {
-    if (x0 >= 0 && x0 < width && y0 >= 0 && y0 < height) {
-      const idx = (y0 * width + x0) * 4;
-      pixels[idx] = color[0];
-      pixels[idx + 1] = color[1];
-      pixels[idx + 2] = color[2];
-      pixels[idx + 3] = color[3];
-    }
-    if (x0 === x1 && y0 === y1) break;
-    const e2 = 2 * err;
-    if (e2 > -dy) {
-      err -= dy;
-      x0 += sx;
-    }
-    if (e2 < dx) {
-      err += dx;
-      y0 += sy;
-    }
-  }
-}
-
-export function rasterizePoints(points, opts = {}) {
-  const width = opts.width || 800;
-  const height = opts.height || 400;
-  const padding = opts.padding || 10;
-  const strokeColor = opts.strokeColor || [0, 0, 0, 255];
-
-  const pixels = Buffer.alloc(width * height * 4, 255); // default to white
-
-  if (!points || points.length === 0) return { pixels, width, height };
-
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  for (const p of points) {
-    if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) continue;
-    minX = Math.min(minX, p.x);
-    maxX = Math.max(maxX, p.x);
-    minY = Math.min(minY, p.y);
-    maxY = Math.max(maxY, p.y);
-  }
-  if (!isFinite(minX) || !isFinite(maxX)) {
-    minX = 0; maxX = 1;
-  }
-  if (!isFinite(minY) || !isFinite(maxY)) {
-    minY = 0; maxY = 1;
-  }
-  const xRange = maxX - minX || 1;
-  const yRange = maxY - minY || 1;
-  const map = (p) => {
-    const px = padding + ((p.x - minX) * (width - padding * 2)) / xRange;
-    const py = padding + ((maxY - p.y) * (height - padding * 2)) / yRange;
-    return { px, py };
-  };
-  let prev = null;
-  for (const p of points) {
-    if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) continue;
-    const cur = map(p);
-    if (prev) {
-      drawLine(pixels, width, height, prev.px, prev.py, cur.px, cur.py, strokeColor);
-    }
-    prev = cur;
-  }
-  return { pixels, width, height };
-}
-
-export async function renderPNG(points, opts = {}) {
-  const width = opts.width || 800;
-  const height = opts.height || 400;
-  const { pixels } = rasterizePoints(points, { width, height, padding: opts.padding || 10, strokeColor: opts.strokeColor || [0, 0, 0, 255] });
-  return encodePNG(pixels, width, height);
-}
-
-// ---------------- File IO / Save ----------------
-export async function savePlot(points, filePath, opts = {}) {
-  const lower = String(filePath || "").toLowerCase();
-  if (lower.endsWith(".svg") || opts.format === "svg") {
-    const svg = renderSVG(points, opts);
-    if (!isNode) throw new Error("Saving files is only supported in Node.js environment");
-    const { writeFile } = await import("fs/promises");
-    await writeFile(filePath, svg, "utf8");
-    return filePath;
-  }
-  if (lower.endsWith(".png") || opts.format === "png") {
-    const buf = await renderPNG(points, opts);
-    if (!isNode) throw new Error("Saving files is only supported in Node.js environment");
-    const { writeFile } = await import("fs/promises");
-    await writeFile(filePath, buf);
-    return filePath;
-  }
-  throw new Error("Unsupported file extension; use .svg or .png");
-}
-
-// ---------------- CLI ----------------
-export async function main(argv) {
-  const args = Array.isArray(argv) ? argv : (isNode ? process.argv.slice(2) : []);
-  if (args.includes("--help") || args.includes("-h")) {
-    const help = `Usage: node src/lib/main.js [options]\n\nOptions:\n  --expression "y=Math.sin(x)"   Expression to plot (use JavaScript Math)\n  --range "start:step:end"        Numeric range e.g. -3.14:0.01:3.14\n  --csv path/to/file.csv           Load CSV with columns time,value\n  --file output.svg|output.png     Output file (extension determines format)\n  --help                           Show this help message\n`;
-    console.log(help);
-    return;
-  }
-  if (args.includes("--version")) {
+export function main(args) {
+  if (args?.includes("--version")) {
     console.log(version);
     return;
   }
-  if (args.includes("--identity")) {
+  if (args?.includes("--identity")) {
     console.log(JSON.stringify(getIdentity(), null, 2));
     return;
   }
-
-  // Simple arg parsing
-  const parsed = {};
-  for (let i = 0; i < args.length; i++) {
-    const a = args[i];
-    if (a === "--expression") parsed.expression = args[++i];
-    else if (a === "--range") parsed.range = args[++i];
-    else if (a === "--csv") parsed.csv = args[++i];
-    else if (a === "--file") parsed.file = args[++i];
-    else if (a === "--help" || a === "-h") {
-      // handled above
-    }
-  }
-
-  let points = [];
-  if (parsed.csv) {
-    const rows = await loadCSV(parsed.csv);
-    points = rows.map((r) => ({ x: Number(r.time), y: Number(r.value) }));
-  } else if (parsed.expression && parsed.range) {
-    const fn = parseExpression(parsed.expression);
-    points = sampleExpression(fn, parsed.range);
-  } else {
-    console.log("No input provided. Use --help for usage examples.");
-    return;
-  }
-
-  if (!parsed.file) {
-    console.log("No output file specified. Use --file to set destination.");
-    return;
-  }
-  const out = await savePlot(points, parsed.file, {});
-  console.log(`Wrote ${out}`);
+  console.log(`${name}@${version}`);
 }
 
 if (isNode) {
   const { fileURLToPath } = await import("url");
   if (process.argv[1] === fileURLToPath(import.meta.url)) {
-    await main();
+    const args = process.argv.slice(2);
+    main(args);
   }
 }

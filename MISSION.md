@@ -1,43 +1,36 @@
 # Mission
 
-A JavaScript library and CLI tool for generating plots from mathematical expressions and time series data. Produces SVG and PNG output files.
+A JavaScript library of string utility functions. This is a bag-of-functions problem — each function is independent.
 
 ## Required Capabilities
 
-- Parse a mathematical expression string using JavaScript `Math` functions (e.g. `"y=Math.sin(x)"`, `"y=x*x+2*x-1"`) into an evaluatable function.
-- Evaluate an expression over a numeric range (`start:step:end`) and return an array of data points.
-- Load time series data from a CSV file with columns `time,value`.
-- Render a data series to SVG 1.1 using `<polyline>` elements with a `viewBox` attribute.
-- Render a data series to PNG (canvas-based or via SVG conversion — document the approach in the README).
-- Save a plot to a file, inferring format from extension (`.svg` or `.png`).
+The library must provide these 10 string operations, exported as named functions from `src/lib/main.js`:
 
-## CLI
-
-```
-node src/lib/main.js --expression "y=Math.sin(x)" --range "-3.14:0.01:3.14" --file output.svg
-node src/lib/main.js --csv data.csv --file output.png
-node src/lib/main.js --help
-```
-
-Range format: `start:step:end` (e.g. `-3.14:0.01:3.14`).
-
-The `--help` flag prints usage examples and exits.
+- **Slugify** — convert to URL-friendly slug (lowercase, hyphens, strip non-alphanumeric)
+- **Truncate** — truncate with suffix (default "…"), don't break mid-word
+- **camelCase** — convert to camelCase
+- **kebabCase** — convert to kebab-case
+- **titleCase** — capitalise first letter of each word
+- **wordWrap** — soft wrap text at word boundaries. Never break a word. If a single word exceeds `width`, place it on its own line unbroken. Line separator is `\n`.
+- **stripHtml** — remove HTML tags, decode common entities
+- **escapeRegex** — escape special regex characters
+- **Pluralize** — basic English pluralisation. Rules: words ending in s/x/z/ch/sh add "es"; consonant+"y" changes to "ies"; "f"/"fe" changes to "ves"; all others add "s". Irregular plurals (mouse/mice, child/children) are out of scope.
+- **Levenshtein distance** — compute edit distance between two strings
 
 ## Requirements
 
-- Export all public API as named exports from `src/lib/main.js`.
-- SVG output must be valid SVG 1.1 with a `viewBox` attribute.
-- External dependencies allowed only for PNG rendering (e.g. `canvas`, `sharp`). Expression parsing must use built-in JavaScript `Math` — no external math libraries.
-- Comprehensive unit tests covering expression parsing, series generation, SVG structure, and CLI flags.
-- README with example commands and sample output descriptions.
+- Handle edge cases: empty strings, null/undefined (return empty string), Unicode characters.
+- No external runtime dependencies.
+- Comprehensive unit tests for each function including edge cases.
+- README with usage examples for each function.
 
 ## Acceptance Criteria
 
-- [ ] Parsing `"y=Math.sin(x)"` returns a callable function
-- [ ] Evaluating over range `-3.14:0.01:3.14` returns ~628 data points
-- [ ] SVG output contains `<polyline>` and `viewBox` attributes
-- [ ] PNG output starts with the PNG magic bytes
-- [ ] CLI `--expression "y=Math.sin(x)" --range "-3.14:0.01:3.14" --file output.svg` produces a file
-- [ ] CLI `--help` prints usage information
+- [ ] All 10 functions are exported and work correctly
+- [ ] Slugifying `"Hello World!"` produces `"hello-world"`
+- [ ] Truncating `"Hello World"` to length 8 produces `"Hello…"`
+- [ ] camelCase of `"foo-bar-baz"` produces `"fooBarBaz"`
+- [ ] Levenshtein distance between `"kitten"` and `"sitting"` is `3`
+- [ ] Edge cases (empty string, null, Unicode) handled gracefully
 - [ ] All unit tests pass
-- [ ] README documents CLI usage with examples
+- [ ] README documents all functions with examples

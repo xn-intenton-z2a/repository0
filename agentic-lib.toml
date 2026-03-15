@@ -6,7 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "hourly"              # off | weekly | daily | hourly | continuous
+supervisor = "continuous"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -119,7 +119,7 @@ log-branch = "agentic-lib-logs"
 screenshot-file = "SCREENSHOT_INDEX.png"
 
 [init]
-timestamp = "2026-03-15T09:29:19.979Z"
+timestamp = "2026-03-15T19:33:23.961Z"
 mode = "purge"
-mission = "2-kyu-create-plot-code-lib"
+mission = "5-kyu-apply-string-utils"
 version = "7.4.23"
