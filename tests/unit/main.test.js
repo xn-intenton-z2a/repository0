@@ -1,26 +1,47 @@
 // SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
-import { describe, test, expect } from "vitest";
-import { main, getIdentity, name, version, description } from "../../src/lib/main.js";
+import { describe, it, expect } from 'vitest';
+import { encode, decode, createEncoding, listEncodings, encodeUUID, decodeUUID } from '../../src/lib/main.js';
 
-describe("Main Output", () => {
-  test("should terminate without error", () => {
-    process.argv = ["node", "src/lib/main.js"];
-    main();
+function u8(arr) { return new Uint8Array(arr); }
+
+describe('encoding round-trip and UUID helpers', () => {
+  const cases = [
+    u8([]),
+    u8([0]),
+    u8([0,0,0,0]),
+    u8([255,255,255,255]),
+    u8([1]),
+    u8([0,255,1,2,3])
+  ];
+
+  const encNames = listEncodings().map(e => e.name);
+
+  it('round-trips various buffers for all built-in encodings', () => {
+    for (const name of encNames) {
+      for (const c of cases) {
+        const out = encode(c, name);
+        const back = decode(out, name);
+        expect(Array.from(back)).toEqual(Array.from(c));
+      }
+    }
   });
-});
 
-describe("Library Identity", () => {
-  test("exports name, version, and description", () => {
-    expect(typeof name).toBe("string");
-    expect(typeof version).toBe("string");
-    expect(typeof description).toBe("string");
-    expect(name.length).toBeGreaterThan(0);
-    expect(version).toMatch(/^\d+\.\d+\.\d+/);
+  it('createEncoding rejects ambiguous and control characters', () => {
+    expect(() => createEncoding('abc0def')).toThrow(); // contains '0'
+    expect(() => createEncoding('ab\u0001cd')).toThrow(); // control char
   });
 
-  test("getIdentity returns correct structure", () => {
-    const identity = getIdentity();
-    expect(identity).toEqual({ name, version, description });
+  it('encodeUUID and decodeUUID are consistent and densest is shorter than base64 no-padding', () => {
+    const uuid = '00112233-4455-6677-8899-aabbccddeeff';
+    const lengths = {};
+    for (const e of listEncodings()) {
+      const enc = encodeUUID(uuid, e.name);
+      lengths[e.name] = enc.length;
+      const back = decodeUUID(enc, e.name);
+      expect(back).toBe('00112233-4455-6677-8899-aabbccddeeff');
+    }
+    // baseline base64 no padding length for 16 bytes is 22
+    const densestLen = lengths['densest'];
+    expect(densestLen).toBeLessThan(22);
   });
 });
