@@ -2,48 +2,32 @@
 
 Purpose
 
-Define and standardize the library core: two named exports fizzBuzz and fizzBuzzSingle and their exact behaviour, error handling and testable outputs so unit tests can be written against deterministic behaviour.
+Define and standard, in a concise machine-testable way, the core API surface required by the mission: two named exports fizzBuzz and fizzBuzzSingle and their deterministic behaviour for valid inputs and error cases.
 
 Specification
 
-The library exports two named functions from src/lib/main.js: fizzBuzz and fizzBuzzSingle.
-
-fizzBuzz(n)
-
-- Accepts a single numeric input n and returns an array of strings representing 1..n inclusive.
-- For each integer i from 1 to n: if i is divisible by 3 return Fizz; if divisible by 5 return Buzz; if divisible by both 3 and 5 return FizzBuzz; otherwise return the decimal string form of i.
-- If n is 0 return an empty array.
-- If n is a negative integer throw a RangeError whose message includes the word range or negative.
-- If n is not an integer (including NaN, floating point with fractional component, or non-number) throw a TypeError.
-
-fizzBuzzSingle(n)
-
-- Accepts a single positive integer n and returns the Fizz/Buzz/FizzBuzz string for that integer using the same rules above.
-- If n is not a positive integer throw a TypeError for non-integers and RangeError for negative or zero where appropriate; tests will assert the exact error class is used.
-
-Edge cases and validation
-
-- n = 0 for fizzBuzz returns an empty array.
-- Negative inputs must throw RangeError.
-- Non-integer numeric inputs (e.g. 2.5) must throw TypeError.
-- Non-number inputs must throw TypeError.
-- The functions must not mutate input values or rely on global state.
+- Exports: named exports fizzBuzz and fizzBuzzSingle from src/lib/main.js.
+- fizzBuzz(n):
+  - Accepts a single numeric input n and returns an array of strings for integers 1..n inclusive.
+  - For each integer i from 1 to n: if i is divisible by 3 return Fizz; if divisible by 5 return Buzz; if divisible by both 3 and 5 return FizzBuzz; otherwise return the decimal string form of i.
+  - If n is 0 return an empty array.
+  - If n is negative throw RangeError.
+  - If n is not an integer or not a number throw TypeError.
+- fizzBuzzSingle(n):
+  - Accepts a single integer n and returns the single Fizz/Buzz/FizzBuzz/string result using the same rules.
+  - For n <= 0 throw RangeError (single-call requires positive integer); non-integers and non-number inputs throw TypeError.
+- Neither function mutates inputs or relies on external state.
 
 Testing guidance
 
-- Unit tests must exercise happy paths and all listed edge cases.
-- Exact-return checks: fizzBuzz(15) must return an array of length 15 with the fifteenth element equal to FizzBuzz.
-- Exact single checks: fizzBuzzSingle(3) returns Fizz, fizzBuzzSingle(5) returns Buzz, fizzBuzzSingle(15) returns FizzBuzz, fizzBuzzSingle(7) returns 7.
+- Unit tests must assert both return values and error classes (TypeError or RangeError) and may assert message substrings for identification.
+- Key examples to test: fizzBuzz(15), fizzBuzz(0), fizzBuzzSingle(3), fizzBuzzSingle(5), fizzBuzzSingle(15), fizzBuzzSingle(7), negative and non-integer inputs.
 
 Acceptance Criteria
 
-- fizzBuzz(15) returns an array of 15 strings where element 15 is FizzBuzz and earlier positions match their expected values.
-- fizzBuzzSingle(3) returns Fizz.
-- fizzBuzzSingle(5) returns Buzz.
-- fizzBuzzSingle(15) returns FizzBuzz.
-- fizzBuzzSingle(7) returns 7.
+- fizzBuzz(15) returns an array of length 15 whose fifteenth element equals FizzBuzz.
+- fizzBuzzSingle(3) returns Fizz; fizzBuzzSingle(5) returns Buzz; fizzBuzzSingle(15) returns FizzBuzz; fizzBuzzSingle(7) returns "7".
 - fizzBuzz(0) returns an empty array.
-- Negative numbers passed to either function throw RangeError.
-- Non-integers or non-number inputs throw TypeError.
-- Both functions are exported as named exports from src/lib/main.js.
-- Unit tests covering these behaviours are present in tests/unit and pass.
+- Negative values passed to either function throw RangeError.
+- Non-integer or non-number inputs throw TypeError.
+- Both functions are exported as named exports from src/lib/main.js and covered by unit tests in tests/unit.

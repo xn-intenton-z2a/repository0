@@ -2,58 +2,34 @@
 
 Purpose
 
-Provide a single, actionable feature specification that drives the repository to implement the mission: a minimal JavaScript library that exports two named functions, a CLI entrypoint, a tiny web demo integration, and comprehensive unit tests that validate normal and edge behaviour.
+Describe the minimal implementation, CLI integration and test requirements necessary to satisfy the mission and make the library usable in Node and the browser.
 
 Specification
 
-- Export two named functions from src/lib/main.js: fizzBuzz and fizzBuzzSingle.
-- fizzBuzz(n) returns an array of strings for integers 1..n using the classic Fizz/Buzz/FizzBuzz rules.
-- fizzBuzzSingle(n) returns the single string result for the integer n using the same rules.
-- Input validation rules:
-  - If n is 0, fizzBuzz returns an empty array.
-  - Negative integers throw RangeError (message must include the word range or negative).
-  - Non-integers (including floats with fractional part) and non-number inputs throw TypeError.
-  - Functions must not mutate inputs or rely on external state.
-
-API
-
-- Named exports: fizzBuzz, fizzBuzzSingle
-- The module should remain usable in Node (require/import) and browser ESM environments.
-
-CLI integration
-
-- The repository's existing CLI (node src/lib/main.js) should be extended or refactored to use the exported fizzBuzz/fizzBuzzSingle functions when invoked with a numeric argument.
-- CLI behaviour:
-  - node src/lib/main.js <n> prints each line of fizzBuzz(n) joined by newlines to stdout.
-  - node src/lib/main.js with no args prints a short usage line and the fizzBuzz(15) demo output.
-  - Invalid input prints a brief human error to stderr and exits with non-zero status.
-
-Web demo
-
-- The existing web example should import the library and render fizzBuzz(15) as a visible list.
-- The demo must include a numeric input and a button that recomputes the list in-place and shows inline validation errors for bad input.
+- Library API:
+  - Export named functions fizzBuzz and fizzBuzzSingle from src/lib/main.js.
+  - Provide small, well-scoped helper functions only if needed (avoid new runtime dependencies).
+- CLI behaviour (node src/lib/main.js):
+  - When invoked with a numeric argument, print fizzBuzz(n) lines to stdout, one per line.
+  - When invoked without args print a usage hint and a short demo (for example fizzBuzz(15)).
+  - Invalid CLI input prints a human-friendly error to stderr and exits non-zero.
+- Browser/web demo:
+  - A minimal example page imports the ESM build and displays fizzBuzz(15) and an input/button to recompute the list with inline validation.
 
 Tests
 
-- Add or update unit tests in tests/unit covering:
-  - fizzBuzz(15) returns array length 15 with fifteenth element equal to FizzBuzz.
-  - fizzBuzzSingle(3) === Fizz, fizzBuzzSingle(5) === Buzz, fizzBuzzSingle(15) === FizzBuzz, fizzBuzzSingle(7) === "7".
-  - fizzBuzz(0) returns an empty array.
-  - Negative inputs throw RangeError.
-  - Non-integers and non-number inputs throw TypeError for both functions.
-  - CLI tests that exercise process.argv invocation and verify correct stdout/stderr behaviour for valid and invalid inputs.
+- Unit tests (tests/unit) must cover:
+  - Correct outputs for fizzBuzz and fizzBuzzSingle (including fizzBuzz(15) and single-value checks).
+  - Error handling per ERROR_HANDLING feature (TypeError/RangeError cases).
+  - CLI behaviour: at least smoke tests for running main() with no args and with invalid args.
 
 Acceptance Criteria
 
-- The package exports named functions fizzBuzz and fizzBuzzSingle from src/lib/main.js.
-- fizzBuzz(15) returns the expected 15-element array ending with FizzBuzz.
-- fizzBuzzSingle(3) returns Fizz; fizzBuzzSingle(5) returns Buzz; fizzBuzzSingle(15) returns FizzBuzz; fizzBuzzSingle(7) returns "7".
-- fizzBuzz(0) returns [] and negative inputs raise RangeError; non-integers raise TypeError.
-- The CLI prints fizzBuzz(n) results for a numeric argument and demonstrates fizzBuzz(15) when run without arguments; invalid input exits with non-zero status.
-- The web demo displays fizzBuzz(15) and allows recomputing from an input with inline validation.
-- Unit tests exist in tests/unit and cover the listed behaviours.
+- Named exports fizzBuzz and fizzBuzzSingle exist in src/lib/main.js.
+- The CLI prints fizzBuzz results when given a numeric arg and shows demo output without args; invalid input exits non-zero.
+- The web demo builds with existing build:web script and displays fizzBuzz(15) with a recompute control.
+- Unit tests covering the library API and validation exist and pass in CI.
 
 Notes
 
-- Keep changes minimal and surgical: prefer adding a compact implementation and tests rather than large refactors.
-- Avoid introducing new runtime dependencies.
+- Keep implementation minimal and avoid large refactors; prefer concise, well-tested code.

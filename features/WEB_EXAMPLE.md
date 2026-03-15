@@ -2,16 +2,16 @@
 
 Purpose
 
-Provide a tiny web demonstration page that uses the library in the browser so the library's behaviour is visible and testable via the site at src/web. This helps verify that the library is usable in both Node and browser contexts.
+Provide a short, testable web demonstration that verifies the library works in a browser ESM environment and makes the fizzBuzz behaviour visible to reviewers.
 
 Specification
 
-- Create a simple page or example in src/web that imports the library and renders the result of fizzBuzz(15) into the document as a list.
-- The demo must clearly show the JSON output or a human-friendly list so a reviewer can confirm the fifteenth value is FizzBuzz at a glance.
-- The demo should include a minimal interactive control (an input and a button) allowing the user to enter a number and recompute the list in-place; validation errors should be shown inline.
+- The demo page must import the library and render fizzBuzz(15) so the fifteenth element (FizzBuzz) is visible.
+- Provide a numeric input and a Recompute button that updates the displayed list in-place and shows inline validation errors for invalid input.
+- The demo must be buildable with the existing build:web script and viewable with the documented start command.
 
 Acceptance Criteria
 
-- The repository contains an example web page that uses the library and displays fizzBuzz(15) with the fifteenth element visible as FizzBuzz.
-- The example can be built by the project's existing build:web script and the output is viewable via the documented start command.
-- The web demo includes an input control that permits entering a number and recomputing the displayed list, with invalid input shown as an inline error.
+- The repository contains a web example that displays fizzBuzz(15) and shows the fifteenth element as FizzBuzz.
+- The example includes an input and button that recompute the list and show inline errors for invalid input.
+- The example is buildable by the project's build:web script and viewable via the documented start command.
