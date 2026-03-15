@@ -56,6 +56,9 @@ export function fizzBuzzSingle(n) {
   return out || String(n);
 }
 
+// Alias for backward compatibility with older export name used in src/index.js
+export const fizzValue = fizzBuzzSingle;
+
 /**
  * Return an array of FizzBuzz strings from 1..n.
  * - fizzBuzz(0) returns []
