@@ -1,5 +1,7 @@
 # CUSTOM_CHARSET
 
+Status: implemented (closed issue #3033)
+
 Overview
 
 Allow consumers to create custom encodings from a supplied charset string so experiments with denser alphabets are possible while enforcing safety constraints.

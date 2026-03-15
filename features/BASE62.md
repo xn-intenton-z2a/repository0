@@ -1,5 +1,7 @@
 # BASE62
 
+Status: implemented (closed issue #3033)
+
 Overview
 
 Implement the base62 encoding as a built-in encoding using the character set 0-9 a-z A-Z. This encoding is URL-safe and serves as the baseline dense encoding required by the mission.

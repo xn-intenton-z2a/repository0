@@ -1,5 +1,7 @@
 # UUID_SHORTHAND
 
+Status: implemented (closed issue #3033)
+
 Overview
 
 Specify the library shorthand for encoding v7 UUIDs so consumers can obtain the densest printable representation quickly and decode back to the canonical UUID.

@@ -1,5 +1,7 @@
 # ENCODING_LIST
 
+Status: implemented (closed issue #3033)
+
 Overview
 
 Specify the encoding registry and the shape of encoding metadata returned to callers so clients can inspect available alphabets and density measures.

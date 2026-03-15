@@ -1,5 +1,7 @@
 # BASE91
 
+Status: implemented (closed issue #3033)
+
 Overview
 
 Provide a base91 encoding as a built-in encoding to explore higher-density printable encodings beyond base85.

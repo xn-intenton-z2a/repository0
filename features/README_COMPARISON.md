@@ -1,5 +1,7 @@
 # README_COMPARISON
 
+Status: implemented (closed issue #3033)
+
 Overview
 
 Document a reproducible comparison of encoded UUID lengths across available encodings so users can see which encoding yields the shortest printable representation for a v7 UUID.

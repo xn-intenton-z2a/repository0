@@ -1,5 +1,7 @@
 # BASE85
 
+Status: implemented (closed issue #3033)
+
 Overview
 
 Provide a base85 encoding (Z85 compatible) as a built-in encoding to increase density above base62.

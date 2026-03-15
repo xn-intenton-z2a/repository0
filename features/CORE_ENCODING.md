@@ -1,5 +1,7 @@
 # CORE_ENCODING
 
+Status: implemented (closed issue #3033)
+
 Overview
 
 Define the core encoding engine and public API for encoding and decoding arbitrary binary data using named encodings. This feature specifies inputs, outputs, validation rules, and the round-trip guarantees required by the mission.
