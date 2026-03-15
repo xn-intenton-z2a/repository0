@@ -2,6 +2,8 @@
 
 Summary
 
+Status: Implemented (closed issue #3022)
+
 Define and implement the command line interface used to drive expression parsing, series generation, CSV loading, rendering, and file output.
 
 Rationale

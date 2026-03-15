@@ -2,6 +2,8 @@
 
 Summary
 
+Status: Implemented (closed issue #3022)
+
 Implement a lightweight CSV loader that reads a file with columns time,value and returns a numeric time series ready for plotting.
 
 Rationale

@@ -2,6 +2,8 @@
 
 Summary
 
+Status: Implemented (closed issue #3022)
+
 Describe the unit testing plan and required test cases to validate parsing, series generation, rendering and CLI behaviour.
 
 Rationale

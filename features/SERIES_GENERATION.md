@@ -2,6 +2,8 @@
 
 Summary
 
+Status: Implemented (closed issue #3022)
+
 Provide a utility to evaluate a parsed expression over a numeric range and return an ordered series of points suitable for rendering or analysis.
 
 Rationale

@@ -2,6 +2,8 @@
 
 Summary
 
+Status: Implemented (closed issue #3022)
+
 Implement a safe expression parser that converts a user supplied expression string into an evaluatable JavaScript function. The parser must accept expressions that assign y as a function of x, for example y=Math.sin(x) or y=x*x+2*x-1, and return a callable function f(x) that produces numeric y values.
 
 Rationale

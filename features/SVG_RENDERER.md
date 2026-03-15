@@ -2,6 +2,8 @@
 
 Summary
 
+Status: Implemented (closed issue #3022)
+
 Render a numeric series to an SVG 1.1 document using a polyline element and a viewBox attribute so output scales cleanly across viewers.
 
 Rationale

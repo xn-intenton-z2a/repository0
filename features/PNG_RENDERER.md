@@ -2,6 +2,8 @@
 
 Summary
 
+Status: Implemented (closed issue #3022)
+
 Provide PNG output support by converting rendered SVG to a raster image or by drawing to a canvas; document the chosen approach and required dependency.
 
 Rationale

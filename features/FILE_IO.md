@@ -2,6 +2,8 @@
 
 Summary
 
+Status: Implemented (closed issue #3022)
+
 Implement file saving utilities that infer output format from file extension and correctly persist SVG and PNG outputs to disk.
 
 Rationale
