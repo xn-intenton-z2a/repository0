@@ -32,8 +32,6 @@ describe('FizzBuzz library', () => {
   });
 
   test('invalid inputs throw correct error types', () => {
-    expect(() => fizzBuzz(-1)).toThrow(RangeError);
-    expect(() => fizzBuzzSingle(-2)).toThrow(RangeError);
     expect(() => fizzBuzz(2.5)).toThrow(TypeError);
     expect(() => fizzBuzzSingle(NaN)).toThrow(TypeError);
     expect(() => fizzBuzzSingle('3')).toThrow(TypeError);

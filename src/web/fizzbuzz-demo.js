@@ -1,42 +1,40 @@
 // SPDX-License-Identifier: MIT
-// src/web/fizzbuzz-demo.js
-import { fizzBuzz, fizzBuzzSingle } from '../lib/main.js';
+// Demo module for FizzBuzz. Exposes helpers for unit tests and attaches behaviour to the demo page.
+import { fizzbuzzRange } from './lib.js';
 
-const canonical = fizzBuzz(15);
+export function renderFizzbuzzToDocument(start, end, doc = document) {
+  const outEl = doc.getElementById('fizz-output');
+  const errEl = doc.getElementById('fizz-error');
+  if (!outEl) throw new Error('Missing #fizz-output element');
+  if (!errEl) throw new Error('Missing #fizz-error element');
 
-export function renderSequence(container) {
-  container.innerHTML = '';
-  const ol = document.createElement('ol');
-  ol.id = 'sequence-list';
-  canonical.forEach(item => {
-    const li = document.createElement('li');
-    li.textContent = item;
-    ol.appendChild(li);
-  });
-  container.appendChild(ol);
+  // Clear previous
+  errEl.textContent = '';
+  outEl.textContent = '';
+
+  try {
+    const seq = fizzbuzzRange(start, end);
+    outEl.textContent = seq.join('\n');
+  } catch (err) {
+    errEl.textContent = err?.message ?? String(err);
+  }
 }
 
-export function wireControls(form, outputEl) {
-  const input = form.querySelector('input[name="number"]');
-  const btn = form.querySelector('button[type="submit"]');
-  const result = outputEl;
+export function attachDemo(doc = document) {
+  const startInput = doc.getElementById('fizz-start');
+  const endInput = doc.getElementById('fizz-end');
+  const gen = doc.getElementById('fizz-gen');
 
-  form.addEventListener('submit', (ev) => {
-    ev.preventDefault();
-    const val = Number(input.value);
-    try {
-      const res = fizzBuzzSingle(val);
-      result.textContent = String(res);
-    } catch (e) {
-      result.textContent = e.name || 'Error';
-    }
-  });
-}
+  if (!startInput || !endInput || !gen) return;
 
-export default function initDemo() {
-  const seqContainer = document.getElementById('demo-sequence');
-  const form = document.getElementById('fizz-form');
-  const output = document.getElementById('fizz-output');
-  if (seqContainer) renderSequence(seqContainer);
-  if (form && output) wireControls(form, output);
+  const run = () => {
+    const s = Number(startInput.value);
+    const e = Number(endInput.value);
+    renderFizzbuzzToDocument(s, e, doc);
+  };
+
+  gen.addEventListener('click', run);
+
+  // Initial render
+  run();
 }

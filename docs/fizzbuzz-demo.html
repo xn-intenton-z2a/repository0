@@ -1,32 +1,38 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FizzBuzz Demo</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; padding: 1.5rem; max-width: 800px; margin: 0 auto; }
+    label { display:block; margin:0.5rem 0 0.25rem 0; }
+    input { padding: 0.4rem; width: 6rem; }
+    button { padding: 0.5rem 1rem; margin-top: 0.5rem; }
+    #fizz-output { white-space: pre-wrap; background:#f6f8fa; padding:1rem; border-radius:6px; margin-top:1rem; }
+    #fizz-error { color: #c00; margin-top: 0.5rem; }
+  </style>
 </head>
 <body>
-  <main>
-    <h1>FizzBuzz Demo</h1>
-    <section aria-labelledby="seq-heading">
-      <h2 id="seq-heading">FizzBuzz(15) Sequence</h2>
-      <div id="demo-sequence" aria-live="polite">Loading...</div>
-    </section>
+  <h1>FizzBuzz Demo</h1>
+  <form id="fizz-form" onsubmit="return false;">
+    <label for="fizz-start">Start (integer)</label>
+    <input id="fizz-start" name="start" value="1" />
 
-    <section aria-labelledby="single-heading">
-      <h2 id="single-heading">Single Number Lookup</h2>
-      <form id="fizz-form">
-        <label for="number-input">Enter an integer:</label>
-        <input id="number-input" name="number" type="number" inputmode="numeric" required />
-        <button type="submit">Get FizzBuzz</button>
-      </form>
-      <div id="fizz-output" role="status" aria-live="polite"></div>
-    </section>
+    <label for="fizz-end">End (integer)</label>
+    <input id="fizz-end" name="end" value="5" />
 
-  </main>
+    <div>
+      <button id="fizz-gen" type="button">Generate</button>
+    </div>
+  </form>
+
+  <div id="fizz-error" role="status" aria-live="polite"></div>
+  <div id="fizz-output" aria-live="polite"></div>
+
   <script type="module">
-    import initDemo from './fizzbuzz-demo.js';
-    initDemo();
+    import { attachDemo } from './fizzbuzz-demo.js';
+    attachDemo(document);
   </script>
 </body>
 </html>

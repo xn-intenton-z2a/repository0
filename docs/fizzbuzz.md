@@ -1,27 +1,34 @@
-# FizzBuzz
+# FizzBuzz Documentation
 
-This document explains the FizzBuzz library exported by src/lib/main.js.
+This document shows usage examples for the FizzBuzz library exported by src/lib/main.js.
 
-Functions
+API
 
-- fizzBuzz(n): Returns an array of strings representing the FizzBuzz sequence from 1..n.
-  - fizzBuzz(15) -> ["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]
-  - fizzBuzz(0) -> []
-  - Throws TypeError for non-integer inputs and RangeError for negative numbers.
+- fizzbuzzNumber(n): returns a string for a single integer n. Throws TypeError('n must be an integer') for non-integers.
+- fizzbuzzRange(start, end): returns an array of strings applying fizzbuzzNumber to each integer from start to end inclusive. Throws TypeError('start and end must be integers') or RangeError('start must be <= end') as appropriate.
 
-- fizzBuzzSingle(n): Returns the FizzBuzz string for a single integer.
-  - fizzBuzzSingle(3) -> "Fizz"
-  - fizzBuzzSingle(5) -> "Buzz"
-  - fizzBuzzSingle(15) -> "FizzBuzz"
-  - fizzBuzzSingle(7) -> "7"
-  - Throws TypeError for non-integer inputs and RangeError for negative numbers.
+Examples
 
-Running the demo
+```js
+import { fizzbuzzNumber, fizzbuzzRange } from './src/lib/main.js';
 
-- Open src/web/fizzbuzz-demo.html in a browser (or run the behaviour tests which start a local server).
-- The page will display the canonical fizzBuzz(15) sequence and allows single-number lookups.
+fizzbuzzNumber(3); // 'Fizz'
+fizzbuzzNumber(5); // 'Buzz'
+fizzbuzzNumber(15); // 'FizzBuzz'
+fizzbuzzNumber(7); // '7'
 
-Tests
+fizzbuzzRange(1,5); // ['1','2','Fizz','4','Buzz']
+```
 
-- Unit tests: npm test
-- Behaviour tests: npm run test:behaviour
+Web demo
+
+Open `src/web/fizzbuzz-demo.html` in a browser to try a small UI that uses the library.
+
+Running behaviour tests
+
+Run Playwright tests with:
+
+```
+npm run test:behaviour
+```
+
