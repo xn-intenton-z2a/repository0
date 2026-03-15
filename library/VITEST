@@ -1,0 +1,49 @@
+NORMALISED EXTRACT:
+Vitest quick-reference for implementers: installation, configuration, test API and common CLI flags.
+
+TABLE OF CONTENTS:
+1. Installation
+2. Test file conventions
+3. Core API (describe/it/test, hooks, expect)
+4. Matchers and common assertions
+5. Configuration (vitest.config.js) and runtimes
+6. Runners and CLI flags
+7. Coverage and CI usage
+8. Digest and attribution
+
+1. Installation
+Install dev dependency: npm install --save-dev vitest
+Add npm scripts: "test": "vitest --run" and "test:watch": "vitest"
+
+2. Test file conventions
+By default Vitest recognizes files matching patterns: **/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx} or tests/ directory depending on config.
+
+3. Core API
+- describe(name, fn): group tests
+- it(name, fn) / test(name, fn): individual test
+- beforeEach(fn), afterEach(fn), beforeAll(fn), afterAll(fn): hooks
+- expect(value): assertion entry
+
+4. Matchers
+Common matchers: toBe, toEqual, toStrictEqual, toContain, toHaveLength, toMatch, toThrow, resolves/rejects helpers for promises.
+Examples: expect(sum(1,2)).toBe(3)
+
+5. Configuration
+vitest.config.js export default defineConfig({ test: { globals: true, environment: 'node'|'jsdom', setupFiles: ['./test/setup.js'] } })
+Options: globals (boolean), environment (node or jsdom), test timeout, reporters, coverage provider configuration.
+
+6. CLI and runner flags
+- npx vitest or npm run test
+- --run : run tests once (CI)
+- --watch : run in watch mode
+- --coverage : collect coverage
+- --reporter <name> : select reporter
+
+7. Coverage and CI
+Use --coverage or enable coverage in config. Integrate with CI by running npx vitest --run --coverage and publishing coverage artifacts.
+
+8. Digest and attribution
+Source: https://vitest.dev/guide/
+Retrieved: 2026-03-15
+Data size fetched: 122499 bytes
+Attribution: Vitest Guide — actionable installation, config, API and CI patterns for implementers.

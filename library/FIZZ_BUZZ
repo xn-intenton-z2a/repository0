@@ -1,0 +1,52 @@
+NORMALISED EXTRACT:
+Rules (exact): For each integer i from 1 to n inclusive produce an output value as follows: if (i % 3 === 0 and i % 5 === 0) output "FizzBuzz"; else if (i % 3 === 0) output "Fizz"; else if (i % 5 === 0) output "Buzz"; else output i (the integer). The check for divisibility-by-both must occur before the single checks (equivalently, check i % 15 === 0 first).
+
+TABLE OF CONTENTS:
+1. Specification
+2. Algorithm and complexity
+3. Implementation patterns
+4. Edge cases and error handling
+5. Supplementary details
+6. Reference examples and signatures
+7. Digest and attribution
+
+1. Specification
+Input: integer n >= 1
+Behavior: produce sequence S[1..n] where S[i] is string "Fizz", "Buzz", "FizzBuzz", or numeric i per the rules above.
+Output: array of length n where each entry is either a number or a string.
+
+2. Algorithm and complexity
+Algorithm: single loop for i from 1 to n, compute remainder tests using modulo operator in order described. Use i % 15 === 0 for combined check where convenient. Time complexity O(n). Space: O(1) if streaming outputs, O(n) if producing full array.
+
+3. Implementation patterns
+Signature: function fizzBuzz(n: number): Array<string|number>
+Preconditions: n must be an integer >= 1. If not integer, throw RangeError. If n is extremely large, prefer streaming generator to avoid memory blowup.
+Pattern (pseudocode):
+for (let i = 1; i <= n; i++) {
+  if (i % 15 === 0) emit("FizzBuzz");
+  else if (i % 3 === 0) emit("Fizz");
+  else if (i % 5 === 0) emit("Buzz");
+  else emit(i);
+}
+
+4. Edge cases and error handling
+If n is not a finite integer -> throw RangeError("n must be a finite integer >= 1").
+If n <= 0 -> return [] or throw depending on API choice; prefer throwing for strict validation.
+Negative inputs: invalid by spec.
+Large n: risk of memory exhaustion if returning array; recommend iterator/generator.
+
+5. Supplementary details
+Variants: allow start/end parameters: fizzBuzz(start, end) with inclusive range and identical rules applied per index value.
+Internationalisation: outputs are fixed tokens "Fizz"/"Buzz"; localization must be applied outside core algorithm.
+Testing: assert exact sequence for small n (1..15) including combined positions 3,5,15.
+
+6. Reference examples and signatures
+function fizzBuzz(n: number): Array<string|number>
+Throws: RangeError when n is not an integer >=1
+Example return for n=15: [1,2,"Fizz",4,"Buzz","Fizz",7,8,"Fizz","Buzz",11,"Fizz",13,14,"FizzBuzz"]
+
+7. Digest and attribution
+Source: https://en.wikipedia.org/wiki/Fizz_buzz
+Retrieved: 2026-03-15
+Data size fetched: 68128 bytes
+Attribution: Wikipedia (Fizz buzz) — content condensed to core algorithm and implementation guidance.

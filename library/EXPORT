@@ -1,0 +1,61 @@
+NORMALISED EXTRACT:
+Module export forms and semantics (exact usable forms):
+- Named export: export { name1, name2 as alias };
+- Declaration export: export const name = value; export function fn() {} export class C {}
+- Default export: export default expression; or export default function name() {} or export default class {}
+- Re-export (from another module): export { name } from 'module'; export * from 'module'; export { default as alias } from 'module';
+- Live binding semantics: exported bindings are live references to the original binding; updates to the exported variable in the source module are visible to importers.
+- Static/top-level only: export statements must appear at top level of module code (not inside blocks or functions).
+
+TABLE OF CONTENTS:
+1. Syntax forms
+2. Semantic rules
+3. Live bindings and mutation
+4. Re-exports and module delegation
+5. Default vs named exports
+6. Module loading constraints
+7. Reference patterns and signatures
+8. Digest and attribution
+
+1. Syntax forms (grammar excerpts)
+exportDeclaration:
+  ExportNamedDeclaration
+  ExportDefaultDeclaration
+  ExportAllDeclaration
+Examples:
+export const x = 1;
+export function f() {}
+export { a, b as c };
+export default function() {}
+export * from 'mod';
+
+2. Semantic rules
+- Exports expose bindings, not copies. Importers receive references to exported bindings.
+- Export resolution is static and performed before module evaluation. Circular dependencies resolved by binding references and live updates.
+
+3. Live bindings and mutation
+- If source module later mutates an exported variable, importers observe the mutated value where they access the binding after mutation.
+- Example: export let count = 0; // in other module import { count } then after increment in source, importers see new value when accessing binding.
+
+4. Re-exports and module delegation
+- export * from 'module' forwards all named exports (not default) from 'module'.
+- export { default as alias } from 'module' imports default from 'module' and re-exports it under alias.
+
+5. Default vs named
+- Only one default export per module. Import syntax: import whatever from './m' or import { named } from './m'.
+- Default export is a single value, named exports are individually addressable.
+
+6. Module loading constraints
+- Modules must be used in module context (script type="module" or package type: "module").
+- Top-level only: export cannot be nested inside conditional or function.
+
+7. Reference patterns and signatures
+- Named export signature: export const NAME: <any>
+- Default export signature: export default <expression>
+- Re-export: export { name as alias } from 'module'
+
+8. Digest and attribution
+Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
+Retrieved: 2026-03-15
+Data size fetched: 210927 bytes
+Attribution: MDN Web Docs — full grammar forms, examples, and semantic notes condensed for implementers.

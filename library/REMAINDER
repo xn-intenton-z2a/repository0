@@ -1,0 +1,43 @@
+NORMALISED EXTRACT:
+Operator: a % b -> number
+Definition: computes the remainder of the mathematical division of a by b following ECMAScript ToNumber coercion rules for numeric operands and using integer truncation toward zero when deriving the quotient. The result r satisfies: a = b * q + r where q is ToInteger(a / b) and r has the same sign as a (the dividend). If b is 0, result is NaN for Number arithmetic. Using BigInt operands uses BigInt remainder semantics; mixing BigInt and Number throws TypeError.
+
+TABLE OF CONTENTS:
+1. Operator signature
+2. Formal semantics
+3. Type and coercion rules
+4. Edge cases and examples
+5. Implementation patterns
+6. Digest and attribution
+
+1. Operator signature
+Expression: a % b
+Return: numeric remainder (Number) when both operands are Number, or BigInt when both are BigInt.
+
+2. Formal semantics
+- Convert operands per ECMAScript: If either operand is BigInt, perform BigInt remainder rules; otherwise ToNumber on both operands.
+- Compute quotient q = ToInteger(a / b) where ToInteger truncates toward zero.
+- Compute remainder r = a - (b * q).
+- r has same sign as a; magnitude less than |b|.
+
+3. Type and coercion rules
+- ToNumber applied to operands when not BigInt.
+- If b is 0 (Number), result is NaN. If b is 0n (BigInt), throw RangeError or throw? (BigInt division by zero throws RangeError at runtime) — avoid dividing by zero.
+- Mixing BigInt with Number throws TypeError; do not mix types.
+
+4. Edge cases and examples
+5 % 2 -> 1
+-5 % 2 -> -1 (sign follows dividend)
+5 % -2 -> 1
+5 % 0 -> NaN
+7n % 3n -> 1n (BigInt remainder)
+'6' % 4 -> coerced to Number -> 2
+
+5. Implementation patterns
+Use explicit ToNumber coercion before remainder if input may be non-numeric. Validate divisor !== 0 where appropriate and handle NaN checks. For consistent positive remainders, use ((a % b) + Math.abs(b)) % Math.abs(b).
+
+6. Digest and attribution
+Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder
+Retrieved: 2026-03-15
+Data size fetched: 197879 bytes
+Attribution: MDN Web Docs — remainder operator description, formal semantics and examples.

@@ -1,0 +1,32 @@
+NORMALISED EXTRACT:
+Constructor: new TypeError([message]) -> TypeError
+Definition: TypeError indicates an operation was performed on an incompatible type (e.g., calling a non-callable, attempting to access property of undefined, mixing BigInt and Number in arithmetic). It extends Error.
+
+TABLE OF CONTENTS:
+1. Signature
+2. Common throw conditions
+3. Properties and inheritance
+4. Examples and handling
+5. Digest and attribution
+
+1. Signature
+TypeError(message?: string): TypeError
+
+2. Common throw conditions
+- attempting to call a non-function: const x = {}; x(); // TypeError
+- invalid operands type for operation (e.g., mixing BigInt and Number in arithmetic) -> TypeError
+- illegal property access in strict contexts
+
+3. Properties and inheritance
+- instance instanceof TypeError === true
+- TypeError.prototype.name === 'TypeError'
+
+4. Examples and handling
+throw new TypeError('expected function');
+When catching TypeError, ensure recovery only when safe; prefer input validation to avoid runtime TypeErrors.
+
+5. Digest and attribution
+Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError
+Retrieved: 2026-03-15
+Data size fetched: 158255 bytes
+Attribution: MDN Web Docs — signature, common causes, and usage guidance.
