@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>FizzBuzz Demo</title>
+</head>
+<body>
+  <main>
+    <h1>FizzBuzz Demo</h1>
+    <section aria-labelledby="seq-heading">
+      <h2 id="seq-heading">FizzBuzz(15) Sequence</h2>
+      <div id="demo-sequence" aria-live="polite">Loading...</div>
+    </section>
+
+    <section aria-labelledby="single-heading">
+      <h2 id="single-heading">Single Number Lookup</h2>
+      <form id="fizz-form">
+        <label for="number-input">Enter an integer:</label>
+        <input id="number-input" name="number" type="number" inputmode="numeric" required />
+        <button type="submit">Get FizzBuzz</button>
+      </form>
+      <div id="fizz-output" role="status" aria-live="polite"></div>
+    </section>
+
+  </main>
+  <script type="module">
+    import initDemo from './fizzbuzz-demo.js';
+    initDemo();
+  </script>
+</body>
+</html>

@@ -8,6 +8,10 @@ describe("Website", () => {
     expect(existsSync("src/web/index.html")).toBe(true);
   });
 
+  test("src/web/fizzbuzz-demo.html exists", () => {
+    expect(existsSync("src/web/fizzbuzz-demo.html")).toBe(true);
+  });
+
   test("index.html contains valid HTML structure", () => {
     const html = readFileSync("src/web/index.html", "utf8");
     expect(html).toContain("<!DOCTYPE html>");
@@ -24,11 +28,14 @@ describe("Website", () => {
     expect(existsSync("src/web/lib.js")).toBe(true);
     const lib = readFileSync("src/web/lib.js", "utf8");
     expect(lib).toContain("../lib/main.js");
+    expect(lib).toContain('fizzBuzz');
+    expect(lib).toContain('fizzBuzzSingle');
   });
 
-  test("index.html displays library identity elements", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toContain("lib-name");
-    expect(html).toContain("lib-version");
+  test("fizzbuzz demo contains expected elements", () => {
+    const html = readFileSync("src/web/fizzbuzz-demo.html", "utf8");
+    expect(html).toContain('demo-sequence');
+    expect(html).toContain('fizz-form');
+    expect(html).toContain('fizz-output');
   });
 });
