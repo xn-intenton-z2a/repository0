@@ -838,7 +838,21 @@ export async function supervise(context) {
               type: "object",
               properties: {
                 action: { type: "string", description: "Action name (e.g. dispatch:agentic-lib-workflow, github:create-issue, set-schedule:weekly, nop)" },
-                params: { type: "object", description: "Action parameters (e.g. mode, issue-number, title, labels, message, discussion-url, frequency)" },
+                params: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string", description: "Issue title (REQUIRED for github:create-issue)" },
+                    body: { type: "string", description: "Issue body or description" },
+                    labels: { type: "string", description: "Comma-separated labels (e.g. 'automated,enhancement')" },
+                    "issue-number": { type: "string", description: "Issue number for dispatch, label, or close actions" },
+                    "pr-number": { type: "string", description: "PR number for dispatch actions" },
+                    mode: { type: "string", description: "Workflow dispatch mode (e.g. 'dev-only', 'maintain-only')" },
+                    frequency: { type: "string", description: "Schedule frequency for set-schedule action" },
+                    message: { type: "string", description: "Message for respond:discussions action" },
+                    "discussion-url": { type: "string", description: "Discussion URL for respond:discussions action" },
+                  },
+                  description: "Action parameters. For github:create-issue, 'title' is required.",
+                },
               },
               required: ["action"],
             },
@@ -852,12 +866,30 @@ export async function supervise(context) {
         planResult.reasoning = reasoning || "";
 
         // Execute each action using existing handlers
+        // W10: Track created issue titles for same-iteration dedup
+        const createdIssueTitles = new Set();
         const results = [];
         for (const { action, params } of (actions || [])) {
           try {
+            // W10: Skip duplicate create-issue within same plan
+            if ((action === "github:create-issue" || action.startsWith("github:create-issue")) && params?.title) {
+              const titleKey = (params.title || "").toLowerCase().substring(0, 40);
+              if (createdIssueTitles.has(titleKey)) {
+                results.push(`skipped:duplicate-same-session:${(params.title || "").substring(0, 50)}`);
+                logger.info(`Skipping duplicate issue in same session: ${params.title}`);
+                continue;
+              }
+            }
+
             const result = await executeAction(octokit, repo, action, params || {}, ctx);
             results.push(result);
             logger.info(`Action result: ${result}`);
+
+            // W10: Track created issues for dedup
+            if (result.startsWith("created-issue:")) {
+              const title = (params?.title || "").toLowerCase().substring(0, 40);
+              if (title) createdIssueTitles.add(title);
+            }
           } catch (err) {
             logger.warning(`Action ${action} failed: ${err.message}`);
             results.push(`error:${action}:${err.message}`);
@@ -877,6 +909,7 @@ export async function supervise(context) {
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
+  const sessionStartTime = Date.now();
   const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
@@ -889,6 +922,7 @@ export async function supervise(context) {
     excludedTools: ["write_file", "run_command", "run_tests"],
     logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
+  core.info(`Supervisor session completed in ${Math.round((Date.now() - sessionStartTime) / 1000)}s`);
 
   const tokensUsed = result.tokensIn + result.tokensOut;
 

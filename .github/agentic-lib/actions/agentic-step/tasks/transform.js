@@ -187,6 +187,10 @@ export async function transform(context) {
   };
 
   // ── Run hybrid session ─────────────────────────────────────────────
+  // Cap tool calls to prevent unbounded sessions (W6: Benchmark 010 finding)
+  const maxToolCalls = Math.max(20, Math.floor((t.maxTokens || 200000) / 5000));
+
+  const sessionStartTime = Date.now();
   const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
@@ -196,11 +200,12 @@ export async function transform(context) {
     writablePaths,
     createTools,
     attachments,
+    maxToolCalls,
     excludedTools: ["dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment"],
     logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
-
-  core.info(`Transformation step completed (${result.tokensIn + result.tokensOut} tokens)`);
+  const sessionDurationMs = Date.now() - sessionStartTime;
+  core.info(`Transform session completed in ${Math.round(sessionDurationMs / 1000)}s (${result.tokensIn + result.tokensOut} tokens, maxToolCalls=${maxToolCalls})`);
 
   // Detect mission-complete hint
   const lowerResult = (result.agentMessage || "").toLowerCase();

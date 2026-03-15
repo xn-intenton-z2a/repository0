@@ -1,0 +1,396 @@
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2025-2026 Polycode Limited
+# .github/workflows/agentic-lib-flow.yml
+#
+# Uber workflow: runs the full pipeline end-to-end.
+# Pattern: update → init → (test + bot + N×workflow) × 4 → test + bot → verify mission-complete
+# Each sub-workflow dispatches at HEAD of main at dispatch time (not at uber job start).
+
+name: agentic-lib-flow
+run-name: "agentic-lib-flow [${{ github.ref_name }}] ${{ inputs.mission-seed }} (${{ inputs.workflow-runs }} runs)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Init mode (update/reseed/purge/skip)"
+        type: choice
+        required: false
+        default: "purge"
+        options:
+          - skip
+          - update
+          - reseed
+          - purge
+      mission-seed:
+        description: "Mission seed name (purge/reseed only)"
+        type: choice
+        required: false
+        default: "7-kyu-understand-fizz-buzz"
+        options:
+          - 8-kyu-remember-empty
+          - 8-kyu-remember-hello-world
+          - 7-kyu-understand-fizz-buzz
+          - 6-kyu-understand-hamming-distance
+          - 6-kyu-understand-roman-numerals
+          - 5-kyu-apply-ascii-face
+          - 5-kyu-apply-string-utils
+          - 4-kyu-apply-cron-engine
+          - 4-kyu-apply-dense-encoding
+          - 4-kyu-analyze-json-schema-diff
+          - 4-kyu-apply-owl-ontology
+          - 3-kyu-analyze-lunar-lander
+          - 3-kyu-evaluate-time-series-lab
+          - 2-kyu-create-markdown-compiler
+          - 2-kyu-create-plot-code-lib
+          - 1-kyu-create-ray-tracer
+          - 1-dan-create-c64-emulator
+          - 1-dan-create-planning-engine
+          - 2-dan-create-self-hosted
+      model:
+        description: "Copilot SDK model"
+        type: choice
+        required: false
+        default: ""
+        options:
+          - ""
+          - gpt-5-mini
+          - claude-sonnet-4
+          - gpt-4.1
+      profile:
+        description: "Tuning profile"
+        type: choice
+        required: false
+        default: ""
+        options:
+          - ""
+          - min
+          - recommended
+          - max
+      workflow-runs:
+        description: "Number of workflow iterations (1-16)"
+        type: choice
+        required: false
+        default: "4"
+        options:
+          - "1"
+          - "2"
+          - "4"
+          - "8"
+          - "12"
+          - "16"
+      schedule:
+        description: "Supervisor schedule after flow"
+        type: choice
+        required: false
+        default: "off"
+        options:
+          - "off"
+          - "weekly"
+          - "daily"
+          - "hourly"
+
+permissions: write-all
+
+jobs:
+  # ── Phase 0: Update agentic-lib package ────────────────────────────
+  update:
+    if: inputs.mode != 'skip'
+    uses: ./.github/workflows/agentic-lib-update.yml
+    secrets: inherit
+
+  # ── Phase 0b: Init (purge/reseed/update) ───────────────────────────
+  init:
+    needs: [update]
+    if: always() && inputs.mode != 'skip' && (needs.update.result == 'success' || needs.update.result == 'skipped')
+    uses: ./.github/workflows/agentic-lib-init.yml
+    with:
+      mode: ${{ inputs.mode }}
+      mission-seed: ${{ inputs.mission-seed }}
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      schedule: ${{ inputs.schedule }}
+    secrets: inherit
+
+  # ── Round 1: test + bot + up to 4 workflow runs ────────────────────
+  test-1:
+    needs: [init]
+    if: always() && (needs.init.result == 'success' || needs.init.result == 'skipped')
+    uses: ./.github/workflows/agentic-lib-test.yml
+    secrets: inherit
+
+  bot-1:
+    needs: [test-1]
+    if: always() && needs.test-1.result == 'success'
+    uses: ./.github/workflows/agentic-lib-bot.yml
+    secrets: inherit
+
+  workflow-1:
+    needs: [bot-1]
+    if: always() && needs.bot-1.result == 'success' && inputs.workflow-runs >= 1
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  workflow-2:
+    needs: [workflow-1]
+    if: always() && needs.workflow-1.result == 'success' && inputs.workflow-runs >= 2
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  workflow-3:
+    needs: [workflow-2]
+    if: always() && needs.workflow-2.result == 'success' && inputs.workflow-runs >= 3
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  workflow-4:
+    needs: [workflow-3]
+    if: always() && needs.workflow-3.result == 'success' && inputs.workflow-runs >= 4
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  # ── Round 2: test + bot + up to 4 more workflow runs ───────────────
+  test-2:
+    needs: [workflow-4]
+    if: always() && inputs.workflow-runs >= 5 && (needs.workflow-4.result == 'success' || needs.workflow-4.result == 'skipped')
+    uses: ./.github/workflows/agentic-lib-test.yml
+    secrets: inherit
+
+  bot-2:
+    needs: [test-2]
+    if: always() && needs.test-2.result == 'success'
+    uses: ./.github/workflows/agentic-lib-bot.yml
+    secrets: inherit
+
+  workflow-5:
+    needs: [bot-2]
+    if: always() && needs.bot-2.result == 'success' && inputs.workflow-runs >= 5
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  workflow-6:
+    needs: [workflow-5]
+    if: always() && needs.workflow-5.result == 'success' && inputs.workflow-runs >= 6
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  workflow-7:
+    needs: [workflow-6]
+    if: always() && needs.workflow-6.result == 'success' && inputs.workflow-runs >= 7
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  workflow-8:
+    needs: [workflow-7]
+    if: always() && needs.workflow-7.result == 'success' && inputs.workflow-runs >= 8
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  # ── Round 3: test + bot + up to 4 more workflow runs ───────────────
+  test-3:
+    needs: [workflow-8]
+    if: always() && inputs.workflow-runs >= 9 && (needs.workflow-8.result == 'success' || needs.workflow-8.result == 'skipped')
+    uses: ./.github/workflows/agentic-lib-test.yml
+    secrets: inherit
+
+  bot-3:
+    needs: [test-3]
+    if: always() && needs.test-3.result == 'success'
+    uses: ./.github/workflows/agentic-lib-bot.yml
+    secrets: inherit
+
+  workflow-9:
+    needs: [bot-3]
+    if: always() && needs.bot-3.result == 'success' && inputs.workflow-runs >= 9
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  workflow-10:
+    needs: [workflow-9]
+    if: always() && needs.workflow-9.result == 'success' && inputs.workflow-runs >= 10
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  workflow-11:
+    needs: [workflow-10]
+    if: always() && needs.workflow-10.result == 'success' && inputs.workflow-runs >= 11
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  workflow-12:
+    needs: [workflow-11]
+    if: always() && needs.workflow-11.result == 'success' && inputs.workflow-runs >= 12
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  # ── Round 4: test + bot + up to 4 more workflow runs ───────────────
+  test-4:
+    needs: [workflow-12]
+    if: always() && inputs.workflow-runs >= 13 && (needs.workflow-12.result == 'success' || needs.workflow-12.result == 'skipped')
+    uses: ./.github/workflows/agentic-lib-test.yml
+    secrets: inherit
+
+  bot-4:
+    needs: [test-4]
+    if: always() && needs.test-4.result == 'success'
+    uses: ./.github/workflows/agentic-lib-bot.yml
+    secrets: inherit
+
+  workflow-13:
+    needs: [bot-4]
+    if: always() && needs.bot-4.result == 'success' && inputs.workflow-runs >= 13
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  workflow-14:
+    needs: [workflow-13]
+    if: always() && needs.workflow-13.result == 'success' && inputs.workflow-runs >= 14
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  workflow-15:
+    needs: [workflow-14]
+    if: always() && needs.workflow-14.result == 'success' && inputs.workflow-runs >= 15
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  workflow-16:
+    needs: [workflow-15]
+    if: always() && needs.workflow-15.result == 'success' && inputs.workflow-runs >= 16
+    uses: ./.github/workflows/agentic-lib-workflow.yml
+    secrets: inherit
+
+  # ── Final: test + bot ──────────────────────────────────────────────
+  test-final:
+    needs: [workflow-4, workflow-8, workflow-12, workflow-16]
+    if: always()
+    uses: ./.github/workflows/agentic-lib-test.yml
+    secrets: inherit
+
+  bot-final:
+    needs: [test-final]
+    if: always() && needs.test-final.result == 'success'
+    uses: ./.github/workflows/agentic-lib-bot.yml
+    secrets: inherit
+
+  # ── Verify: MISSION_COMPLETE.md must exist ─────────────────────────
+  verify-mission-complete:
+    needs: [bot-final]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 1
+      - name: Check MISSION_COMPLETE.md
+        id: check
+        run: |
+          if [ -f MISSION_COMPLETE.md ]; then
+            echo "✅ Mission complete!"
+            cat MISSION_COMPLETE.md
+            echo "mission_complete=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "❌ MISSION_COMPLETE.md not found after ${{ inputs.workflow-runs }} workflow runs"
+            echo "mission_complete=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ── Generate benchmark report ──────────────────────────────────────
+  generate-report:
+    needs: [verify-mission-complete]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Fetch state and logs from logs branch
+        run: |
+          git fetch origin agentic-lib-logs --depth=1 2>/dev/null || true
+          git show origin/agentic-lib-logs:agentic-lib-state.toml > /tmp/state.toml 2>/dev/null || echo "# no state" > /tmp/state.toml
+          # List agent log files
+          git ls-tree origin/agentic-lib-logs --name-only 2>/dev/null | grep '^agent-log-' | sort > /tmp/log-files.txt || true
+
+      - name: Read source and mission
+        run: |
+          wc -l src/lib/main.js 2>/dev/null | awk '{print $1}' > /tmp/source-lines.txt || echo "0" > /tmp/source-lines.txt
+          cat MISSION.md > /tmp/mission.txt 2>/dev/null || echo "No MISSION.md" > /tmp/mission.txt
+          ls tests/unit/*.test.js 2>/dev/null | wc -l > /tmp/test-files.txt || echo "0" > /tmp/test-files.txt
+
+      - name: Generate report
+        run: |
+          REPORT_NUM=$(printf "%03d" $(( $(ls BENCHMARK_REPORT_*.md 2>/dev/null | wc -l) + 1 )))
+          MISSION_SEED="${{ inputs.mission-seed }}"
+          MODEL="${{ inputs.model || 'default' }}"
+          PROFILE="${{ inputs.profile || 'default' }}"
+          WORKFLOW_RUNS="${{ inputs.workflow-runs }}"
+          SOURCE_LINES=$(cat /tmp/source-lines.txt)
+          TEST_FILES=$(cat /tmp/test-files.txt)
+          MISSION_COMPLETE="NO"
+          if [ -f MISSION_COMPLETE.md ]; then MISSION_COMPLETE="YES"; fi
+
+          cat > "BENCHMARK_REPORT_FLOW_${REPORT_NUM}.md" << REPORT_EOF
+          # Flow Benchmark Report ${REPORT_NUM}
+
+          **Date**: $(date -u +%Y-%m-%d)
+          **Operator**: agentic-lib-flow (automated)
+          **agentic-lib version**: $(node -e "console.log(require('./package.json').version)" 2>/dev/null || echo "unknown")
+          **Run**: [${GITHUB_RUN_ID}](https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})
+
+          ---
+
+          ## Configuration
+
+          | Parameter | Value |
+          |-----------|-------|
+          | Mission seed | ${MISSION_SEED} |
+          | Model | ${MODEL} |
+          | Profile | ${PROFILE} |
+          | Workflow runs | ${WORKFLOW_RUNS} |
+          | Init mode | ${{ inputs.mode }} |
+
+          ## State File
+
+          \`\`\`toml
+          $(cat /tmp/state.toml)
+          \`\`\`
+
+          ## Results
+
+          | Metric | Value |
+          |--------|-------|
+          | Mission complete | ${MISSION_COMPLETE} |
+          | Source lines | ${SOURCE_LINES} |
+          | Test files | ${TEST_FILES} |
+          | Agent log files | $(wc -l < /tmp/log-files.txt) |
+
+          ## Mission
+
+          \`\`\`
+          $(head -20 /tmp/mission.txt)
+          \`\`\`
+
+          ## Agent Log Files
+
+          $(cat /tmp/log-files.txt | while read f; do echo "- ${f}"; done)
+          REPORT_EOF
+
+          echo "Generated BENCHMARK_REPORT_FLOW_${REPORT_NUM}.md"
+          cat "BENCHMARK_REPORT_FLOW_${REPORT_NUM}.md"
+
+      - name: Commit report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add BENCHMARK_REPORT_FLOW_*.md
+          git diff --staged --quiet && echo "No report to commit" && exit 0
+          git commit -m "flow: benchmark report for ${{ inputs.mission-seed }} (${{ inputs.workflow-runs }} runs) [skip ci]"
+          git push origin main || echo "Push failed — report saved as artifact"
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-report
+          path: BENCHMARK_REPORT_FLOW_*.md

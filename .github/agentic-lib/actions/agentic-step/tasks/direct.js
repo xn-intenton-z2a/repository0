@@ -156,6 +156,8 @@ function buildPrompt(ctx, agentInstructions, metricAssessment) {
     "Use read_file to inspect source code and tests for completeness.",
     "Use git_diff or git_status for additional context if needed.",
     "Consider the implementation review findings — if critical gaps exist, do NOT declare mission-complete.",
+    "Check the acceptance criteria in the Mission section above. If all criteria are clearly satisfied by the current source code and tests (verified via read_file), you SHOULD declare mission-complete even if not all mechanical metrics are MET.",
+    "For simple missions (few functions, clear acceptance criteria), do not require elaborate test coverage or documentation beyond what the acceptance criteria specify.",
     "Then call report_director_decision with your determination.",
     "",
     "**You MUST call report_director_decision exactly once.**",
@@ -455,6 +457,7 @@ export async function direct(context) {
   if (logFilePath) attachments.push({ type: "file", path: logFilePath });
   if (screenshotFilePath) attachments.push({ type: "file", path: screenshotFilePath });
 
+  const sessionStartTime = Date.now();
   const result = await runCopilotSession({
     workspacePath: process.cwd(),
     model,
@@ -467,6 +470,8 @@ export async function direct(context) {
     excludedTools: ["write_file", "run_command", "run_tests", "dispatch_workflow", "close_issue", "label_issue", "post_discussion_comment", "create_issue", "comment_on_issue"],
     logger: { info: core.info, warning: core.warning, error: core.error, debug: core.debug },
   });
+  const sessionDurationMs = Date.now() - sessionStartTime;
+  core.info(`Director session completed in ${Math.round(sessionDurationMs / 1000)}s (${result.tokensIn + result.tokensOut} tokens)`);
 
   const tokensUsed = result.tokensIn + result.tokensOut;
 
@@ -482,14 +487,11 @@ export async function direct(context) {
 
   // Execute the decision
   let outcome = "directed";
-  if (decision === "mission-complete" && metricAssessment.allMet) {
+  if (decision === "mission-complete") {
     if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
       await executeMissionComplete(octokit, repo, reason);
       outcome = "mission-complete";
     }
-  } else if (decision === "mission-complete" && !metricAssessment.allMet) {
-    core.info("Director chose mission-complete but metrics are NOT all met — overriding to in-progress");
-    outcome = "directed";
   } else if (decision === "mission-failed") {
     if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
       await executeMissionFailed(octokit, repo, reason, metricAssessment);
