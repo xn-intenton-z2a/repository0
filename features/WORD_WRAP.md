@@ -13,9 +13,9 @@ Behavior
 - Use the newline character as the sole line separator.
 
 Acceptance criteria
-- wordWrap(The quick brown fox, 10) -> The quick\nbrown fox
-- wordWrap(supercalifragilistic, 5) -> supercalifragilistic on a single line
-- wordWrap(null, 10) -> empty string
+- wordWrap("The quick brown fox", 10) -> "The quick\nbrown fox"
+- wordWrap("supercalifragilistic", 5) -> "supercalifragilistic"
+- wordWrap(null, 10) -> "" (empty string)
 
 Testing notes
 Test multiple consecutive spaces, leading/trailing spaces, very long words, and mixed Unicode whitespace characters.

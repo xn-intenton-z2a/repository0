@@ -12,9 +12,9 @@ Behavior
 - Collapse sequences of whitespace into single spaces where appropriate, and trim leading/trailing whitespace.
 
 Acceptance criteria
-- stripHtml(<p>Hello &amp; <strong>World</strong></p>) -> Hello & World
-- stripHtml(<div>1 &lt; 2</div>) -> 1 < 2
-- stripHtml(null) -> empty string
+- stripHtml("<p>Hello &amp; <strong>World</strong></p>") -> "Hello & World"
+- stripHtml("<div>1 &lt; 2</div>") -> "1 < 2"
+- stripHtml(null) -> "" (empty string)
 
 Testing notes
 Add unit tests for nested tags, tags with attributes, HTML comments, entity decoding, and inputs that already contain plain text.

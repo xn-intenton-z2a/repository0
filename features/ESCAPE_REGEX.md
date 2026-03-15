@@ -8,12 +8,12 @@ escapeRegex(input) -> string
 
 Behavior
 - Null or undefined returns empty string.
-- Escape characters that have special meaning in RegExp: . * + ? ^ $ { } ( ) | [ ] \ / and similar, by prefixing them with a backslash.
+- Escape characters that have special meaning in RegExp by prefixing them with a backslash. Characters to escape include: . * + ? ^ $ { } ( ) | [ ] \\ / and - when inside character classes where needed.
 
 Acceptance criteria
-- escapeRegex(hello.world) -> hello\.world
-- escapeRegex([a-z]) -> \[a\-z\]
-- escapeRegex(null) -> empty string
+- escapeRegex("hello.world") -> "hello\\.world"
+- escapeRegex("[a-z]") -> "\\[a\\-z\\]"
+- escapeRegex(null) -> "" (empty string)
 
 Testing notes
-Include inputs containing slashes, backslashes, brackets, braces, parentheses, pipes, plus signs, and punctuation to ensure correct escaping.
+Include inputs containing slashes, backslashes, brackets, braces, parentheses, pipes, plus signs, hyphens inside classes, and punctuation to ensure correct escaping.

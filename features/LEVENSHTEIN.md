@@ -12,9 +12,10 @@ Behavior
 - Operate on Unicode code points so that surrogate pairs and combined characters are handled correctly where possible.
 
 Acceptance criteria
-- levenshtein(kitten, sitting) -> 3
-- levenshtein(, ) -> 0
-- levenshtein(null, a) -> 1
+- levenshtein("kitten", "sitting") -> 3
+- levenshtein("", "") -> 0
+- levenshtein(null, "a") -> 1
+- levenshtein("a", "") -> 1
 
 Testing notes
 Include tests with Unicode characters, empty strings, identical strings, and larger inputs to validate algorithm correctness and performance.

@@ -15,10 +15,12 @@ Behavior
 - Treat numbers as tokens and preserve them in resulting output.
 
 Acceptance criteria
-- camelCase(foo-bar-baz) -> fooBarBaz
-- kebabCase(Hello World!) -> hello-world
-- titleCase(hello world) -> Hello World
-- Null or empty input returns empty string
+- camelCase("foo-bar-baz") -> "fooBarBaz"
+- kebabCase("Hello World!") -> "hello-world"
+- titleCase("hello world") -> "Hello World"
+- camelCase(null) -> "" (empty string)
+- kebabCase("") -> "" (empty string)
+- titleCase("héllo wørld") -> "Héllo Wørld"
 
 Testing notes
 Include inputs with underscores, mixed separators, numeric tokens, and Unicode characters.
