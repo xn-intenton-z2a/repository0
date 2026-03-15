@@ -39,6 +39,33 @@ export function main(args) {
   console.log(`${name}@${version}`);
 }
 
+// FizzBuzz library functions
+
+function validateIntegerInput(n) {
+  if (typeof n !== 'number' || Number.isNaN(n) || !Number.isInteger(n)) {
+    throw new TypeError('Input must be an integer number');
+  }
+  if (n < 0) {
+    throw new RangeError('Input must be non-negative');
+  }
+}
+
+export function fizzBuzzSingle(n) {
+  // Validate single number input
+  validateIntegerInput(n);
+  if (n % 15 === 0) return 'FizzBuzz';
+  if (n % 3 === 0) return 'Fizz';
+  if (n % 5 === 0) return 'Buzz';
+  return String(n);
+}
+
+export function fizzBuzz(n) {
+  validateIntegerInput(n);
+  if (n === 0) return [];
+  const result = Array.from({ length: n }, (_, i) => fizzBuzzSingle(i + 1));
+  return result;
+}
+
 if (isNode) {
   const { fileURLToPath } = await import("url");
   if (process.argv[1] === fileURLToPath(import.meta.url)) {
