@@ -29,12 +29,14 @@
   </div>
   <h2>UUID encoding comparison</h2>
   <div id="demo-output">Loading library and computing encodings...</div>
+  <h2>Mission status</h2>
+  <pre id="mission-log">(computing mission status...)</pre>
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
     try {
       const lib = await import('./lib.js');
-      const { name, version, description, listEncodings, encodeUUID } = lib;
+      const { name, version, description, listEncodings, encodeUUID, evaluateMissionComplete, formatMissionLog } = lib;
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
@@ -43,11 +45,18 @@
       const encodings = listEncodings();
       const rows = encodings.map(e => {
         const encoded = encodeUUID(uuid, e.name);
-        return { name: e.name, bitsPerChar: Number(e.bitsPerChar.toFixed(3)), len: encoded.length, encoded };
+        return { name: e.name, bitsPerChar: Number(e.bitsPerChar.toFixed ? e.bitsPerChar.toFixed(3) : e.bitsPerChar), len: encoded.length, encoded };
       });
       const table = ['Name | bits/char | length | encoded', '----|----:|----:|----'];
       for (const r of rows) table.push(`${r.name} | ${r.bitsPerChar} | ${r.len} | ${r.encoded}`);
       document.getElementById('demo-output').textContent = table.join('\n');
+
+      // Demonstrate mission-complete evaluation: example metrics (these would be gathered by agent workflows)
+      const exampleMetrics = { resolvedIssues: 0, sourceTodos: 0, acceptanceCriteriaMet: 0, acceptanceCriteriaTotal: 7 };
+      const thresholds = { minResolvedIssues: 1, maxSourceTodos: 0, requireAcceptanceCriteria: true };
+      const result = evaluateMissionComplete(exampleMetrics, thresholds);
+      document.getElementById('mission-log').textContent = formatMissionLog(result);
+
       document.title = name + ' v' + version;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';

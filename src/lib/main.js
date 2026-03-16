@@ -216,6 +216,52 @@ export function decodeUUID(encodedString, enc, options = {}) {
   return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
 }
 
+// Mission-complete evaluation utilities
+export function evaluateMissionComplete(metrics = {}, thresholds = {}) {
+  // metrics: { resolvedIssues, sourceTodos, acceptanceCriteriaMet, acceptanceCriteriaTotal }
+  // thresholds: { minResolvedIssues = 1, maxSourceTodos = 0, requireAcceptanceCriteria = true }
+  const defaults = { minResolvedIssues: 1, maxSourceTodos: 0, requireAcceptanceCriteria: true };
+  const t = Object.assign({}, defaults, thresholds);
+  const m = Object.assign({ resolvedIssues: 0, sourceTodos: 0, acceptanceCriteriaMet: 0, acceptanceCriteriaTotal: 0 }, metrics);
+
+  const resolvedIssuesMet = Number(m.resolvedIssues) >= Number(t.minResolvedIssues);
+  const sourceTodosMet = Number(m.sourceTodos) <= Number(t.maxSourceTodos);
+  let acceptanceCriteriaMet = true;
+  if (t.requireAcceptanceCriteria) {
+    if (Number(m.acceptanceCriteriaTotal) > 0) {
+      acceptanceCriteriaMet = Number(m.acceptanceCriteriaMet) === Number(m.acceptanceCriteriaTotal);
+    } else {
+      // If no acceptance criteria defined, consider this condition satisfied
+      acceptanceCriteriaMet = true;
+    }
+  }
+
+  const missionComplete = resolvedIssuesMet && sourceTodosMet && acceptanceCriteriaMet;
+
+  const conditions = { resolvedIssuesMet, sourceTodosMet, acceptanceCriteriaMet };
+  const reasons = [];
+  if (!resolvedIssuesMet) reasons.push('min resolved issues not met');
+  if (!sourceTodosMet) reasons.push('too many TODOs in source');
+  if (!acceptanceCriteriaMet) reasons.push('not all acceptance criteria met');
+
+  return { missionComplete, conditions, reasons, metrics: m, thresholds: t };
+}
+
+export function formatMissionLog(result) {
+  const m = result.metrics || {};
+  const t = result.thresholds || {};
+  const lines = [];
+  const total = Number(m.acceptanceCriteriaTotal) || 0;
+  lines.push(`Acceptance criteria | ${Number(m.acceptanceCriteriaMet)}/${total}`);
+  lines.push(`Resolved issues | ${Number(m.resolvedIssues)} (min required ${Number(t.minResolvedIssues)})`);
+  lines.push(`Source TODOs | ${Number(m.sourceTodos)} (max allowed ${Number(t.maxSourceTodos)})`);
+  lines.push(`Mission complete declared | ${result.missionComplete ? 'YES' : 'NO'}`);
+  if (result.reasons && result.reasons.length) {
+    lines.push('Reasons: ' + result.reasons.join('; '));
+  }
+  return lines.join('\n');
+}
+
 // If run directly in node
 if (isNode) {
   const { fileURLToPath } = await import("url");
