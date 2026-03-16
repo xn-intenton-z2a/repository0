@@ -40,6 +40,6 @@ Best practices
 
 Digest and provenance
 - Source: https://en.wikipedia.org/wiki/Base62
-- Retrieved: 2026-03-15
+- Retrieved: 2026-03-16
 - Crawl snapshot: Wikipedia Base62 article (retrieved HTML ~70KB)
 - Attribution: Wikipedia content (check license if republishing)

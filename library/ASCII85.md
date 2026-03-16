@@ -53,6 +53,6 @@ Supplementary details
 
 Digest and provenance
 - Source: https://en.wikipedia.org/wiki/Ascii85
-- Retrieved: 2026-03-15
+- Retrieved: 2026-03-16
 - Crawl snapshot: Wikipedia Ascii85 article (retrieved HTML ~110KB)
 - Attribution: Wikipedia (article under compatible license)

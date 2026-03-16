@@ -49,6 +49,6 @@ API signatures (recommended)
 
 Digest and provenance
 - Source: https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_7_(Unix_epoch_time-based)
-- Retrieved: 2026-03-15
+- Retrieved: 2026-03-16
 - Crawl snapshot: Wikipedia section on UUIDv7 (retrieved HTML ~184KB)
 - Attribution: Wikipedia (summarised), implementers should consult the latest UUID draft and interop references for exact canonical bit ordering if strict compliance is required.

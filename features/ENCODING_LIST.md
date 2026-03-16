@@ -1,6 +1,6 @@
 # ENCODING_LIST
 
-Status: implemented (closed issue #3033)
+Status: implemented (closed issue #3033) — retained as record; acceptance criteria preserved.
 
 Overview
 

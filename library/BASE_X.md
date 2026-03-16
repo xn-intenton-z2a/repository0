@@ -80,6 +80,6 @@ Implementation notes
 
 Digest and provenance
 - Source: https://raw.githubusercontent.com/cryptocoinjs/base-x/master/README.md
-- Retrieved: 2026-03-15
+- Retrieved: 2026-03-16
 - Crawl snapshot: README.md (raw text, retrieved ~3KB)
 - Attribution: cryptocoinsjs/base-x (MIT)

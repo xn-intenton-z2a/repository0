@@ -55,6 +55,6 @@ Supplementary details
 
 Digest and provenance
 - Source: https://base91.sourceforge.net/ (project page)
-- Retrieved: 2026-03-15
+- Retrieved: 2026-03-16
 - Crawl snapshot: SourceForge project page and basE91 references (retrieved HTML ~100KB)
 - Attribution: basE91 project (original author)
