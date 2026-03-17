@@ -26,6 +26,8 @@ console.log(hammingDistanceStrings('karolin', 'kathrin'));
 // 3
 ```
 
+Unicode note: comparisons are performed on Unicode code points (Array.from), not UTF-16 code units; surrogate pairs (emoji) count as a single code point.
+
 ### hammingDistanceBits(x, y)
 - Computes bit-level Hamming distance between two non-negative integers.
 - Accepts Number or BigInt inputs.
@@ -42,7 +44,7 @@ console.log(hammingDistanceBits(1, 4));
 
 ## Website
 
-Open `src/web/index.html` to see a live demo that imports the library.
+Open `src/web/index.html` to see a live demo that imports the library. The demo shows example comparisons and a JSON output under the "Live Demo Output" section.
 
 ## Tests
 
@@ -50,6 +52,12 @@ Run unit tests with:
 
 ```
 npm test
+```
+
+Run behaviour (E2E) tests with Playwright:
+
+```
+npm run test:behaviour
 ```
 
 ## Mission
