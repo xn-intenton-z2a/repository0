@@ -8,13 +8,16 @@
   <meta property="og:description" content="An autonomous repository powered by agentic-lib">
   <meta property="og:type" content="website">
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 900px; margin: 0 auto; padding: 2rem; color: #333; }
     h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
     a { color: #0366d6; }
     .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
+    section.feature { border: 1px solid #eee; padding: 1rem; border-radius: 6px; margin: 1rem 0; }
+    .example { background: #fff; padding: 0.5rem; border-radius: 4px; margin-top: 0.5rem; font-family: monospace; }
+    .muted { color: #666; font-size: 0.9rem; }
   </style>
 </head>
 <body>
@@ -27,31 +30,98 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
-  <h2>Output</h2>
+
+  <section class="feature" id="feature-string">
+    <h2>String Hamming Distance</h2>
+    <p>Compute the Hamming distance between two strings of equal length. Unicode-aware: compares code points, not UTF-16 code units.</p>
+    <div class="example" id="string-example">Loading...</div>
+  </section>
+
+  <section class="feature" id="feature-bit">
+    <h2>Bit Hamming Distance</h2>
+    <p>Compute the bit-level Hamming distance between two non-negative integers (Number or BigInt).</p>
+    <div class="example" id="bit-example">Loading...</div>
+  </section>
+
+  <section class="feature" id="feature-unicode">
+    <h2>Unicode Handling</h2>
+    <p>Handles astral plane code points (emoji) correctly; surrogate pairs count as a single code point.</p>
+    <div class="example" id="unicode-example">Loading...</div>
+  </section>
+
+  <section class="feature" id="feature-validation">
+    <h2>Validation</h2>
+    <p class="muted">The library validates inputs and throws proper error types for invalid usage. See tests for expected behaviours.</p>
+    <div class="example" id="validation-example">Loading...</div>
+  </section>
+
+  <h2>Live Demo Output</h2>
   <div id="demo-output">Loading library...</div>
+
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
-  <script type="module">
-    try {
-      const { name, version, description } = await import('./lib.js');
-      document.getElementById('lib-name').textContent = name;
-      document.getElementById('lib-version').textContent = version;
-      document.getElementById('lib-description').textContent = description || '(no description)';
-      const demo = {
-        identity: { name, version, description },
-        examples: {
-          stringExample: { a: 'karolin', b: 'kathrin', distance: (await import('./lib.js')).hammingDistanceStrings('karolin','kathrin') },
-          bitExample: { a: 1, b: 4, distance: (await import('./lib.js')).hammingDistanceBits(1,4) }
-        }
-      };
-      document.getElementById('demo-output').textContent = JSON.stringify(demo, null, 2);
 
-      document.title = name + ' v' + version;
+  <script type="module">
+    import * as lib from './lib.js';
+    const { name, version, description, hammingDistanceStrings, hammingDistanceBits } = lib;
+
+    document.getElementById('lib-name').textContent = name;
+    document.getElementById('lib-version').textContent = version;
+    document.getElementById('lib-description').textContent = description || '(no description)';
+
+    // String example
+    try {
+      const sA = 'karolin';
+      const sB = 'kathrin';
+      const sDist = hammingDistanceStrings(sA, sB);
+      document.getElementById('string-example').textContent = `${sA} vs ${sB} → distance ${sDist}`;
     } catch (e) {
-      document.getElementById('lib-version').textContent = '(error)';
-      document.getElementById('lib-description').textContent = e.message;
-      document.getElementById('demo-output').textContent = 'Failed to load library: ' + e.message;
+      document.getElementById('string-example').textContent = 'Error: ' + e.message;
     }
+
+    // Bit example
+    try {
+      const a = 1;
+      const b = 4;
+      const bDist = hammingDistanceBits(a, b);
+      document.getElementById('bit-example').textContent = `${a} vs ${b} → distance ${bDist}`;
+    } catch (e) {
+      document.getElementById('bit-example').textContent = 'Error: ' + e.message;
+    }
+
+    // Unicode example
+    try {
+      const a = 'a\u{1F600}b';
+      const b = 'a\u{1F601}b';
+      const uDist = hammingDistanceStrings(a, b);
+      document.getElementById('unicode-example').textContent = `${a} vs ${b} → distance ${uDist}`;
+    } catch (e) {
+      document.getElementById('unicode-example').textContent = 'Error: ' + e.message;
+    }
+
+    // Validation example (show expected thrown types)
+    try {
+      try {
+        // deliberate bad call
+        // @ts-ignore
+        hammingDistanceStrings(1, 'a');
+      } catch (err) {
+        document.getElementById('validation-example').textContent = `hammingDistanceStrings(1,'a') → throws ${err.name}`;
+      }
+    } catch (e) {
+      document.getElementById('validation-example').textContent = 'Error: ' + e.message;
+    }
+
+    // Compose demo output
+    const demo = {
+      identity: { name, version, description },
+      examples: {
+        string: { a: 'karolin', b: 'kathrin', dist: hammingDistanceStrings('karolin','kathrin') },
+        bit: { a: 1, b: 4, dist: hammingDistanceBits(1,4) }
+      }
+    };
+    document.getElementById('demo-output').textContent = JSON.stringify(demo, null, 2);
+    document.title = name + ' v' + version;
   </script>
 </body>
 </html>
