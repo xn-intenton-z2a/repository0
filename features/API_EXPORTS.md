@@ -2,31 +2,29 @@
 
 Goal
 
-Specify the public API surface for the library and how it should be consumed by other code and by the CLI entrypoint.
+Define the public API surface and minimal consumer contract for the library so other code and the CLI can depend on a stable interface.
 
-Exports
+Specification
 
-- The package must export fizzBuzz and fizzBuzzSingle as named exports from src/lib/main.js.
-- Do not provide a default export for these functions; consumers should use named imports.
-- The package.json `main` points to src/lib/main.js so consumers can import from the package root.
+- Export the following named exports from src/lib/main.js: fizzBuzz, fizzBuzzSingle.
+- Do not provide a default export for these functions; consumers must import them as named imports.
+- The package.json main field points to src/lib/main.js so importing from the package root works.
 
-CLI and examples
+Usage examples (informational)
 
-- A simple CLI mode is acceptable but optional; the project includes a start:cli script that runs src/lib/main.js.
-- README must include concise usage examples showing:
-  - Importing the functions: import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js'
-  - Calling the functions and the expected return values for the examples used in acceptance tests.
+- Import example: import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js'
+- README must include a short usage snippet showing the two functions called with example inputs and describing expected return values.
 
-Test file
+Testing
 
-- Tests that assert the API surface must live in tests/unit/main.test.js and include at least one test that imports the module and asserts the named exports exist.
+- Add a unit test that imports the package entry (tests/unit/main.test.js or tests/unit/fizzbuzz.exports.test.js) and asserts the named exports exist and are functions.
 
 Acceptance criteria
 
-- Named exports fizzBuzz and fizzBuzzSingle exist and are exported from src/lib/main.js.
-- README includes the import example and two short examples demonstrating fizzBuzz(15) and fizzBuzzSingle(7).
-- tests/unit/main.test.js contains a test that imports the package entry and verifies the named exports are present.
+- src/lib/main.js has named exports fizzBuzz and fizzBuzzSingle.
+- README contains the import example and concise examples demonstrating fizzBuzz(15) and fizzBuzzSingle(7) with expected outcomes described.
+- There is a unit test that imports the package entry and verifies the named exports are present and of type function.
 
 Notes
 
-Do not expose internal helpers beyond the two required functions unless there is a compelling reason and accompanying tests.
+Keep the API minimal; do not expose internal helpers unless justified with tests and documentation.

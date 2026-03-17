@@ -2,32 +2,25 @@
 
 Goal
 
-Describe and specify the core FizzBuzz behaviour to implement the library's primary functions.
-
-Overview
-
-Provide deterministic, side-effect free implementations of two functions:
-- fizzBuzz(n): returns an array of strings representing 1..n with replacements: multiples of 3 -> Fizz, multiples of 5 -> Buzz, multiples of both -> FizzBuzz.
-- fizzBuzzSingle(n): returns the single string for a positive integer n following the same replacement rules.
+Specify the deterministic, side-effect-free core behaviour of the library implementing the FizzBuzz rules.
 
 Behavior
 
-- fizzBuzz(n) accepts a single numeric argument n and returns an array of length n with entries for 1..n in order.
-- fizzBuzzSingle(n) accepts a single numeric argument n and returns exactly one string for that value.
-- Both functions are pure and synchronous.
+- fizzBuzz(n): synchronous, pure function that returns an array of length n where each element is the string representation for numbers 1 through n with these replacements: multiples of 3 -> Fizz, multiples of 5 -> Buzz, multiples of both -> FizzBuzz.
+- fizzBuzzSingle(n): synchronous, pure function that returns the single string result for a positive integer n following the same replacement rules.
+
+Invariants
+
+- The functions do not mutate inputs or global state.
+- For all positive integers k, fizzBuzzSingle(k) === fizzBuzz(k)[k-1].
 
 Acceptance criteria
 
-- The repository exports both functions as named exports from src/lib/main.js.
-- fizzBuzz(15) returns the 15-element array:
-  ["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"].
-- fizzBuzzSingle(3) returns "Fizz".
-- fizzBuzzSingle(5) returns "Buzz".
-- fizzBuzzSingle(15) returns "FizzBuzz".
-- fizzBuzzSingle(7) returns "7".
-- The behaviour is deterministic and does not mutate inputs or global state.
-- Representative checks are implemented in tests/unit/main.test.js and assert exact string values.
+- Both functions are exported as named exports from src/lib/main.js.
+- fizzBuzz(15) returns a 15-element array ending with FizzBuzz as the 15th element and matching the canonical sequence for 1..15.
+- fizzBuzzSingle(3) returns Fizz, fizzBuzzSingle(5) returns Buzz, fizzBuzzSingle(15) returns FizzBuzz, fizzBuzzSingle(7) returns 7.
+- Representative checks are implemented in unit tests that assert exact string values and array contents.
 
 Notes
 
-This feature is the minimal, central piece of the mission and must be fully covered by unit tests in tests/unit/main.test.js.
+Implementation must be simple and readable; favor clarity over micro-optimizations for this educational library.
