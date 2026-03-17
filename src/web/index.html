@@ -37,7 +37,8 @@
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
+      // Show library identity and a sample FizzBuzz(15)
+      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description, demo: fizzBuzz(15) }, null, 2);
       document.title = name + ' v' + version;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
