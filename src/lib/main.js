@@ -1,27 +1,15 @@
-#!/usr/bin/env node
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2025-2026 Polycode Limited
 // src/lib/main.js
 
-const isNode = typeof process !== "undefined" && !!process.versions?.node;
+// Import package.json as a JSON module. This is supported in Node 24+ and in browsers
+// when the file is served; using a static import keeps the module synchronous and
+// avoids top-level conditional dynamic imports which can fail in browser contexts.
+import pkg from "../../package.json" assert { type: "json" };
 
-let pkg;
-if (isNode) {
-  const { createRequire } = await import("module");
-  const requireFn = createRequire(import.meta.url);
-  pkg = requireFn("../../package.json");
-} else {
-  try {
-    const resp = await fetch(new URL("../../package.json", import.meta.url));
-    pkg = await resp.json();
-  } catch {
-    pkg = { name: document.title, version: "0.0.0", description: "" };
-  }
-}
-
-export const name = pkg.name;
-export const version = pkg.version;
-export const description = pkg.description;
+export const name = pkg.name || "repository0";
+export const version = pkg.version || "0.0.0";
+export const description = pkg.description || "";
 
 export function getIdentity() {
   return { name, version, description };
@@ -91,7 +79,8 @@ export function main(args) {
       console.log(JSON.stringify(fizzBuzz(n)));
     } catch (e) {
       console.error(e && e.message ? e.message : String(e));
-      process.exitCode = 2;
+      // don't crash in embedded environments
+      if (typeof process !== 'undefined') process.exitCode = 2;
     }
     return;
   }
@@ -99,7 +88,9 @@ export function main(args) {
   console.log(`${name}@${version}`);
 }
 
-if (isNode) {
+// If executed directly in Node, run the CLI main
+if (typeof process !== "undefined" && process?.argv) {
+  // Avoid doing this in browser contexts
   const { fileURLToPath } = await import("url");
   if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const args = process.argv.slice(2);
