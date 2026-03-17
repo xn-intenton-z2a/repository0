@@ -24,3 +24,20 @@ Notes for implementer
 
 - Keep examples minimal and copyable: one-line examples for both string and bit APIs.
 - Ensure README includes a short description, installation snippet (npm install), and the API examples above.
+
+# Mission acceptance mapping
+
+This section maps the mission's acceptance criteria to the API and testable expectations enforced by the feature files.
+
+Acceptance checklist (must be verified by unit tests):
+
+- Hamming distance between "karolin" and "kathrin" is 3 (string API: hammingString("karolin", "kathrin") === 3).
+- Hamming distance between "" and "" is 0 (string API: hammingString("", "") === 0).
+- Hamming distance between strings of different lengths throws RangeError (e.g., hammingString("a", "ab") throws RangeError).
+- Bit-level Hamming distance between 1 and 4 is 2 (bit API: hammingBits(1, 4) === 2).
+- Bit-level Hamming distance between 0 and 0 is 0 (hammingBits(0, 0) === 0).
+- Unicode handling: hammingString operates on Unicode code points, not UTF-16 code units (see UNICODE_SUPPORT for astral and emoji tests).
+- Input validation: TypeError is thrown for wrong types; RangeError for negative or unequal-length string inputs as specified in STRING_HAMMING and BIT_HAMMING.
+- README demonstrates usage with the named exports and shows expected results.
+
+When these items are covered by unit tests and documented in the README, the mission acceptance criteria are satisfied.

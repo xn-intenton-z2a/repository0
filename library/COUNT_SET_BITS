@@ -1,0 +1,62 @@
+SOURCE: https://www.geeksforgeeks.org/count-set-bits-in-an-integer/
+RETRIEVED: 2026-03-17
+DATA_SIZE: ~1.1 MB
+
+TABLE_OF_CONTENTS
+1. Problem statement
+2. Common algorithms
+3. Kernighan's method (detailed)
+4. Table lookup method
+5. Brian Kernighan proof sketch and complexity
+6. Parallel bit-count (SWAR) algorithm details
+7. Implementation patterns for various languages
+8. Supplementary details
+9. Reference details
+10. Detailed digest
+11. Attribution
+
+1. PROBLEM STATEMENT
+Given a non-negative integer n, compute the count of bits set to 1 in its binary representation.
+
+2. COMMON ALGORITHMS
+- Naive per-bit testing
+- Kernighan's algorithm (clear lowest set bit loop)
+- Lookup table per byte
+- SWAR/parallel bit counting using masks and shifts
+- Use CPU POPCNT instruction when available
+
+3. KERNIGHAN'S METHOD
+Algorithm:
+count = 0;
+while (n != 0) {
+  n = n & (n - 1);
+  count += 1;
+}
+Complexity: O(k) where k is number of set bits. Advantage: efficient for sparse set bits.
+
+4. TABLE LOOKUP METHOD
+- Precompute table[0..255] with popcount for each byte.
+- For 32-bit integer: split into 4 bytes and sum table[b0] + table[b1] + table[b2] + table[b3].
+- For 64-bit, extend to 8 bytes or combine with 16-bit tables.
+
+5. PROOF SKETCH
+- Each iteration of Kernighan removes the lowest set bit, reducing the number of set bits by exactly one, guaranteeing termination after k steps.
+
+6. PARALLEL BIT-COUNT (SWAR)
+- Sequence of mask/shift/add operations to aggregate counts across bit fields in parallel; example constants and steps provided in Hacker's Delight and used in the article.
+
+7. IMPLEMENTATION PATTERNS
+- C/C++: use builtin __builtin_popcount/ __builtin_popcountll or intrinsics that map to POPCNT.
+- JavaScript: use Kernighan with Number or BigInt depending on target width; for 32-bit prefer (x >>> 0) to force unsigned 32-bit.
+
+8. SUPPLEMENTARY DETAILS
+- For large arrays of integers, vectorized or hardware-accelerated methods (SIMD / GPU) outperform scalar loops.
+
+9. REFERENCE DETAILS
+- Concrete code snippets and mask constants (descriptive): SWAR sequence, mask values (0x55555555, 0x33333333, 0x0F0F0F0F), final multiplication by 0x01010101 and shift to extract byte-sum.
+
+10. DETAILED DIGEST
+Comprehensive collection of set-bit counting algorithms (Kernighan, table, SWAR, POPCNT) and language-specific recommendations. Retrieved 2026-03-17.
+
+11. ATTRIBUTION
+Source: GeeksforGeeks — Count set bits in an integer (https://www.geeksforgeeks.org/count-set-bits-in-an-integer/). Approx size retrieved: ~1.1 MB.

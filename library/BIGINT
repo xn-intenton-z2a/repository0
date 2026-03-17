@@ -1,0 +1,51 @@
+SOURCE: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt
+RETRIEVED: 2026-03-17
+DATA_SIZE: ~172 KB
+
+TABLE_OF_CONTENTS
+1. Purpose and signature
+2. Creating BigInts
+3. Supported operations and method signatures
+4. Interop with Number and typed arrays
+5. Use cases for large-bit Hamming computations
+6. Implementation details and performance
+7. Reference details
+8. Detailed digest
+9. Attribution
+
+1. PURPOSE
+BigInt provides an arbitrary-precision integer type in JavaScript for integers beyond Number.MAX_SAFE_INTEGER.
+
+2. CREATING BIGINTS
+- Literal: 123n
+- Constructor-like: BigInt(123) -> returns BigInt
+- From strings: BigInt('0x1fffffffffffff')
+
+3. OPERATIONS
+- Arithmetic: +, -, *, /, %, **
+- Bitwise: &, |, ^, ~, <<, >> (BigInt-specific operators)
+- Comparison: <, >, ==, === (=== distinguishes type)
+- Division truncates toward zero; no floating-point result.
+
+4. INTEROP
+- Cannot mix Number and BigInt in operations; explicit conversion required: BigInt(n) or Number(bi).
+- JSON.stringify does not support BigInt directly (will throw); convert to string when serialising.
+
+5. USE CASES FOR HAMMING
+- Represent large bit-strings as BigInt and compute diff = a ^ b; then implement popcount for BigInt by repeatedly clearing lowest set bit or shifting and masking.
+- For performance, process as fixed-size chunks (64-bit) when possible and avoid excessively large BigInt arithmetic loops.
+
+6. IMPLEMENTATION NOTES
+- popcount on BigInt pattern: while(b != 0n) { b &= b - 1n; ++count }
+- Left and right shifts operate on arbitrary-width; shifting by large amounts is linear in implementation cost.
+
+7. REFERENCE DETAILS
+- Signature: BigInt(value) -> BigInt
+- Operators: require BigInt operands, mixing with Number throws TypeError
+- Serialisation: use bi.toString() for stable transport
+
+8. DETAILED DIGEST
+Extracted creation forms, operator semantics, interop rules, and BigInt popcount idiom for Hamming computations. Retrieved 2026-03-17.
+
+9. ATTRIBUTION
+Source: MDN — BigInt (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt). Approx size retrieved: ~172 KB.
