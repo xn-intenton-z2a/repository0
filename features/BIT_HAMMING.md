@@ -12,7 +12,7 @@ Behavior
 
 Public API
 
-- Named export: hammingBits(a, b)
+- Named export: hammingDistanceBits(a, b)
   - a: non-negative integer (Number)
   - b: non-negative integer (Number)
   - Returns: non-negative integer (number of differing bits)
@@ -21,17 +21,17 @@ Public API
 
 Acceptance criteria (testable)
 
-1. hammingBits(1, 4) returns 2 (binary 001 vs 100).
-2. hammingBits(0, 0) returns 0.
-3. hammingBits(0, 1) returns 1.
-4. hammingBits(42, 42) returns 0.
-5. hammingBits(-1, 1) throws a RangeError.
-6. hammingBits(1.5, 1) throws a TypeError.
+1. hammingDistanceBits(1, 4) returns 2 (binary 001 vs 100).
+2. hammingDistanceBits(0, 0) returns 0.
+3. hammingDistanceBits(0, 1) returns 1.
+4. hammingDistanceBits(42, 42) returns 0.
+5. hammingDistanceBits(-1, 1) throws a RangeError.
+6. hammingDistanceBits(1.5, 1) throws a TypeError.
 
 Examples (to appear in unit tests)
 
-- hammingBits(1, 4) === 2
-- hammingBits(0, 0) === 0
+- hammingDistanceBits(1, 4) === 2
+- hammingDistanceBits(0, 0) === 0
 
 Notes for implementer
 

@@ -1,0 +1,31 @@
+TITLE: STRING_ITERATION
+
+TABLE OF CONTENTS
+1. Iteration primitives (for...of)
+2. Behavior with surrogate pairs and grapheme clusters
+3. Implementation guidance
+4. Performance notes
+5. Digest and retrieval
+6. Attribution and data size
+
+1. Iteration primitives
+- for (const ch of string) iterates over Unicode code point strings (handles surrogate pairs as single items).
+- String.prototype[@@iterator] yields code point substrings.
+
+2. Behavior with surrogate pairs and grapheme clusters
+- for...of handles surrogate pairs as single iteration units; it does not split combined grapheme clusters (e.g., base+combining marks remain separate code points).
+- For grapheme cluster handling, use Intl.Segmenter or a Unicode grapheme library.
+
+3. Implementation guidance
+- Use for...of when comparing or counting code points.
+- When indexing is required, use codePointAt and advance index by 1 or 2 code units based on returned value.
+
+4. Performance notes
+- for...of creates new short string values for each code point; for large-scale operations consider codePointAt with index arithmetic for fewer allocations.
+
+5. Digest and retrieval
+Source: MDN String iterator / iterating over strings
+Retrieved: 2026-03-17
+
+6. Attribution and data size
+Source: MDN Web Docs — String iteration. Raw crawl stored in /tmp (see manifest).

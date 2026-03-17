@@ -1,52 +1,41 @@
-SOURCE: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
-RETRIEVED: 2026-03-17
-DATA_SIZE: ~239 KB
+TITLE: BITWISE_OPERATORS
 
-TABLE_OF_CONTENTS
-1. Operator list and signatures
-2. Operand types and coercion rules
-3. Bitwise semantics in JavaScript
-4. Use patterns for Hamming tasks
-5. Limitations and pitfalls
-6. Supplementary details
-7. Reference details
-8. Detailed digest
-9. Attribution
+TABLE OF CONTENTS
+1. Operators list and semantics
+2. Operand types and coercions
+3. Signed vs unsigned behaviour
+4. Interaction with BigInt
+5. Implementation patterns for bit-level Hamming distance
+6. Digest and retrieval
+7. Attribution and data size
 
-1. OPERATOR LIST
-- NOT: ~x (bitwise NOT)
-- AND: x & y
-- OR: x | y
-- XOR: x ^ y
-- LEFT SHIFT: x << n
-- SIGNED RIGHT SHIFT: x >> n
-- UNSIGNED RIGHT SHIFT: x >>> n
+1. Operators list and semantics
+- AND: a & b -> bitwise AND of 32-bit integer operands
+- OR: a | b -> bitwise OR
+- XOR: a ^ b -> bitwise XOR
+- NOT: ~a -> bitwise NOT (ones' complement)
+- LEFT SHIFT: a << b -> shifts left (32-bit signed)
+- SIGNED RIGHT SHIFT: a >> b -> shifts right preserving sign
+- UNSIGNED RIGHT SHIFT: a >>> b -> shifts right filling with zero (unsigned)
 
-2. OPERAND TYPES AND COERCION
-- Bitwise operators coerce operands to 32-bit signed integers (ToInt32) before operation; results returned as 32-bit signed integers converted to Number.
-- For values beyond 32 bits use BigInt bitwise operators (BigInt has separate operators &, |, ^, ~, <<, >>) with BigInt operands.
+2. Operand types and coercions
+- Operands are converted to 32-bit signed integers (ToInt32) before operation; results are 32-bit signed integers.
+- For numeric values beyond 32-bit, use BigInt to avoid coercion.
 
-3. BITWISE SEMANTICS
-- For 32-bit operations, operands are masked to 32-bit two's complement representation.
-- Unsigned right shift (>>>) treats value as unsigned 32-bit and fills left bits with zeros.
+3. Signed vs unsigned behaviour
+- >>> coerces operands to unsigned 32-bit and performs zero-fill right shift; other shifts preserve sign for signed right shift.
 
-4. USE PATTERNS FOR HAMMING
-- Compute diff = (a ^ b) for 32-bit words; popcount(diff) yields Hamming contribution for that word.
-- When handling large binary data in JS, use BigInt for >32-bit words: diff = BigInt(a) ^ BigInt(b); then implement BigInt popcount or split into 32/64-bit chunks.
+4. Interaction with BigInt
+- BigInt supports analogous bitwise operations when both operands are BigInt (operators &, |, ^, ~, <<, >> are supported for BigInt in modern JS). Mixing Number and BigInt throws TypeError.
+- Use BigInt literals with n suffix and BigInt arithmetic for bit-level operations beyond 32 bits.
 
-5. LIMITATIONS AND PITFALLS
-- Using standard bitwise operators on Number loses precision for integers > 2^53-1 due to Number representation; use BigInt for precise large-integer bitwise arithmetic.
-- Implicit ToInt32 coercion can convert negative numbers; be explicit when required.
+5. Implementation patterns for bit-level Hamming distance
+- For 32-bit numbers: dist = popcount((a ^ b) >>> 0)
+- For large integers: use BigInt: dist = popcountBigInt((BigInt(a) ^ BigInt(b))) implemented with x &= x - 1n loop.
 
-6. SUPPLEMENTARY DETAILS
-- For typed arrays and DataView: read bytes/words and apply bitwise operators on integer typed views or use BigInt64 if Node/engine supports BigInt typed reads.
+6. Digest and retrieval
+Source: MDN Bitwise Operators
+Retrieved: 2026-03-17
 
-7. REFERENCE DETAILS
-- Operator examples and coercion steps (ToNumber -> ToInt32 -> operation -> ToNumber return).
-- BigInt operators require both operands BigInt; mixing BigInt and Number throws TypeError.
-
-8. DETAILED DIGEST
-Collected operator list, coercion behavior (32-bit ToInt32), BigInt operator distinction, and patterns for XOR+popcount for Hamming calculations. Retrieved 2026-03-17.
-
-9. ATTRIBUTION
-Source: MDN — Bitwise Operators (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators). Approx size retrieved: ~239 KB.
+7. Attribution and data size
+Source: MDN Web Docs — Bitwise Operators. Raw crawl stored in /tmp (see manifest).

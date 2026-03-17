@@ -1,0 +1,25 @@
+TITLE: NPM_HAMMING_DISTANCE
+
+TABLE OF CONTENTS
+1. Retrieval status
+2. Typical package API and patterns
+3. Implementation notes for inclusion
+4. Digest and retrieval
+5. Attribution and data size
+
+1. Retrieval status
+- Direct fetch blocked by Cloudflare JS challenge at time of crawl; full package page HTML not available.
+
+2. Typical package API and patterns (based on common npm packages for hamming distance)
+- Exported functions: hammingDistanceStrings(a: string, b: string) -> number; hammingDistanceBits(a: number|BigInt, b: number|BigInt) -> number
+- Input validation: throw TypeError for invalid types; ensure equal-length strings.
+
+3. Implementation notes for inclusion
+- Prefer using Unicode-aware string handling and BigInt for large integers; validate inputs and provide clear error messages.
+
+4. Digest and retrieval
+Source: https://www.npmjs.com/package/hamming-distance (fetch blocked)
+Retrieved: 2026-03-17
+
+5. Attribution and data size
+Source: npm package page — fetch blocked by Cloudflare; raw crawl produced challenge page. See manifest for file size.

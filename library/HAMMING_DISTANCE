@@ -1,52 +1,40 @@
-SOURCE: https://en.wikipedia.org/wiki/Hamming_distance
-RETRIEVED: 2026-03-17
-DATA_SIZE: ~162 KB
+TITLE: HAMMING_DISTANCE
 
-TABLE_OF_CONTENTS
+TABLE OF CONTENTS
 1. Definition
-2. Formal specification
-3. Use cases and constraints
-4. Algorithmic computation
-5. Complexity
-6. Supplementary details
-7. Reference details
-8. Detailed digest
-9. Attribution
+2. Formal definition and formula
+3. Constraints and preconditions
+4. Implementation notes (string vs bit-level)
+5. Supplementary details
+6. Reference details (algorithms, complexity)
+7. Digest and retrieval
+8. Attribution and data size
 
-1. DEFINITION
-Hamming distance between two equal-length strings (or equal-length bit-vectors) is the number of positions at which the corresponding symbols differ.
+1. Definition
+Hamming distance between two equal-length sequences is the number of positions at which corresponding symbols are different.
 
-2. FORMAL SPECIFICATION
-Input: two sequences A and B of length n over the same alphabet.
-Output: integer d where d = |{ i in [0..n-1] : A[i] != B[i] }|.
-Properties: non-negative integer, symmetric, equals zero iff A == B.
+2. Formal definition and formula
+Given two strings or vectors x and y of length n, HammingDistance(x,y) = sum_{i=0..n-1} [x[i] != y[i]] where [condition] is 1 when true, 0 when false.
 
-3. USE CASES AND CONSTRAINTS
-- Error detection/correction: minimum Hamming distance of a code defines the number of detectable and correctable errors (t = floor((d_min-1)/2) correctable).
-- Similarity measures: binary strings, fixed-length encodings, DNA sequences when aligned without gaps.
-- Requirement: inputs must be same length; otherwise define behavior explicitly (pad/truncate or undefined).
+3. Constraints and preconditions
+- Inputs must have equal length; otherwise the Hamming distance is undefined. For strings, use Unicode code points as units when required.
+- For binary/hamming-weight contexts, inputs are fixed-width bit-vectors.
 
-4. ALGORITHMIC COMPUTATION
-- For binary vectors: XOR the two bit-vectors then count set bits of result (popcount).
-- For strings over arbitrary alphabets: iterate index i from 0 to n-1, increment counter when A[i] != B[i].
-- For large bit-strings stored in machine words: process in word-sized chunks (e.g., 32/64-bit), XOR, then popcount per word, sum results.
+4. Implementation notes (string vs bit-level)
+- String-level: iterate code points (not UTF-16 code units) and compare code point values at each index; increment counter on mismatch.
+- Bit-level: for integers, compute XOR of values and count set bits in result (see HAMMING_WEIGHT). Complexity O(n) where n is length in code points or O(b) for bit-width, dominated by popcount cost.
 
-5. COMPLEXITY
-Time: O(n) comparisons or O(n / w) word-XOR+popcount operations when using machine-word parallelism (w = word size in bits).
-Space: O(1) additional memory beyond inputs and counters.
+5. Supplementary details
+- Use Unicode-aware iteration (for...of or codePointAt with manual indexing) to treat surrogate pairs as single code points.
+- When working with Numbers vs BigInt, prefer BigInt for arbitrary large bit-width or when shifting beyond 32 bits.
 
-6. SUPPLEMENTARY DETAILS
-- When using Unicode strings: ensure consistent normalization and iteration over code points (not code units) for logical symbol comparison. Use codePoint-aware iteration when required.
-- For streaming comparison where lengths differ: decide semantic (report mismatch for extra trailing symbols or stop at min-length) and document chosen policy.
+6. Reference details (algorithms, complexity)
+- String algorithm: for-of iteration over strings yields code point strings; compare with direct index access when iterating code points: index and codePointAt nextIndex to advance by 1 or 2 code units as needed.
+- Bit algorithm: dist = popcount(a XOR b). popcount can be implemented with Kernighan's algorithm: while(x) { x &= x-1; count++ } with runtime proportional to number of set bits.
 
-7. REFERENCE DETAILS (APIs, PATTERNS)
-- Binary pattern (word-based):
-  for each word index j: diff = wordA[j] XOR wordB[j]; count += popcount(diff)
-- popcount implementations: use built-in CPU instruction (POPCNT) or software fallback using Kernighan loop: while(x) { x &= x-1; ++count; }
-- For JavaScript typed arrays: load as BigUint64Array (if available) or DataView to read 64-bit words; for Node.js native C++ addons use builtin popcount for performance.
+7. Digest and retrieval
+Source: https://en.wikipedia.org/wiki/Hamming_distance
+Retrieved: 2026-03-17
 
-8. DETAILED DIGEST
-Extracted definitions, formal formula, algorithmic patterns (XOR+popcount, per-index compare), complexity bounds, Unicode caveat and error-correction relation. Retrieved 2026-03-17.
-
-9. ATTRIBUTION
-Source: Wikipedia — Hamming distance (https://en.wikipedia.org/wiki/Hamming_distance). Approx size retrieved: ~162 KB.
+8. Attribution and data size
+Source: Wikipedia — Hamming distance. Raw crawl stored in /tmp (see manifest).

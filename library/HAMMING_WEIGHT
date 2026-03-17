@@ -1,57 +1,36 @@
-SOURCE: https://en.wikipedia.org/wiki/Hamming_weight
-RETRIEVED: 2026-03-17
-DATA_SIZE: ~161 KB
+TITLE: HAMMING_WEIGHT
 
-TABLE_OF_CONTENTS
+TABLE OF CONTENTS
 1. Definition
-2. Formal specification
-3. Algorithms
-4. Bit-twiddling idioms and software patterns
-5. Complexity and hardware support
-6. Supplementary details
-7. Reference details
-8. Detailed digest
-9. Attribution
+2. Formal definition
+3. Algorithms to compute Hamming weight (popcount)
+4. Implementation notes for JS (Number vs BigInt)
+5. Complexity
+6. Digest and retrieval
+7. Attribution and data size
 
-1. DEFINITION
-Hamming weight of a binary string (bit-vector) is the number of symbols that are '1'. Equivalent to population count (popcount).
+1. Definition
+Hamming weight of a binary vector (integer) is the number of symbols that are 1 (the population count, popcount).
 
-2. FORMAL SPECIFICATION
-Input: bit-vector x of length n
-Output: integer w = |{ i in [0..n-1] : x[i] == 1 }|
+2. Formal definition
+For non-negative integer x represented in binary, HammingWeight(x) = number of set bits in x.
 
-3. ALGORITHMS
-- Naive: iterate bits and sum set bits -> O(n).
-- Kernighan's algorithm: while(x != 0) { x = x & (x - 1); ++count; } complexity proportional to number of set bits.
-- Precomputed table: split word into bytes, sum table[byte] for each byte.
-- Parallel bit-count (Hacker's Delight): use masks and shifts to compute popcount in O(log w) machine operations without loops.
+3. Algorithms to compute Hamming weight
+- Kernighan's algorithm: count=0; while(x!=0) { x = x & (x-1); count++; }
+- Table lookup for bytes: split into 8-bit chunks and sum precomputed table counts.
+- Builtin CPU instruction: POPCNT if available; in JS use algorithmic popcount on Number (32-bit) or BigInt for larger widths.
 
-4. BIT-TWIDDLING AND HARDWARE
-- Use CPU POPCNT instruction when available for word-sized registers.
-- For SIMD: use vectorized popcount idioms or horizontal sums of bitwise operations.
+4. Implementation notes for JS
+- Numbers are IEEE-754 doubles with 53-bit integer precision; bitwise operators coerce to signed 32-bit integers, so for >32-bit counts use BigInt.
+- For Number inputs within 32-bit range, use x >>> 0 to coerce unsigned and apply Kernighan or builtin bit hacks.
+- For BigInt inputs, use while(x > 0n) { x &= x - 1n; count++; }
 
-5. COMPLEXITY
-Time: O(popcount(x)) for Kernighan, O(n) for naive, O(n/w) when using word-level operations.
-Space: O(1) beyond auxiliary tables if used.
+5. Complexity
+Kernighan: O(k) where k is number of set bits. Table lookup: O(n/8) for n-bit width.
 
-6. SUPPLEMENTARY DETAILS
-- For large bit arrays stored across machine words, sum popcounts per word.
-- Use BigInt or typed arrays for languages without fixed 64-bit words (JavaScript: BigInt operations combined with custom popcount; for performance prefer native buffers and addons).
+6. Digest and retrieval
+Source: https://en.wikipedia.org/wiki/Hamming_weight
+Retrieved: 2026-03-17
 
-7. REFERENCE DETAILS
-- Kernighan implementation:
-  count = 0
-  while (x != 0) { x &= x - 1; count++ }
-- Table-driven:
-  table[0..255] precomputed; for each byte b in word: count += table[b]
-- Parallel method (32-bit example):
-  x = x - ((x >> 1) & 0x55555555);
-  x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
-  x = ((x + (x >> 4)) & 0x0F0F0F0F);
-  count = (x * 0x01010101) >> 24;
-
-8. DETAILED DIGEST
-Collected definitions and concrete code patterns for popcount including Kernighan, table lookup, parallel reduction, and hardware POPCNT; noted BigInt considerations for JS. Retrieved 2026-03-17.
-
-9. ATTRIBUTION
-Source: Wikipedia — Hamming weight (https://en.wikipedia.org/wiki/Hamming_weight). Approx size retrieved: ~161 KB.
+7. Attribution and data size
+Source: Wikipedia — Hamming weight. Raw crawl stored in /tmp (see manifest).

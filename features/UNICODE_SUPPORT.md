@@ -6,20 +6,20 @@ Defines expectations for correct handling of Unicode when computing Hamming dist
 
 Behavior
 
-- All string-based APIs (hammingString) must operate on Unicode code points.
+- All string-based APIs (hammingDistanceStrings) must operate on Unicode code points.
 - Implementations should split strings into code points prior to length and position-based comparisons (Array.from or spread operator is recommended).
 - Tests must include examples with characters outside the Basic Multilingual Plane (astral symbols) and with emoji to ensure surrogate pairs are treated as single code points.
 
 Acceptance criteria (testable)
 
-1. hammingString("a𝄞c", "a𝄟c") returns 1 where 𝄞 and 𝄟 are different astral musical symbols.
-2. hammingString("😀", "😁") returns 1 for differing emoji (grinning vs grinning with smiling eyes).
-3. hammingString("💩", "x") throws RangeError when code point counts differ and TypeError if non-strings provided.
+1. hammingDistanceStrings("a𝄞c", "a𝄟c") returns 1 where 𝄞 and 𝄟 are different astral musical symbols.
+2. hammingDistanceStrings("😀", "😁") returns 1 for differing emoji (grinning vs grinning with smiling eyes).
+3. hammingDistanceStrings("💩", "x") throws RangeError when code point counts differ and TypeError if non-strings provided.
 
 Examples for tests
 
 - const a = Array.from("a𝄞c"); // ensures length === 3
-- assert.hammingString("a😀", "a😁") === 1
+- assert.hammingDistanceStrings("a😀", "a😁") === 1
 
 Notes for implementer
 

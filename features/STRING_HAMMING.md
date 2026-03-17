@@ -12,7 +12,7 @@ Behavior
 
 Public API
 
-- Named export: hammingString(a, b)
+- Named export: hammingDistanceStrings(a, b)
   - a: string
   - b: string
   - Returns: non-negative integer (number of differing code points)
@@ -21,16 +21,16 @@ Public API
 
 Acceptance criteria (testable)
 
-1. hammingString("karolin", "kathrin") returns 3.
-2. hammingString("", "") returns 0.
-3. hammingString("a", "ab") throws a RangeError.
-4. hammingString(42, "a") throws a TypeError.
+1. hammingDistanceStrings("karolin", "kathrin") returns 3.
+2. hammingDistanceStrings("", "") returns 0.
+3. hammingDistanceStrings("a", "ab") throws a RangeError.
+4. hammingDistanceStrings(42, "a") throws a TypeError.
 5. Implementation uses Unicode code points (see UNICODE_SUPPORT for example tests with astral characters).
 
 Examples (to appear in unit tests)
 
-- hammingString("karolin", "kathrin") === 3
-- hammingString("", "") === 0
+- hammingDistanceStrings("karolin", "kathrin") === 3
+- hammingDistanceStrings("", "") === 0
 
 Notes for implementer
 
