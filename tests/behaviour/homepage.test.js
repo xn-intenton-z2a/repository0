@@ -17,6 +17,6 @@ test("homepage returns 200 and renders", async ({ page }) => {
 test("page displays the library version from src/lib/main.js", async ({ page }) => {
   const { version } = getIdentity();
   await page.goto("./", { waitUntil: "networkidle" });
-  const pageVersion = await page.locator("#lib-version").textContent();
+  const pageVersion = (await page.locator("#lib-version").textContent())?.trim() || "";
   expect(pageVersion).toContain(version);
 });
