@@ -13,13 +13,13 @@ Behavior
 Acceptance criteria (testable)
 
 1. hammingString("a𝄞c", "a𝄟c") returns 1 where 𝄞 and 𝄟 are different astral musical symbols.
-2. hammingString("\u{1F600}", "\u{1F601}") returns 1 for differing emoji (grinning vs grinning with smiling eyes).
-3. hammingString("\uD83D\uDCA9", "x") throws RangeError when code point counts differ and TypeError if non-strings provided.
+2. hammingString("😀", "😁") returns 1 for differing emoji (grinning vs grinning with smiling eyes).
+3. hammingString("💩", "x") throws RangeError when code point counts differ and TypeError if non-strings provided.
 
 Examples for tests
 
 - const a = Array.from("a𝄞c"); // ensures length === 3
-- assert.hammingString("a\u{1F600}", "a\u{1F601}") === 1
+- assert.hammingString("a😀", "a😁") === 1
 
 Notes for implementer
 
