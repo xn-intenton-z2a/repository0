@@ -2,13 +2,13 @@
 
 Summary
 
-Specifies the behaviour for computing Hamming distance between two non-negative integers at bit level. The function counts differing bits in the binary representation of both integers.
+Specifies behaviour for computing Hamming distance between two non-negative integers at the bit level. The function counts differing bits using XOR and a bit-counting algorithm.
 
 Behavior
 
-- Accepts two arguments and returns the count of differing bits.
-- Both arguments must be integers (Number) and non-negative.
-- The function must treat numbers as standard JS numbers (safe integers) and provide sensible behaviour for large integers up to Number.MAX_SAFE_INTEGER.
+- Accepts two arguments and returns the count of differing bits between their integer binary representations.
+- Both arguments must be Numbers that are integers, non-negative, and within the safe integer range (Number.isSafeInteger).
+- Implementation may accept BigInt in a future extension, but current tests target Number values.
 
 Public API
 
@@ -16,24 +16,26 @@ Public API
   - a: non-negative integer (Number)
   - b: non-negative integer (Number)
   - Returns: non-negative integer (number of differing bits)
-  - Throws TypeError if either argument is not a number or not an integer
-  - Throws RangeError if either argument is negative
+  - Throws TypeError if either argument is not a Number or not an integer
+  - Throws RangeError if either argument is negative or not a safe integer
 
 Acceptance criteria (testable)
 
-1. hammingDistanceBits(1, 4) returns 2 (binary 001 vs 100).
-2. hammingDistanceBits(0, 0) returns 0.
-3. hammingDistanceBits(0, 1) returns 1.
-4. hammingDistanceBits(42, 42) returns 0.
-5. hammingDistanceBits(-1, 1) throws a RangeError.
-6. hammingDistanceBits(1.5, 1) throws a TypeError.
+1. hammingDistanceBits(1, 4) === 2 (binary 001 vs 100).
+2. hammingDistanceBits(0, 0) === 0.
+3. hammingDistanceBits(0, 1) === 1.
+4. hammingDistanceBits(42, 42) === 0.
+5. hammingDistanceBits(-1, 1) throws RangeError.
+6. hammingDistanceBits(1.5, 1) throws TypeError.
+7. hammingDistanceBits(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER) === 0 (if both equal).
 
-Examples (to appear in unit tests)
+Examples for unit tests
 
-- hammingDistanceBits(1, 4) === 2
-- hammingDistanceBits(0, 0) === 0
+- assert(hammingDistanceBits(1, 4) === 2)
+- assert.throws(() => hammingDistanceBits(-1, 1), RangeError)
+- assert.throws(() => hammingDistanceBits(1.5, 1), TypeError)
 
 Notes for implementer
 
-- Use bitwise operations or XOR + bit-counting to compute differing bits. Ensure use of integer checks (Number.isInteger) and non-negativity checks.
-- Document behaviour for values near Number.MAX_SAFE_INTEGER; prefer rejecting non-safe integer inputs or explicitly documenting the safe range.
+- Use XOR (a ^ b) and an efficient bit-popcount (loop with x &= x - 1) to count set bits.
+- Validate with Number.isInteger and Number.isSafeInteger; throw meaningful errors to help tests assert on error types.

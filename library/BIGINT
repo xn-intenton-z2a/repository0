@@ -1,34 +1,26 @@
-TITLE: BIGINT
-
+NORMALISED EXTRACT
+Overview
+BigInt is a built-in numeric primitive for arbitrary-precision integers.
+Creation
+- BigInt(value) -> BigInt constructs a BigInt from Number, string, or BigInt-like value.
+- Literal syntax: integerLiteral followed by n, e.g., 123n.
+Arithmetic and operators
+- Supported arithmetic: +, -, *, /, %, **. Division (/) on BigInt performs integer division with truncation toward zero (no fractional component).
+- Bitwise operators: &, |, ^, ~, <<, >> operate on BigInt when both operands are BigInt.
+Type interactions
+- Mixing BigInt and Number in an operation without explicit conversion throws TypeError. Convert either operand to the other's type explicitly.
+Limits and use
+- Use BigInt for integers larger than Number.MAX_SAFE_INTEGER (2^53 - 1) or when exact integer arithmetic is required.
 TABLE OF CONTENTS
 1. Creation and literals
-2. Operators and mixing rules
-3. Methods and conversions
-4. Performance and precision
-5. Examples for bit-level use
-6. Digest and retrieval
-7. Attribution and data size
-
-1. Creation and literals
-- Literal syntax: 123n creates a BigInt. Constructor: BigInt(value) converts value to BigInt.
-
-2. Operators and mixing rules
-- Supported: +, -, *, **, %, unary -, &, |, ^, ~, <<, >> when both operands are BigInt.
-- Mixing BigInt and Number in arithmetic or bitwise operations throws TypeError; explicit conversion required.
-
-3. Methods and conversions
-- BigInt.asIntN(width, bigint) and BigInt.asUintN(width, bigint) to wrap to a fixed bit width.
-- Use BigInt(value) to convert strings or numbers; BigInt('12345678901234567890') accepts decimal string.
-
-4. Performance and precision
-- BigInt provides arbitrary precision integer arithmetic; operations are slower than native 53-bit Number arithmetic but avoid precision loss.
-
-5. Examples for bit-level use
-- Use BigInt for popcount on >32-bit integers: while(x > 0n) { x &= x - 1n; count++; }
-
-6. Digest and retrieval
-Source: MDN BigInt
-Retrieved: 2026-03-17
-
-7. Attribution and data size
-Source: MDN Web Docs — BigInt. Raw crawl stored in /tmp (see manifest).
+2. Supported operators and semantics
+3. Division semantics (integer truncation)
+4. Type mixing rules
+REFERENCE DETAILS
+- BigInt(value) signature: BigInt(value: number|string|BigInt) -> BigInt
+- Literal form: <digits>n (example: 9007199254740993n)
+- Error rule: BigInt and Number mixing throws TypeError except when explicitly converted
+DETAILED DIGEST
+Source extracted: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt (retrieved 2026-03-17; 176223 bytes)
+ATTRIBUTION
+Source: MDN Web Docs (Mozilla). Data size fetched: 176223 bytes.

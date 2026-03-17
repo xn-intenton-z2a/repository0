@@ -1,40 +1,59 @@
-TITLE: HAMMING_DISTANCE
-
+NORMALISED EXTRACT
+Definition
+The Hamming distance between two equal-length sequences (strings, vectors, or bit-strings) is the count of positions at which the corresponding symbols differ.
+Formula
+Given two sequences a and b of length n: distance = sum_{i=0..n-1} [a_i != b_i]
+Unicode-aware string semantics
+When applied to strings, comparisons must be performed on Unicode code points, not UTF-16 code units. Use a code-point iterator (for...of, Array.from, or manual codePointAt handling) to ensure surrogate pairs are treated as a single item.
+Bit-level semantics
+For non-negative integers, compute XOR (x ^ y) then count set bits in the XOR result (popcount) to get the bit-level Hamming distance.
+Algorithms and complexity
+String algorithm: iterate code points once and increment counter when code points differ. Time O(n) where n is number of code points; O(1) extra space.
+Bit algorithm: compute z = x XOR y, then compute popcount(z). Typical popcount implementations:
+- Kernighan: while z != 0 do z = z & (z-1); count++ -> O(k) where k is number of set bits.
+- Table lookup: split into bytes and sum precomputed 256-entry table -> O(w/8) for w-bit words.
+- SWAR/parallel bit-count for fixed widths (implementation-specific) -> constant-time arithmetic operations.
+Edge cases and validation
+- String inputs: must be equal in code point length for string Hamming distance; otherwise throw TypeError or return defined error.
+- Bit inputs: accept Number (treated as 32-bit unsigned/signed depending on context) or BigInt; when using BigInt, convert both operands to BigInt prior to XOR.
+- Type mixing (Number vs BigInt) must be normalized explicitly; in JS mixing throws TypeError.
 TABLE OF CONTENTS
-1. Definition
-2. Formal definition and formula
-3. Constraints and preconditions
-4. Implementation notes (string vs bit-level)
-5. Supplementary details
-6. Reference details (algorithms, complexity)
-7. Digest and retrieval
-8. Attribution and data size
-
-1. Definition
-Hamming distance between two equal-length sequences is the number of positions at which corresponding symbols are different.
-
-2. Formal definition and formula
-Given two strings or vectors x and y of length n, HammingDistance(x,y) = sum_{i=0..n-1} [x[i] != y[i]] where [condition] is 1 when true, 0 when false.
-
-3. Constraints and preconditions
-- Inputs must have equal length; otherwise the Hamming distance is undefined. For strings, use Unicode code points as units when required.
-- For binary/hamming-weight contexts, inputs are fixed-width bit-vectors.
-
-4. Implementation notes (string vs bit-level)
-- String-level: iterate code points (not UTF-16 code units) and compare code point values at each index; increment counter on mismatch.
-- Bit-level: for integers, compute XOR of values and count set bits in result (see HAMMING_WEIGHT). Complexity O(n) where n is length in code points or O(b) for bit-width, dominated by popcount cost.
-
-5. Supplementary details
-- Use Unicode-aware iteration (for...of or codePointAt with manual indexing) to treat surrogate pairs as single code points.
-- When working with Numbers vs BigInt, prefer BigInt for arbitrary large bit-width or when shifting beyond 32 bits.
-
-6. Reference details (algorithms, complexity)
-- String algorithm: for-of iteration over strings yields code point strings; compare with direct index access when iterating code points: index and codePointAt nextIndex to advance by 1 or 2 code units as needed.
-- Bit algorithm: dist = popcount(a XOR b). popcount can be implemented with Kernighan's algorithm: while(x) { x &= x-1; count++ } with runtime proportional to number of set bits.
-
-7. Digest and retrieval
-Source: https://en.wikipedia.org/wiki/Hamming_distance
-Retrieved: 2026-03-17
-
-8. Attribution and data size
-Source: Wikipedia — Hamming distance. Raw crawl stored in /tmp (see manifest).
+1. Definition and formula
+2. Unicode handling (strings)
+3. Bitwise method (integers)
+4. Algorithms and complexity
+5. Edge cases and validation
+6. Reference API signatures
+DETAILS
+1. Definition and formula
+  - distance = count of differing positions.
+2. Unicode handling (strings)
+  - Use String iterator (for...of) or manual surrogate-pair combining using codePointAt to read full code points.
+  - Do not rely on .length for code point counts; .length reports UTF-16 code units.
+3. Bitwise method (integers)
+  - Compute XOR: z = a XOR b
+  - Compute popcount(z) using one of the popcount methods (Kernighan, table lookup, SWAR).
+4. Algorithms and complexity
+  - String: single-pass code point comparison, O(n).
+  - Bitwise: XOR cost + popcount cost; popcount complexity depends on algorithm chosen.
+5. Edge cases and validation
+  - If inputs are not valid types or sizes, return or throw a TypeError.
+REFERENCE DETAILS
+API signatures (recommended patterns)
+- hammingDistanceStrings(a: string, b: string) -> number
+  Parameters: a and b are strings. Function must iterate code points and return integer distance. Throws TypeError if code point counts differ or inputs not strings.
+- hammingDistanceBits(a: number|BigInt, b: number|BigInt) -> number
+  Parameters: a and b are integers. Convert both to the same integer type (prefer BigInt for arbitrary precision); compute z = a ^ b; return popcount(z) as Number.
+IMPLEMENTATION NOTES
+- For JS, prefer BigInt when working with integers outside the 32-bit domain: BigInt(a) ^ BigInt(b) -> BigInt; compute popcount with Kernighan using BigInt-friendly loop.
+- For strings, use for (const cp of string) { ... } to iterate code points.
+SUPPLEMENTARY DETAILS
+- Use Intl.Segmenter when grapheme-cluster (user-perceived character) comparisons are required; Hamming distance normally compares code points.
+- When implementing in typed languages, document the bit-width used for integer inputs and whether leading zeros are considered in bit-distance calculations.
+DETAILED DIGEST
+Sources extracted:
+- https://en.wikipedia.org/wiki/Hamming_distance (retrieved 2026-03-17; 165535 bytes)
+- https://www.npmjs.com/package/hamming-distance (package reference; see NPM_HAMMING_DISTANCE entry for retrieval notes)
+Retrieval date: 2026-03-17
+ATTRIBUTION
+Source: Wikipedia — Hamming distance (public domain / CC BY-SA depending on page). Data size fetched: 165535 bytes.

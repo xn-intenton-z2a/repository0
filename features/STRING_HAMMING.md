@@ -2,13 +2,13 @@
 
 Summary
 
-Provides a concise specification for computing Hamming distance between two strings of equal length. The implementation must compare Unicode code points (not UTF-16 code units) and validate inputs.
+Specifies computing Hamming distance between two strings of equal length measured in Unicode code points. The implementation must compare code points (not UTF-16 code units) and validate inputs precisely.
 
 Behavior
 
-- Accepts two arguments and returns the number of positions at which the corresponding code points are different.
+- Accepts two arguments and returns the number of positions at which corresponding Unicode code points differ.
 - Both arguments must be strings and must contain the same number of Unicode code points.
-- Comparison is done by Unicode code points: characters composed of surrogate pairs or combining marks count as their logical code point sequence when appropriate (see UNICODE_SUPPORT feature for guidance).
+- Comparison is performed at code point granularity. Grapheme cluster equivalence (composed characters) is out of scope; the library operates on code points.
 
 Public API
 
@@ -21,18 +21,19 @@ Public API
 
 Acceptance criteria (testable)
 
-1. hammingDistanceStrings("karolin", "kathrin") returns 3.
-2. hammingDistanceStrings("", "") returns 0.
-3. hammingDistanceStrings("a", "ab") throws a RangeError.
-4. hammingDistanceStrings(42, "a") throws a TypeError.
-5. Implementation uses Unicode code points (see UNICODE_SUPPORT for example tests with astral characters).
+1. hammingDistanceStrings("karolin", "kathrin") === 3.
+2. hammingDistanceStrings("", "") === 0.
+3. hammingDistanceStrings("a", "ab") throws RangeError.
+4. hammingDistanceStrings(42, "a") throws TypeError.
+5. Implementation compares using code points (Array.from or spread operator) so astral symbols count as single code points (see UNICODE_SUPPORT for examples).
 
-Examples (to appear in unit tests)
+Examples for unit tests
 
-- hammingDistanceStrings("karolin", "kathrin") === 3
-- hammingDistanceStrings("", "") === 0
+- assert(hammingDistanceStrings("karolin", "kathrin") === 3)
+- assert(hammingDistanceStrings("", "") === 0)
+- assert.throws(() => hammingDistanceStrings("a", "ab"), RangeError)
 
 Notes for implementer
 
-- Use an approach that splits strings into code points (for example Array.from or spread on a string) before length/position comparison.
-- Keep behaviour deterministic and well-documented so unit tests can assert exact counts.
+- Convert both strings to arrays of code points: const aPoints = Array.from(a); const bPoints = Array.from(b); then compare lengths and iterate by index.
+- Avoid indexing the original string by code unit (str[i]) before splitting to code points.

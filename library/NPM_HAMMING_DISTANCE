@@ -1,25 +1,19 @@
-TITLE: NPM_HAMMING_DISTANCE
-
+NORMALISED EXTRACT
+Package: hamming-distance (npm)
+Retrieval note
+The package page at https://www.npmjs.com/package/hamming-distance returned a Cloudflare-protected HTML ("Just a moment" page) when crawled programmatically; full README content was not available via automated fetch. The crawl output was saved for manual inspection.
+What can be asserted from the package name and typical patterns
+- Expect the package to export routines for computing string Hamming distance and/or bit Hamming distance.
+- Typical API shapes: hammingDistanceStrings(a: string, b: string) -> number; hammingDistanceBits(a: number|BigInt, b: number|BigInt) -> number
+- Implementation patterns used by packages commonly follow: for strings iterate code points and compare; for integers compute XOR then popcount.
 TABLE OF CONTENTS
-1. Retrieval status
-2. Typical package API and patterns
-3. Implementation notes for inclusion
-4. Digest and retrieval
-5. Attribution and data size
-
-1. Retrieval status
-- Direct fetch blocked by Cloudflare JS challenge at time of crawl; full package page HTML not available.
-
-2. Typical package API and patterns (based on common npm packages for hamming distance)
-- Exported functions: hammingDistanceStrings(a: string, b: string) -> number; hammingDistanceBits(a: number|BigInt, b: number|BigInt) -> number
-- Input validation: throw TypeError for invalid types; ensure equal-length strings.
-
-3. Implementation notes for inclusion
-- Prefer using Unicode-aware string handling and BigInt for large integers; validate inputs and provide clear error messages.
-
-4. Digest and retrieval
-Source: https://www.npmjs.com/package/hamming-distance (fetch blocked)
-Retrieved: 2026-03-17
-
-5. Attribution and data size
-Source: npm package page — fetch blocked by Cloudflare; raw crawl produced challenge page. See manifest for file size.
+1. Retrieval note and limitations
+2. Expected API shapes (conventional)
+3. Implementation patterns used by npm packages
+4. Action items to obtain exact API
+REFERENCE DETAILS
+- Exact method names, parameter lists and return types were not extractable due to Cloudflare challenge. To obtain authoritative API specs, open the package page in a browser or fetch via an environment that passes the Cloudflare check and inspect the README/exports.
+DETAILED DIGEST
+Source extracted: https://www.npmjs.com/package/hamming-distance (retrieved 2026-03-17; 7180 bytes of challenge-page HTML)
+ATTRIBUTION
+Source: npm package page (Cloudflare-protected). Data size fetched: 7180 bytes (partial challenge page).

@@ -1,38 +1,40 @@
-TITLE: COUNT_SET_BITS
-
+NORMALISED EXTRACT
+Problem: count set bits (population count) in an integer
+Algorithms (concrete)
+1. Naive bit scan
+   count = 0
+   while n > 0:
+     count += n & 1
+     n = n >>> 1
+   Complexity: O(w) where w is word width.
+2. Kernighan's algorithm (recommended when few bits set)
+   count = 0
+   while n != 0:
+     n = n & (n - 1)
+     count += 1
+   Complexity: O(k) where k is number of set bits.
+3. Table lookup (8-bit chunks)
+   table[0..255] precomputed
+   sum table[(n >> 0) & 0xff] + table[(n >> 8) & 0xff] + ...
+4. SWAR (parallel) for 32-bit
+   u = u - ((u >>> 1) & 0x55555555)
+   u = (u & 0x33333333) + ((u >>> 2) & 0x33333333)
+   u = (u + (u >>> 4)) & 0x0F0F0F0F
+   count = (u * 0x01010101) >>> 24
+5. Compiler intrinsics / hardware
+   Use __builtin_popcount / POPCNT instruction when available.
+BigInt handling
+- For BigInt, use repeated Kernighan with BigInt arithmetic or split into fixed-size limbs (32/64-bit) and apply chunked methods.
 TABLE OF CONTENTS
-1. Problem statement
-2. Kernighan's algorithm (implementation)
-3. Byte-table lookup method
-4. Builtin instructions and JS implications
-5. Complexity
-6. Implementation notes for JS
-7. Digest and retrieval
-8. Attribution and data size
-
-1. Problem statement
-Count the number of 1 bits in a non-negative integer's binary representation.
-
+1. Naive scan
 2. Kernighan's algorithm
-Algorithm: count=0; while(x!=0) { x &= x-1; count++; } Returns count. For BigInt use 1n, 0n, and x &= x - 1n.
-
-3. Byte-table lookup method
-Divide integer into 8-bit chunks; use precomputed table[256] for counts and sum. Works well for fixed-width integers.
-
-4. Builtin instructions and JS implications
-- Native POPCNT instruction exists on CPUs and is fastest; JS does not expose it directly but engines may optimize popcount loops.
-- For JS Number (32-bit) use unsigned coercion x >>> 0 before loops; for >32-bit use BigInt.
-
-5. Complexity
-Kernighan: O(k) where k is number of set bits. Table method: O(n/8) for n-bit width.
-
-6. Implementation notes for JS
-- Use x = x >>> 0 to coerce to unsigned 32-bit when using Number.
-- For BigInt values, use BigInt loop example above.
-
-7. Digest and retrieval
-Source: GeeksforGeeks — Count set bits in an integer
-Retrieved: 2026-03-17
-
-8. Attribution and data size
-Source: GeeksforGeeks. Raw crawl stored in /tmp (see manifest).
+3. Table lookup
+4. SWAR parallel method (32-bit)
+5. BigInt and intrinsics
+REFERENCE DETAILS
+- Exact SWAR constants for 32-bit given above; use equivalent constants for 64-bit with adjusted masks.
+- When implementing in JS, avoid >>> on BigInt (not supported); use BigInt-aware operations and BigInt shifting with n >> BigInt(k).
+DETAILED DIGEST
+Source extracted: https://www.geeksforgeeks.org/count-set-bits-in-an-integer/ (retrieved 2026-03-17; 1205106 bytes)
+ATTRIBUTION
+Source: GeeksforGeeks. Data size fetched: 1205106 bytes.

@@ -1,36 +1,43 @@
-TITLE: HAMMING_WEIGHT
-
+NORMALISED EXTRACT
+Definition
+Hamming weight (population count, popcount) is the number of 1 bits in a binary representation of an integer.
+Common algorithms
+1. Kernighan's algorithm (bit-removal):
+   count = 0
+   while n != 0:
+     n = n & (n - 1)
+     count += 1
+   Return count
+   Complexity: O(k) where k = number of set bits.
+2. Table lookup (bytewise):
+   Precompute table[0..255] = popcount of each byte. For 32-bit word, sum table[(n >> 0) & 0xff] + ... etc. Complexity: O(w/8).
+3. SWAR / parallel bit-count (for fixed-width words):
+   For 32-bit unsigned integer (u):
+     u = u - ((u >>> 1) & 0x55555555)
+     u = (u & 0x33333333) + ((u >>> 2) & 0x33333333)
+     u = (u + (u >>> 4)) & 0x0F0F0F0F
+     count = (u * 0x01010101) >>> 24
+   This yields the 8-bit sums packed and extracts total.
+4. Hardware / compiler intrinsics
+   Use builtin functions where available (e.g., __builtin_popcount, POPCNT instruction) for best performance.
+Big integers
+- For arbitrary-precision integers, use repeated Kernighan with BigInt operations or split into fixed-size limbs and apply table/SWAR per limb.
 TABLE OF CONTENTS
 1. Definition
-2. Formal definition
-3. Algorithms to compute Hamming weight (popcount)
-4. Implementation notes for JS (Number vs BigInt)
-5. Complexity
-6. Digest and retrieval
-7. Attribution and data size
-
-1. Definition
-Hamming weight of a binary vector (integer) is the number of symbols that are 1 (the population count, popcount).
-
-2. Formal definition
-For non-negative integer x represented in binary, HammingWeight(x) = number of set bits in x.
-
-3. Algorithms to compute Hamming weight
-- Kernighan's algorithm: count=0; while(x!=0) { x = x & (x-1); count++; }
-- Table lookup for bytes: split into 8-bit chunks and sum precomputed table counts.
-- Builtin CPU instruction: POPCNT if available; in JS use algorithmic popcount on Number (32-bit) or BigInt for larger widths.
-
-4. Implementation notes for JS
-- Numbers are IEEE-754 doubles with 53-bit integer precision; bitwise operators coerce to signed 32-bit integers, so for >32-bit counts use BigInt.
-- For Number inputs within 32-bit range, use x >>> 0 to coerce unsigned and apply Kernighan or builtin bit hacks.
-- For BigInt inputs, use while(x > 0n) { x &= x - 1n; count++; }
-
-5. Complexity
-Kernighan: O(k) where k is number of set bits. Table lookup: O(n/8) for n-bit width.
-
-6. Digest and retrieval
-Source: https://en.wikipedia.org/wiki/Hamming_weight
-Retrieved: 2026-03-17
-
-7. Attribution and data size
-Source: Wikipedia — Hamming weight. Raw crawl stored in /tmp (see manifest).
+2. Kernighan's algorithm
+3. Table lookup
+4. SWAR parallel algorithm (32-bit)
+5. BigInt handling
+6. Reference API signatures
+REFERENCE DETAILS
+Function signatures (recommended)
+- popcount32(n: number) -> number  // treat n as unsigned 32-bit
+- popcountBigInt(n: BigInt) -> number  // works for arbitrary precision; returns JS Number (or BigInt if counts may exceed Number)
+IMPLEMENTATION NOTES
+- In JS, shifting operators on Number coerce to 32-bit integers; for >32-bit work use BigInt and BigInt-aware Kernighan.
+- Choose algorithm based on expected input distribution: Kernighan is fast if few bits set; table lookup is consistent and branchless.
+DETAILED DIGEST
+Source extracted:
+- https://en.wikipedia.org/wiki/Hamming_weight (retrieved 2026-03-17; 164571 bytes)
+ATTRIBUTION
+Source: Wikipedia — Hamming weight (public domain / CC BY-SA depending on page). Data size fetched: 164571 bytes.

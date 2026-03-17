@@ -1,38 +1,26 @@
-TITLE: STRING_CODEPOINT
-
+NORMALISED EXTRACT
+Function signature
+String.prototype.codePointAt(pos) -> Number | undefined
+Behavior (precise)
+- Let i = ToInteger(pos).
+- If i < 0 or i >= the length of the string (number of UTF-16 code units), return undefined.
+- Let first = code unit at index i (a 16-bit value).
+- If first is a high surrogate (0xD800..0xDBFF) and i+1 < length and the code unit at i+1 is a low surrogate (0xDC00..0xDFFF), return the combined code point:
+  codePoint = ((first - 0xD800) << 10) + (second - 0xDC00) + 0x10000
+- Otherwise return first.
+Notes
+- The return type is a Number in the range 0..0x10FFFF or undefined for out-of-range positions.
+- The method does not normalize grapheme clusters; it decodes UTF-16 surrogate pairs into a single Unicode code point.
+- Does not throw for non-integer or out-of-range pos; it returns undefined when pos is out-of-range after conversion to integer.
 TABLE OF CONTENTS
-1. API signature
-2. Behavior and return value
-3. Parameters and types
-4. Example iteration considerations (surrogate pairs)
-5. Implementation details for JS
-6. Supplementary notes
-7. Digest and retrieval
-8. Attribution and data size
-
-1. API signature
-String.prototype.codePointAt(position) -> number | undefined
-
-2. Behavior and return value
-- Returns the code point value (integer) at the given position in the string. If position is out of range, returns undefined.
-- When position points to a high surrogate followed by a low surrogate, returns the combined code point (single Unicode scalar value).
-
-3. Parameters and types
-- position: integer index (0-based) into the string's UTF-16 code units. Non-integer values are converted to integer via ToInteger.
-- Return: non-negative integer representing the Unicode code point, or undefined if out of bounds.
-
-4. Example iteration considerations (surrogate pairs)
-- To iterate over code points, either use for...of which yields valid code point strings, or use codePointAt with manual index advancement: if codePointAt(i) > 0xFFFF then advance i by 2 code units, else by 1.
-
-5. Implementation details for JS
-- Use x.codePointAt(i) to obtain numeric code point. Avoid using charCodeAt for full-code-point correctness because charCodeAt returns single 16-bit unit.
-
-6. Supplementary notes
-- codePointAt does not normalize or validate beyond surrogate pairing; it returns numeric values including those > 0xFFFF when pairs present.
-
-7. Digest and retrieval
-Source: MDN String.prototype.codePointAt
-Retrieved: 2026-03-17
-
-8. Attribution and data size
-Source: MDN Web Docs — codePointAt. Raw crawl stored in /tmp (see manifest).
+1. Signature and return types
+2. UTF-16 surrogate pair decoding formula
+3. Edge cases and return values
+4. Implementation usage notes
+REFERENCE DETAILS
+- Implementation formula for surrogate pair decoding: codePoint = ((high - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000
+- Return undefined when pos < 0 or pos >= string.length
+DETAILED DIGEST
+Source extracted: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt (retrieved 2026-03-17; 166466 bytes)
+ATTRIBUTION
+Source: MDN Web Docs (Mozilla). Data size fetched: 166466 bytes.
