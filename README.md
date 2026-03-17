@@ -15,6 +15,7 @@ This repository is powered by [intentïon agentic-lib](https://github.com/xn-int
 import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js';
 
 console.log(fizzBuzzSingle(3)); // "Fizz"
+console.log(fizzBuzzSingle(7)); // "7"
 console.log(fizzBuzz(15));
 // ["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]
 ```
