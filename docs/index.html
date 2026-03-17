@@ -22,30 +22,22 @@
   <div class="identity">
     <dl>
       <dt>Version</dt>
-      <dd id="lib-version">0.1.0</dd>
+      <dd id="lib-version">loading...</dd>
       <dt>Description</dt>
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
   <h2>Output</h2>
-  <div id="demo-output">{
-  "name": "repository0",
-  "version": "0.1.0",
-  "description": "",
-  "demo": [
-    "1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"
-  ]
-}</div>
+  <div id="demo-output">Loading library...</div>
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
     try {
-      const { name, version, description, fizzBuzz } = await import('./lib.js');
+      const { name, version, description } = await import('./lib.js');
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
-      // Show library identity and a sample FizzBuzz(15)
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description, demo: fizzBuzz(15) }, null, 2);
+      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
