@@ -37,7 +37,15 @@
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
+      const demo = {
+        identity: { name, version, description },
+        examples: {
+          stringExample: { a: 'karolin', b: 'kathrin', distance: (await import('./lib.js')).hammingDistanceStrings('karolin','kathrin') },
+          bitExample: { a: 1, b: 4, distance: (await import('./lib.js')).hammingDistanceBits(1,4) }
+        }
+      };
+      document.getElementById('demo-output').textContent = JSON.stringify(demo, null, 2);
+
       document.title = name + ' v' + version;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
