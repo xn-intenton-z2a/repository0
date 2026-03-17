@@ -38,7 +38,7 @@ test = "npm ci && npm test"
 [tuning]
 # Profile sets defaults for all tuning and limit knobs: min | recommended | max
 # Profile definitions live in [profiles.*] sections below.
-profile = "max"
+profile = "recommended"
 #
 # Model selection — each has different strengths:
 #   gpt-5-mini      — Fast, cheap, supports reasoning-effort. Best for CI and iteration.
@@ -119,7 +119,7 @@ log-branch = "agentic-lib-logs"
 screenshot-file = "SCREENSHOT_INDEX.png"
 
 [init]
-timestamp = "2026-03-17T01:57:25.228Z"
+timestamp = "2026-03-17T02:09:46.717Z"
 mode = "purge"
-mission = "6-kyu-understand-hamming-distance"
+mission = "7-kyu-understand-fizz-buzz"
 version = "7.4.23"
