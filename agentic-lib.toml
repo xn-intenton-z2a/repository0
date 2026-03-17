@@ -6,8 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "hourly"              # off | weekly | daily | hourly | continuous
-model = "gpt-5-mini"
+supervisor = "off"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -66,7 +65,7 @@ infinite-sessions = false        # set to true for long sessions with compaction
 # Fast, cheap — CI testing, quick validation.
 reasoning-effort = "low"                # low | medium | high | none
 infinite-sessions = false               # enable session compaction for long runs
-transformation-budget = 0             # max code-changing cycles per run
+transformation-budget = 16             # max code-changing cycles per run
 max-issues = 5                        # max open issues fetched from GitHub
 stale-days = 14                        # days since last activity before an issue is considered stale
 max-discussion-comments = 3               # max recent discussion comments fetched
@@ -120,7 +119,7 @@ log-branch = "agentic-lib-logs"
 screenshot-file = "SCREENSHOT_INDEX.png"
 
 [init]
-timestamp = "2026-03-15T22:21:18.966Z"
+timestamp = "2026-03-17T01:57:25.228Z"
 mode = "purge"
-mission = "4-kyu-apply-dense-encoding"
+mission = "6-kyu-understand-hamming-distance"
 version = "7.4.23"

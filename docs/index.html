@@ -8,13 +8,13 @@
   <meta property="og:description" content="An autonomous repository powered by agentic-lib">
   <meta property="og:type" content="website">
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 900px; margin: 0 auto; padding: 2rem; color: #333; }
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
     h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
     a { color: #0366d6; }
     .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
+    .identity dt { font-weight: bold; color: #666; }
+    .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #eee; padding: 0.5rem; text-align: left; }
   </style>
 </head>
 <body>
@@ -27,36 +27,17 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
-  <h2>UUID encoding comparison</h2>
-  <div id="demo-output">Loading library and computing encodings...</div>
-  <h2>Mission status</h2>
-  <pre id="mission-log">(computing mission status...)</pre>
+  <h2>Output</h2>
+  <div id="demo-output">Loading library...</div>
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
     try {
-      const lib = await import('./lib.js');
-      const { name, version, description, listEncodings, encodeUUID, evaluateMissionComplete, formatMissionLog } = lib;
+      const { name, version, description } = await import('./lib.js');
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
-
-      const uuid = '00112233-4455-6677-8899-aabbccddeeff';
-      const encodings = listEncodings();
-      const rows = encodings.map(e => {
-        const encoded = encodeUUID(uuid, e.name);
-        return { name: e.name, bitsPerChar: Number(e.bitsPerChar.toFixed ? e.bitsPerChar.toFixed(3) : e.bitsPerChar), len: encoded.length, encoded };
-      });
-      const table = ['Name | bits/char | length | encoded', '----|----:|----:|----'];
-      for (const r of rows) table.push(`${r.name} | ${r.bitsPerChar} | ${r.len} | ${r.encoded}`);
-      document.getElementById('demo-output').textContent = table.join('\n');
-
-      // Demonstrate mission-complete evaluation: example metrics (these would be gathered by agent workflows)
-      const exampleMetrics = { resolvedIssues: 0, sourceTodos: 0, acceptanceCriteriaMet: 0, acceptanceCriteriaTotal: 7 };
-      const thresholds = { minResolvedIssues: 1, maxSourceTodos: 0, requireAcceptanceCriteria: true };
-      const result = evaluateMissionComplete(exampleMetrics, thresholds);
-      document.getElementById('mission-log').textContent = formatMissionLog(result);
-
+      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';

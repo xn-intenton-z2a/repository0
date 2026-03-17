@@ -1,34 +1,34 @@
 // SPDX-License-Identifier: MIT
-import { readFile } from 'fs/promises';
-import { describe, it, expect } from 'vitest';
-import * as lib from '../../src/lib/main.js';
+// Copyright (C) 2025-2026 Polycode Limited
+import { describe, test, expect } from "vitest";
+import { readFileSync, existsSync } from "fs";
 
-describe('web files', () => {
-  it('lib.js re-exports the encoding API', async () => {
-    const libText = await readFile('src/web/lib.js', 'utf8');
-    expect(libText).toContain('encode, decode, createEncoding, listEncodings, encodeUUID, decodeUUID');
+describe("Website", () => {
+  test("src/web/index.html exists", () => {
+    expect(existsSync("src/web/index.html")).toBe(true);
   });
 
-  it('index.html imports lib.js via module import', async () => {
-    const html = await readFile('src/web/index.html', 'utf8');
-    expect(html).toContain("await import('./lib.js')");
-    expect(html).toContain('id="lib-version"');
+  test("index.html contains valid HTML structure", () => {
+    const html = readFileSync("src/web/index.html", "utf8");
+    expect(html).toContain("<!DOCTYPE html>");
+    expect(html).toContain("<html");
+    expect(html).toContain("</html>");
   });
 
-  it('UUID encoding comparison computed by library matches expectations', () => {
-    const encs = lib.listEncodings();
-    expect(Array.isArray(encs)).toBe(true);
-    const names = encs.map(e => e.name);
-    expect(names).toEqual(expect.arrayContaining(['base62','base85','base91','densest']));
+  test("index.html imports the library via lib.js", () => {
+    const html = readFileSync("src/web/index.html", "utf8");
+    expect(html).toContain("lib.js");
+  });
 
-    const uuid = '00112233-4455-6677-8899-aabbccddeeff';
-    const lengths = {};
-    for (const e of encs) {
-      const s = lib.encodeUUID(uuid, e.name);
-      lengths[e.name] = s.length;
-      expect(Number.isInteger(s.length)).toBe(true);
-    }
+  test("src/web/lib.js re-exports from the library", () => {
+    expect(existsSync("src/web/lib.js")).toBe(true);
+    const lib = readFileSync("src/web/lib.js", "utf8");
+    expect(lib).toContain("../lib/main.js");
+  });
 
-    expect(lengths['densest']).toBeLessThan(22);
+  test("index.html displays library identity elements", () => {
+    const html = readFileSync("src/web/index.html", "utf8");
+    expect(html).toContain("lib-name");
+    expect(html).toContain("lib-version");
   });
 });
