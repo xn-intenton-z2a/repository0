@@ -11,11 +11,11 @@ describe("FizzBuzz core", () => {
     expect(fizzBuzzSingle(7)).toBe("7");
   });
 
-  test("fizzBuzz(15) returns expected array", () => {
+  test("fizzBuzz(15) returns canonical 15-element sequence", () => {
     const out = fizzBuzz(15);
-    expect(Array.isArray(out)).toBe(true);
-    expect(out.length).toBe(15);
-    expect(out[14]).toBe("FizzBuzz");
+    expect(out).toEqual([
+      "1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"
+    ]);
   });
 
   test("fizzBuzz(0) returns empty array", () => {

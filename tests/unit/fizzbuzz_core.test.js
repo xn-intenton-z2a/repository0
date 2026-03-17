@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: MIT
-// TODO: placeholder tests for FizzBuzz core feature
 import { test, expect } from "vitest";
+import { fizzBuzzSingle } from "../../src/lib/main.js";
 
-test('TODO: fizzbuzz core placeholder', () => {
-  // TODO: add more focused unit tests for core algorithm
-  expect(true).toBe(true);
+test('fizzBuzzSingle core mappings', () => {
+  expect(fizzBuzzSingle(1)).toBe("1");
+  expect(fizzBuzzSingle(2)).toBe("2");
+  expect(fizzBuzzSingle(3)).toBe("Fizz");
+  expect(fizzBuzzSingle(4)).toBe("4");
+  expect(fizzBuzzSingle(5)).toBe("Buzz");
+  expect(fizzBuzzSingle(15)).toBe("FizzBuzz");
 });
