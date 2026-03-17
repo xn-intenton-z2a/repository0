@@ -19,11 +19,14 @@ Behavior
 Acceptance criteria
 
 - The repository exports both functions as named exports from src/lib/main.js.
-- fizzBuzz(15) returns the 15-element array: ["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"].
+- fizzBuzz(15) returns the 15-element array:
+  ["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"].
 - fizzBuzzSingle(3) returns "Fizz".
 - fizzBuzzSingle(5) returns "Buzz".
 - fizzBuzzSingle(15) returns "FizzBuzz".
 - fizzBuzzSingle(7) returns "7".
+- The behaviour is deterministic and does not mutate inputs or global state.
+- Representative checks are implemented in tests/unit/main.test.js and assert exact string values.
 
 Notes
 

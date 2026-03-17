@@ -4,9 +4,9 @@ Goal
 
 Define a complete unit test plan to verify all mission acceptance criteria and input validation rules.
 
-Test files
+Test file
 
-- tests/unit/main.test.js should contain focused tests for both fizzBuzz and fizzBuzzSingle.
+- tests/unit/main.test.js should contain focused tests for both fizzBuzz and fizzBuzzSingle and serve as the authoritative specification.
 
 Test cases
 
@@ -18,20 +18,20 @@ Test cases
    - fizzBuzzSingle for values 3, 5, 15, and 7 return "Fizz", "Buzz", "FizzBuzz", and "7" respectively.
 
 2. Edge cases and validation
-   - fizzBuzz(0) returns []
-   - fizzBuzzSingle(0) throws RangeError
-   - Negative input throws RangeError
-   - Non-integer numeric input throws TypeError
-   - Non-number input throws TypeError
+   - fizzBuzz(0) returns [].
+   - fizzBuzzSingle(0) throws RangeError.
+   - Negative input throws RangeError.
+   - Non-integer numeric input throws TypeError.
+   - Non-number input throws TypeError.
 
 3. Behavioural invariants
-   - fizzBuzz(n).length === n for positive integers
-   - fizzBuzzSingle(k) is equal to fizzBuzz(k)[k-1] for representative k values
+   - fizzBuzz(n).length === n for positive integers.
+   - fizzBuzzSingle(k) === fizzBuzz(k)[k-1] for representative k values.
 
 Acceptance criteria
 
-- All tests above are implemented in tests/unit/main.test.js and pass in the repository's test runner.
-- Tests assert exact error types and include at least one message check for errors.
+- All tests above are implemented in tests/unit/main.test.js and pass in the repository's test runner (npm test).
+- Tests assert exact error types and include at least one message check for errors that verifies a human-readable explanation.
 - Tests avoid relying on global state and run deterministically under Node >= 24.
 
 Notes
