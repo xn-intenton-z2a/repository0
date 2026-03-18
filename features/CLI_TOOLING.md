@@ -1,34 +1,34 @@
 # CLI_TOOLING
 
+Status: Partial / Not implemented fully
+
 Overview
 
-Provide a small command-line interface that exposes core library functionality for human inspection and scripting. The CLI is a convenience surface that reuses the same encode/decode/registry logic as the library and should remain small, fast, and dependency-free.
+A small command-line interface provides convenient access to core library functions for humans and scripts. The current src/lib/main.js offers minimal CLI flags (--version, --identity) but does not yet implement the full command surface described here.
 
-Primary commands and options
+Primary commands and options (spec)
 
 - list-encodings [--json]
-  - Prints a table of registered encodings with fields: name, charsetSize, bitsPerChar, and a short sample of the charset. When --json is provided, output a JSON array with the metadata objects.
+  - Prints a table of registered encodings with fields: name, charsetSize, bitsPerChar, sample. --json emits a machine-parsable array.
 - encode <encodingName> <hex-or-file>
-  - Encodes binary data supplied as a 32-character hex string for UUIDs or as a file path; if the argument looks like 32 hex characters it is treated as raw hex bytes, otherwise as a path to read. Prints the encoded string to stdout.
+  - Encodes binary data supplied as a 32-character hex string (UUID shorthand) or as a file path; prints encoded string.
 - decode <encodingName> <text>
-  - Decodes the supplied encoded text using the named encoding and prints hex bytes to stdout (lowercase, no dashes for UUID-sized output). For UUID-sized output, the CLI may support an option to print a dashed canonical UUID.
+  - Decodes and prints hex bytes; for 16-byte outputs optionally prints dashed UUID.
 - compare-uuids
-  - Generates the UUID comparison table used in the README across registered encodings and prints it in a compact tabular text format or JSON when --json is used.
+  - Produces a compact table comparing encoded UUID lengths across registered encodings.
 
 Design constraints
 
-- The CLI must be synchronous, fast to start and use only the library code and Node standard libs. Avoid adding heavy dependencies for formatting.
-- The CLI must reuse the library API rather than reimplement encoding logic.
-- Provide clear exit codes: 0 on success, non-zero on error and print descriptive errors to stderr.
+- The CLI must be a thin wrapper around the library API (no duplicate encoding logic).
+- Keep dependencies minimal and use Node standard libs for argument parsing and stdout/stderr handling.
 
-Acceptance criteria
+Acceptance criteria (testable)
 
-- Invoking the CLI with --help or without arguments prints a short usage summary and exits successfully.
-- list-encodings --json prints valid JSON that parses to an array where each entry has name, charsetSize, and bitsPerChar fields.
-- encode and decode commands perform correct round-trip transformations for at least one representative UUID and for a small binary file supplied as a path.
-- compare-uuids reproduces the same comparison results used by the README generation script (examples/) so the table can be generated from the CLI as part of documentation workflows.
+- --help or no args prints usage and exits code 0.
+- list-encodings --json prints valid JSON parseable into an array of metadata objects with name, charsetSize and bitsPerChar fields.
+- encode/decode commands round-trip for at least one representative UUID and for a small binary file path provided.
+- compare-uuids reproduces the length comparison results used by the README scripts (when implemented).
 
-Implementation notes
+Implementation note
 
-- Implement command parsing with minimal logic; prefer small argument parsing rather than a full CLI library.
-- Keep the CLI surface as a thin wrapper around existing named exports so tests can invoke the functions directly as well as via the CLI.
+- Presently only identity/version flags exist in src/lib/main.js. Implement the remaining commands as a small CLI dispatcher that imports the named exports from src/lib/main.js to avoid duplicate logic.

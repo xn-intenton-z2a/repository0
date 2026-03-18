@@ -1,34 +1,32 @@
 # ENCODING_API
 
+Status: Implemented (src/lib/main.js)
+
 Overview
 
-Define the public API surface exported as named exports from src/lib/main.js. The API is intentionally small and focused on pure encoding/decoding operations and runtime registration/listing of encodings.
+The public API surface is exported as named exports from src/lib/main.js. The API is intentionally small and focused on pure encoding/decoding operations and runtime registration/listing of encodings.
 
-Public functions and signatures
+Public functions and signatures (exported)
 
-- encode(data: Uint8Array, encodingName: string): string
-  - Encodes arbitrary binary data to a printable string using the named encoding.
-- decode(text: string, encodingName: string): Uint8Array
-  - Decodes an encoded string back to the original bytes; must throw on invalid input.
-- defineEncoding(name: string, charset: string, options?: {allowAmbiguous?: boolean}): EncodingMetadata
-  - Registers a new encoding and returns metadata {name, charsetSize, bitsPerChar}.
+- encode(encodingName: string, data: Uint8Array): string
+- decode(encodingName: string, text: string): Uint8Array
+- defineEncoding(name: string, charset: string, options?: object): EncodingMetadata
 - listEncodings(): EncodingMetadata[]
-  - Returns metadata for all available encodings sorted by bitsPerChar descending.
 - encodeUUIDShorthand(uuid: string, encodingName?: string): string
-- decodeUUIDShorthand(encoded: string, encodingName?: string): string
+- decodeUUIDShorthand(encoded: string, encodingName: string): string
 
-Behavioral requirements
+Behavioral requirements (enforced)
 
-- All functions must validate input types and throw TypeError or RangeError with descriptive messages on incorrect input.
-- All functions must be pure (no I/O), deterministic, and synchronous.
-- Named exports must exist exactly as documented so tests can import them from src/lib/main.js.
+- All functions validate input types and throw TypeError or RangeError with descriptive messages on incorrect input.
+- Functions are pure, synchronous and deterministic with no I/O side effects.
+- The encoding registry is exposed via listEncodings() which returns metadata sorted by densest first.
 
-Acceptance criteria
+Acceptance criteria (testable)
 
-- src/lib/main.js exports the exact named functions above.
-- Unit tests import the named exports and assert correct behavior and error handling.
-- API documentation examples appear in README and examples/ demonstrating minimal usage.
+- src/lib/main.js exports the named functions above; unit tests import these names directly and verify behavior (see tests/unit/main.test.js and tests/unit/encoding.test.js).
+- Error conditions are tested: invalid charset, duplicate registration, unknown encoding name, invalid UUID formats.
+- Round-trip encode/decode correctness is asserted by unit tests covering edge cases.
 
 Implementation notes
 
-- Keep implementation small and well-covered by tests; avoid hidden global state beyond the encoding registry which is exposed via listEncodings().
+- Keep the registry small and observable; avoid hidden global state beyond the registry accessible via listEncodings().

@@ -1,20 +1,21 @@
 # UUID_COMPARISON
 
+Status: Partial — length comparison tests present, README generation script not yet present
+
 Overview
 
-Add a reproducible README section and lightweight script that produces a comparison table of encoded UUID lengths across encodings. The goal is to clearly demonstrate density gains over hex (32 chars) and base64 (22 chars) and to verify the repository's densest encoding meets the mission (<22 chars for a UUID).
+Provide a reproducible comparison table of encoded UUID lengths across encodings. Unit tests already assert that the densest registered encoding produces lengths < 22, but a human-readable README table generation script (examples/) is not committed.
 
 Requirements
 
-- Provide a canonical set of sample UUIDs: canonical example, all-zero UUID, all-0xFF UUID, and one random UUID used in tests.
-- Produce a table with rows=sample UUIDs and columns=encodings (hex, base64, base62, base85, base91, any custom encodings) showing encoded string and length.
-- Include a small script or example code snippet (examples/) that computes the table from the library API so it is reproducible by tests.
+- Canonical sample UUIDs: sample, all-zero, all-0xFF, deterministic random UUID used in tests.
+- Produce a table where rows are sample UUIDs and columns are encodings showing encoded string and length.
 
-Acceptance criteria
+Acceptance criteria (testable)
 
-- README contains a UUID comparison table or a link to the generated table in docs/ produced by examples/ script.
-- A unit test or example asserts that the densest encoding length for each sample UUID is strictly less than 22 characters.
+- Unit tests assert densest encoding length < 22 for sample UUIDs (implemented in tests/unit/encoding.test.js).
+- For documentation completeness, add an examples script that generates a README-friendly table from listEncodings() (left as future work). Once the script exists, the README should link to or include the generated table.
 
 Implementation notes
 
-- Prefer generating the table from the library to avoid drift; include the script under examples/ and reference it from README.md.
+- Generate the table from the library API to avoid drift; place the generator script under examples/ and reference it in README.md when added.

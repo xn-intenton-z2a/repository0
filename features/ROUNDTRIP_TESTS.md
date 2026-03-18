@@ -1,27 +1,28 @@
 # ROUNDTRIP_TESTS
 
+Status: Implemented (tests/unit/encoding.test.js)
+
 Overview
 
-Specify the unit-test surface necessary to validate round-trip correctness, edge cases, and the UUID length density goals across all encodings. Tests are intended to be fast, deterministic, and to exercise both built-in and custom encodings.
+Unit tests validate round-trip correctness, edge cases, and the UUID-length density goal across all registered encodings. Tests are deterministic and fast.
 
-Test requirements
+Test requirements (implemented)
 
-- Round-trip property: for each encoding in listEncodings(), assert decode(encode(bytes)) equals original bytes for test vectors:
-  - empty buffer (Uint8Array(0))
-  - single byte values (0x00, 0x01, 0x7F, 0xFF)
+- Round-trip property: for each encoding in listEncodings(), assert decode(encode(bytes)) equals original bytes for:
+  - empty buffer
+  - single byte examples (0x00, 0x7F, 0xFF)
   - 16-byte all-zero and all-0xFF
-  - random byte buffers (use a fixed seed to generate a small set of random cases)
-- UUID shorthand tests: encodeUUIDShorthand/decodeUUIDShorthand round-trip on sample UUIDs and normalization of input formats (uppercase, no-dash).
-- Length assertions: for each sample UUID, compute encoded length across encodings and assert the repository's densest encoding produces length < 22.
-- Charset safety: verify encoded outputs contain no control characters and only characters from the encoding's listed charset.
+  - deterministic random buffers (seeded/simple vectors)
+- UUID shorthand tests: encodeUUIDShorthand/decodeUUIDShorthand round-trip on sample UUIDs and input normalisation.
+- Length assertions: for sample UUIDs, compute encoded lengths across encodings and assert the densest encoding produces length < 22.
+- Charset safety: verify encoded outputs contain only characters from the encoding charset and no control characters.
 
-Acceptance criteria
+Acceptance criteria (testable)
 
-- Tests live under tests/unit and run with `npm test`.
-- All tests pass in CI and locally.
-- Tests explicitly cover error conditions (invalid UUID input, invalid charset registration) and assert the library throws informative errors.
+- Tests live in tests/unit and run with npm test; current test coverage includes these vectors and assertions (see tests/unit/encoding.test.js).
+- Tests assert error conditions (invalid UUID input, invalid charset registration) and the library throws informative errors.
 
 Implementation notes
 
-- Use deterministic random test vectors and keep the suite small to avoid long CI runs.
-- Place helper test vectors in a shared test helper file to keep tests DRY.
+- Keep the test vectors deterministic and the suite small to enable fast CI runs.
+- Helpers are placed in tests/unit to reduce duplication.

@@ -1,27 +1,27 @@
 # BASE_ENCODINGS
 
+Status: Partially implemented (see src/lib/main.js)
+
 Overview
 
-Implement the library's baseline printable encodings: base62, base85 (Ascii85/Z85 variant), and base91. These encodings provide progressively higher bits-per-character density while using only printable, non-control characters so they can be embedded in URLs and text safely.
+This feature specifies the baseline printable encodings and their testable properties. The repository currently registers built-in encodings in src/lib/main.js: base62 and base85 plus a high-density builtin named ascii-printable-no-ambiguous. A classic base91 implementation is not present; it remains an optional addition.
 
 Requirements
 
-- Provide encode(data: Uint8Array, encodingName: string): string and decode(text: string, encodingName: string): Uint8Array.
-- Include built-in encodings with documented charsets:
+- Provide encode(data: Uint8Array, encodingName: string): string and decode(text: string, encodingName: string): Uint8Array (these are exported from src/lib/main.js).
+- Include built-in encodings with documented charsets and expected approximate bits/char:
   - base62: characters 0-9, a-z, A-Z. Approx bits/char: ~5.95. UUID length target: 22 chars.
-  - base85: Ascii85 or Z85 variant. Approx bits/char: ~6.41. UUID length target: 20 chars.
-  - base91: established base91 alphabet. Approx bits/char: ~6.50. UUID length target: ~20 chars.
-- All encodings must only emit printable characters (no control characters).
+  - base85: 85-character printable alphabet (Z85-like in this repo). Approx bits/char: ~6.41. UUID length target: 20 chars.
+  - ascii-printable-no-ambiguous: high-density printable ASCII derived from U+0021..U+007E excluding ambiguous characters (repository builtin). bits/char ≈ Math.log2(charsetSize).
 
-Acceptance criteria
+Acceptance criteria (testable)
 
-- Round-trip correctness: for each built-in encoding, decode(encode(bytes)) === bytes for all test inputs including empty buffer, all-zero bytes, all-0xFF bytes, single-byte buffers, and random buffers.
-- Charset correctness: the implementation uses the documented character sets; unit tests validate the set length and that no control characters are present.
-- Density validation: automated tests verify bits-per-character approximations within 0.1 bits and assert expected UUID encoded lengths (base62=22, base85=20, base91≈20) for representative UUIDs.
-- The code uses Uint8Array as the input/output type for encode/decode APIs.
+- Round-trip correctness: for each built-in encoding, decode(encode(bytes)) must equal bytes for these test vectors: empty buffer, single-byte values (0x00, 0x7F, 0xFF), 16-byte all-zero, 16-byte all-0xFF, and deterministic random buffers. Tests exist in tests/unit/encoding.test.js.
+- Charset correctness: unit tests validate charset length and that no control characters are present, and that defineEncoding rejects duplicate characters.
+- Density validation: unit tests assert that the densest registered encoding produces encoded UUID lengths strictly less than base64 (22 chars) for representative UUIDs and that bitsPerChar ≈ Math.log2(charsetSize) within a small tolerance.
+- API conformance: the library uses Uint8Array for input/output of encode/decode.
 
 Implementation notes
 
-- Prefer a deterministic, well-documented algorithm (no non-deterministic padding variants) so tests are stable.
-- Document which base85 variant is implemented (Ascii85 or Z85) and include portability notes.
-- Keep implementations isolated so additional encodings can be added without touching core logic.
+- The repository uses a generic BigInt-based base conversion to implement arbitrary bases; this yields a compact, deterministic output suitable for round-trip testing.
+- If a base91 implementation is desired, add a separate defineEncoding("base91", alphabet) or implement a specialized packing algorithm; ensure tests cover round-trip and density.
