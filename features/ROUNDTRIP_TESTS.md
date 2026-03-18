@@ -1,28 +1,24 @@
-# ROUNDTRIP_TESTS
+# CUSTOM_ENCODINGS_UI
 
-Status: Implemented — archived (tests present in tests/unit/encoding.test.js)
+Status: Planned
 
 Overview
 
-Unit tests validate round-trip correctness, edge cases, and the UUID-length density goal across all registered encodings. Tests are deterministic and fast.
+Add an interactive UI control to the web demo that allows users to provide a charset string and register a custom encoding at runtime. This feature makes experimentation with higher-density alphabets accessible and provides an easy path to test custom encodings in the browser demo.
 
-Test requirements (implemented)
+Behavior
 
-- Round-trip property: for each encoding in listEncodings(), assert decode(encode(bytes)) equals original bytes for:
-  - empty buffer
-  - single byte examples (0x00, 0x7F, 0xFF)
-  - 16-byte all-zero and all-0xFF
-  - deterministic random buffers (seeded/simple vectors)
-- UUID shorthand tests: encodeUUIDShorthand/decodeUUIDShorthand round-trip on sample UUIDs and input normalisation.
-- Length assertions: for sample UUIDs, compute encoded lengths across encodings and assert the densest encoding produces length < 22.
-- Charset safety: verify encoded outputs contain only characters from the encoding charset and no control characters.
+- The demo exposes an input for charset string and a "Register" button.
+- When a charset is registered, the UI validates the charset (no control characters, no whitespace, excludes ambiguous characters 0 O 1 l I) and adds the new encoding to the encodings table and list used by the encode/decode widget.
+- Registration failure displays a clear validation error.
 
 Acceptance criteria (testable)
 
-- Tests live in tests/unit and run with npm test; current test coverage includes these vectors and assertions (see tests/unit/encoding.test.js).
-- Tests assert error conditions (invalid UUID input, invalid charset registration) and the library throws informative errors.
+1. The demo contains a charset input and Register button (selectors with data-testid attributes for Playwright tests).
+2. Playwright e2e tests can register a valid charset, verify the new encoding appears in the encodings table, encode a sample UUID and assert that the UI-encoded value exactly matches encode(definedName, data) from the library.
+3. Attempting to register an invalid charset (control characters, ambiguous characters, or duplicates) yields a visible validation error and does not add the encoding to the registry.
 
 Implementation notes
 
-- Keep the test vectors deterministic and the suite small to enable fast CI runs.
-- Helpers are placed in tests/unit to reduce duplication.
+- Reuse client-side helpers to normalise charsets and validate characters consistent with defineEncoding on the server/library so parity is preserved.
+- Keep UI changes isolated and add data-testid attributes to new elements to make tests robust.

@@ -1,23 +1,24 @@
-# ENCODING_LIST
+# WEB_E2E_TESTS
 
-Status: Implemented — archived (implemented in src/lib/main.js; tests present)
+Status: Planned
 
 Overview
 
-Provide a library-level and CLI/web-level facility to enumerate available encodings and their metadata. Metadata includes name, charsetSize, bitsPerChar (number, two decimals), and a short charset sample.
+Add Playwright-based end-to-end tests that exercise the web demo (src/web/) to ensure the interactive encode/decode UI reproduces library results and remains stable across changes.
 
-Requirements
+Scope
 
-- listEncodings(): returns an array of objects {name, charset, charsetSize, bitsPerChar}.
-- CLI and web demos should consume this function to render metadata in tables.
+- tests/behaviour/demo.test.js: load the demo page, set the sample UUID or hex input, trigger encoding, read the rendered table of encodings and encoded outputs, and assert parity with programmatic calls to the library.
+- Validate the "Reverse encoded output" checkbox behaviour (if present) and that decode actions round-trip to the canonical UUID.
 
 Acceptance criteria (testable)
 
-- listEncodings returns at least the built-in encodings and any user-registered encodings; unit tests in tests/unit/encoding.test.js assert the returned structure and ordering by bitsPerChar.
-- bitsPerChar calculation is consistent with Math.log2(charsetSize) within a small tolerance.
-- The returned array is sorted by bitsPerChar descending.
+1. A Playwright test file tests/behaviour/demo.test.js exists and can be invoked with npx playwright test (ensure Playwright is installed in devDependencies) and exits 0 on the demo in CI/local.
+2. The test asserts that for a given sample UUID the encoded strings shown in the page equal the values returned by encodeUUIDShorthand(uuid, encodingName) and that the displayed length equals the encoded string length.
+3. The test asserts that the densest encoding reported in the UI produces encoded lengths < 22 for canonical sample UUIDs.
+4. Tests are deterministic: use fixed sample UUIDs from tests/unit helpers.
 
 Implementation notes
 
-- Keep the returned metadata small and stable so external tools can rely on the fields.
-- For README generation or web UI examples, consume listEncodings() directly rather than duplicating character set logic.
+- Keep e2e tests minimal and focused on parity with the library rather than UI styling.
+- Use Playwright selectors that are robust to markup changes (data-testids) and avoid brittle text-matching where possible.

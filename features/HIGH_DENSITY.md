@@ -1,25 +1,23 @@
-# HIGH_DENSITY
+# README_COMPARISON
 
-Status: Implemented — archived (implemented in src/lib/main.js; tests present)
+Status: Planned
 
 Overview
 
-Support for registering high-density encodings from a provided charset string. The repository ships a built-in high-density printable-ASCII encoding named ascii-printable-no-ambiguous which excludes visually ambiguous characters.
+Ensure the repository README includes a concise, deterministic Encoding comparison section summarising the built-in encodings, their bits/char, charset sizes and an example encoded UUID for each. The README should either embed a small table or link to docs/UUID_COMPARISON.md produced by examples/generate-uuid-comparison.js.
 
 Requirements
 
-- defineEncoding(name: string, charset: string) registers an encoding and returns metadata {name, charsetSize, bitsPerChar}.
-- Registration validates unique characters and minimum size (>=2).
-- The builtin ascii-printable-no-ambiguous is derived from codepoints 33..126 excluding ambiguous characters 0/O and 1/l/I, yielding charsetSize = 89 (implementation detail) and bitsPerChar ≈ Math.log2(89) ~ 6.48.
+- README.md must contain a header containing the phrase "Encoding comparison" and either a markdown table or a link to docs/UUID_COMPARISON.md.
+- The table or linked document must reflect the current registry (listEncodings()).
 
 Acceptance criteria (testable)
 
-- defineEncoding successfully registers a new encoding and the new encoding passes round-trip tests for the same vectors as built-ins (empty, single-byte, 16-byte zero/FF, and deterministic random vectors).
-- defineEncoding throws on duplicate characters or charset length < 2 (unit tests assert thrown RangeError/TypeError).
-- listEncodings includes ascii-printable-no-ambiguous and reports accurate charsetSize and bitsPerChar (tests compare bitsPerChar to Math.log2(charsetSize) within 0.01).
-- Using ascii-printable-no-ambiguous as the densest encoding produces encoded UUID lengths strictly less than base64 (22 characters) for representative UUIDs (see tests/unit/encoding.test.js).
+1. README.md contains the string "Encoding comparison" and either contains a markdown table with a header column named "Encoding" or contains a link to docs/UUID_COMPARISON.md.
+2. A unit test (tests/unit/readme.test.js) can parse the README and assert header presence and that at least one built-in encoding name (e.g., base62) appears in the table or linked file.
+3. The README highlights the shortest/ densest encoding and shows its encoded length for a representative UUID (e.g., sample canonical UUID) or links to the generated docs that do so.
 
 Implementation notes
 
-- The library normalises and rejects duplicate characters at registration time.
-- For higher density custom alphabets prefer explicit defineEncoding calls so tests can control and verify properties.
+- Prefer linking to a generated docs/UUID_COMPARISON.md to keep README stable; generation can be part of release scripts.
+- Keep the README table minimal so maintainers can update it easily when registries change.

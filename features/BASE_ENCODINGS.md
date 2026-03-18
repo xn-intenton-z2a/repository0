@@ -1,30 +1,35 @@
-# BASE_ENCODINGS
+# ENCODINGS_BENCHMARK
 
-Status: Implemented — archived (implemented in src/lib/main.js; tests present)
+Status: Planned
 
 Overview
 
-This feature specifies the baseline printable encodings and their testable properties. The repository registers built-in encodings in src/lib/main.js: base62, base85, base91 and a high-density builtin named ascii-printable-no-ambiguous.
+Measure encoding density and runtime performance (encode/decode) across all registered encodings to inform design choices and document trade-offs.
+
+Goals
+
+- Provide a reproducible Node script examples/benchmark-encodings.js that benchmarks encode and decode throughput for several payload sizes and reports encoded-length statistics for UUID-sized inputs.
+- Produce machine-readable JSON output suitable for CI assertions and human-readable summaries for docs.
 
 Requirements
 
-- Provide encode(data: Uint8Array, encodingName: string): string and decode(text: string, encodingName: string): Uint8Array (these are exported from src/lib/main.js).
-- Include built-in encodings with documented charsets and expected approximate bits/char:
-  - base62: characters 0-9, a-z, A-Z. Approx bits/char: ~5.95. UUID length target: 22 chars.
-  - base85: 85-character printable alphabet (Z85-like in this repo). Approx bits/char: ~6.41. UUID length target: 20 chars.
-  - base91: standard base91 alphabet registered as "base91". Approx bits/char: ~6.50. UUID length typically 20 chars or fewer depending on packing.
-  - ascii-printable-no-ambiguous: high-density printable ASCII derived from U+0021..U+007E excluding visually ambiguous characters (repository builtin). bits/char ≈ Math.log2(charsetSize).
+- Script path: examples/benchmark-encodings.js
+- CLI flags: --sizes (comma-separated sizes in bytes, default: 1,16,1024,16384), --samples (number of repetitions per size, default 100), --json (emit JSON), --stdout (print to stdout)
+- Output JSON schema: { runId: string, timestamp: ISO, settings: {...}, encodings: [ { name, charsetSize, bitsPerChar, samples: [{size, encodeMeanMs, decodeMeanMs, encodeStdMs, decodeStdMs}] , uuidSamples: [{uuid, encoded, len}] } ] }
 
 Acceptance criteria (testable)
 
-- Round-trip correctness: for each built-in encoding, decode(encode(bytes)) must equal bytes for these test vectors: empty buffer, single-byte values (0x00, 0x7F, 0xFF), 16-byte all-zero, 16-byte all-0xFF, and deterministic random buffers. Tests exist in tests/unit/encoding.test.js.
-- Charset correctness: unit tests validate charset length and that no control characters are present, and that defineEncoding rejects duplicate characters and disallowed chars.
-- Density validation: unit tests assert that the densest registered encoding produces encoded UUID lengths strictly less than base64 (22 chars) for representative UUIDs and that bitsPerChar ≈ Math.log2(charsetSize) within a small tolerance.
-- Registry presence: listEncodings() must include entries for base62, base85, base91 and ascii-printable-no-ambiguous and report accurate charsetSize and bitsPerChar.
-- API conformance: the library uses Uint8Array for input/output of encode/decode.
+1. Node script examples/benchmark-encodings.js exists and exits 0 when invoked with --json; stdout is valid JSON parseable by JSON.parse.
+2. The JSON contains an encodings array whose length equals listEncodings().length and contains entries with numeric fields encodeMeanMs and decodeMeanMs for each requested size.
+3. For the standard sample UUIDs (sample canonical UUID, all-zero, all-0xFF), the script reports encoded lengths and at least one encoding with length < 22 characters (verify densest encodings meet mission density requirement).
+4. The script runs without third-party deps (Node built-ins only) and completes within a reasonable time in CI for default sample counts (e.g., < 30s on CI runners with default samples reduced if necessary).
 
 Implementation notes
 
-- The repository uses a generic BigInt-based base conversion to implement arbitrary bases; this yields a compact, deterministic output suitable for round-trip testing.
-- base91 is implemented using a standard base91 alphabet and registered via defineEncoding("base91", alphabet). Ensure tests cover round-trip and density for base91 as for other built-ins.
-- If additional high-density alphabets are added, register them via defineEncoding so they appear in listEncodings and are visible to README/table generators.
+- Use performance.now() or process.hrtime.bigint() for timing; discard first N warmup runs.
+- Keep sample counts configurable so CI can run a quick smoke (samples=10) while local runs may be higher.
+- The script must use the public library API (import { listEncodings, encode, decode, encodeUUIDShorthand } from '../../src/lib/main.js') so results reflect the live registry.
+
+Rationale
+
+Benchmarks clarify real-world trade-offs between density and CPU cost, and provide CI-assertable metrics to avoid regressions in future encoding implementations.

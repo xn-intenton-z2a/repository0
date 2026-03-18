@@ -1,32 +1,29 @@
-# ENCODING_API
+# EXAMPLES
 
-Status: Implemented — archived (implemented in src/lib/main.js; tests present)
+Status: Planned
 
 Overview
 
-The public API surface is exported as named exports from src/lib/main.js. The API is intentionally small and focused on pure encoding/decoding operations and runtime registration/listing of encodings.
+Provide a small collection of dependency-free example scripts under examples/ that demonstrate library usage for common tasks: generating the README comparison table, encoding/decoding files or hex input, and a minimal CLI usage example suitable for inclusion in documentation and CI tests.
 
-Public functions and signatures (exported)
+Primary example scripts
 
-- encode(encodingName: string, data: Uint8Array): string
-- decode(encodingName: string, text: string): Uint8Array
-- defineEncoding(name: string, charset: string, options?: object): EncodingMetadata
-- listEncodings(): EncodingMetadata[]
-- encodeUUIDShorthand(uuid: string, encodingName?: string): string
-- decodeUUIDShorthand(encoded: string, encodingName: string): string
-
-Behavioral requirements (enforced)
-
-- All functions validate input types and throw TypeError or RangeError with descriptive messages on incorrect input.
-- Functions are pure, synchronous and deterministic with no I/O side effects.
-- The encoding registry is exposed via listEncodings() which returns metadata sorted by densest first.
+- examples/generate-uuid-comparison.js
+  - Consumes listEncodings() and encodeUUIDShorthand() and emits a deterministic markdown table comparing encodings for a configurable set of sample UUIDs.
+  - Flags: --out <path> (write file), --stdout (print), --encodings (comma-list), --samples (comma-list of UUIDs)
+- examples/encode-sample.js
+  - Usage: node examples/encode-sample.js <encoding> <hex-or-file> prints encoded string to stdout; mirrors CLI behaviour but is focused as an example for library consumers.
+- examples/cli-usage.js
+  - Short script showing programmatic usage of encode/decode/defineEncoding and printing human-readable results; aimed at library adopters.
 
 Acceptance criteria (testable)
 
-- src/lib/main.js exports the named functions above; unit tests import these names directly and verify behavior (see tests/unit/main.test.js and tests/unit/encoding.test.js).
-- Error conditions are tested: invalid charset, duplicate registration, unknown encoding name, invalid UUID formats.
-- Round-trip encode/decode correctness is asserted by unit tests covering edge cases.
+1. Each example script exists in examples/ and is executable with Node; running with --stdout prints the documented output and exits 0.
+2. generate-uuid-comparison.js --stdout prints a valid markdown table whose header encodings (name and bits/char) exactly match listEncodings() when ordered by bitsPerChar descending.
+3. encode-sample.js behaviour is byte-for-byte identical to calling encode(encodingName, data) from src/lib/main.js for provided inputs; tests spawn the script and compare outputs against direct library calls.
+4. Examples are dependency-free (Node built-ins only) and small enough to be read in a few minutes by maintainers.
 
 Implementation notes
 
-- Keep the registry small and observable; avoid hidden global state beyond the registry accessible via listEncodings().
+- Keep examples minimal and conservative about error handling — they are illustrative, not full CLI tools.
+- Use relative imports from examples/ into src/lib/main.js so examples reflect live API semantics.
