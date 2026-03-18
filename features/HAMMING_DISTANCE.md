@@ -1,55 +1,47 @@
 # HAMMING_DISTANCE
 
-Status: IMPLEMENTED — core library functions are exported from src/lib/main.js and verified by unit tests.
+Status: IMPLEMENTED
 
 Purpose
-Provide the canonical Hamming distance API for two complementary use cases:
-- Unicode-aware equal-length string comparison (compare code points, not UTF-16 code units)
-- Bit-level integer comparison (supporting Number integers and BigInt values)
+Provide the canonical Hamming distance API for the library so callers can compute distances for equal-length Unicode strings and for non-negative integers (Number and BigInt).
 
 Scope
-- Public named exports in src/lib/main.js:
+- Export named functions from src/lib/main.js:
   - hammingDistanceString(a, b)
   - hammingDistanceInt(a, b)
-- Implementations must validate inputs and throw appropriate errors for incorrect usage.
-- This feature covers behavior used by the CLI, examples, web demo, and unit tests.
+- Unicode strings are compared by code points, not UTF-16 code units.
+- Integer comparison supports Number integers and BigInt values; mixing Number and BigInt is allowed and handled deterministically.
+- Errors:
+  - TypeError for incorrect argument types (non-string to string API, non-integer Number for integer API, unsupported types)
+  - RangeError for unequal-length strings or negative integer inputs
 
-API
-- hammingDistanceString(a, b)
-  - Description: Compute the Hamming distance between two strings of equal length by comparing Unicode code points.
-  - Inputs: two strings
-  - Output: non-negative integer (count of differing code-point positions)
-  - Errors:
-    - TypeError if either argument is not a string
-    - RangeError if the strings differ in code-point length
-
-- hammingDistanceInt(a, b)
-  - Description: Compute the bit-level Hamming distance by XORing inputs and counting set bits.
-  - Inputs: two non-negative integers; accepts Number (integer) and BigInt; mixing Number and BigInt is supported.
-  - Output: non-negative integer (count of differing bits)
-  - Errors:
-    - TypeError for non-integer Number or unsupported types
-    - RangeError for negative values
+Behavior and validation
+- hammingDistanceString:
+  - Accepts two strings. Compare by Unicode code points; if code-point lengths differ, throw RangeError.
+  - Non-string inputs throw TypeError.
+- hammingDistanceInt:
+  - Accepts two non-negative integers. Accepts Number integers (Number.isInteger) and BigInt; fractional Numbers throw TypeError; negative values throw RangeError.
+  - When mixing Number and BigInt, implementation coerces to BigInt for bitwise XOR and bit counting so results are precise.
 
 Edge cases
-- Empty strings: both empty => 0
-- Zero integers: 0 vs 0 => 0
-- Unicode: multi-code-unit characters (emoji, combined glyphs) are compared by code point
-- Large integers: BigInt is used internally to support values beyond Number.MAX_SAFE_INTEGER
+- Empty strings: two empty strings return 0.
+- Zero integers: 0 vs 0 returns 0.
+- Unicode multi-code-point graphemes are compared by individual code points; normalization is opt-in (see HAMMING_DOCS).
+- Very large integers are supported via BigInt without loss of precision.
 
 Testing
-- Unit tests exist in tests/unit/hamming.test.js and must assert normal cases, edge cases, and error cases.
+- Unit tests must cover normal vectors, edge cases, and all error paths. Tests should live under tests/unit/ and reference exported names from src/lib/main.js.
 
 Acceptance Criteria (testable)
-- Hamming distance between "karolin" and "kathrin" is 3
-- Hamming distance between "" and "" is 0
-- Hamming distance between strings of different lengths throws RangeError
-- Bit-level Hamming distance between 1 and 4 is 2
-- Bit-level Hamming distance between 0 and 0 is 0
-- Bit-level Hamming distance between 1n and 4n is 2
-- Mixing Number and BigInt yields the same numeric count (e.g., 3 and 3n => 0)
-- All public API is exported as named exports from src/lib/main.js
-- README contains usage examples for hammingDistanceString and hammingDistanceInt (including BigInt examples)
+- hammingDistanceString between karolin and kathrin is 3
+- hammingDistanceString between an empty string and an empty string is 0
+- hammingDistanceString called with strings of different code-point lengths throws RangeError
+- hammingDistanceInt between 1 and 4 returns 2
+- hammingDistanceInt between 0 and 0 returns 0
+- hammingDistanceInt between 1n and 4n returns 2
+- Mixing Number and BigInt yields the same numeric count (for example, 3 and 3n => 0)
+- Both functions are exported as named exports from src/lib/main.js
+- README documents usage examples for both APIs
 
 Notes
-- This file consolidates BigInt behaviour and integer/Unicode guidance so other feature files do not duplicate the same acceptance criteria.
+- This feature is the canonical source of truth for core behavior; other feature files (BigInt, CLI, docs) must align with these acceptance criteria.

@@ -3,29 +3,23 @@
 Status: PARTIALLY_IMPLEMENTED
 
 Purpose
-Maintain repository documentation, README examples, and small companion scripts so library behaviour is discoverable and demonstrable. Add explicit documentation for Unicode normalization behavior and a simple benchmark script proposal.
+Maintain authoritative documentation that explains API usage, Unicode considerations, BigInt behaviour, optional normalization, and CLI examples so consumers can use the library correctly.
 
 Scope
-- Update README.md to include:
-  - Hamming distance API examples for strings and integers (including BigInt).
-  - CLI usage examples for --version, --identity, string and bits subcommands.
-  - A section describing Unicode normalization behavior and the optional normalize parameter and examples showing normalized vs non-normalized comparisons.
-- Add an examples/benchmark.js script that measures and prints timings for hammingDistanceInt and (optionally) long-string hammingDistanceString runs.
-- Keep docs concise and machine-friendly where appropriate.
+- README.md must contain canonical examples for hammingDistanceString and hammingDistanceInt (including BigInt examples) and a small CLI usage section for --version and --identity and subcommands string and bits.
+- Document Unicode normalization behaviour and an opt-in normalize option for string comparisons.
+- Provide a small examples/benchmark.js script for local benchmarking; the benchmark is optional but documented.
 
-Unicode normalization proposal
-- Default behaviour remains comparing code points without normalization.
-- Provide opt-in normalize option: hammingDistanceString(a, b, { normalize: true }) which applies NFC normalization to both inputs before comparison.
+Unicode normalization behaviour
+- Default comparison compares code points without automatic normalization.
+- Provide an opt-in parameter to normalize both inputs using NFC before comparing; document trade-offs and examples.
 
 Acceptance Criteria
-- README.md contains an API examples section showing:
-  - hammingDistanceString("karolin", "kathrin") => 3
-  - hammingDistanceInt(1, 4) => 2
-  - BigInt example: hammingDistanceInt(1n, 4n) => 2
-  - Example showing normalized vs non-normalized comparison for composed vs decomposed e acute.
-- README documents CLI usage and expected outputs for --version and --identity and demonstrates string/bits subcommands.
-- examples/benchmark.js exists, executes with node examples/benchmark.js, prints labelled timing lines such as: hammingDistanceInt, size=..., elapsedMs=...
-- JSDoc and README document the optional normalize parameter and its default value.
+- README.md contains an API examples section showing the canonical vectors: karolin vs kathrin => 3; empty vs empty => 0; and integer example 1 vs 4 => 2; BigInt example 1n vs 4n => 2
+- README documents CLI usage for --version and --identity and demonstrates string and bits subcommands with expected outputs
+- README documents that normalization is opt-in and shows a short example comparing composed and decomposed e-acute variants
+- examples/benchmark.js exists and prints labelled timing lines when run with node examples/benchmark.js
+- JSDoc and README document the optional normalize parameter and its default (disabled)
 
 Notes
-- Keep docs authoritative and minimal; the web demo and tests should reference README examples.
+- Keep documentation concise and avoid duplicating test vectors across multiple files; link to tests where appropriate.

@@ -3,33 +3,29 @@
 Status: IMPLEMENTED
 
 Purpose
-Provide and document native BigInt support for the integer Hamming API so callers can compute bit-level Hamming distances for values larger than Number.MAX_SAFE_INTEGER.
+Document and specify BigInt behaviour for the integer Hamming API so callers can rely on precise bit-level results for values beyond Number.MAX_SAFE_INTEGER.
 
 Scope
-- The public API hammingDistanceInt(a, b) accepts Number integers (Number.isInteger) and BigInt values.
-- Mixing Number and BigInt is supported and yields numeric counts.
-- Validation: TypeError for non-integer Number or unsupported types; RangeError for negative values.
+- hammingDistanceInt accepts BigInt values and non-negative Number integers; mixing Number and BigInt is supported.
+- Implementation performs coercion to BigInt for XOR and bit counting when necessary.
+- Validation: fractional Numbers throw TypeError; negative Number or negative BigInt throw RangeError.
 
-Behavior and validation
+Behavior
 - Inputs:
   - Number integers: must satisfy Number.isInteger and be >= 0
   - BigInt: must be >= 0n
-  - Mixing: one argument Number and the other BigInt is allowed; implementation coerces to BigInt for XOR and bit counting.
-- Errors:
-  - TypeError for non-number/non-BigInt types or fractional Numbers
-  - RangeError for negative values
+- Mixing: one Number and one BigInt coerces the Number to BigInt for internal computation.
+- Bit counting must use BigInt-safe operations to avoid precision loss for large operands.
 
-Testing
-- Unit tests cover Number, BigInt, and mixed cases and assert exact numeric results and thrown error types.
-
-Acceptance Criteria
-- hammingDistanceInt(1n, 4n) === 2
-- hammingDistanceInt(1, 4) === 2
-- hammingDistanceInt(0, 0) === 0
-- hammingDistanceInt(3, 3n) === 0
-- Passing BigInt values beyond Number.MAX_SAFE_INTEGER works without loss of precision
-- Unit tests exist that assert TypeError for fractional Number inputs and RangeError for negative values
-- Public API remains exported as named export from src/lib/main.js
+Testing and acceptance criteria
+- hammingDistanceInt between 1n and 4n equals 2
+- hammingDistanceInt between 1 and 4 equals 2
+- hammingDistanceInt between 0 and 0 equals 0
+- hammingDistanceInt between 3 and 3n equals 0
+- Passing BigInt values beyond Number.MAX_SAFE_INTEGER works without precision loss
+- Fractional Number inputs produce TypeError
+- Negative integer inputs (Number or BigInt) produce RangeError
+- Unit tests cover mixed Number/BigInt inputs and very large BigInt operands
 
 Notes
-- This feature was implemented and validated by the merged issue that added BigInt support; tests should remain in place to guard regressions.
+- Tests and docs should demonstrate BigInt usage in README and in tests/unit/bigint.test.js

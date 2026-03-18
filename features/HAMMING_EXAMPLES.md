@@ -3,17 +3,21 @@
 Status: IMPLEMENTED
 
 Purpose
-Ensure repository documentation includes clear, minimal examples that show how to use the public API and the CLI.
+Describe the short, canonical examples used across README, web demo, and tests so examples remain consistent and easy to reference.
 
 Scope
-- README.md contains short API examples demonstrating hammingDistanceString and hammingDistanceInt usage, including BigInt examples.
-- A CLI Usage section in README demonstrates current CLI flags and example outputs.
-- Creating examples/ files is optional; the README is the canonical source for examples in this repo.
+- The README is the canonical host for short examples; this file documents which examples must be present in README and web demo.
+- Examples to include:
+  - String example: karolin vs kathrin => 3
+  - Empty string example: empty vs empty => 0
+  - Integer example: 1 vs 4 => 2
+  - BigInt example: 1n vs 4n => 2
+  - Unicode example: two emoji or composed vs decomposed e-acute showing normalization behaviour
 
 Acceptance Criteria
-- README.md contains an "Hamming distance API" or "API Examples" section showing hammingDistanceString("karolin", "kathrin") => 3 and hammingDistanceInt(0n, 3n) => 2.
-- README.md contains a "Usage (Node)" and "Usage (browser)" or "CLI Usage" section describing the current CLI flags and expected outputs.
-- If examples/ files are added in the future, they must mirror README examples.
+- README contains an "API examples" section with the examples listed above
+- Web demo displays the same example outputs
+- Tests assert the same example vectors so documentation and test-suite remain in agreement
 
 Notes
-- The README is used by the web demo and should remain the single source of truth for short examples.
+- Avoid large example sets; keep examples targeted and representative of core behaviour.

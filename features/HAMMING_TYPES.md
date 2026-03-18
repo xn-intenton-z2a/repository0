@@ -1,18 +1,18 @@
 # HAMMING_TYPES
 
-Status: IMPLEMENTED — JSDoc annotations present in src/lib/main.js
+Status: IMPLEMENTED
 
 Purpose
-Add clear JSDoc type annotations for the public API so TypeScript consumers can infer types and editors can surface accurate signatures and parameter expectations.
+Provide clear JSDoc annotations so editors and TypeScript consumers can infer types and expected behaviour from the JavaScript source without shipping separate declaration files.
 
 Scope
-- JSDoc blocks should appear above exported functions in src/lib/main.js describing parameter types, return types, thrown exceptions, and short examples.
-- Ensure exported function names and their JSDoc appear directly above the function definitions so standard tooling recognizes them.
+- JSDoc blocks must appear above exported functions in src/lib/main.js and document parameters, return types, thrown errors, and short usage notes.
+- Use @param, @returns, and @throws tags where appropriate.
 
 Acceptance Criteria
-- src/lib/main.js contains JSDoc blocks for each exported function describing parameter types and return type.
-- A simple check (reading src/lib/main.js) shows @param and @returns tags for hammingDistanceString and hammingDistanceInt.
-- TypeScript consumers using allowJs and checkJs will receive basic editor hints from these JSDoc comments.
+- src/lib/main.js contains JSDoc comments for hammingDistanceString and hammingDistanceInt with @param and @returns tags
+- The JSDoc documents expected exceptions (TypeError, RangeError)
+- Editors using allowJs or checkJs surface basic signatures and comments for these functions
 
 Notes
-- This feature uses in-source JSDoc; no .d.ts files are required.
+- Do not ship separate declaration files; in-source JSDoc is sufficient for this small library.

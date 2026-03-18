@@ -3,14 +3,17 @@
 Status: IMPLEMENTED
 
 Purpose
-Provide an interactive web demo that exercises the library in the browser so users can experiment with string and integer Hamming distances.
+Provide a minimal interactive web demo that exercises the library and demonstrates core vectors so users can visually verify behaviour and copy example inputs.
 
 Scope
-- src/web/index.html and src/web/lib.js wire the Hamming functions and display results for demo inputs.
-- The page exposes demo result elements with ids: hamming-string-result, hamming-int-result, hamming-bigint-result, hamming-mix-result, hamming-large-result, hamming-unicode-result.
-- The page also shows library identity and a mission-status area.
+- The demo is located under src/web/ and consumes the library built for the browser.
+- The page displays example results for several preset inputs and exposes simple interactive controls for ad-hoc inputs.
+- Demo result element ids used by tests: hamming-string-result, hamming-int-result, hamming-bigint-result, hamming-mix-result, hamming-large-result, hamming-unicode-result
 
 Acceptance Criteria
-- src/web/index.html contains elements with ids hamming-mode (if present), hamming-input-a, hamming-input-b (optional for interactive controls) and hamming-result identifiers used by the demo.
-- The demo computes and displays the example values ("karolin" vs "kathrin" => 3; 1 vs 4 => 2; 0n vs 3n => 2).
-- Behaviour tests (tests/unit/web.test.js or tests/behaviour) assert the demo renders and shows the expected computed values.
+- The web demo computes and displays the example values: karolin vs kathrin => 3; 1 vs 4 => 2; 0n vs 3n => 2
+- The demo exposes at least minimal interactive controls to enter two strings and two integers and shows computed results
+- Behaviour tests assert demo renders and shows expected computed values for the canonical vectors
+
+Notes
+- Keep the demo focused on demonstration and not full-featured configuration; link to README for authoritative usage examples.
