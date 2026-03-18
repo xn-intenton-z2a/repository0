@@ -1,16 +1,23 @@
-# HAMMING_BIGINT
+# HAMMING_BENCHMARK
 
-Status: MERGED — moved into HAMMING_DISTANCE.md
+Status: PROPOSED
 
-Summary
-This feature was merged into HAMMING_DISTANCE.md and is no longer an active standalone feature file. BigInt support for integer Hamming is implemented in src/lib/main.js and covered by unit tests (see tests/unit/ and issue #3105).
+Purpose
+Provide a lightweight, reproducible benchmark script to measure performance characteristics of the integer Hamming implementation and any bit-counting optimisations. Benchmarks help detect regressions when handling very large BigInt values or long inputs.
+
+Scope
+- Add a small script under examples/benchmark.js that exercises hammingDistanceInt with a range of sizes and prints labelled timings to stdout.
+- The script should be runnable with node examples/benchmark.js and return exit code 0 on success.
+- The benchmark is informational and not part of unit tests, but results should be reproducible enough for local comparisons.
+
+Benchmark concerns
+- Measure bit-level Hamming for numbers near and beyond Number.MAX_SAFE_INTEGER (use BigInt) to ensure performance remains acceptable.
+- Measure string-based scenarios for long inputs (e.g., strings of length 10k) to spot O(n) behaviour and constant factors.
 
 Acceptance Criteria
-- Bit-level Hamming distance between 1n and 4n is 2.
-- Bit-level Hamming distance between 0n and 0n is 0.
-- Mixing Number and BigInt inputs yields identical numeric results (for example, hammingDistanceInt(3, 3n) => 0).
-- Large BigInt values beyond Number.MAX_SAFE_INTEGER are supported (for example, 2n**53 vs 2n**53 + 1n returns 1).
-- Invalid values (negative BigInt) throw RangeError; non-integer or unsupported types throw TypeError.
+- examples/benchmark.js exists and can be executed with node examples/benchmark.js without throwing.
+- The script prints labelled timing lines such as: hammingDistanceInt, size=..., elapsedMs=... and exits 0.
+- Running the benchmark before and after a change should be straightforward and produce comparable output formats for automated parsing.
 
-Action
-Refer to HAMMING_DISTANCE.md for the authoritative specification and canonical acceptance criteria; this file is kept as an index/redirect.
+Notes
+- This feature does not mandate micro-benchmarking frameworks; a small, plain script that records process.hrtime or performance.now is sufficient.

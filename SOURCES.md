@@ -21,3 +21,9 @@ Reference material and documentation sources for this project.
 - https://unicode.org/reports/tr15/
 - https://rosettacode.org/wiki/Hamming_distance
 - https://unicode.org/reports/tr29/
+
+# ECMAScript spec anchors (authoritative references)
+- https://262.ecma-international.org/13.0/#sec-string.prototype.codepointat
+- https://262.ecma-international.org/13.0/#sec-string.fromcodepoint
+- https://262.ecma-international.org/13.0/#sec-bigint-objects
+- https://262.ecma-international.org/13.0/#sec-number.isinteger
