@@ -1,32 +1,23 @@
 # STRING_HAMMING
 
 Purpose
-This feature specifies the string Hamming distance API and behaviour for Unicode-aware comparisons.
+Specify the hammingString API and behaviour for Unicode-aware comparisons measured in Unicode code points.
 
 Specification
-Provide a named export called computeStringHamming that accepts two strings and returns a non-negative integer equal to the number of code point positions that differ.
+- Provide a named export called hammingString that accepts two JavaScript strings and returns a non-negative integer equal to the number of code point positions that differ.
 
 Behavior
-- Both inputs must be JavaScript strings. If either is not a string, throw TypeError.
-- Normalize both inputs using canonical composed form NFC.
-- Convert each normalized string into an array of Unicode code points using Array.from or equivalent.
-- If the two code point arrays have different lengths, throw RangeError.
-- Iterate corresponding code points and count positions where the code points are not strictly equal.
-- Return the count as a Number.
+- Both inputs must be strings. If either is not a string, hammingString must throw TypeError.
+- To iterate Unicode code points correctly use an iterator such as Array.from(string) so surrogate pairs count as a single code point.
+- If the two code point sequences have different lengths, hammingString must throw RangeError.
+- Iterate corresponding code points and count positions where the code points are not strictly equal; return that count as a Number.
 
-Acceptance criteria
-- computeStringHamming applied to karolin and kathrin returns 3.
-- computeStringHamming applied to empty and empty returns 0.
+Notes on normalization
+- The library compares code points as they are provided; canonical normalization (NFC) is out of scope for the library core but may be performed by callers when required by higher-level applications.
+
+Acceptance criteria (testable)
+- hammingString("karolin", "kathrin") returns 3.
+- hammingString("", "") returns 0.
 - Passing strings whose code point lengths differ results in a RangeError.
-- Canonically equivalent sequences that normalize to the same code point sequence compare equal and yield distance 0.
-
-Test cases
-- karolin vs kathrin -> 3
-- empty vs empty -> 0
-- composed vs decomposed e acute -> 0
-- unequal lengths -> RangeError
-
-Implementation notes
-- Use String.prototype.normalize with NFC and Array.from for code point iteration.
-- Document behaviour clearly in README and unit tests.
-- Grapheme cluster semantics are out of scope; comparisons operate on Unicode code points.
+- Surrogate pairs and astral code points are treated as single code points: a string containing a single emoji between two characters compares as length 3 in code points and differences are counted per code point.
+- Passing non-string arguments causes TypeError.
