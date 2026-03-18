@@ -21,6 +21,7 @@ Reference material and documentation sources for this project.
 - https://unicode.org/reports/tr15/
 - https://rosettacode.org/wiki/Hamming_distance
 - https://unicode.org/reports/tr29/
+- https://github.com/trekhleb/javascript-algorithms/blob/master/src/algorithms/string/hamming-distance/hammingDistance.js
 
 # ECMAScript spec anchors (authoritative references)
 - https://262.ecma-international.org/13.0/#sec-string.prototype.codepointat
