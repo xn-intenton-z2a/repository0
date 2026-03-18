@@ -14,16 +14,36 @@ export function defineEncoding(name, charset, options = {}) {
   ensureString(name, "name");
   ensureString(charset, "charset");
   if (encodings.has(name)) throw new RangeError(`Encoding '${name}' already defined`);
-  // unique characters
-  const set = new Set([...charset]);
-  if (set.size !== charset.length) throw new RangeError("Charset contains duplicate characters");
-  if (charset.length < 2) throw new RangeError("Charset must contain at least 2 characters");
-  const impl = createGenericBase([...charset]);
+
+  const { sanitize = true } = options;
+
+  // turn into array of Unicode codepoints (works for BMP and astral)
+  const original = Array.from(charset);
+
+  // reject control characters (U+0000..U+001F, U+007F) and whitespace
+  const hasControl = original.some(ch => /[\u0000-\u001F\u007F]/.test(ch) || /\s/.test(ch));
+  if (hasControl) {
+    throw new RangeError("Charset contains control or whitespace characters");
+  }
+
+  // reject duplicate characters in the original input
+  if (new Set(original).size !== original.length) {
+    throw new RangeError("Charset contains duplicate characters");
+  }
+
+  // sanitize ambiguous characters if requested
+  const finalChars = sanitize ? original.filter(ch => !AMBIGUOUS_CHARS.has(ch)) : original.slice();
+
+  if (finalChars.length < 2) {
+    throw new RangeError("Charset invalid after sanitisation (needs at least 2 unique chars)");
+  }
+
+  const impl = createGenericBase(finalChars);
   const metadata = {
     name,
-    charset: charset,
-    charsetSize: charset.length,
-    bitsPerChar: Math.log2(charset.length),
+    charset: finalChars.join(""),
+    charsetSize: finalChars.length,
+    bitsPerChar: Math.log2(finalChars.length),
   };
   encodings.set(name, { ...metadata, encode: impl.encode, decode: impl.decode });
   return metadata;
@@ -56,7 +76,7 @@ export function decode(encodingNameOrText, textMaybe) {
   // flexible signature: decode(name, text) or decode(text, name)
   let name, text;
   if (typeof encodingNameOrText === "string" && typeof textMaybe === "string") {
-    // ambiguous: prefer decode(name, text)
+    // prefer decode(name, text)
     name = encodingNameOrText;
     text = textMaybe;
   } else if (typeof encodingNameOrText === "string") {
