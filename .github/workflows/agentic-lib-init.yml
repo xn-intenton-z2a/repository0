@@ -48,6 +48,10 @@ on:
         type: string
         required: false
         default: "false"
+      run-workflow:
+        type: string
+        required: false
+        default: "true"
   workflow_dispatch:
     inputs:
       mode:
@@ -131,6 +135,11 @@ on:
         type: boolean
         required: false
         default: false
+      run-workflow:
+        description: "Dispatch agentic-lib-workflow after init completes"
+        type: boolean
+        required: false
+        default: true
 
 permissions: write-all
 
@@ -179,7 +188,7 @@ jobs:
       - uses: actions/checkout@v6
         if: inputs.dry-run == 'true' || inputs.dry-run == true
         with:
-          ref: ${{ inputs.ref || github.sha }}
+          ref: ${{ inputs.ref || github.ref }}
       - uses: actions/checkout@v6
         if: inputs.dry-run != 'true' && inputs.dry-run != true
         with:
@@ -467,3 +476,26 @@ jobs:
           script: |
             const summary = `## Job: init\n| Key | Value |\n|-----|-------|\n| Status | ${context.job.status || 'completed'} |\n| Mode | ${{ inputs.mode }} |\n| Dry Run | ${{ inputs.dry-run }} |\n| Create Seed Issues | ${{ inputs.create-seed-issues }} |`;
             core.summary.addRaw(summary).write();
+
+  # Step 3: Dispatch agentic-lib-workflow to start the first cycle
+  dispatch-workflow:
+    needs: [params, init]
+    if: >-
+      !cancelled()
+      && needs.init.result == 'success'
+      && inputs.dry-run != 'true' && inputs.dry-run != true
+      && inputs.run-workflow != 'false' && inputs.run-workflow != false
+      && github.repository != 'xn-intenton-z2a/agentic-lib'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch agentic-lib-workflow
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: |
+          echo "Dispatching agentic-lib-workflow to start first cycle..."
+          gh workflow run agentic-lib-workflow.yml \
+            --repo "${{ github.repository }}" \
+            --ref main \
+            -f mode=full \
+            -f dry-run=false
+          echo "Dispatched agentic-lib-workflow"

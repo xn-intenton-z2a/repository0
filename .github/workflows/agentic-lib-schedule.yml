@@ -104,7 +104,7 @@ jobs:
       - uses: actions/checkout@v6
         if: inputs.dry-run == 'true' || inputs.dry-run == true
         with:
-          ref: ${{ inputs.ref || github.sha }}
+          ref: ${{ inputs.ref || github.ref }}
       - uses: actions/checkout@v6
         if: inputs.dry-run != 'true' && inputs.dry-run != true
         with:
@@ -261,8 +261,10 @@ jobs:
           FREQUENCY="${{ inputs.frequency }}"
           MODEL="${{ inputs.model }}"
           git add .github/workflows/agentic-lib-workflow.yml agentic-lib.toml
-          # Stage removed mission files if maintenance mode deleted them
-          git rm --ignore-unmatch MISSION_COMPLETE.md MISSION_FAILED.md 2>/dev/null || true
+          # Stage removed mission files ONLY if maintenance mode deleted them
+          if [ "$FREQUENCY" = "maintenance" ]; then
+            git rm --ignore-unmatch MISSION_COMPLETE.md MISSION_FAILED.md 2>/dev/null || true
+          fi
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           if [ "$FREQUENCY" = "maintenance" ]; then
             git commit -m "schedule: switch to maintenance mode (weekly, unlimited budget, mission reset)"
