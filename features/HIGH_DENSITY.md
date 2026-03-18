@@ -1,6 +1,6 @@
 # HIGH_DENSITY
 
-Status: Implemented (builtin: ascii-printable-no-ambiguous)
+Status: Done (builtin: ascii-printable-no-ambiguous)
 
 Overview
 
