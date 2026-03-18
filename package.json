@@ -17,7 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.4.26"
+    "@xn-intenton-z2a/agentic-lib": "^7.4.28"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",

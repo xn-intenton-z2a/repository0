@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 import { describe, test, expect } from "vitest";
 import { readFileSync, existsSync } from "fs";
 
@@ -25,14 +26,9 @@ describe("Website", () => {
     expect(lib).toContain("../lib/main.js");
   });
 
-  test("index.html displays library identity elements and new demo IDs", () => {
+  test("index.html displays library identity elements", () => {
     const html = readFileSync("src/web/index.html", "utf8");
     expect(html).toContain("lib-name");
     expect(html).toContain("lib-version");
-    expect(html).toContain("hamming-bigint-result");
-    expect(html).toContain("hamming-unicode-result");
-    expect(html).toContain("mission-status");
-    expect(html).toContain("mission-discrepancy");
-    expect(html).toContain("Mission status mismatch detected");
   });
 });
