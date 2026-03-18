@@ -1,6 +1,7 @@
 MDN_STRING_ITERATING
 
 Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#iterating_over_strings
+Also: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/@@iterator
 Retrieved: 2026-03-18
 Bytes fetched (approx): 198.7 KB
 
@@ -67,4 +68,4 @@ Table of contents:
 - Effect: the iterator yields JavaScript strings representing single Unicode code points: either one UTF-16 code unit or a surrogate pair (two code units).
 
 Attribution
-Content condensed from MDN "String" docs (iterating over strings) (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#iterating_over_strings) and aligned to ECMA-262 string iterator steps (https://262.ecma-international.org/13.0/#sec-string.prototype-@@iterator), retrieved 2026-03-18. Data fetched ~198.7 KB (MDN) and ~1,105,333 bytes (ECMA spec HTML).
+Content condensed from MDN "String" docs (iterating over strings) (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#iterating_over_strings), the String.prototype @@iterator reference (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/@@iterator), and aligned to ECMA-262 string iterator steps (https://262.ecma-international.org/13.0/#sec-string.prototype-@@iterator), retrieved 2026-03-18. Data fetched ~198.7 KB (MDN) and ~1,105,333 bytes (ECMA spec HTML).

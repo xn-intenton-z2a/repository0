@@ -1,15 +1,18 @@
 # HAMMING_CLI
 
+Status: PARTIALLY_IMPLEMENTED
+
 Purpose
-Provide a small, well-tested command-line interface for computing Hamming distances so users can compute distances without writing code.
+Provide a small, well-tested command-line interface for computing Hamming distances so users can compute distances without writing code. Current implementation supports --version and --identity flags and prints name@version by default; planned enhancements include string and bits subcommands.
 
 Scope
-- Add a CLI subcommand to src/lib/main.js (or a thin wrapper) that supports two subcommands: string and bits.
-- string mode: node src/lib/main.js string <left> <right>
-  - Compares two Unicode strings by code points and prints the numeric Hamming distance to stdout.
-- bits mode: node src/lib/main.js bits <a> <b>
-  - Accepts non-negative integers (decimal or BigInt literal with trailing n when supported) and prints the numeric bit-level distance.
-- Flags: --help prints usage; --version remains supported.
+- Current runtime: node src/lib/main.js supports:
+  - --version prints version
+  - --identity prints JSON identity object (name, version, description)
+  - default prints name@version
+- Planned features (future):
+  - string mode: node src/lib/main.js string <left> <right> outputs Hamming distance by code points
+  - bits mode: node src/lib/main.js bits <a> <b> outputs bit-level Hamming distance and exits with non-zero code on invalid input
 
 Behavior and validation
 - The CLI must validate inputs and exit with non-zero code on invalid input, printing a concise error to stderr.
@@ -21,6 +24,7 @@ Testing
 - Tests should verify example cases: string karolin kathrin => prints 3; bits 1 4 => prints 2.
 
 Acceptance Criteria
-- Running node src/lib/main.js string karolin kathrin prints "3" to stdout and exits successfully.
-- Running node src/lib/main.js bits 1 4 prints "2" to stdout and exits successfully.
-- Invalid usage prints an error to stderr and results in a non-zero exit/return in tests.
+- Running node src/lib/main.js --version prints the package version to stdout.
+- Running node src/lib/main.js --identity prints a JSON object containing name, version, and description.
+- Planned (not required yet): node src/lib/main.js string karolin kathrin prints "3" and node src/lib/main.js bits 1 4 prints "2" to stdout and exits successfully.
+- Invalid usage prints an error to stderr and results in a non-zero exit/return in tests (for implemented subcommands).

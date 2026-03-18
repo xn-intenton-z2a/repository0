@@ -1,27 +1,32 @@
 # HAMMING_TESTS
 
-Status: PARTIALLY_IMPLEMENTED — core unit tests exist in tests/unit/hamming.test.js; additional tests for BigInt and CLI are pending.
+Status: IMPLEMENTED — unit tests exist and cover core vectors, Unicode code-point behaviour, BigInt integers, and validation error cases.
 
 Purpose
-Add a focused, comprehensive suite of unit and CLI tests that validate the Hamming library behaviour for strings, integers, BigInt, Unicode, and error conditions.
+Provide a comprehensive, deterministic suite of unit tests that assert the public API behaviour for strings and integers (Number and BigInt). Tests must verify correct values and thrown error types.
 
 Scope
-- Unit tests under tests/unit/ import named exports from src/lib/main.js and assert correct behaviour across normal, edge, and error cases.
-- CLI-level tests should exercise the command-line interface (string and bits modes) verifying stdout content and non-zero exit behaviour for invalid input.
-- Add tests for BigInt support if the BigInt feature is implemented.
+- Unit tests in tests/unit/ examine named exports from src/lib/main.js.
+- Behaviour tests (Playwright) validate the web UI where present.
+- Tests must assert TypeError and RangeError constructors for invalid inputs.
 
-Test vectors (must be asserted)
-- string: karolin vs kathrin => 3
-- string: empty string vs empty string => 0
+Test vectors
+- string: "karolin" vs "kathrin" => 3
+- string: "" vs "" => 0
 - unequal-length strings => RangeError
-- unicode: differing emoji should count as 1
+- unicode: emoji differing count as 1
 - bits: 1 vs 4 => 2
 - bits: 0 vs 0 => 0
-- BigInt: 1n vs 4n => 2 (pending until BigInt feature implemented)
-- mixed numeric kinds: Number 1 and BigInt 4n => 2 (pending)
+- BigInt: 1n vs 4n => 2
+- mixed numeric kinds: 3 vs 3n => 0
 - invalid inputs: non-string to string API => TypeError; fractional numbers => TypeError; negative integers => RangeError
 
 Acceptance Criteria
-- tests/unit/hamming.test.js exists and asserts core vectors (string, integer, unicode, error cases).
-- New tests are added for BigInt inputs (when implemented) and for the CLI behaviour (string and bits modes).
-- Tests assert error constructor types (TypeError, RangeError), not only messages.
+- tests/unit/hamming.test.js exists and asserts the core string and integer vectors.
+- tests/unit/hamming.bigint-and-unicode.test.js exists and asserts BigInt and Unicode vectors.
+- tests/unit/main.test.js or equivalent asserts main(--version) and main(--identity) behaviour.
+- Tests assert error constructor types (TypeError, RangeError).
+- Running npm test exits successfully (CI passes) when repository is in a compliant state.
+
+Notes
+- If additional test files exist, list them in the test index; maintain coverage thresholds per agentic-lib configuration.

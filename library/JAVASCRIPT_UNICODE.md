@@ -49,8 +49,9 @@ Reference details (signatures and effects)
 
 Detailed digest
 Source: https://mathiasbynens.be/notes/javascript-unicode
+Also: https://developer.mozilla.org/en-US/docs/Glossary/Surrogate_pair
 Retrieved: 2026-03-18
 Data size fetched during crawl: approximately 80.4 KB
 
 Attribution
-Content extracted and condensed from Mathias Bynens' article "JavaScript has a Unicode problem" and related notes. This extract focuses on the technical specifics required to handle Unicode correctly in JavaScript implementations and libraries.
+Content extracted and condensed from Mathias Bynens' article "JavaScript has a Unicode problem" and MDN surrogate pair glossary. This extract focuses on the technical specifics required to handle Unicode correctly in JavaScript implementations and libraries.

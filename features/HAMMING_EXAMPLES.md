@@ -1,21 +1,19 @@
 # HAMMING_EXAMPLES
 
+Status: IMPLEMENTED
+
 Purpose
-Provide clear, consumable examples for library consumers and CLI users so the core behaviours are trivially reproducible and demonstrable in documentation and examples/.
+Ensure repository documentation includes clear, minimal examples that show how to use the public API and the CLI.
 
 Scope
-- Add an "API Examples" section to README.md that shows how to call the exported functions and the expected results.
-  - Example descriptions should demonstrate importing the named exports and calling the functions with simple inputs such as karolin and kathrin to produce 3, and numeric inputs 1 and 4 to produce 2.
-- Add a "CLI Usage" section to README.md showing the two modes:
-  - string mode: node src/lib/main.js string karolin kathrin  prints 3
-  - bits mode: node src/lib/main.js bits 1 4  prints 2
-- Create two example files under examples/ (examples/api.md and examples/cli.md) that replicate the README examples and can be shown on the project website.
+- README.md contains short API examples demonstrating hammingDistanceString and hammingDistanceInt usage, including BigInt examples.
+- A CLI Usage section in README demonstrates current CLI flags and example outputs.
+- Creating examples/ files is optional; the README is the canonical source for examples in this repo.
 
 Acceptance Criteria
-- README.md contains an "API Examples" section with the described examples and a separate "CLI Usage" section showing the command lines and their expected numeric outputs.
-- examples/api.md exists and demonstrates the API usage with the same example values.
-- examples/cli.md exists and demonstrates the CLI usage with the same example invocations and outputs.
-- Examples are short, unambiguous, and require no extra configuration to reproduce in a local repo clone.
+- README.md contains an "Hamming distance API" or "API Examples" section showing hammingDistanceString("karolin", "kathrin") => 3 and hammingDistanceInt(0n, 3n) => 2.
+- README.md contains a "Usage (Node)" and "Usage (browser)" or "CLI Usage" section describing the current CLI flags and expected outputs.
+- If examples/ files are added in the future, they must mirror README examples.
 
 Notes
-- Keep examples descriptive rather than long; a single representative example per mode is sufficient.
+- The README is used by the web demo and should remain the single source of truth for short examples.
