@@ -27,53 +27,6 @@ export function getIdentity() {
   return { name, version, description };
 }
 
-// Compute Hamming distance between two strings (by Unicode code points)
-export function hammingDistanceStrings(a, b) {
-  if (typeof a !== "string" || typeof b !== "string") {
-    throw new TypeError("Both arguments must be strings");
-  }
-  const aPoints = Array.from(a);
-  const bPoints = Array.from(b);
-  if (aPoints.length !== bPoints.length) {
-    throw new RangeError("Strings must be of equal length (in code points)");
-  }
-  let dist = 0;
-  for (let i = 0; i < aPoints.length; i++) {
-    if (aPoints[i] !== bPoints[i]) dist++;
-  }
-  return dist;
-}
-
-// Compute Hamming distance between two non-negative integers (bit-level)
-export function hammingDistanceBits(x, y) {
-  const typeX = typeof x;
-  const typeY = typeof y;
-  // Accept numbers (integers) or BigInts
-  if (!((typeX === 'number' || typeX === 'bigint') && (typeY === 'number' || typeY === 'bigint'))) {
-    throw new TypeError('Arguments must be integers (Number or BigInt)');
-  }
-  if (typeX === 'number' && !Number.isInteger(x)) {
-    throw new TypeError('Number arguments must be integers');
-  }
-  if (typeY === 'number' && !Number.isInteger(y)) {
-    throw new TypeError('Number arguments must be integers');
-  }
-  // Normalize to BigInt
-  const bx = BigInt(x);
-  const by = BigInt(y);
-  if (bx < 0n || by < 0n) {
-    throw new RangeError('Integers must be non-negative');
-  }
-  // Count differing bits in XOR using Brian Kernighan's algorithm
-  let z = bx ^ by;
-  let count = 0;
-  while (z) {
-    z &= z - 1n;
-    count++;
-  }
-  return count;
-}
-
 export function main(args) {
   if (args?.includes("--version")) {
     console.log(version);

@@ -6,7 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "off"              # off | weekly | daily | hourly | continuous
+supervisor = "daily"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
