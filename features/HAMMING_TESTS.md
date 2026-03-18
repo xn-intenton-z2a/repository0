@@ -1,6 +1,6 @@
 # HAMMING_TESTS
 
-Status: IMPLEMENTED
+Status: ARCHIVED (implemented; tests merged — see issues #3103, #3105)
 
 Purpose
 Specify the unit and behaviour tests required to guard the library behaviour and acceptance criteria so regressions are detected by CI.

@@ -1,6 +1,6 @@
 # HAMMING_TYPES
 
-Status: IMPLEMENTED
+Status: ARCHIVED (implemented; JSDoc added to src/lib/main.js)
 
 Purpose
 Provide clear JSDoc annotations so editors and TypeScript consumers can infer types and expected behaviour from the JavaScript source without shipping separate declaration files.

@@ -1,6 +1,6 @@
 # HAMMING_CLI
 
-Status: IMPLEMENTED
+Status: ARCHIVED (implemented; see issue #3103)
 
 Purpose
 Provide a concise, scriptable command-line interface that exposes the library functionality so users can compute Hamming distances without writing code. CLI output must be machine-friendly for tests and scripts.

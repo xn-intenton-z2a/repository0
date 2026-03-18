@@ -1,6 +1,6 @@
 # HAMMING_WEB_UI
 
-Status: IMPLEMENTED
+Status: ARCHIVED (implemented; web demo deployed in src/web/)
 
 Purpose
 Provide a minimal interactive web demo that exercises the library and demonstrates core vectors so users can visually verify behaviour and copy example inputs.

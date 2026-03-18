@@ -1,6 +1,6 @@
 # HAMMING_BIGINT
 
-Status: IMPLEMENTED
+Status: ARCHIVED (implemented; see issues #3103, #3105)
 
 Purpose
 Document and specify BigInt behaviour for the integer Hamming API so callers can rely on precise bit-level results for values beyond Number.MAX_SAFE_INTEGER.

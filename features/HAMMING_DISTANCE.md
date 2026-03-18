@@ -1,6 +1,6 @@
 # HAMMING_DISTANCE
 
-Status: IMPLEMENTED
+Status: ACTIVE (implementation reference: issue #3103)
 
 Purpose
 Provide the canonical Hamming distance API for the library so callers can compute distances for equal-length Unicode strings and for non-negative integers (Number and BigInt).

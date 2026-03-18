@@ -1,6 +1,6 @@
 # HAMMING_EXAMPLES
 
-Status: IMPLEMENTED
+Status: ARCHIVED (implemented; consolidated into HAMMING_DOCS and README)
 
 Purpose
 Describe the short, canonical examples used across README, web demo, and tests so examples remain consistent and easy to reference.
