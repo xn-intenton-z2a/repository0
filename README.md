@@ -62,6 +62,10 @@ When defining custom encodings with `defineEncoding(name, charset)` the library 
 
 This ensures encodings use only safe, printable, and unambiguous characters by default.
 
+## Tests
+
+See docs/reports/tests-passing.md for test results.
+
 ## License
 
 MIT
