@@ -1,35 +1,18 @@
-# ENCODINGS_BENCHMARK
+# BASE_ENCODINGS
 
-Status: Planned
+Status: Done
 
 Overview
 
-Measure encoding density and runtime performance (encode/decode) across all registered encodings to inform design choices and document trade-offs.
+Implement and register the baseline encodings used by the library: base62, base85 and base91. These encodings are available via listEncodings() and are used by the CLI, examples and tests.
 
-Goals
+Acceptance criteria
 
-- Provide a reproducible Node script examples/benchmark-encodings.js that benchmarks encode and decode throughput for several payload sizes and reports encoded-length statistics for UUID-sized inputs.
-- Produce machine-readable JSON output suitable for CI assertions and human-readable summaries for docs.
+1. listEncodings() returns entries for base62, base85 and base91 with charset sizes 62, 85 and 91 and bitsPerChar approximately 5.954, 6.409 and 6.508 respectively.
+2. encode(name, Uint8Array) and decode(name, string) round-trip for all inputs including edge cases: empty buffer, single byte, all-zero and all-0xFF.
+3. encodeUUIDShorthand(uuid, name) produces the expected encoded strings and lengths; the densest of these encodings yields length < 22 for the canonical sample UUID.
+4. Unit tests under tests/unit covering the above exist and pass (npm test returns exit 0).
 
-Requirements
+Notes
 
-- Script path: examples/benchmark-encodings.js
-- CLI flags: --sizes (comma-separated sizes in bytes, default: 1,16,1024,16384), --samples (number of repetitions per size, default 100), --json (emit JSON), --stdout (print to stdout)
-- Output JSON schema: { runId: string, timestamp: ISO, settings: {...}, encodings: [ { name, charsetSize, bitsPerChar, samples: [{size, encodeMeanMs, decodeMeanMs, encodeStdMs, decodeStdMs}] , uuidSamples: [{uuid, encoded, len}] } ] }
-
-Acceptance criteria (testable)
-
-1. Node script examples/benchmark-encodings.js exists and exits 0 when invoked with --json; stdout is valid JSON parseable by JSON.parse.
-2. The JSON contains an encodings array whose length equals listEncodings().length and contains entries with numeric fields encodeMeanMs and decodeMeanMs for each requested size.
-3. For the standard sample UUIDs (sample canonical UUID, all-zero, all-0xFF), the script reports encoded lengths and at least one encoding with length < 22 characters (verify densest encodings meet mission density requirement).
-4. The script runs without third-party deps (Node built-ins only) and completes within a reasonable time in CI for default sample counts (e.g., < 30s on CI runners with default samples reduced if necessary).
-
-Implementation notes
-
-- Use performance.now() or process.hrtime.bigint() for timing; discard first N warmup runs.
-- Keep sample counts configurable so CI can run a quick smoke (samples=10) while local runs may be higher.
-- The script must use the public library API (import { listEncodings, encode, decode, encodeUUIDShorthand } from '../../src/lib/main.js') so results reflect the live registry.
-
-Rationale
-
-Benchmarks clarify real-world trade-offs between density and CPU cost, and provide CI-assertable metrics to avoid regressions in future encoding implementations.
+Keep registry names stable: base62, base85, base91.
