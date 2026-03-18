@@ -1,5 +1,7 @@
 # HAMMING_DISTANCE
 
+Status: IMPLEMENTED — functionality present in src/lib/main.js and verified by tests/unit/hamming.test.js
+
 Purpose
 Provide a focused, testable feature that implements Hamming distance calculations for two use cases: equal-length Unicode strings (count differing code points) and non-negative integers (count differing bits).
 
