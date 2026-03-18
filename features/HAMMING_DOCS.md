@@ -1,6 +1,6 @@
 # HAMMING_DOCS
 
-Status: PARTIALLY_IMPLEMENTED
+Status: IMPLEMENTED
 
 Purpose
 Maintain authoritative documentation that explains API usage, Unicode considerations, BigInt behaviour, optional normalization, and CLI examples so consumers can use the library correctly.
