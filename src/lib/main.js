@@ -54,10 +54,11 @@ function ensureUint8Array(v, label = "data") {
   if (!(v instanceof Uint8Array)) throw new TypeError(`${label} must be a Uint8Array`);
 }
 
-function createGenericBase(charset) {
-  const base = BigInt(charset.length);
+function createGenericBase(charArray) {
+  // charArray: array of unique characters
+  const base = BigInt(charArray.length);
   const map = new Map();
-  for (let i = 0; i < charset.length; i++) map.set(charset[i], i);
+  for (let i = 0; i < charArray.length; i++) map.set(charArray[i], i);
 
   function encode(bytes) {
     ensureUint8Array(bytes, "data");
@@ -72,23 +73,23 @@ function createGenericBase(charset) {
     }
     // convert BigInt to base string
     if (value === 0n) {
-      return charset[0].repeat(z);
+      return charArray[0].repeat(z);
     }
     const digits = [];
     while (value > 0n) {
       const rem = Number(value % base);
-      digits.push(charset[rem]);
+      digits.push(charArray[rem]);
       value = value / base;
     }
     digits.reverse();
-    return charset[0].repeat(z) + digits.join("");
+    return charArray[0].repeat(z) + digits.join("");
   }
 
   function decode(text) {
     ensureString(text, "text");
     if (text.length === 0) return new Uint8Array(0);
-    // count leading charset[0] characters -> leading zero bytes
-    const zeroChar = charset[0];
+    // count leading charArray[0] characters -> leading zero bytes
+    const zeroChar = charArray[0];
     let z = 0;
     while (z < text.length && text[z] === zeroChar) z++;
     const payload = text.slice(z);
@@ -114,20 +115,43 @@ function createGenericBase(charset) {
   return { encode, decode };
 }
 
+// Characters to remove for visual ambiguity
+const AMBIGUOUS_CHARS = new Set(["0", "O", "1", "l", "I"]);
+
 export function defineEncoding(name, charset, options = {}) {
   ensureString(name, "name");
   ensureString(charset, "charset");
   if (encodings.has(name)) throw new RangeError(`Encoding '${name}' already defined`);
-  // unique characters
-  const set = new Set([...charset]);
-  if (set.size !== charset.length) throw new RangeError("Charset contains duplicate characters");
-  if (charset.length < 2) throw new RangeError("Charset must contain at least 2 characters");
-  const impl = createGenericBase([...charset]);
+
+  const { sanitize = true } = options;
+
+  // turn into array of Unicode codepoints (works for BMP and astral)
+  const original = Array.from(charset);
+
+  // reject control characters (U+0000..U+001F, U+007F) and whitespace
+  const hasControl = original.some(ch => /[\u0000-\u001F\u007F]/.test(ch) || /\s/.test(ch));
+  if (hasControl) {
+    throw new RangeError("Charset contains control or whitespace characters");
+  }
+
+  // reject duplicate characters in the original input
+  if (new Set(original).size !== original.length) {
+    throw new RangeError("Charset contains duplicate characters");
+  }
+
+  // sanitize ambiguous characters if requested
+  const finalChars = sanitize ? original.filter(ch => !AMBIGUOUS_CHARS.has(ch)) : original.slice();
+
+  if (finalChars.length < 2) {
+    throw new RangeError("Charset invalid after sanitisation (needs at least 2 unique chars)");
+  }
+
+  const impl = createGenericBase(finalChars);
   const metadata = {
     name,
-    charset: charset,
-    charsetSize: charset.length,
-    bitsPerChar: Math.log2(charset.length),
+    charset: finalChars.join(""),
+    charsetSize: finalChars.length,
+    bitsPerChar: Math.log2(finalChars.length),
   };
   encodings.set(name, { ...metadata, encode: impl.encode, decode: impl.decode });
   return metadata;
@@ -160,7 +184,7 @@ export function decode(encodingNameOrText, textMaybe) {
   // flexible signature: decode(name, text) or decode(text, name)
   let name, text;
   if (typeof encodingNameOrText === "string" && typeof textMaybe === "string") {
-    // ambiguous: prefer decode(name, text)
+    // prefer decode(name, text)
     name = encodingNameOrText;
     text = textMaybe;
   } else if (typeof encodingNameOrText === "string") {
@@ -215,12 +239,16 @@ export function decodeUUIDShorthand(encoded, encodingName) {
 }
 
 // --- builtin encodings ---
-// base62
+// base62 (traditional)
 const BASE62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-defineEncoding("base62", BASE62);
-// base85 - use a widely-used Z85-like charset (85 chars)
+defineEncoding("base62", BASE62, { sanitize: false });
+// base85 - use a Z85-like charset
 const BASE85 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-:+=^!/*?&<>()[]{}@%$#";
-defineEncoding("base85", BASE85);
+defineEncoding("base85", BASE85, { sanitize: false });
+// base91 - use 91 printable ASCII characters from 33 ('!') to 123 ('{') inclusive
+let BASE91 = "";
+for (let i = 33; i <= 123; i++) BASE91 += String.fromCharCode(i);
+defineEncoding("base91", BASE91, { sanitize: false });
 // high-density printable ASCII excluding ambiguous characters
 (function registerHighDensity() {
   const ambiguous = new Set(["0", "O", "1", "l", "I"]);
@@ -229,7 +257,6 @@ defineEncoding("base85", BASE85);
     const ch = String.fromCharCode(i);
     if (!ambiguous.has(ch)) cs += ch;
   }
-  // ensure we didn't accidentally clash with existing names
   const name = "ascii-printable-no-ambiguous";
   defineEncoding(name, cs);
 })();
