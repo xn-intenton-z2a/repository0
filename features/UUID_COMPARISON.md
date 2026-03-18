@@ -1,21 +1,35 @@
 # UUID_COMPARISON
 
-Status: Partial — length comparison tests present, README generation script not yet present
+Status: Planned — add examples script and README table
 
 Overview
 
-Provide a reproducible comparison table of encoded UUID lengths across encodings. Unit tests already assert that the densest registered encoding produces lengths < 22, but a human-readable README table generation script (examples/) is not committed.
+Provide a reproducible, human-readable comparison table of encoded UUID lengths across all registered encodings. While unit tests assert that the densest encoding is shorter than base64, a generator script will produce a stable markdown table suitable for README inclusion and documentation.
+
+Goals
+
+- Add examples/generate-uuid-comparison.js: a small Node script that imports the library API (listEncodings, encodeUUIDShorthand), uses canonical sample UUIDs (sample, all-zero, all-0xFF, deterministic random) and writes docs/UUID_COMPARISON.md or emits the table to stdout when requested.
+- Table format: markdown table where rows are sample UUIDs and columns are encodings; each cell contains the encoded string and its length (e.g., "abc... (20)").
+- Add a package.json script entry examples:generate-uuid-comparison to run the generator.
+- Provide a unit test tests/unit/generate-uuid-comparison.test.js that validates generator output and that lengths reported match live encoding results.
 
 Requirements
 
-- Canonical sample UUIDs: sample, all-zero, all-0xFF, deterministic random UUID used in tests.
-- Produce a table where rows are sample UUIDs and columns are encodings showing encoded string and length.
+- The generator must use only the public API: listEncodings() and encodeUUIDShorthand/encode() so the table always reflects the current registry and charsets.
+- Default output path: docs/UUID_COMPARISON.md; support --out and --stdout flags.
+- Deterministic sample UUIDs are defined in tests/unit/helpers so generator output is stable across runs and CI.
 
 Acceptance criteria (testable)
 
-- Unit tests assert densest encoding length < 22 for sample UUIDs (implemented in tests/unit/encoding.test.js).
-- For documentation completeness, add an examples script that generates a README-friendly table from listEncodings() (left as future work). Once the script exists, the README should link to or include the generated table.
+- examples/generate-uuid-comparison.js exists and runs; when executed with --stdout it prints a valid markdown table to stdout and exits 0.
+- tests/unit/generate-uuid-comparison.test.js passes in CI: the test invokes the generator (in-memory or via --stdout) and asserts:
+  - The output contains one column per encoding returned by listEncodings().
+  - For each sample UUID and encoding, the encoded string length reported in the table equals the length of the string produced by the library's encode/encodeUUIDShorthand functions.
+  - The densest encoding reported in the table produces length < 22 for the canonical sample UUIDs.
+- README.md includes a link to docs/UUID_COMPARISON.md or embeds the generated table; the generator test verifies the presence of the link or the table snippet in README.md (configurable via the test).
 
 Implementation notes
 
-- Generate the table from the library API to avoid drift; place the generator script under examples/ and reference it in README.md when added.
+- Keep the generator dependency-free and small; use Node built-in fs and path modules.
+- The generator should be idempotent: running it multiple times produces the same output for the same registered encodings and sample UUIDs.
+- Offer optional filtering via --encodings=comma,separated to generate a subset for quicker local checks.
