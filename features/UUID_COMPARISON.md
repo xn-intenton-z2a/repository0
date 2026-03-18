@@ -1,6 +1,6 @@
 # UUID_COMPARISON
 
-Status: Planned — generator script and README integration required (use public API in src/lib/main.js).
+Status: Planned — generator script and README integration required; feature documents a reproducible generator and acceptance tests.
 
 Overview
 
@@ -9,7 +9,7 @@ Provide a reproducible generator that produces a markdown comparison table of en
 Goals
 
 - Make UUID-length and representation comparisons reproducible and machine-checkable.
-- Ensure the docs always reflect the live registry and the chosen densest encoding.
+- Ensure the docs reflect the live registry and the chosen densest encoding.
 - Keep the generator dependency-free (Node builtin modules only).
 
 Behavior
@@ -30,20 +30,24 @@ Output format
 
 Acceptance criteria (testable)
 
-1. Script presence: examples/generate-uuid-comparison.js exists and is executable by Node, and when invoked with --stdout prints a valid markdown table and exits with code 0.
-2. Column parity: when run without --encodings the number of encoding columns equals listEncodings().length and the header names exactly match listEncodings() names and reported bitsPerChar rounded to two decimals.
-3. Cell parity: for every sample UUID and encoding, the cell's encoded string length equals the length of encodeUUIDShorthand(sampleUuid, encodingName) as returned by the library; tests compute live values and compare lengths and strings exactly.
+1. Script presence: examples/generate-uuid-comparison.js exists and is executable by Node; when invoked with --stdout it prints a valid markdown table and exits 0.
+2. Column parity: when run without --encodings the number of encoding columns equals listEncodings().length and the header names and two-decimal bitsPerChar exactly match listEncodings() when ordered by bitsPerChar desc.
+3. Cell parity: for every sample UUID and encoding, the cell's encoded string equals the value returned by encodeUUIDShorthand(sampleUuid, encodingName) and the displayed length equals the encoded string length; tests compute live values and compare lengths and strings exactly.
 4. Densest encoding goal: the encoding reported in the header as the densest (highest bitsPerChar) produces encoded lengths strictly less than 22 characters for each canonical sample UUID (this verifies the mission's UUID-length benchmark).
-5. README/docs integration: the repository README.md contains either an embedded table or a link to docs/UUID_COMPARISON.md; a unit test asserts the presence of docs/UUID_COMPARISON.md or a README link.
+5. README/docs integration: README.md contains either an embedded table or a link to docs/UUID_COMPARISON.md; a unit test asserts the presence of docs/UUID_COMPARISON.md or a README link.
 6. Deterministic output: running the script twice with identical inputs (registry and samples) yields byte-for-byte identical outputs.
+
+Testing notes
+
+- Add a minimal unit test tests/unit/generate-uuid-comparison.test.js that spawns the script with --stdout, parses the table, and asserts acceptance criteria 2-4 using live API calls.
+- Prefer --stdout in CI tests to avoid filesystem writes.
 
 Implementation notes
 
-- The script must only use public API functions exported from src/lib/main.js (listEncodings, encodeUUIDShorthand) so it reflects the live registry.
-- Avoid third-party dependencies; use fs, path, and process for I/O and argument parsing.
-- Prefer --stdout for CI tests to avoid filesystem writes.
-- Add a minimal unit test tests/unit/generate-uuid-comparison.test.js that spawns the script with --stdout, parses the table, and asserts acceptance criteria 2-4 using live API calls.
+- The script must use only public API functions exported from src/lib/main.js (listEncodings, encodeUUIDShorthand) so it reflects the live registry.
+- Use the Node built-ins fs, path and process for I/O and argument parsing; avoid third-party dependencies.
+- For README generation, the script can write docs/UUID_COMPARISON.md and the README.md may link to it; maintainers may choose to check that file into docs/ during release.
 
 Rationale
 
-Having a generator that relies on the library's public API ensures the README/docs remain accurate as encodings are added or changed and provides a machine-testable artifact for the mission benchmark.
+A generator that relies on the library's public API ensures documentation remains accurate as encodings are added or changed and provides a machine-testable artifact for the mission benchmark.
