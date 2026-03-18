@@ -74,7 +74,7 @@ export async function runCopilotSession({
   model = "gpt-5-mini",
   githubToken,
   tuning = {},
-  timeoutMs = 600000,
+  timeoutMs,
   agentPrompt,
   userPrompt,
   writablePaths,
@@ -93,6 +93,11 @@ export async function runCopilotSession({
   }
 
   const wsPath = resolve(workspacePath);
+
+  // W11: Session timeout — defaults to 480s (8 min), leaving 2 min headroom
+  // below the 10-min workflow step timeout for graceful shutdown.
+  // Callers can override via timeoutMs parameter or tuning.sessionTimeoutMs.
+  const effectiveTimeoutMs = timeoutMs || tuning.sessionTimeoutMs || 480000;
 
   // ── Writable paths ──────────────────────────────────────────────────
   // Default: entire workspace is writable (local CLI mode)
@@ -154,7 +159,7 @@ export async function runCopilotSession({
   const systemPrompt = basePrompt + NARRATIVE_INSTRUCTION;
 
   // ── Session config ─────────────────────────────────────────────────
-  logger.info(`[agentic-lib] Creating session (model=${model}, workspace=${wsPath})`);
+  logger.info(`[agentic-lib] Creating session (model=${model}, workspace=${wsPath}, timeout=${Math.round(effectiveTimeoutMs / 1000)}s)`);
 
   const client = new CopilotClient({
     env: { ...process.env, GITHUB_TOKEN: copilotToken, GH_TOKEN: copilotToken },
@@ -192,7 +197,7 @@ export async function runCopilotSession({
         // Truncate large read_file results to prevent context overflow
         if (input.toolName === "read_file" || input.toolName === "view") {
           const resultText = input.toolResult?.textResultForLlm || "";
-          const MAX_READ_CHARS = 20000;
+          const MAX_READ_CHARS = tuning.maxReadChars || 20000;
           if (resultText.length > MAX_READ_CHARS) {
             hookOutput.modifiedResult = {
               ...input.toolResult,
@@ -296,7 +301,7 @@ export async function runCopilotSession({
 
   const prompt = userPrompt || [
     `# Mission\n\n${missionText}`,
-    `# Current test state\n\n\`\`\`\n${initialTestOutput.substring(0, 4000)}\n\`\`\``,
+    `# Current test state\n\n\`\`\`\n${initialTestOutput.substring(0, tuning.maxTestOutput || 4000)}\n\`\`\``,
     "",
     "Implement this mission. Read the existing source code and tests,",
     "make the required changes, run run_tests to verify, and iterate until all tests pass.",
@@ -315,7 +320,7 @@ export async function runCopilotSession({
   }
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      response = await session.sendAndWait(sendOptions, timeoutMs);
+      response = await session.sendAndWait(sendOptions, effectiveTimeoutMs);
       break;
     } catch (err) {
       if (isRateLimitError(err) && attempt < maxRetries) {

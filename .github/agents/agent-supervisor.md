@@ -68,7 +68,7 @@ If an **Implementation Review** section is present in the prompt, examine it car
 
 ## Priority Order
 
-1. **Always strive to close gaps** — every action you take should aim to satisfy the remaining NOT MET metrics. If the code is already complete (see Source Exports and Recently Closed Issues), use `nop` and let the director evaluate. Otherwise, create one comprehensive issue that targets the entire mission (all acceptance criteria, tests, website, docs, README). Only create a second issue if the first transform couldn't complete everything, and scope it to the remaining work. Do not create issues just to fill a quota.
+1. **Always strive to close gaps** — every action you take should aim to satisfy the remaining NOT MET metrics. If the code is already complete (see Source Exports and Recently Closed Issues), use `nop` and let the director evaluate. Otherwise, assess the full gap between current state and mission, then create as many distinct issues as needed to cover the entire gap. Ideally one comprehensive issue covering the whole gap, but if the work is naturally separable (e.g. different features, different layers), create multiple focused issues. Create up to the WIP limit. Each issue should be self-contained and independently deliverable.
 2. **Dispatch transform when ready issues exist** — transform is where code gets written. Always prefer it over maintain when there are open issues with the `ready` label.
 3. **Dispatch review after transform** — when recent workflow runs show a transform completion, dispatch review to close resolved issues and add `ready` labels to new issues. This keeps the pipeline flowing.
 4. **Fix failing PRs** — dispatch fix-code for any PR with failing checks (include pr-number).
@@ -78,7 +78,7 @@ If an **Implementation Review** section is present in the prompt, examine it car
 
 1. **Check what's already in progress** — don't duplicate work. If the workflow is already running, don't dispatch another.
 2. **Prioritise code generation** — the goal is working code. Prefer actions that produce code (dev-only, fix) over metadata (maintain, label).
-3. **Right-size the work** — break the mission into chunks just big enough to reliably deliver. One comprehensive issue is better than many small ones. Only create a follow-up issue when the previous transform has landed and gaps remain.
+3. **Right-size the work** — break the mission into the fewest chunks that can each be reliably delivered in a single transform. Create all the issues needed upfront rather than waiting for each to land before creating the next. Each issue should request maximum implementation in its scope.
 4. **Respect limits** — don't create issues beyond the WIP limit shown in the context. Don't dispatch workflows that will fail due to missing prerequisites.
 
 ## When to use each action

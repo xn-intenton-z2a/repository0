@@ -16,11 +16,12 @@ import { checkWipLimit } from "../safety.js";
 /**
  * Build a file listing summary (names + sizes, not content).
  */
-function buildFileListing(dirPath, extension) {
+// W22: maxFiles configurable via profile (0 = unlimited)
+function buildFileListing(dirPath, extension, maxFiles = 30) {
   if (!dirPath || !existsSync(dirPath)) return [];
   try {
     const files = readdirSync(dirPath, { recursive: true });
-    return files
+    const filtered = files
       .filter((f) => String(f).endsWith(extension))
       .map((f) => {
         const fullPath = join(dirPath, String(f));
@@ -30,8 +31,8 @@ function buildFileListing(dirPath, extension) {
         } catch {
           return String(f);
         }
-      })
-      .slice(0, 30);
+      });
+    return maxFiles > 0 ? filtered.slice(0, maxFiles) : filtered;
   } catch {
     return [];
   }

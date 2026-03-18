@@ -124,7 +124,7 @@ on:
         options:
           - ""
           - min
-          - recommended
+          - med
           - max
       create-seed-issues:
         description: "Create initial seed issues after purge"

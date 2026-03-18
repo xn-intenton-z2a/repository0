@@ -213,6 +213,45 @@ async function executeMissionComplete(octokit, repo, reason) {
   } catch (err) {
     core.warning(`Could not commit MISSION_COMPLETE.md: ${err.message}`);
   }
+
+  // W2: Update persistent state (Benchmark 011 FINDING-3)
+  try {
+    const { readState, writeState } = await import("../../../copilot/state.js");
+    const state = readState(".");
+    state.status["mission-complete"] = true;
+    state.schedule["auto-disabled"] = true;
+    state.schedule["auto-disabled-reason"] = "mission-complete";
+    writeState(".", state);
+    core.info("State updated: mission-complete, schedule auto-disabled");
+  } catch (err) {
+    core.warning(`Could not update state for mission-complete: ${err.message}`);
+  }
+
+  // W3: Disable schedule on mission-complete (Benchmark 011 FINDING-4)
+  try {
+    await octokit.rest.actions.createWorkflowDispatch({
+      ...repo,
+      workflow_id: "agentic-lib-schedule.yml",
+      ref: "main",
+      inputs: { frequency: "off" },
+    });
+    core.info("Dispatched schedule change to off after mission-complete");
+  } catch (err) {
+    core.warning(`Could not dispatch schedule change: ${err.message}`);
+  }
+
+  // W16: Notify bot about mission-complete
+  try {
+    await octokit.rest.actions.createWorkflowDispatch({
+      ...repo,
+      workflow_id: "agentic-lib-bot.yml",
+      ref: "main",
+      inputs: { message: `Mission complete: ${reason.substring(0, 200)}` },
+    });
+    core.info("Dispatched bot notification for mission-complete");
+  } catch (err) {
+    core.warning(`Could not dispatch bot notification: ${err.message}`);
+  }
 }
 
 /**
@@ -286,6 +325,19 @@ async function executeMissionFailed(octokit, repo, reason, metricAssessment) {
     core.info("Dispatched schedule change to weekly after mission-failed");
   } catch (err) {
     core.warning(`Could not dispatch schedule change: ${err.message}`);
+  }
+
+  // W16: Notify bot about mission-failed
+  try {
+    await octokit.rest.actions.createWorkflowDispatch({
+      ...repo,
+      workflow_id: "agentic-lib-bot.yml",
+      ref: "main",
+      inputs: { message: `Mission failed: ${metricDetail.substring(0, 200)}` },
+    });
+    core.info("Dispatched bot notification for mission-failed");
+  } catch (err) {
+    core.warning(`Could not dispatch bot notification: ${err.message}`);
   }
 }
 

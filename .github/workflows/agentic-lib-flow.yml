@@ -64,7 +64,7 @@ on:
         default: "max"
         options:
           - min
-          - recommended
+          - med
           - max
       workflow-runs:
         description: "Number of workflow iterations (1-16)"

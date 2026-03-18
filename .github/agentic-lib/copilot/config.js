@@ -92,6 +92,13 @@ function parseTuningProfile(profileSection) {
     issuesScan: profileSection["max-issues"] || 20,
     staleDays: profileSection["stale-days"] || 30,
     discussionComments: profileSection["max-discussion-comments"] || 10,
+    sessionTimeoutMs: profileSection["session-timeout-ms"] || 480000,
+    maxTokens: profileSection["max-tokens"] || 200000,
+    maxReadChars: profileSection["max-read-chars"] || 20000,
+    maxTestOutput: profileSection["max-test-output"] || 4000,
+    maxFileListing: profileSection["max-file-listing"] ?? 30,
+    maxLibraryIndex: profileSection["max-library-index"] || 2000,
+    maxFixTestOutput: profileSection["max-fix-test-output"] || 8000,
   };
 }
 
@@ -132,7 +139,7 @@ function readPackageJson(tomlPath, depsRelPath) {
  * @param {Object} [profilesSection] - The [profiles] section from TOML (source of truth)
  */
 function resolveTuning(tuningSection, profilesSection) {
-  const profileName = tuningSection.profile || "recommended";
+  const profileName = tuningSection.profile || "med";
   const tomlProfile = profilesSection?.[profileName];
   const profile = parseTuningProfile(tomlProfile) || FALLBACK_TUNING;
   const tuning = { ...profile, profileName };
@@ -149,6 +156,13 @@ function resolveTuning(tuningSection, profilesSection) {
     "max-issues": "issuesScan",
     "stale-days": "staleDays",
     "max-discussion-comments": "discussionComments",
+    "session-timeout-ms": "sessionTimeoutMs",
+    "max-tokens": "maxTokens",
+    "max-read-chars": "maxReadChars",
+    "max-test-output": "maxTestOutput",
+    "max-file-listing": "maxFileListing",
+    "max-library-index": "maxLibraryIndex",
+    "max-fix-test-output": "maxFixTestOutput",
   };
   for (const [tomlKey, jsKey] of Object.entries(numericOverrides)) {
     if (tuningSection[tomlKey] > 0) tuning[jsKey] = tuningSection[tomlKey];
@@ -239,6 +253,13 @@ export function loadConfig(configPath) {
   const execution = toml.execution || {};
   const bot = toml.bot || {};
 
+  // W13: Code coverage goals
+  const goals = toml.goals || {};
+  const coverageGoals = {
+    minLineCoverage: goals["min-line-coverage"] ?? 50,
+    minBranchCoverage: goals["min-branch-coverage"] ?? 30,
+  };
+
   // Mission-complete thresholds (with safe defaults)
   // C6: Removed minDedicatedTests and requireDedicatedTests
   const mc = toml["mission-complete"] || {};
@@ -267,6 +288,7 @@ export function loadConfig(configPath) {
     init: toml.init || null,
     tdd: toml.tdd === true,
     missionCompleteThresholds,
+    coverageGoals,
     maxTokensPerMaintain: resolvedLimits.maxTokensPerMaintain || 200000,
     writablePaths,
     readOnlyPaths,

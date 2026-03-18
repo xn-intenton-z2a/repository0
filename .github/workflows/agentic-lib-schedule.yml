@@ -67,7 +67,7 @@ on:
         options:
           - ""
           - min
-          - recommended
+          - med
           - max
       dry-run:
         description: "Skip commit and push"

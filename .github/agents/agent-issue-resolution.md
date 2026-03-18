@@ -85,6 +85,8 @@ When writing both tests and implementation:
 **Both unit tests AND behaviour tests must pass.** The project runs `npm test` (unit tests) and
 `npm run test:behaviour` (Playwright). Both are gated — your changes must pass both.
 
+**Code coverage:** Aim for the coverage thresholds stated in the Constraints section of the prompt. Write tests that exercise the code paths you're adding or modifying.
+
 ### Test philosophy
 
 - **Unit tests** bind to the detail: exact return values, error types, edge cases, parameter validation.

@@ -6,7 +6,7 @@
 // failures, writes fixes, and runs tests via tools.
 
 import * as core from "@actions/core";
-import { readFileSync } from "fs";
+import { readFileSync, existsSync, readdirSync } from "fs";
 import { execSync } from "child_process";
 import { formatPathsSection, extractNarrative, NARRATIVE_INSTRUCTION } from "../copilot.js";
 import { runCopilotSession } from "../../../copilot/copilot-session.js";
@@ -25,14 +25,15 @@ function extractRunId(detailsUrl) {
 /**
  * Fetch actual test output from a GitHub Actions run log.
  */
-function fetchRunLog(runId) {
+// W22: maxChars configurable via profile
+function fetchRunLog(runId, maxChars = 8000) {
   try {
     const output = execSync(`gh run view ${runId} --log-failed`, {
       encoding: "utf8",
       timeout: 30000,
       env: { ...process.env },
     });
-    return output.substring(0, 8000);
+    return output.substring(0, maxChars);
   } catch (err) {
     core.debug(`[fix-code] Could not fetch log for run ${runId}: ${err.message}`);
     return null;
@@ -138,7 +139,8 @@ async function resolveConflicts({ config, pr, prNumber, instructions, model, wri
  * Fix a broken main branch build.
  */
 async function fixMainBuild({ config, runId, instructions, model, writablePaths, testCommand, octokit, repo, logFilePath, screenshotFilePath }) {
-  const logContent = fetchRunLog(runId);
+  const t = config.tuning || {};
+  const logContent = fetchRunLog(runId, t.maxFixTestOutput || 8000);
   if (!logContent) {
     core.info(`Could not fetch log for run ${runId}. Returning nop.`);
     return { outcome: "nop", details: `Could not fetch log for run ${runId}` };
@@ -169,7 +171,6 @@ async function fixMainBuild({ config, runId, instructions, model, writablePaths,
     "- Do not introduce new features — focus on making the build green",
   ].join("\n");
 
-  const t = config.tuning || {};
   const systemPrompt =
     `You are an autonomous coding agent fixing a broken build on the main branch. The test/build workflow has failed. Analyze the error log and make minimal, targeted changes to fix it.` +
     NARRATIVE_INSTRUCTION;
@@ -254,7 +255,7 @@ export async function fixCode(context) {
       const runId = extractRunId(cr.details_url);
       let logContent = null;
       if (runId) {
-        logContent = fetchRunLog(runId);
+        logContent = fetchRunLog(runId, (config.tuning || {}).maxFixTestOutput || 8000);
       }
       const detail = logContent || cr.output?.summary || "Failed";
       return `**${cr.name}:**\n${detail}`;

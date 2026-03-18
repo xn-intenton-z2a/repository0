@@ -651,6 +651,31 @@ async function executeCreateIssue(octokit, repo, params, ctx) {
   }
   const body = bodyParts.join("\n");
 
+  // W5: Dedup guard against open issues — skip if a similarly-titled issue already exists
+  try {
+    const { data: openIssues } = await octokit.rest.issues.listForRepo({
+      ...repo,
+      state: "open",
+      labels: "automated",
+      sort: "created",
+      direction: "desc",
+      per_page: 20,
+    });
+    const titleLower = title.toLowerCase();
+    const titlePrefix = titleLower.substring(0, 30);
+    const openDuplicate = openIssues.find(
+      (i) =>
+        !i.pull_request &&
+        (i.title.toLowerCase().includes(titlePrefix) || titleLower.includes(i.title.toLowerCase().substring(0, 30))),
+    );
+    if (openDuplicate) {
+      core.info(`Skipping duplicate issue (similar to open #${openDuplicate.number}: "${openDuplicate.title}")`);
+      return `skipped:duplicate-open-#${openDuplicate.number}`;
+    }
+  } catch (err) {
+    core.warning(`Open issue dedup check failed: ${err.message}`);
+  }
+
   // Dedup guard: skip if a similarly-titled issue was closed in the last hour
   // Exclude issues closed before the init timestamp (cross-scenario protection)
   try {
