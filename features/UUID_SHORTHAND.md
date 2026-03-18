@@ -2,26 +2,28 @@
 
 Overview
 
-Provide a shorthand API for encoding and decoding UUIDs (v7 and other 128-bit UUIDs) that: strips dashes from canonical UUID strings, decodes the 32 hex characters to 16 bytes, encodes those bytes using a chosen encoding, then returns the encoded string reversed. The decode counterpart reverses the string, decodes bytes, and returns a normalized dashed lowercase UUID string.
+Provide a shorthand API for encoding and decoding 128-bit UUIDs that normalises common input formats and exposes a compact representation using any registered encoding. The shorthand functions operate on canonical 128-bit UUID bytes and rely on the core encode/decode API.
 
-Requirements
+Behavior
 
 - encodeUUIDShorthand(uuid: string, encodingName?: string): string
-  - Accept uppercase/lowercase, with or without dashes, and optional surrounding braces.
-  - Normalize input then parse exactly 32 hex characters into 16 bytes.
-  - Default encodingName should be the currently configured densest built-in encoding.
-  - After encoding the 16 bytes, return the encoded string reversed.
-- decodeUUIDShorthand(encoded: string, encodingName?: string): string
-  - Reverse the input string, decode using the provided encoding, validate 16 bytes produced, and return canonical dashed, lowercase UUID (8-4-4-4-12).
-- Errors: invalid UUID input or invalid encoded text should throw descriptive errors.
+  - Accepts canonical UUID strings with or without dashes, uppercase or lowercase, and optional surrounding braces.
+  - Normalises the input into 32 hexadecimal characters, converts to 16 bytes, selects an encoding (if encodingName is omitted the repository's densest registered encoding is used), encodes the bytes, and returns the encoded string.
+- decodeUUIDShorthand(encoded: string, encodingName: string): string
+  - Decodes the provided encoded string using the supplied encodingName, validates that decoding produces exactly 16 bytes, and returns a canonical dashed lowercase UUID string (8-4-4-4-12).
+
+Notes on symmetry
+
+- Implementations may choose to allow decodeUUIDShorthand to accept an optional encodingName and default to the densest encoding; current repository tests always provide the encodingName on decode to avoid ambiguity.
 
 Acceptance criteria
 
-- Round-trip property: decodeUUIDShorthand(encodeUUIDShorthand(uuid, enc), enc) === normalized uuid (lowercase, dashed) for representative UUIDs including sample, all-zero, and random UUIDs.
-- Unit tests cover inputs with/without dashes, uppercase input, and invalid inputs that must raise errors.
-- For the library's densest encoding, encoded shorthand output for a sample UUID is strictly shorter than base64 (22 chars).
+- Round-trip property: for each registered encoding, decodeUUIDShorthand(encodeUUIDShorthand(uuid, encName), encName) equals the canonical lowercase dashed uuid for representative UUIDs (sample, all-zero, all-0xFF, and a deterministic random UUID).
+- Input normalisation: encodeUUIDShorthand accepts uppercase, lowercase, dashed, and non-dashed UUID forms and normalises them before encoding; tests should verify equivalence.
+- Error handling: invalid UUID input (wrong length, non-hex characters) should throw a descriptive error; invalid or unknown encodingName on decode should throw a descriptive error.
+- Length check: for the repository's densest encoding, the shorthand encoded output for a sample UUID must be strictly shorter than base64 (22 characters).
 
 Implementation notes
 
-- Implement normalization helper that lowercases and inserts dashes for 32-hex-character inputs.
-- Reversing the encoded string is purely a reversible transformation; document rationale and include tests that demonstrate reversibility.
+- Provide small helpers hexToBytes and bytesToUuid to centralise normalisation and validation.
+- Document the chosen default behaviour for decode when encodingName is omitted; tests should reflect the chosen behaviour consistently.

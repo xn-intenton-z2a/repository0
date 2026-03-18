@@ -2,26 +2,25 @@
 
 Overview
 
-Allow creating custom, higher-density encodings from a provided charset string. Support character-sets drawn from printable ASCII U+0021..U+007E (excluding space) and by default disallow visually ambiguous characters (0/O, 1/l/I). Provide utilities to calculate bits-per-character and to register the encoding under a name for later use.
+Allow creating higher-density encodings from a provided charset string. The repository ships a built-in high-density printable-ASCII encoding that excludes visually ambiguous characters; users may also register custom charsets with defineEncoding. This feature documents expected behavior, metadata, and testable properties for high-density encodings.
 
 Requirements
 
-- defineEncoding(name: string, charset: string) registers a new encoding and returns metadata (name, charsetSize, bitsPerChar).
-- Validation rules:
-  - Charset must contain only printable ASCII characters in range U+0021..U+007E except space.
-  - Charset must not include duplicate characters.
-  - By default ambiguous characters 0, O, 1, l, I are rejected; allow an explicit allowAmbiguous option for test scenarios.
-- Bits-per-character calculation: report bitsPerChar = log2(charsetSize) to two decimal places.
-- Encodings created via defineEncoding must be usable by encode/decode and must appear in listEncodings().
+- defineEncoding(name: string, charset: string) registers a new encoding and returns metadata {name, charsetSize, bitsPerChar}.
+- defineEncoding must validate that the charset contains unique characters and at least two characters; it should not silently accept duplicate characters.
+- The library provides a built-in encoding named ascii-printable-no-ambiguous which is derived from the printable ASCII range U+0021..U+007E with commonly ambiguous characters removed (0/O, 1/l/I).
+- bitsPerChar is reported as a number computed from log2(charsetSize) (tests may round to two decimals for assertions).
+- A registered encoding must be usable by encode and decode and must appear in listEncodings().
 
 Acceptance criteria
 
-- defineEncoding registers an encoding that passes round-trip encode/decode tests for a representative set of inputs including the UUID bytes.
-- Charset validation is enforced; supplying invalid characters or duplicates causes a thrown error which tests assert.
-- A maximal printable charset (all allowed printable ASCII minus space and optional ambiguous characters) produces an encoding whose UUID output length is strictly less than base64 (22 characters) when used as the densest encoding.
-- listEncodings includes the new encoding with accurate metadata.
+- defineEncoding registers an encoding that passes round-trip encode/decode tests for representative inputs including empty buffer, all-zero 16-byte UUID, all-0xFF 16-byte UUID, and a few deterministic random buffers.
+- defineEncoding throws a descriptive error when charset contains duplicate characters or fewer than two characters.
+- listEncodings includes the ascii-printable-no-ambiguous built-in encoding with accurate charsetSize and bitsPerChar values (tests may assert bitsPerChar = Math.log2(charsetSize) within 0.01).
+- Using the repository's provided maximal printable charset (ascii-printable-no-ambiguous) as the densest encoding produces encoded UUID lengths strictly less than base64 (22 characters) for the sample UUIDs used in tests.
 
 Implementation notes
 
-- Normalize and de-duplicate the charset at registration; throw if normalization changes length.
-- Store metadata with: name, charsetSize, bitsPerChar (number), safeCharsetSample (first 16 chars) and creation timestamp.
+- normalize and de-duplicate charsets at registration is recommended but implementations may instead reject duplicates; tests will assert that duplicate input is rejected.
+- The library intentionally separates registration concerns from validation of ambiguous characters: the built-in high-density charset excludes ambiguous characters, but defineEncoding only enforces uniqueness and minimum size so custom charsets remain flexible.
+- Store encoding metadata with: name, charset, charsetSize, bitsPerChar (number), and ensure listEncodings returns these fields sorted by bitsPerChar descending.
