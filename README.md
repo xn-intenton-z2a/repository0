@@ -10,10 +10,14 @@ The library exposes a small API (named exports) from `src/lib/main.js`:
 - decode(encodingName, text: string) -> Uint8Array
 - defineEncoding(name, charset) -> metadata
 - listEncodings() -> [{ name, charset, charsetSize, bitsPerChar }]
-- encodeUUIDShorthand(uuid, encodingName?) -> string
-- decodeUUIDShorthand(encoded, encodingName) -> uuid string
+- encodeUUIDShorthand(uuid, encodingName?, reverse = false) -> string
+- decodeUUIDShorthand(encoded, encodingName, reverse = false) -> uuid string
 
 The website at `src/web/index.html` re-exports the library and shows a live demo.
+
+## Demo
+
+Open `src/web/index.html` in a static server (or run `npm run start` and visit the root) to see the Encoding comparison table and an interactive encode/decode widget. The widget accepts a UUID (with or without dashes) and an optional "Reverse encoded output" checkbox — when checked the encoded output is reversed; decoding mirrors this behavior.
 
 ## UUID encoding comparison
 
@@ -29,6 +33,10 @@ Using the sample UUID `00112233-4455-6677-8899-aabbccddeeff` (16 bytes), the tab
 | ascii-printable-no-ambiguous | <code>!eQfthbMcw!TGv(`fTd</code> | 19 |
 
 The densest registered encodings (base91 and the high-density ASCII variant) produce 19 characters for this 16-byte UUID, which is fewer than base64's 22 characters.
+
+## Reverse behavior for UUID shorthand
+
+The `encodeUUIDShorthand` and `decodeUUIDShorthand` functions accept an optional `reverse` boolean (third parameter). When `reverse` is true the encoded output is reversed (string reversed) and `decodeUUIDShorthand` will reverse before decoding. The default is `false` to preserve backward compatibility.
 
 ## Example usage
 

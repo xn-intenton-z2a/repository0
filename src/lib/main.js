@@ -217,7 +217,11 @@ function bytesToUuid(bytes) {
   return `${hex.substr(0,8)}-${hex.substr(8,4)}-${hex.substr(12,4)}-${hex.substr(16,4)}-${hex.substr(20,12)}`;
 }
 
-export function encodeUUIDShorthand(uuid, encodingName) {
+// encodeUUIDShorthand now accepts an optional third parameter `reverse` (boolean, default false).
+// When reverse=false (default) behaviour is unchanged: strip dashes, encode the 16 bytes and return the encoded string.
+// When reverse=true the encoded string is reversed (encoded output reversed). decodeUUIDShorthand mirrors this behaviour by
+// reversing the encoded string before decoding when reverse=true.
+export function encodeUUIDShorthand(uuid, encodingName, reverse = false) {
   ensureString(uuid, "uuid");
   const bytes = hexToBytes(uuid);
   let encName = encodingName;
@@ -227,13 +231,18 @@ export function encodeUUIDShorthand(uuid, encodingName) {
     if (list.length === 0) throw new Error("No encodings defined");
     encName = list[0].name;
   }
-  return encode(encName, bytes);
+  const encoded = encode(encName, bytes);
+  if (reverse) {
+    return Array.from(encoded).reverse().join("");
+  }
+  return encoded;
 }
 
-export function decodeUUIDShorthand(encoded, encodingName) {
+export function decodeUUIDShorthand(encoded, encodingName, reverse = false) {
   ensureString(encoded, "encoded");
   ensureString(encodingName, "encodingName");
-  const bytes = decode(encodingName, encoded);
+  const toDecode = reverse ? Array.from(encoded).reverse().join("") : encoded;
+  const bytes = decode(encodingName, toDecode);
   if (!(bytes instanceof Uint8Array) || bytes.length !== 16) throw new RangeError("Decoded UUID must be 16 bytes");
   return bytesToUuid(bytes);
 }
