@@ -107,20 +107,47 @@ jobs:
           git diff --cached --quiet && echo "No changes" && exit 0
           VERSION=$(npx @xn-intenton-z2a/agentic-lib version 2>/dev/null || echo "latest")
           git commit -m "update agentic-lib@${VERSION} [skip ci]"
-          for attempt in 1 2 3; do
-            # Use HEAD:refs/heads/main to handle detached HEAD state
-            git push origin HEAD:refs/heads/main && break
-            echo "Push failed (attempt $attempt) — pulling and retrying"
-            git pull --rebase origin main || {
-              echo "Rebase conflict — aborting rebase and retrying"
-              git rebase --abort 2>/dev/null || true
-            }
-            sleep $((attempt * 2))
-            if [ "$attempt" -eq 3 ]; then
-              echo "::error::Failed to push after 3 attempts"
-              exit 1
-            fi
+          MAX_RETRIES=3
+          PUSH_SUCCESS=""
+          for attempt in $(seq 1 $MAX_RETRIES); do
+            # Tiered conflict resolution (mirrors fix-stuck strategy)
+            case $attempt in
+              1)
+                echo "=== Attempt 1: rebase (cleanest) ==="
+                git pull --rebase origin main || {
+                  echo "Rebase conflict on attempt 1 — aborting rebase"
+                  git rebase --abort 2>/dev/null || true
+                  sleep $((10 + RANDOM % 10))
+                  continue
+                }
+                ;;
+              2)
+                echo "=== Attempt 2: merge (handles non-overlapping changes) ==="
+                git pull --no-rebase origin main || {
+                  echo "Merge conflict on attempt 2 — aborting merge"
+                  git merge --abort 2>/dev/null || true
+                  sleep $((20 + RANDOM % 10))
+                  continue
+                }
+                ;;
+              3)
+                echo "=== Attempt 3: merge -X theirs (accept remote on conflict) ==="
+                git pull -X theirs --no-rebase origin main || {
+                  echo "Merge -X theirs failed on attempt 3"
+                  git merge --abort 2>/dev/null || true
+                  sleep $((30 + RANDOM % 10))
+                  continue
+                }
+                ;;
+            esac
+            git push origin HEAD:refs/heads/main && { PUSH_SUCCESS="true"; break; }
+            echo "Push failed on attempt $attempt"
+            sleep $((attempt * 10 + RANDOM % 10))
           done
+          if [ "$PUSH_SUCCESS" != "true" ]; then
+            echo "::error::Failed to push after $MAX_RETRIES attempts"
+            exit 1
+          fi
 
       - name: Job Summary
         if: always()

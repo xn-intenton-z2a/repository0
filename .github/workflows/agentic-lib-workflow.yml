@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-18T10:37:44.490Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -18,7 +17,7 @@ concurrency:
 
 on:
   schedule:
-    - cron: "0 0 31 2 *"
+    - cron: "0 6 * * 1"
   workflow_call:
     inputs:
       ref:
@@ -140,7 +139,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.ref || github.sha }}
+          ref: ${{ inputs.ref || github.ref }}
           sparse-checkout: |
             ${{ env.configPath }}
             MISSION_COMPLETE.md
@@ -309,7 +308,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.ref || github.sha }}
+          ref: ${{ inputs.ref || github.ref }}
 
       - uses: actions/setup-node@v6
         with:
@@ -352,7 +351,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.ref || github.sha }}
+          ref: ${{ inputs.ref || github.ref }}
 
       - uses: actions/setup-node@v6
         with:
@@ -624,7 +623,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          ref: ${{ inputs.ref || github.sha }}
+          ref: ${{ inputs.ref || github.ref }}
 
       - name: Fetch log and screenshot from log branch
         env:
@@ -736,6 +735,7 @@ jobs:
         with:
           commit-message: "agentic-step: maintain features and library"
           push-ref: ${{ github.ref_name }}
+          fail-on-conflict: "false"
 
       - name: Capture commit SHA
         id: get-sha
@@ -763,7 +763,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          ref: ${{ inputs.ref || github.sha }}
+          ref: ${{ inputs.ref || github.ref }}
 
       - name: Fetch log and agent logs from log branch
         env:
@@ -831,7 +831,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+          ref: ${{ needs.maintain.outputs.commit-sha || github.ref }}
 
       - name: Fetch log and screenshot from log branch
         env:
@@ -896,7 +896,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+          ref: ${{ needs.maintain.outputs.commit-sha || github.ref }}
 
       - name: Fetch log, screenshot and state from log branch
         env:
@@ -981,7 +981,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+          ref: ${{ needs.maintain.outputs.commit-sha || github.ref }}
 
       - uses: actions/setup-node@v6
         with:
@@ -1367,7 +1367,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+          ref: ${{ needs.maintain.outputs.commit-sha || github.ref }}
 
       - uses: actions/setup-node@v6
         with:
@@ -1422,7 +1422,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+          ref: ${{ needs.maintain.outputs.commit-sha || github.ref }}
 
       - name: Fetch log and screenshot from log branch
         env:
@@ -1723,7 +1723,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+          ref: ${{ needs.maintain.outputs.commit-sha || github.ref }}
 
       - name: Summary
         run: |
@@ -1816,7 +1816,7 @@ jobs:
       && needs.params.result == 'success'
     uses: ./.github/workflows/agentic-lib-test.yml
     with:
-      ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+      ref: ${{ needs.maintain.outputs.commit-sha || github.ref }}
     secrets: inherit
 
   # ─── Schedule change (if requested) ────────────────────────────────
@@ -1825,7 +1825,7 @@ jobs:
     if: ${{ !cancelled() && needs.params.outputs.dry-run != 'true' && needs.params.outputs.schedule != '' && needs.params.result == 'success' }}
     uses: ./.github/workflows/agentic-lib-schedule.yml
     with:
-      ref: ${{ needs.maintain.outputs.commit-sha || github.sha }}
+      ref: ${{ needs.maintain.outputs.commit-sha || github.ref }}
       frequency: ${{ needs.params.outputs.schedule }}
       model: ${{ needs.params.outputs.model }}
       profile: ${{ needs.params.outputs.profile }}

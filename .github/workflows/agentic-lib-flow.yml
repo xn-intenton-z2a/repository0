@@ -96,6 +96,8 @@ jobs:
   update:
     if: inputs.mode != 'skip'
     uses: ./.github/workflows/agentic-lib-update.yml
+    with:
+      skip-tests: 'true'
     secrets: inherit
 
   # ── Phase 0b: Init (purge/reseed/update) ───────────────────────────
@@ -693,7 +695,42 @@ jobs:
           git add BENCHMARK_REPORT_FLOW_*.md
           git diff --staged --quiet && echo "No report to commit" && exit 0
           git commit -m "flow: benchmark report for ${{ inputs.mission-seed }} (${{ inputs.workflow-runs }} runs) [skip ci]"
-          git push origin main || echo "Push failed — report saved as artifact"
+          MAX_RETRIES=3
+          PUSH_SUCCESS=""
+          for attempt in $(seq 1 $MAX_RETRIES); do
+            case $attempt in
+              1)
+                echo "=== Attempt 1: rebase (cleanest) ==="
+                git pull --rebase origin main || {
+                  git rebase --abort 2>/dev/null || true
+                  sleep $((10 + RANDOM % 10))
+                  continue
+                }
+                ;;
+              2)
+                echo "=== Attempt 2: merge (handles non-overlapping changes) ==="
+                git pull --no-rebase origin main || {
+                  git merge --abort 2>/dev/null || true
+                  sleep $((20 + RANDOM % 10))
+                  continue
+                }
+                ;;
+              3)
+                echo "=== Attempt 3: merge -X theirs (accept remote on conflict) ==="
+                git pull -X theirs --no-rebase origin main || {
+                  git merge --abort 2>/dev/null || true
+                  sleep $((30 + RANDOM % 10))
+                  continue
+                }
+                ;;
+            esac
+            git push origin main && { PUSH_SUCCESS="true"; break; }
+            echo "Push failed on attempt $attempt"
+            sleep $((attempt * 10 + RANDOM % 10))
+          done
+          if [ "$PUSH_SUCCESS" != "true" ]; then
+            echo "::warning::Failed to push report after $MAX_RETRIES attempts — saved as artifact"
+          fi
 
       - name: Upload report artifact
         uses: actions/upload-artifact@v4

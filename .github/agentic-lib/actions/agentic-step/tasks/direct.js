@@ -228,14 +228,26 @@ async function executeMissionComplete(octokit, repo, reason) {
   }
 
   // W3: Disable schedule on mission-complete (Benchmark 011 FINDING-4)
+  // W6: Skip dispatch if schedule is already at target frequency
   try {
-    await octokit.rest.actions.createWorkflowDispatch({
-      ...repo,
-      workflow_id: "agentic-lib-schedule.yml",
-      ref: "main",
-      inputs: { frequency: "off" },
-    });
-    core.info("Dispatched schedule change to off after mission-complete");
+    let skipDispatch = false;
+    try {
+      const tomlContent = readFileSync("agentic-lib.toml", "utf8");
+      const supervisorMatch = tomlContent.match(/^\s*supervisor\s*=\s*"([^"]*)"/m);
+      if (supervisorMatch && supervisorMatch[1] === "off") {
+        core.info("Schedule already off — skipping dispatch");
+        skipDispatch = true;
+      }
+    } catch { /* toml read failed — dispatch anyway */ }
+    if (!skipDispatch) {
+      await octokit.rest.actions.createWorkflowDispatch({
+        ...repo,
+        workflow_id: "agentic-lib-schedule.yml",
+        ref: "main",
+        inputs: { frequency: "off" },
+      });
+      core.info("Dispatched schedule change to off after mission-complete");
+    }
   } catch (err) {
     core.warning(`Could not dispatch schedule change: ${err.message}`);
   }
@@ -315,14 +327,26 @@ async function executeMissionFailed(octokit, repo, reason, metricAssessment) {
   }
 
   // C3: Dispatch schedule change to weekly
+  // W6: Skip dispatch if schedule is already at target frequency
   try {
-    await octokit.rest.actions.createWorkflowDispatch({
-      ...repo,
-      workflow_id: "agentic-lib-schedule.yml",
-      ref: "main",
-      inputs: { frequency: "weekly" },
-    });
-    core.info("Dispatched schedule change to weekly after mission-failed");
+    let skipDispatch = false;
+    try {
+      const tomlContent = readFileSync("agentic-lib.toml", "utf8");
+      const supervisorMatch = tomlContent.match(/^\s*supervisor\s*=\s*"([^"]*)"/m);
+      if (supervisorMatch && supervisorMatch[1] === "weekly") {
+        core.info("Schedule already weekly — skipping dispatch");
+        skipDispatch = true;
+      }
+    } catch { /* toml read failed — dispatch anyway */ }
+    if (!skipDispatch) {
+      await octokit.rest.actions.createWorkflowDispatch({
+        ...repo,
+        workflow_id: "agentic-lib-schedule.yml",
+        ref: "main",
+        inputs: { frequency: "weekly" },
+      });
+      core.info("Dispatched schedule change to weekly after mission-failed");
+    }
   } catch (err) {
     core.warning(`Could not dispatch schedule change: ${err.message}`);
   }
