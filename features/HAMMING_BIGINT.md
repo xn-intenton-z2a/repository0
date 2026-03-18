@@ -1,23 +1,35 @@
-# HAMMING_BENCHMARK
+# HAMMING_BIGINT
 
-Status: PROPOSED
+Status: IMPLEMENTED
 
 Purpose
-Provide a lightweight, reproducible benchmark script to measure performance characteristics of the integer Hamming implementation and any bit-counting optimisations. Benchmarks help detect regressions when handling very large BigInt values or long inputs.
+Provide and document native BigInt support for the integer Hamming API so callers can compute bit-level Hamming distances for values larger than Number.MAX_SAFE_INTEGER.
 
 Scope
-- Add a small script under examples/benchmark.js that exercises hammingDistanceInt with a range of sizes and prints labelled timings to stdout.
-- The script should be runnable with node examples/benchmark.js and return exit code 0 on success.
-- The benchmark is informational and not part of unit tests, but results should be reproducible enough for local comparisons.
+- The public API hammingDistanceInt(a, b) accepts Number integers (Number.isInteger) and BigInt values.
+- Mixing Number and BigInt is supported and yields numeric counts.
+- Validation: TypeError for non-integer Number or unsupported types; RangeError for negative values.
 
-Benchmark concerns
-- Measure bit-level Hamming for numbers near and beyond Number.MAX_SAFE_INTEGER (use BigInt) to ensure performance remains acceptable.
-- Measure string-based scenarios for long inputs (e.g., strings of length 10k) to spot O(n) behaviour and constant factors.
+Behavior and validation
+- Inputs:
+  - Number integers: must satisfy Number.isInteger and be >= 0
+  - BigInt: must be >= 0n
+  - Mixing: one argument Number and the other BigInt is allowed; implementation coerces to BigInt for XOR and bit counting.
+- Errors:
+  - TypeError for non-number/non-BigInt types or fractional Numbers
+  - RangeError for negative values
+
+Testing
+- Unit tests cover Number, BigInt, and mixed cases and assert exact numeric results and thrown error types.
 
 Acceptance Criteria
-- examples/benchmark.js exists and can be executed with node examples/benchmark.js without throwing.
-- The script prints labelled timing lines such as: hammingDistanceInt, size=..., elapsedMs=... and exits 0.
-- Running the benchmark before and after a change should be straightforward and produce comparable output formats for automated parsing.
+- hammingDistanceInt(1n, 4n) === 2
+- hammingDistanceInt(1, 4) === 2
+- hammingDistanceInt(0, 0) === 0
+- hammingDistanceInt(3, 3n) === 0
+- Passing BigInt values beyond Number.MAX_SAFE_INTEGER works without loss of precision
+- Unit tests exist that assert TypeError for fractional Number inputs and RangeError for negative values
+- Public API remains exported as named export from src/lib/main.js
 
 Notes
-- This feature does not mandate micro-benchmarking frameworks; a small, plain script that records process.hrtime or performance.now is sufficient.
+- This feature was implemented and validated by the merged issue that added BigInt support; tests should remain in place to guard regressions.

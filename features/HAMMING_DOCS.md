@@ -1,30 +1,31 @@
-# HAMMING_NORMALIZATION
+# HAMMING_DOCS
 
-Status: PROPOSED
+Status: PARTIALLY_IMPLEMENTED
 
 Purpose
-Clarify Unicode normalization behaviour for string comparisons and propose an optional normalization parameter for hammingDistanceString so callers can choose whether to compare raw code points or normalized forms.
+Maintain repository documentation, README examples, and small companion scripts so library behaviour is discoverable and demonstrable. Add explicit documentation for Unicode normalization behavior and a simple benchmark script proposal.
 
-Background
-Unicode contains multiple equivalent ways to represent the same grapheme (for example, the single code point é versus the sequence e followed by combining acute). The library currently compares code points. Normalization may be desirable for some use cases.
+Scope
+- Update README.md to include:
+  - Hamming distance API examples for strings and integers (including BigInt).
+  - CLI usage examples for --version, --identity, string and bits subcommands.
+  - A section describing Unicode normalization behavior and the optional normalize parameter and examples showing normalized vs non-normalized comparisons.
+- Add an examples/benchmark.js script that measures and prints timings for hammingDistanceInt and (optionally) long-string hammingDistanceString runs.
+- Keep docs concise and machine-friendly where appropriate.
 
-Proposal
-- Add an optional boolean parameter normalize to hammingDistanceString(a, b, options) or hammingDistanceString(a, b, { normalize: true }) with default false to preserve the current behaviour.
-- When normalize is true, both inputs are normalised to NFC before comparing code points so visually equivalent strings composed differently compare as equal.
-
-Behavior and validation
-- Default behaviour: compare code points without normalisation (current behaviour preserved).
-- When normalize is true: normalise both inputs to NFC using String.prototype.normalize and then compare code points; unequal code-point lengths after normalisation still raise RangeError.
-
-Example expectations (testable)
-- Comparing the composed character é (U+00E9) to the decomposed sequence e plus combining acute (e U+0301):
-  - hammingDistanceString(composed, decomposed) with normalize false returns 1 (they are different code points).
-  - hammingDistanceString(composed, decomposed, { normalize: true }) returns 0 (both normalise to the same code point sequence in NFC).
+Unicode normalization proposal
+- Default behaviour remains comparing code points without normalization.
+- Provide opt-in normalize option: hammingDistanceString(a, b, { normalize: true }) which applies NFC normalization to both inputs before comparison.
 
 Acceptance Criteria
-- A well-scoped test file tests unicode-normalization cases demonstrating the two behaviours described above.
-- The public API documents the new optional parameter and its default value.
-- Implementation preserves the current default behaviour unless callers explicitly opt in via normalize: true.
+- README.md contains an API examples section showing:
+  - hammingDistanceString("karolin", "kathrin") => 3
+  - hammingDistanceInt(1, 4) => 2
+  - BigInt example: hammingDistanceInt(1n, 4n) => 2
+  - Example showing normalized vs non-normalized comparison for composed vs decomposed e acute.
+- README documents CLI usage and expected outputs for --version and --identity and demonstrates string/bits subcommands.
+- examples/benchmark.js exists, executes with node examples/benchmark.js, prints labelled timing lines such as: hammingDistanceInt, size=..., elapsedMs=...
+- JSDoc and README document the optional normalize parameter and its default value.
 
 Notes
-- This feature is optional but recommended for consumers who need canonical equivalence; keep the default conservative to avoid surprising existing callers.
+- Keep docs authoritative and minimal; the web demo and tests should reference README examples.
