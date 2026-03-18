@@ -94,7 +94,7 @@ export function decode(encodingNameOrText, textMaybe) {
   return enc.decode(text);
 }
 
-export function encodeUUIDShorthand(uuid, encodingName) {
+export function encodeUUIDShorthand(uuid, encodingName, reverse = false) {
   ensureString(uuid, "uuid");
   const bytes = hexToBytes(uuid);
   let encName = encodingName;
@@ -104,13 +104,18 @@ export function encodeUUIDShorthand(uuid, encodingName) {
     if (list.length === 0) throw new Error("No encodings defined");
     encName = list[0].name;
   }
-  return encode(encName, bytes);
+  const encoded = encode(encName, bytes);
+  if (reverse) {
+    return Array.from(encoded).reverse().join("");
+  }
+  return encoded;
 }
 
-export function decodeUUIDShorthand(encoded, encodingName) {
+export function decodeUUIDShorthand(encoded, encodingName, reverse = false) {
   ensureString(encoded, "encoded");
   ensureString(encodingName, "encodingName");
-  const bytes = decode(encodingName, encoded);
+  const toDecode = reverse ? Array.from(encoded).reverse().join("") : encoded;
+  const bytes = decode(encodingName, toDecode);
   if (!(bytes instanceof Uint8Array) || bytes.length !== 16) throw new RangeError("Decoded UUID must be 16 bytes");
   return bytesToUuid(bytes);
 }
