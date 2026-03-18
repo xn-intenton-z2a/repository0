@@ -38,8 +38,9 @@ export function findMissionContradictions(logText) {
   }
 
   const lines = logText.split(/\r?\n/);
-  const acceptanceRegex = /Acceptance criteria\s*\|\s*(\d+)\s*\/\s*(\d+)/i;
-  const missionRegex = /Mission complete declared\s*\|\s*(YES|NO)/i;
+  // Accept multiple variants: "Acceptance criteria | 0/7", "Acceptance: 0/7", "Acceptance 0/7"
+  const acceptanceRegex = /Acceptance(?:\s*criteria)?\s*(?:\||:)?\s*(\d+)\s*\/\s*(\d+)/i;
+  const missionRegex = /Mission\s*(?:complete)?\s*declared\s*(?:\||:)?\s*(YES|NO)/i;
 
   const acceptanceEntries = [];
   const missionEntries = [];
@@ -89,19 +90,30 @@ export function findMissionContradictions(logText) {
     }
   }
 
-  // Pair mission declarations with nearest acceptance entry (by line index)
+  // Pair mission declarations with the most recent prior acceptance entry when possible.
+  // This avoids matching a later unrelated acceptance counter and causing false positives.
   for (const m of missionEntries) {
-    let nearest = null;
-    let bestDist = Infinity;
-    for (const a of acceptanceEntries) {
-      const dist = Math.abs(a.index - m.index);
-      if (dist < bestDist) {
-        bestDist = dist;
-        nearest = a;
+    // find acceptance entries that appear before or at the mission declaration
+    const priorAcceptances = acceptanceEntries.filter((a) => a.index <= m.index);
+    let matched = null;
+
+    if (priorAcceptances.length > 0) {
+      // choose the latest prior one
+      matched = priorAcceptances.reduce((acc, cur) => (cur.index > acc.index ? cur : acc), priorAcceptances[0]);
+    } else if (acceptanceEntries.length > 0) {
+      // no prior acceptance entries; fall back to nearest (defensive)
+      let best = acceptanceEntries[0];
+      let bestDist = Math.abs(best.index - m.index);
+      for (const a of acceptanceEntries) {
+        const dist = Math.abs(a.index - m.index);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = a;
+        }
       }
-    }
-    if (!nearest) {
-      // No acceptance counters in the log; if mission declared true, it's suspicious
+      matched = best;
+    } else {
+      // no acceptance entries at all
       if (m.missionDeclared) {
         contradictions.push({
           runId: null,
@@ -114,12 +126,12 @@ export function findMissionContradictions(logText) {
       continue;
     }
 
-    if (m.missionDeclared && nearest.passed !== nearest.total) {
+    if (m.missionDeclared && matched && matched.passed !== matched.total) {
       contradictions.push({
         runId: null,
         timestamp: null,
         message: "Mission declared complete but acceptance counters mismatch",
-        acceptance: { passed: nearest.passed, total: nearest.total },
+        acceptance: { passed: matched.passed, total: matched.total },
         missionDeclared: true,
       });
     }
