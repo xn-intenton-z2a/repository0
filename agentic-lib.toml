@@ -7,7 +7,6 @@
 
 [schedule]
 supervisor = "off"              # off | weekly | daily | hourly | continuous
-model = "gpt-5-mini"
 
 [paths]
 mission = "MISSION.md"
@@ -39,7 +38,7 @@ test = "npm ci && npm test"
 [tuning]
 # Profile sets defaults for all tuning and limit knobs: min | med | max
 # Profile definitions live in [profiles.*] sections below.
-profile = "max"
+profile = "med"
 #
 # Model selection — each has different strengths:
 #   gpt-5-mini      — Fast, cheap, supports reasoning-effort. Best for CI and iteration.
@@ -153,7 +152,7 @@ log-branch = "agentic-lib-logs"
 screenshot-file = "SCREENSHOT_INDEX.png"
 
 [init]
-timestamp = "2026-03-18T22:29:26.839Z"
+timestamp = "2026-03-18T23:49:40.140Z"
 mode = "purge"
-mission = "6-kyu-understand-hamming-distance"
-version = "7.4.29"
+mission = "7-kyu-understand-fizz-buzz"
+version = "7.4.30"
