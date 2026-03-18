@@ -1,8 +1,6 @@
-# BigInt support for integer Hamming
+# HAMMING_BIGINT
 
-This feature file documents the BigInt support added to `hammingDistanceInt`.
+Status: MERGED / DEPRECATED
 
-- The function accepts Number integers and BigInt values.
-- Mixing Number and BigInt inputs is supported (Numbers are coerced to BigInt for bit operations).
-- Negative values throw `RangeError`.
-- Non-integer Numbers throw `TypeError`.
+This feature file has been consolidated into HAMMING_DISTANCE.md.
+BigInt support for integer Hamming is implemented in src/lib/main.js; see HAMMING_DISTANCE.md for the authoritative specification and acceptance criteria.
