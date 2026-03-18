@@ -105,7 +105,7 @@
       encs.forEach(e => tableBody.appendChild(makeRow(e)));
 
       function normalizeUuidStr(s) {
-        return s.replace(/\s+/g, '').toLowerCase();
+        return s.replace(/[\s-]+/g, '').toLowerCase();
       }
 
       function updateTable() {

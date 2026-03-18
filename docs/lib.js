@@ -94,6 +94,11 @@ export function decode(encodingNameOrText, textMaybe) {
   return enc.decode(text);
 }
 
+export function normalizeUuidStr(s) {
+  // remove dashes and whitespace, fold to lower-case
+  return s.replace(/[\s-]+/g, '').toLowerCase();
+}
+
 export function encodeUUIDShorthand(uuid, encodingName, reverse = false) {
   ensureString(uuid, "uuid");
   const bytes = hexToBytes(uuid);

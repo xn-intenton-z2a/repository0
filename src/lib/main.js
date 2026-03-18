@@ -217,6 +217,11 @@ function bytesToUuid(bytes) {
   return `${hex.substr(0,8)}-${hex.substr(8,4)}-${hex.substr(12,4)}-${hex.substr(16,4)}-${hex.substr(20,12)}`;
 }
 
+export function normalizeUuidStr(s) {
+  // remove dashes and whitespace, fold to lower-case
+  return s.replace(/[\s-]+/g, '').toLowerCase();
+}
+
 // encodeUUIDShorthand now accepts an optional third parameter `reverse` (boolean, default false).
 // When reverse=false (default) behaviour is unchanged: strip dashes, encode the 16 bytes and return the encoded string.
 // When reverse=true the encoded string is reversed (encoded output reversed). decodeUUIDShorthand mirrors this behaviour by
