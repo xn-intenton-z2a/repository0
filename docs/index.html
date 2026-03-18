@@ -3,26 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>repository0 — Encoding demo</title>
+  <title>repository0</title>
   <meta property="og:title" content="repository0">
   <meta property="og:description" content="An autonomous repository powered by agentic-lib">
   <meta property="og:type" content="website">
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 900px; margin: 0 auto; padding: 2rem; color: #333; }
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
     h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
     a { color: #0366d6; }
     .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    th, td { border: 1px solid #eee; padding: 8px 12px; text-align: left; font-family: monospace; }
-    th { background: #fafafa; }
-    .controls { margin: 1rem 0; display:flex; gap: 8px; align-items:center; }
-    input[type=text] { padding: 8px; width: 360px; }
-    button { padding: 8px 12px; }
-    .ok { color: green; }
-    .err { color: red; }
   </style>
 </head>
 <body>
@@ -35,141 +27,18 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
-
-  <h2>Encoding comparison</h2>
-  <p>This demo shows encoded outputs for a sample UUID and provides an interactive encode/decode widget.</p>
-
-  <div class="controls">
-    <label for="uuid-input">UUID or hex:</label>
-    <input id="uuid-input" type="text" value="00112233-4455-6677-8899-aabbccddeeff" />
-    <label><input id="reverse-checkbox" type="checkbox" /> Reverse encoded output</label>
-    <button id="encode-button">Encode</button>
-  </div>
-
-  <table id="encoding-table" aria-describedby="encoding-desc">
-    <caption id="encoding-desc">Encodings, bits/char, charset size, encoded output and roundtrip</caption>
-    <thead>
-      <tr>
-        <th>Encoding</th>
-        <th>bits/char</th>
-        <th>charset size</th>
-        <th>encoded (sample)</th>
-        <th>len</th>
-        <th>roundtrip</th>
-        <th>action</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
   <h2>Output</h2>
   <div id="demo-output">Loading library...</div>
-
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
-
   <script type="module">
-    // Load the library and build encoding table and interactive widget
     try {
-      const lib = await import('./lib.js');
-      const { name, version, description, listEncodings, encodeUUIDShorthand, decodeUUIDShorthand } = lib;
+      const { name, version, description } = await import('./lib.js');
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
+      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
-
-      const sampleInput = document.getElementById('uuid-input');
-      const encodeBtn = document.getElementById('encode-button');
-      const reverseCheckbox = document.getElementById('reverse-checkbox');
-      const tableBody = document.querySelector('#encoding-table tbody');
-      const demoOutput = document.getElementById('demo-output');
-
-      function makeRow(enc) {
-        const tr = document.createElement('tr');
-        tr.setAttribute('data-encoding', enc.name);
-        tr.innerHTML = `
-          <td data-col="name">${enc.name}</td>
-          <td data-col="bits">${enc.bitsPerChar.toFixed(3)}</td>
-          <td data-col="size">${enc.charsetSize}</td>
-          <td data-col="encoded">-</td>
-          <td data-col="len">-</td>
-          <td data-col="roundtrip">-</td>
-          <td data-col="action"><button class="decode-btn">Decode</button></td>
-        `;
-        return tr;
-      }
-
-      // populate rows
-      const encs = listEncodings();
-      tableBody.innerHTML = '';
-      encs.forEach(e => tableBody.appendChild(makeRow(e)));
-
-      function normalizeUuidStr(s) {
-        return s.replace(/[\s-]+/g, '').toLowerCase();
-      }
-
-      function updateTable() {
-        const val = normalizeUuidStr(sampleInput.value);
-        const reverse = reverseCheckbox.checked;
-        demoOutput.textContent = `Encoding sample: ${val}`;
-        const rows = Array.from(tableBody.querySelectorAll('tr'));
-        let minLen = Infinity;
-        rows.forEach(row => {
-          const name = row.getAttribute('data-encoding');
-          try {
-            const encoded = encodeUUIDShorthand(val, name, reverse);
-            const len = encoded.length;
-            minLen = Math.min(minLen, len);
-            row.querySelector('[data-col="encoded"]').textContent = encoded;
-            row.querySelector('[data-col="len"]').textContent = String(len);
-            // compute roundtrip immediately and display
-            try {
-              const round = decodeUUIDShorthand(encoded, name, reverse);
-              row.querySelector('[data-col="roundtrip"]').textContent = round;
-              row.querySelector('[data-col="roundtrip"]').className = 'ok';
-            } catch (err) {
-              row.querySelector('[data-col="roundtrip"]').textContent = 'error';
-              row.querySelector('[data-col="roundtrip"]').className = 'err';
-            }
-          } catch (err) {
-            row.querySelector('[data-col="encoded"]').textContent = 'err';
-            row.querySelector('[data-col="len"]').textContent = '-';
-            row.querySelector('[data-col="roundtrip"]').textContent = 'err';
-            row.querySelector('[data-col="roundtrip"]').className = 'err';
-          }
-        });
-        demoOutput.textContent = `Encoded with ${encs.length} encodings. Shortest length: ${isFinite(minLen) ? minLen : '-'} chars`;
-      }
-
-      // attach decode buttons
-      tableBody.addEventListener('click', (ev) => {
-        const btn = ev.target.closest('button.decode-btn');
-        if (!btn) return;
-        const row = btn.closest('tr');
-        const name = row.getAttribute('data-encoding');
-        const encoded = row.querySelector('[data-col="encoded"]').textContent || '';
-        try {
-          const reverse = reverseCheckbox.checked;
-          const round = decodeUUIDShorthand(encoded, name, reverse);
-          row.querySelector('[data-col="roundtrip"]').textContent = round;
-          row.querySelector('[data-col="roundtrip"]').className = 'ok';
-        } catch (err) {
-          row.querySelector('[data-col="roundtrip"]').textContent = 'error';
-          row.querySelector('[data-col="roundtrip"]').className = 'err';
-        }
-      });
-
-      encodeBtn.addEventListener('click', (e) => {
-        try {
-          updateTable();
-        } catch (err) {
-          demoOutput.textContent = 'Error: ' + err.message;
-        }
-      });
-
-      // initial render
-      updateTable();
-
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
       document.getElementById('lib-description').textContent = e.message;

@@ -1,71 +1,112 @@
 # repo
 
-This repository explores dense binary-to-text encodings for printable characters and benchmarks them against UUID encodings.
+This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests on a schedule.
 
-## Overview
+## Getting Started
 
-The library exposes a small API (named exports) from `src/lib/main.js`:
+1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
+2. **Configure GitHub** — see [Setup](#setup) below
+3. **Push to main** — the autonomous workflows take over from here
 
-- encode(encodingName, data: Uint8Array) -> string
-- decode(encodingName, text: string) -> Uint8Array
-- defineEncoding(name, charset) -> metadata
-- listEncodings() -> [{ name, charset, charsetSize, bitsPerChar }]
-- encodeUUIDShorthand(uuid, encodingName?, reverse = false) -> string
-- decodeUUIDShorthand(encoded, encodingName, reverse = false) -> uuid string
+The system will create issues from your mission, generate code to resolve them, run tests, and open PRs. A supervisor agent orchestrates the pipeline, and you can interact through GitHub Discussions.
 
-The website at `src/web/index.html` re-exports the library and shows a live demo.
+## Setup
 
-## Demo
+### Required Secrets
 
-Open `src/web/index.html` in a static server (or run `npm run start` and visit the root) to see the Encoding comparison table and an interactive encode/decode widget. The widget accepts a UUID (with or without dashes) and an optional "Reverse encoded output" checkbox — when checked the encoded output is reversed; decoding mirrors this behavior.
+Add these in your repository: **Settings → Secrets and variables → Actions → New repository secret**
 
-## UUID encoding comparison
+| Secret | How to create | Purpose |
+|--------|---------------|---------|
+| `COPILOT_GITHUB_TOKEN` | [Fine-grained PAT](https://github.com/settings/tokens?type=beta) with **GitHub Copilot** → Read permission | Authenticates with the Copilot SDK for all agentic tasks |
+| `WORKFLOW_TOKEN` | [Classic PAT](https://github.com/settings/tokens) with **workflow** scope | Allows `init.yml` to update workflow files (GITHUB_TOKEN cannot modify `.github/workflows/`) |
 
-Using the sample UUID `00112233-4455-6677-8899-aabbccddeeff` (16 bytes), the table below shows measured encoded outputs and lengths for common encodings registered in this library (computed deterministically by the library's encode function):
+### Repository Settings
 
-| Encoding | Encoded output (example) | Length |
-|---------:|:-------------------------|------:|
-| hex      | <code>00112233445566778899aabbccddeeff</code> | 32 |
-| base64 (no padding) | <code>ABEiM0RVZneImaq7zN3u/w</code> | 22 |
-| base62   | <code>07PsO2B9tnG1CEDAVcE7Z</code> | 21 |
-| base85   | <code>01T@sA}t!Ia9#$GK=@o0</code> | 20 |
-| base91   | <code>!M3xBlD/v'3M^\P(My{</code> | 19 |
-| ascii-printable-no-ambiguous | <code>!eQfthbMcw!TGv(`fTd</code> | 19 |
+| Setting | Where | Value |
+|---------|-------|-------|
+| GitHub Actions | Settings → Actions → General | Allow all actions |
+| Workflow permissions | Settings → Actions → General | Read and write permissions |
+| Allow GitHub Actions to create PRs | Settings → Actions → General | Checked |
+| GitHub Discussions | Settings → General → Features | Enabled (for the discussions bot) |
 
-The densest registered encodings (base91 and the high-density ASCII variant) produce 19 characters for this 16-byte UUID, which is fewer than base64's 22 characters.
+### Optional: Branch Protection
 
-## Reverse behavior for UUID shorthand
+For production repositories, consider adding branch protection on `main`:
+- Require pull request reviews before merging
+- Require status checks to pass (select the `test` workflow)
 
-The `encodeUUIDShorthand` and `decodeUUIDShorthand` functions accept an optional `reverse` boolean (third parameter). When `reverse` is true the encoded output is reversed (string reversed) and `decodeUUIDShorthand` will reverse before decoding. The default is `false` to preserve backward compatibility.
+## How It Works
 
-## Example usage
-
-```js
-import { encode, decode, listEncodings } from './src/lib/main.js';
-
-const encs = listEncodings();
-console.log(encs.map(e => `${e.name}: ${e.charsetSize} chars, ${e.bitsPerChar.toFixed(3)} bits/char`));
-
-const data = new Uint8Array([1,2,3,4]);
-const s = encode('base62', data);
-const back = decode('base62', s);
-console.log(s, back);
+```
+MISSION.md → [supervisor] → dispatch workflows → Issue → Code → Test → PR → Merge
+                                                    ↑                          |
+                                                    +——————————————————————————+
 ```
 
-## Charset sanitisation
+The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context (issues, PRs, workflow runs, features) and strategically dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
 
-When defining custom encodings with `defineEncoding(name, charset)` the library validates the supplied charset:
+## File Layout
 
-- Control characters (U+0000..U+001F, U+007F) and any whitespace are rejected and cause defineEncoding to throw.
-- Visually ambiguous characters are removed from the charset before registration: `0`, `O`, `1`, `l`, `I` are stripped.
-- If the charset becomes invalid after sanitisation (fewer than 2 unique characters) an error is thrown.
+```
+src/lib/main.js              ← library (browser-safe: identity + mission functions)
+src/web/index.html            ← web page (imports ./lib.js)
+src/web/lib.js                ← browser entry point (re-exports from ../lib/main.js)
+tests/unit/main.test.js       ← unit tests (import main.js directly, test API-level detail)
+tests/unit/web.test.js        ← web structure tests (read index.html as text, verify wiring)
+tests/behaviour/              ← Playwright E2E (serve from project root, import main.js for coupling)
+docs/                         ← build output (generated by npm run build:web)
+docs/lib.js                   ← generated: self-contained module for GitHub Pages
+```
 
-This ensures encodings use only safe, printable, and unambiguous characters by default.
+These files form a **coupled unit**. The library works in both Node and the browser:
 
-## Tests
+- `src/lib/main.js` is browser-safe — in Node it reads `package.json` via `createRequire`, in the browser via `fetch`
+- `src/web/lib.js` re-exports from `../lib/main.js` — the page imports the **real library**, not a generated copy
+- `src/web/index.html` imports `./lib.js` → displays library identity on the page
+- The behaviour test imports `getIdentity()` from `main.js` AND reads `#lib-version` from the rendered page → asserts they match
+- `npm run build:web` generates `docs/lib.js` as a self-contained module for production (GitHub Pages)
 
-See docs/reports/tests-passing.md for test results.
+This coupling proves the web page consumes the real library. Mission-specific functions should follow the same path — never duplicate library logic inline in the web page.
 
-## License
+## Test Strategy
 
-MIT
+| Test layer | What it tests | How it binds |
+|------------|--------------|--------------|
+| **Unit tests** (`tests/unit/main.test.js`) | Library API: return values, error types, edge cases | Imports directly from `src/lib/main.js` |
+| **Web structure tests** (`tests/unit/web.test.js`) | HTML structure: expected elements, `lib.js` re-export | Reads `src/web/index.html` and `src/web/lib.js` as text |
+| **Behaviour tests** (`tests/behaviour/`) | End-to-end: page renders, displays real library values | Playwright serves from project root; coupling test imports `getIdentity()` from `main.js` and asserts the page displays the same version |
+
+The **coupling test** in the behaviour test is the key invariant: it proves the web page displays values from the actual library, not hardcoded or duplicated values. The page imports `lib.js` which re-exports from `main.js` which reads `package.json` — the same chain the unit tests exercise.
+
+## Configuration
+
+Edit `agentic-lib.toml` to tune the system:
+
+```toml
+[schedule]
+supervisor = "daily"    # off | weekly | daily | hourly | continuous
+
+[paths]
+mission = "MISSION.md"
+source = "src/lib/"
+tests = "tests/unit/"
+
+[limits]
+max-feature-issues = 2      # max concurrent feature issues
+max-attempts-per-issue = 2   # max retries per issue
+```
+
+## Updating
+
+The `init.yml` workflow runs daily and updates the agentic infrastructure automatically. To update manually:
+
+```bash
+npx @xn-intenton-z2a/agentic-lib@latest init
+```
+
+## Links
+
+- [MISSION.md](MISSION.md) — your project goals
+- [agentic-lib documentation](https://github.com/xn-intenton-z2a/agentic-lib) — full SDK docs
+- [intentïon website](https://xn--intenton-z2a.com)
