@@ -1,7 +1,9 @@
 # HAMMING_DOCS
 
-Status: MERGED / DEPRECATED
+Status: REMOVED — merged into README.md and HAMMING_DISTANCE.md
 
-User-facing documentation updates (CLI examples, BigInt examples, and Unicode notes) have been incorporated into README.md and the web demo (src/web/index.html).
+Summary
+Documentation updates that were previously maintained here have been consolidated into README.md and HAMMING_DISTANCE.md. This file is retained only as a historical note and no longer contains the authoritative docs.
 
-See README.md for CLI usage, BigInt examples, and a short Unicode handling note. This feature file is retained only for historical context and is no longer the active source of truth.
+Action
+See README.md for user-facing examples and the web demo, and HAMMING_DISTANCE.md for implementation-specific documentation and acceptance criteria.
