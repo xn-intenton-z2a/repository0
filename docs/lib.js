@@ -27,18 +27,54 @@ export function hammingDistanceString(a, b) {
 }
 
 export function hammingDistanceInt(a, b) {
-  if (typeof a !== "number" || typeof b !== "number" || !Number.isInteger(a) || !Number.isInteger(b)) {
-    throw new TypeError("hammingDistanceInt: both arguments must be integer numbers");
+  const ta = typeof a;
+  const tb = typeof b;
+
+  const isNumberA = ta === "number";
+  const isNumberB = tb === "number";
+  const isBigIntA = ta === "bigint";
+  const isBigIntB = tb === "bigint";
+
+  if (!((isNumberA || isBigIntA) && (isNumberB || isBigIntB))) {
+    throw new TypeError("hammingDistanceInt: both arguments must be Number (integer) or BigInt");
   }
-  if (a < 0 || b < 0) {
-    throw new RangeError("hammingDistanceInt: arguments must be non-negative");
+
+  if (isNumberA) {
+    if (!Number.isInteger(a) || Number.isNaN(a)) {
+      throw new TypeError("hammingDistanceInt: Number arguments must be integers");
+    }
+    if (a < 0) {
+      throw new RangeError("hammingDistanceInt: arguments must be non-negative");
+    }
+  } else {
+    // BigInt
+    if (a < 0n) {
+      throw new RangeError("hammingDistanceInt: arguments must be non-negative");
+    }
   }
-  // Use BigInt for XOR and popcount to avoid 32-bit truncation from JS bitwise ops
-  let x = BigInt(a) ^ BigInt(b);
-  let count = 0n;
+
+  if (isNumberB) {
+    if (!Number.isInteger(b) || Number.isNaN(b)) {
+      throw new TypeError("hammingDistanceInt: Number arguments must be integers");
+    }
+    if (b < 0) {
+      throw new RangeError("hammingDistanceInt: arguments must be non-negative");
+    }
+  } else {
+    if (b < 0n) {
+      throw new RangeError("hammingDistanceInt: arguments must be non-negative");
+    }
+  }
+
+  const aBig = isBigIntA ? a : BigInt(a);
+  const bBig = isBigIntB ? b : BigInt(b);
+
+  let x = aBig ^ bBig;
+  let count = 0;
   while (x > 0n) {
-    count += x & 1n;
-    x >>= 1n;
+    // Kernighan's bit-counting trick
+    x &= x - 1n;
+    count++;
   }
-  return Number(count);
+  return count;
 }
