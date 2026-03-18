@@ -9,3 +9,6 @@ Reference material and documentation sources for this project.
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+- https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
+- https://262.ecma-international.org/13.0/#sec-string.prototype-@@iterator
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/normalize
