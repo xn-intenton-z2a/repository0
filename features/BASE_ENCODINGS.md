@@ -1,6 +1,6 @@
 # BASE_ENCODINGS
 
-Status: Done (built-ins: base62, base85, base91, ascii-printable-no-ambiguous)
+Status: Implemented — archived (implemented in src/lib/main.js; tests present)
 
 Overview
 

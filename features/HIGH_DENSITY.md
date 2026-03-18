@@ -1,6 +1,6 @@
 # HIGH_DENSITY
 
-Status: Done (builtin: ascii-printable-no-ambiguous)
+Status: Implemented — archived (implemented in src/lib/main.js; tests present)
 
 Overview
 

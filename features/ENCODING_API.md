@@ -1,6 +1,6 @@
 # ENCODING_API
 
-Status: Done (implemented in src/lib/main.js)
+Status: Implemented — archived (implemented in src/lib/main.js; tests present)
 
 Overview
 

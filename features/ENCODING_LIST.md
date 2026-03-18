@@ -1,6 +1,6 @@
 # ENCODING_LIST
 
-Status: Done (listEncodings in src/lib/main.js)
+Status: Implemented — archived (implemented in src/lib/main.js; tests present)
 
 Overview
 

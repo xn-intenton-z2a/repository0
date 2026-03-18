@@ -1,6 +1,6 @@
 # ROUNDTRIP_TESTS
 
-Status: Done (tests/unit/encoding.test.js)
+Status: Implemented — archived (tests present in tests/unit/encoding.test.js)
 
 Overview
 
