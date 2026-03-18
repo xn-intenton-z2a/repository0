@@ -22,12 +22,18 @@ This repository provides two Hamming distance functions exported from `src/lib/m
     - `hammingDistanceString("", "") // => 0`
 
 - `hammingDistanceInt(a, b)` — computes the bit-level Hamming distance between two non-negative integers.
-  - Throws `TypeError` if either argument is not an integer Number.
+  - Accepts `Number` integers and `BigInt` values and supports mixing `Number`/`BigInt` inputs.
+  - Throws `TypeError` if either argument is not an integer Number or BigInt.
   - Throws `RangeError` if an argument is negative.
-  - Uses `BigInt` internally to compute differing bits; results are correct for integer values within JavaScript's Number precision range.
-  - Example:
-    - `hammingDistanceInt(1, 4) // => 2` (binary: 001 vs 100)
-    - `hammingDistanceInt(0, 0) // => 0`
+  - Uses `BigInt` internally to compute differing bits and returns a JavaScript `Number` count.
+  - Examples:
+    - `hammingDistanceInt(0n, 3n) // => 2`
+    - `hammingDistanceInt(3, 3n) // => 0` (mixing Number and BigInt)
+    - `hammingDistanceInt(9007199254740992n, 9007199254740993n) // => 1`
+
+Error semantics
+- `TypeError` is thrown when arguments are of the wrong type (e.g., non-string for `hammingDistanceString`, or non-integer/non-BigInt for `hammingDistanceInt`).
+- `RangeError` is thrown for negative integers and for strings whose Unicode code-point lengths differ.
 
 Usage (Node):
 
@@ -35,24 +41,20 @@ Usage (Node):
 import { hammingDistanceString, hammingDistanceInt } from './src/lib/main.js';
 
 console.log(hammingDistanceString('karolin', 'kathrin')); // 3
-console.log(hammingDistanceInt(1, 4)); // 2
+console.log(hammingDistanceInt(0n, 3n)); // 2
+console.log(hammingDistanceInt(3, 3n)); // 0
 ```
 
 Usage (browser):
 
-The website at `src/web/index.html` imports `src/web/lib.js` which re-exports the library for demo purposes. The page displays the library identity and a small Hamming demo.
+Open `src/web/index.html` in a browser (or run `npm run start` after building). The demo page showcases string, integer, BigInt and Unicode examples and shows a mission-status validation banner when counters disagree.
 
-## Setup
+## Mission completion validation
 
-Follow the instructions in the repository root to run tests and view the demo locally.
+See `docs/mission-completion-validation.md` for details about the validator helpers and a small CLI wrapper in `src/lib/validate-mission-logs.js`.
 
 ## Tests
 
 - Unit tests: `npm test` (runs Vitest unit tests in `tests/unit/`)
 - Behaviour tests: `npm run test:behaviour` (runs Playwright tests in `tests/behaviour/`)
-
-## See Also
-
-- `MISSION.md` — the project mission
-- `features/HAMMING_DISTANCE.md` — background and references
 

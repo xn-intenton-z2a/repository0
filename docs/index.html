@@ -17,6 +17,7 @@
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
     .hamming { margin-top: 1rem; }
     .hamming dd { font-family: monospace; background: #f6f8fa; padding: 0.5rem; border-radius: 4px; display: inline-block; }
+    #mission-discrepancy { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 0.75rem; margin-top: 1rem; border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -37,16 +38,33 @@
     <dl>
       <dt>String hamming ("karolin" vs "kathrin")</dt>
       <dd id="hamming-string-result">computing...</dd>
+
       <dt>Integer hamming (1 vs 4)</dt>
       <dd id="hamming-int-result">computing...</dd>
+
+      <dt>BigInt hamming (0n vs 3n)</dt>
+      <dd id="hamming-bigint-result">computing...</dd>
+
+      <dt>Mixed Number/BigInt hamming (3 vs 3n)</dt>
+      <dd id="hamming-mix-result">computing...</dd>
+
+      <dt>Large BigInt hamming (2^53 vs 2^53 + 1)</dt>
+      <dd id="hamming-large-result">computing...</dd>
+
+      <dt>Unicode hamming ("😊" vs "😢")</dt>
+      <dd id="hamming-unicode-result">computing...</dd>
     </dl>
   </div>
+
+  <h2>Mission status</h2>
+  <div id="mission-status" data-passed="0" data-total="1">Acceptance: <span id="mission-counters">0/1</span></div>
+  <div id="mission-discrepancy" role="alert" aria-live="polite" style="display:none">Mission status mismatch detected</div>
 
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
     try {
-      const { name, version, description, hammingDistanceString, hammingDistanceInt } = await import('./lib.js');
+      const { name, version, description, hammingDistanceString, hammingDistanceInt, isMissionComplete } = await import('./lib.js');
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
@@ -55,17 +73,63 @@
 
       // Hamming demo outputs
       try {
-        const s = hammingDistanceString('karolin', 'kathrin');
-        document.getElementById('hamming-string-result').textContent = String(s);
+        document.getElementById('hamming-string-result').textContent = String(hammingDistanceString('karolin', 'kathrin'));
       } catch (e) {
         document.getElementById('hamming-string-result').textContent = e.name + ': ' + e.message;
       }
 
       try {
-        const i = hammingDistanceInt(1, 4);
-        document.getElementById('hamming-int-result').textContent = String(i);
+        document.getElementById('hamming-int-result').textContent = String(hammingDistanceInt(1, 4));
       } catch (e) {
         document.getElementById('hamming-int-result').textContent = e.name + ': ' + e.message;
+      }
+
+      try {
+        document.getElementById('hamming-bigint-result').textContent = String(hammingDistanceInt(0n, 3n));
+      } catch (e) {
+        document.getElementById('hamming-bigint-result').textContent = e.name + ': ' + e.message;
+      }
+
+      try {
+        document.getElementById('hamming-mix-result').textContent = String(hammingDistanceInt(3, 3n));
+      } catch (e) {
+        document.getElementById('hamming-mix-result').textContent = e.name + ': ' + e.message;
+      }
+
+      try {
+        const a = 9007199254740992n;
+        const b = 9007199254740993n;
+        document.getElementById('hamming-large-result').textContent = String(hammingDistanceInt(a, b));
+      } catch (e) {
+        document.getElementById('hamming-large-result').textContent = e.name + ': ' + e.message;
+      }
+
+      try {
+        document.getElementById('hamming-unicode-result').textContent = String(hammingDistanceString('😊', '😢'));
+      } catch (e) {
+        document.getElementById('hamming-unicode-result').textContent = e.name + ': ' + e.message;
+      }
+
+      // Mission status validation demo
+      try {
+        const ms = document.getElementById('mission-status');
+        const passed = Number(ms.dataset.passed || 0);
+        const total = Number(ms.dataset.total || 0);
+        document.getElementById('mission-counters').textContent = `${passed}/${total}`;
+        const discrepancyEl = document.getElementById('mission-discrepancy');
+        try {
+          if (!isMissionComplete({ passed, total })) {
+            discrepancyEl.style.display = 'block';
+            discrepancyEl.textContent = 'Mission status mismatch detected';
+          } else {
+            discrepancyEl.style.display = 'none';
+          }
+        } catch (e) {
+          discrepancyEl.style.display = 'block';
+          discrepancyEl.textContent = 'Mission validation error: ' + e.message;
+        }
+      } catch (e) {
+        // ignore mission status UI errors
       }
 
     } catch (e) {
