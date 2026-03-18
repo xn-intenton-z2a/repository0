@@ -36,9 +36,9 @@ test = "npm ci && npm test"
 # library-limit = 32
 
 [tuning]
-# Profile sets defaults for all tuning and limit knobs: min | recommended | max
+# Profile sets defaults for all tuning and limit knobs: min | med | max
 # Profile definitions live in [profiles.*] sections below.
-profile = "recommended"
+profile = "max"
 #
 # Model selection — each has different strengths:
 #   gpt-5-mini      — Fast, cheap, supports reasoning-effort. Best for CI and iteration.
@@ -55,6 +55,13 @@ infinite-sessions = false        # set to true for long sessions with compaction
 # max-issues = 5
 # stale-days = 14
 # max-discussion-comments = 5
+# session-timeout-ms = 480000    # LLM session timeout in ms (should be < workflow step timeout)
+# max-tokens = 200000            # token budget — controls max tool calls (tokens / 5000)
+# max-read-chars = 20000         # max chars per read_file result
+# max-test-output = 4000         # max chars of test output in prompts
+# max-file-listing = 30          # max files in directory listings (0 = unlimited)
+# max-library-index = 2000       # max chars for library index summary
+# max-fix-test-output = 8000     # max chars of failed run log in fix-code
 
 # ─── Profile Definitions ────────────────────────────────────────────
 # Each profile defines tuning and limits defaults. The active profile
@@ -75,9 +82,16 @@ max-attempts-per-branch = 2               # max transform attempts before abando
 max-attempts-per-issue = 1                 # max transform attempts before abandoning an issue
 features-limit = 2                     # max feature files in features/ directory
 library-limit = 8                      # max library entries in library/ directory
+session-timeout-ms = 480000            # LLM session timeout in ms (8 min, below 10-min workflow step)
+max-tokens = 200000                    # token budget for tool-call cap calculation
+max-read-chars = 20000                 # max chars returned from read_file tool
+max-test-output = 4000                 # max chars of test output in prompts
+max-file-listing = 30                  # max files in directory listings (0 = unlimited)
+max-library-index = 2000               # max chars for library index in prompts
+max-fix-test-output = 8000             # max chars of failed run log in fix-code
 
-[profiles.recommended]
-# Balanced — good results, default for consumer repos.
+[profiles.med]
+# Balanced — good results, middle ground.
 reasoning-effort = "medium"            # low | medium | high | none
 infinite-sessions = true               # enable session compaction for long runs
 transformation-budget = 32             # max code-changing cycles per run
@@ -90,6 +104,13 @@ max-attempts-per-branch = 3               # max transform attempts before abando
 max-attempts-per-issue = 2                 # max transform attempts before abandoning an issue
 features-limit = 4                     # max feature files in features/ directory
 library-limit = 32                     # max library entries in library/ directory
+session-timeout-ms = 480000            # LLM session timeout in ms (8 min, below 10-min workflow step)
+max-tokens = 200000                    # token budget for tool-call cap calculation
+max-read-chars = 50000                 # max chars returned from read_file tool
+max-test-output = 10000                # max chars of test output in prompts
+max-file-listing = 100                 # max files in directory listings (0 = unlimited)
+max-library-index = 5000               # max chars for library index in prompts
+max-fix-test-output = 15000            # max chars of failed run log in fix-code
 
 [profiles.max]
 # Thorough — maximum context for complex missions.
@@ -105,6 +126,18 @@ max-attempts-per-branch = 5               # max transform attempts before abando
 max-attempts-per-issue = 4                 # max transform attempts before abandoning an issue
 features-limit = 8                     # max feature files in features/ directory
 library-limit = 64                     # max library entries in library/ directory
+session-timeout-ms = 480000            # LLM session timeout in ms (8 min, below 10-min workflow step)
+max-tokens = 500000                    # token budget for tool-call cap calculation
+max-read-chars = 100000                # max chars returned from read_file tool
+max-test-output = 20000                # max chars of test output in prompts
+max-file-listing = 0                   # max files in directory listings (0 = unlimited)
+max-library-index = 10000              # max chars for library index in prompts
+max-fix-test-output = 30000            # max chars of failed run log in fix-code
+
+[goals]
+# W12/W13: Code coverage thresholds — stated in all code-changing prompts
+min-line-coverage = 50             # minimum % line coverage required
+min-branch-coverage = 30           # minimum % branch coverage required
 
 [mission-complete]
 # Thresholds for deterministic mission-complete declaration.
@@ -119,7 +152,7 @@ log-branch = "agentic-lib-logs"
 screenshot-file = "SCREENSHOT_INDEX.png"
 
 [init]
-timestamp = "2026-03-17T03:32:06.403Z"
+timestamp = "2026-03-18T02:05:48.579Z"
 mode = "purge"
-mission = "6-kyu-understand-hamming-distance"
-version = "7.4.23"
+mission = "4-kyu-apply-dense-encoding"
+version = "7.4.24"
