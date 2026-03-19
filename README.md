@@ -10,6 +10,22 @@ This repository is powered by [intentïon agentic-lib](https://github.com/xn-int
 
 The system will create issues from your mission, generate code to resolve them, run tests, and open PRs. A supervisor agent orchestrates the pipeline, and you can interact through GitHub Discussions.
 
+## Hamming distance API
+
+This library provides two named exports for computing Hamming distances:
+
+- `hammingString(a, b)` — compares two strings by Unicode code points and returns the number of differing positions.
+  - Throws `TypeError` if either argument is not a string.
+  - Throws `RangeError` if the strings differ in length (counting Unicode code points).
+  - Example: `hammingString("karolin", "kathrin") === 3`
+
+- `hammingBits(a, b)` — compares two non-negative integers and returns the number of differing bits.
+  - Throws `TypeError` if either argument is not an integer.
+  - Throws `RangeError` if either argument is negative.
+  - Example: `hammingBits(1, 4) === 2` (1 -> 001, 4 -> 100)
+
+These functions are exported from `src/lib/main.js` and re-exported to the browser via `src/web/lib.js`.
+
 ## Setup
 
 ### Required Secrets
