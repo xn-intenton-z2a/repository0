@@ -6,7 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "off"              # off | weekly | daily | hourly | continuous
+supervisor = "continuous"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -152,7 +152,7 @@ log-branch = "agentic-lib-logs"
 screenshot-file = "SCREENSHOT_INDEX.png"
 
 [init]
-timestamp = "2026-03-19T02:58:55.222Z"
+timestamp = "2026-03-19T09:08:22.900Z"
 mode = "purge"
-mission = "4-kyu-apply-dense-encoding"
+mission = "2-kyu-create-plot-code-lib"
 version = "7.4.32"

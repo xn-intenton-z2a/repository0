@@ -1,40 +1,43 @@
 # Mission
 
-A JavaScript library that explores the frontier of binary-to-text encoding density using printable characters. The benchmark: produce the shortest possible printable representation of a v7 UUID.
+A JavaScript library and CLI tool for generating plots from mathematical expressions and time series data. Produces SVG and PNG output files.
 
 ## Required Capabilities
 
-- Encode and decode arbitrary binary data (`Uint8Array`) using a named encoding.
-- Shorthand for UUID encoding: strip dashes from a UUID string, encode the 16 bytes, and reverse.
-- Define custom encodings from a character set string.
-- List available encodings with their bit density and charset info.
+- Parse a mathematical expression string using JavaScript `Math` functions (e.g. `"y=Math.sin(x)"`, `"y=x*x+2*x-1"`) into an evaluatable function.
+- Evaluate an expression over a numeric range (`start:step:end`) and return an array of data points.
+- Load time series data from a CSV file with columns `time,value`.
+- Render a data series to SVG 1.1 using `<polyline>` elements with a `viewBox` attribute.
+- Render a data series to PNG (canvas-based or via SVG conversion — document the approach in the README).
+- Save a plot to a file, inferring format from extension (`.svg` or `.png`).
 
-## Built-in Encodings
+## CLI
 
-The library should implement progressively denser encodings:
+```
+node src/lib/main.js --expression "y=Math.sin(x)" --range "-3.14:0.01:3.14" --file output.svg
+node src/lib/main.js --csv data.csv --file output.png
+node src/lib/main.js --help
+```
 
-- `base62` — `[0-9a-zA-Z]`, ~5.95 bits/char, URL-safe, 22 chars for a UUID
-- `base85` (Ascii85/Z85) — ~6.41 bits/char, 20 chars for a UUID
-- `base91` — ~6.50 bits/char, ~20 chars for a UUID
-- Optionally: custom higher bases using printable ASCII characters U+0021–U+007E (excluding space), omitting ambiguous characters (`0`/`O`, `1`/`l`/`I`)
+Range format: `start:step:end` (e.g. `-3.14:0.01:3.14`).
+
+The `--help` flag prints usage examples and exits.
 
 ## Requirements
 
-- Round-trip property: decoding an encoded value must equal the original for all inputs and all encodings.
-- No control characters. Exclude visually ambiguous characters (`0`/`O`, `1`/`l`/`I`) from custom charsets.
-- Input type for encode/decode is `Uint8Array`.
-- Baseline comparison: UUID hex = 32 chars, base64 (no padding) = 22 chars. The densest encoding should produce fewer than 22 characters for a UUID.
-- Test across edge cases: all-zero bytes, all-0xFF bytes, single byte, empty buffer.
-- Compare encoded UUID lengths across all encodings.
 - Export all public API as named exports from `src/lib/main.js`.
-- README with UUID encoding comparison table.
+- SVG output must be valid SVG 1.1 with a `viewBox` attribute.
+- External dependencies allowed only for PNG rendering (e.g. `canvas`, `sharp`). Expression parsing must use built-in JavaScript `Math` — no external math libraries.
+- Comprehensive unit tests covering expression parsing, series generation, SVG structure, and CLI flags.
+- README with example commands and sample output descriptions.
 
 ## Acceptance Criteria
 
-- [ ] At least 3 working encodings (base62, base85, one higher)
-- [ ] Round-trip correct for arbitrary binary data including edge cases
-- [ ] UUID encoding shorter than base64 (< 22 chars) for the densest encoding
-- [ ] Listing encodings returns encoding metadata (name, bits/char, charset size)
-- [ ] Custom encoding can be created from a charset string
+- [ ] Parsing `"y=Math.sin(x)"` returns a callable function
+- [ ] Evaluating over range `-3.14:0.01:3.14` returns ~628 data points
+- [ ] SVG output contains `<polyline>` and `viewBox` attributes
+- [ ] PNG output starts with the PNG magic bytes
+- [ ] CLI `--expression "y=Math.sin(x)" --range "-3.14:0.01:3.14" --file output.svg` produces a file
+- [ ] CLI `--help` prints usage information
 - [ ] All unit tests pass
-- [x] README shows UUID encoding comparison table
+- [ ] README documents CLI usage with examples
