@@ -1,30 +1,26 @@
 # Mission
 
-A JavaScript library for converting between integers and Roman numeral strings.
+A JavaScript library exporting FizzBuzz functions. This is the simplest possible mission — if the pipeline can't complete this and stop, something is fundamentally broken.
 
-## Required Capabilities
+## Core Functions
 
-- Convert an integer (1–3999) to its Roman numeral representation using subtractive notation (IV, IX, XL, XC, CD, CM).
-- Convert a Roman numeral string back to an integer.
-- The round-trip property must hold: converting to Roman and back yields the original integer for all valid values.
+- `fizzBuzz(n)` — return an array of strings from 1 to n, replacing multiples of 3 with "Fizz", multiples of 5 with "Buzz", and multiples of both with "FizzBuzz".
+- `fizzBuzzSingle(n)` — return the FizzBuzz string for a single positive integer.
 
 ## Requirements
 
-- Throw `RangeError` for numbers outside 1–3999.
-- Throw `TypeError` for invalid Roman numeral strings.
-- Handle subtractive notation correctly (e.g. IV = 4, not IIII).
-- Export all public API as named exports from `src/lib/main.js`.
-- Comprehensive unit tests including boundary values (1, 3999), subtractive cases, and invalid inputs.
-- README with usage examples and conversion table.
+- Handle edge cases: `n = 0` returns an empty array, negative numbers throw `RangeError`, non-integers throw `TypeError`.
+- Export both functions as named exports from `src/lib/main.js`.
+- Comprehensive unit tests covering normal operation and all edge cases.
+- README with usage examples.
 
 ## Acceptance Criteria
 
-- [ ] Converting `1994` to Roman produces `"MCMXCIV"`
-- [ ] Converting `"MCMXCIV"` from Roman produces `1994`
-- [ ] Converting `4` to Roman produces `"IV"`
-- [ ] Round-trip holds for all n in 1–3999
-- [ ] Converting `0` to Roman throws `RangeError`
-- [ ] Converting `4000` to Roman throws `RangeError`
-- [ ] Converting `"IIII"` from Roman throws `TypeError` (strict: only subtractive notation accepted)
+- [ ] `fizzBuzz(15)` returns the correct 15-element array ending with "FizzBuzz"
+- [ ] `fizzBuzzSingle(3)` returns "Fizz"
+- [ ] `fizzBuzzSingle(5)` returns "Buzz"
+- [ ] `fizzBuzzSingle(15)` returns "FizzBuzz"
+- [ ] `fizzBuzzSingle(7)` returns "7"
+- [ ] `fizzBuzz(0)` returns `[]`
 - [ ] All unit tests pass
 - [ ] README documents usage with examples
