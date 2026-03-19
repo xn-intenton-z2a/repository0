@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2025-2026 Polycode Limited
+// src/lib/main.js
 
 const isNode = typeof process !== "undefined" && !!process.versions?.node;
 
@@ -8,11 +9,7 @@ let pkg;
 if (isNode) {
   const { createRequire } = await import("module");
   const requireFn = createRequire(import.meta.url);
-  try {
-    pkg = requireFn("../../package.json");
-  } catch {
-    pkg = { name: "repo", version: "0.0.0", description: "" };
-  }
+  pkg = requireFn("../../package.json");
 } else {
   try {
     const resp = await fetch(new URL("../../package.json", import.meta.url));
@@ -24,327 +21,28 @@ if (isNode) {
 
 export const name = pkg.name;
 export const version = pkg.version;
-export const description = pkg.description || "";
+export const description = pkg.description;
 
 export function getIdentity() {
   return { name, version, description };
 }
 
-// Parse an expression string like "y=Math.sin(x)" into a callable function f(x)
-export function parseExpression(exprStr) {
-  if (typeof exprStr !== "string") throw new TypeError("exprStr must be a string");
-  const eq = exprStr.indexOf("=");
-  const rhs = (eq >= 0 ? exprStr.slice(eq + 1) : exprStr).trim();
-  if (!rhs) throw new Error("No expression provided");
-  try {
-    // Create a function that receives Math and x to avoid leaking globals
-    const fn = new Function("Math", "x", "return (" + rhs + ");");
-    return (x) => fn(Math, x);
-  } catch (err) {
-    throw new SyntaxError("Invalid expression: " + err.message);
-  }
-}
-
-// Generate a series from a range string start:step:end, returning [{x,y}, ...]
-export function generateSeriesFromRange(rangeStr, exprFn = null) {
-  if (typeof rangeStr !== "string") throw new TypeError("rangeStr must be a string");
-  const parts = rangeStr.split(":").map((p) => p.trim());
-  if (parts.length !== 3) throw new Error("Range must be in format start:step:end");
-  const start = Number(parts[0]);
-  const step = Number(parts[1]);
-  const end = Number(parts[2]);
-  if (!isFinite(start) || !isFinite(step) || !isFinite(end) || step === 0) throw new Error("Invalid range numbers");
-
-  const series = [];
-  // Prevent infinite loops and account for floating point drift
-  const maxSteps = 10_000_000;
-  let x = start;
-  let i = 0;
-  const eps = Math.abs(step) * 1e-12 + Number.EPSILON;
-  const forward = step > 0;
-  while ((forward && x <= end + eps) || (!forward && x >= end - eps)) {
-    let y = null;
-    try {
-      y = exprFn ? exprFn(x) : null;
-    } catch (e) {
-      y = NaN;
-    }
-    series.push({ x: Number(x), y: typeof y === "number" && isFinite(y) ? Number(y) : y });
-    x = Number((x + step).toPrecision(12));
-    i += 1;
-    if (i > maxSteps) throw new Error("Range produced too many steps");
-  }
-  return series;
-}
-
-// Load CSV from a file path (Node) or parse CSV content string. Expects time,value per line
-export async function loadCSV(pathOrContent) {
-  if (typeof pathOrContent !== "string") throw new TypeError("pathOrContent must be a string");
-  let content = pathOrContent;
-  if (isNode) {
-    try {
-      const { existsSync, readFileSync } = await import("fs");
-      if (existsSync(pathOrContent)) {
-        content = readFileSync(pathOrContent, "utf8");
-      }
-    } catch (e) {
-      // fall back to treating input as CSV content
-    }
-  }
-  const lines = content.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length);
-  const data = [];
-  let startLine = 0;
-  if (lines.length > 0) {
-    const first = lines[0].split(",");
-    if (first.length >= 2 && (isNaN(Number(first[0])) || /time/i.test(first[0]) || /value/i.test(first[1]))) {
-      startLine = 1;
-    }
-  }
-  for (let i = startLine; i < lines.length; i++) {
-    const parts = lines[i].split(",").map((p) => p.trim());
-    if (parts.length < 2) continue;
-    const time = Number(parts[0]);
-    const value = Number(parts[1]);
-    data.push({ time, value });
-  }
-  return data;
-}
-
-// Render a series to SVG string using <polyline> and viewBox
-export function renderSVG(series, opts = {}) {
-  const width = opts.width || 800;
-  const height = opts.height || 400;
-  const stroke = opts.stroke || "black";
-  const strokeWidth = opts.strokeWidth || 1;
-  const fill = opts.fill || "none";
-
-  if (!Array.isArray(series) || series.length === 0) {
-    // Empty SVG placeholder
-    return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}"></svg>`;
-  }
-
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  for (const p of series) {
-    if (typeof p.x === "number") {
-      if (p.x < minX) minX = p.x;
-      if (p.x > maxX) maxX = p.x;
-    }
-    if (typeof p.y === "number") {
-      if (p.y < minY) minY = p.y;
-      if (p.y > maxY) maxY = p.y;
-    }
-  }
-  if (!isFinite(minX) || !isFinite(maxX)) { minX = 0; maxX = series.length - 1; }
-  if (!isFinite(minY) || !isFinite(maxY)) { minY = -1; maxY = 1; }
-  if (minX === maxX) { maxX = minX + 1; }
-  if (minY === maxY) { maxY = minY + 1; }
-
-  const points = series.map((p) => {
-    const xNorm = (p.x - minX) / (maxX - minX);
-    const yNorm = (typeof p.y === "number" ? (p.y - minY) / (maxY - minY) : 0.5);
-    const px = xNorm * width;
-    const py = height - yNorm * height;
-    return `${px.toFixed(2)},${py.toFixed(2)}`;
-  }).join(" ");
-
-  const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">\n  <polyline fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" points="${points}" />\n</svg>`;
-  return svg;
-}
-
-// Helper: simple CRC32 implementation for PNG chunk CRCs
-function crc32(buf) {
-  const table = crc32._table || (crc32._table = (function () {
-    const t = new Uint32Array(256);
-    for (let i = 0; i < 256; i++) {
-      let c = i;
-      for (let k = 0; k < 8; k++) {
-        c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
-      }
-      t[i] = c >>> 0;
-    }
-    return t;
-  })());
-  let c = 0xffffffff;
-  for (let i = 0; i < buf.length; i++) {
-    c = table[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
-  }
-  return (c ^ 0xffffffff) >>> 0;
-}
-
-function createChunk(type, data) {
-  const typeBuf = Buffer.from(type, "ascii");
-  const lenBuf = Buffer.alloc(4);
-  lenBuf.writeUInt32BE(data.length, 0);
-  const crcBuf = Buffer.alloc(4);
-  const crc = crc32(Buffer.concat([typeBuf, data]));
-  crcBuf.writeUInt32BE(crc, 0);
-  return Buffer.concat([lenBuf, typeBuf, data, crcBuf]);
-}
-
-// Render PNG by rasterizing the series into a simple RGB bitmap and encoding PNG (Node only)
-export async function renderPNG(series, opts = {}) {
-  if (!isNode) throw new Error("PNG rendering requires Node.js environment");
-  const zlib = await import("zlib");
-  const width = opts.width || 800;
-  const height = opts.height || 400;
-
-  // Build pixel buffer (RGB, row-major)
-  const pixels = Buffer.alloc(width * height * 3, 0xff); // white background
-
-  if (Array.isArray(series) && series.length > 0) {
-    // map series coordinates to pixel coords
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    for (const p of series) {
-      if (typeof p.x === "number") { if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x; }
-      if (typeof p.y === "number") { if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y; }
-    }
-    if (!isFinite(minX) || !isFinite(maxX)) { minX = 0; maxX = series.length - 1; }
-    if (!isFinite(minY) || !isFinite(maxY)) { minY = -1; maxY = 1; }
-    if (minX === maxX) { maxX = minX + 1; }
-    if (minY === maxY) { maxY = minY + 1; }
-    const mapped = series.map((p) => {
-      const xNorm = (p.x - minX) / (maxX - minX);
-      const yNorm = (typeof p.y === "number" ? (p.y - minY) / (maxY - minY) : 0.5);
-      const px = Math.round(xNorm * (width - 1));
-      const py = Math.round((1 - yNorm) * (height - 1));
-      return { x: px, y: py };
-    });
-
-    // Bresenham line drawing between consecutive points
-    function setPixel(x, y, r = 0, g = 0, b = 0) {
-      if (x < 0 || x >= width || y < 0 || y >= height) return;
-      const off = (y * width + x) * 3;
-      pixels[off] = r;
-      pixels[off + 1] = g;
-      pixels[off + 2] = b;
-    }
-
-    function drawLine(x0, y0, x1, y1) {
-      const dx = Math.abs(x1 - x0);
-      const sx = x0 < x1 ? 1 : -1;
-      const dy = -Math.abs(y1 - y0);
-      const sy = y0 < y1 ? 1 : -1;
-      let err = dx + dy;
-      let x = x0, y = y0;
-      while (true) {
-        setPixel(x, y, 0, 0, 0);
-        if (x === x1 && y === y1) break;
-        const e2 = 2 * err;
-        if (e2 >= dy) { err += dy; x += sx; }
-        if (e2 <= dx) { err += dx; y += sy; }
-      }
-    }
-
-    for (let i = 1; i < mapped.length; i++) {
-      const a = mapped[i - 1];
-      const b = mapped[i];
-      drawLine(a.x, a.y, b.x, b.y);
-    }
-  }
-
-  // Build raw image data with no filter per scanline
-  const rowBytes = 1 + width * 3; // filter byte + pixels
-  const raw = Buffer.alloc(rowBytes * height);
-  for (let y = 0; y < height; y++) {
-    const rowStart = y * rowBytes;
-    raw[rowStart] = 0; // filter type 0
-    const pixelStart = y * width * 3;
-    pixels.copy(raw, rowStart + 1, pixelStart, pixelStart + width * 3);
-  }
-
-  const compressed = zlib.deflateSync(raw);
-
-  // PNG structure
-  const signature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(width, 0);
-  ihdr.writeUInt32BE(height, 4);
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = 2; // color type truecolor
-  ihdr[10] = 0; // compression
-  ihdr[11] = 0; // filter
-  ihdr[12] = 0; // interlace
-
-  const ihdrChunk = createChunk("IHDR", ihdr);
-  const idatChunk = createChunk("IDAT", compressed);
-  const iendChunk = createChunk("IEND", Buffer.alloc(0));
-
-  return Buffer.concat([signature, ihdrChunk, idatChunk, iendChunk]);
-}
-
-// Save series to file, choosing format by extension (.svg or .png)
-export async function saveSeriesToFile(series, filePath, opts = {}) {
-  if (!isNode) throw new Error("File saving requires Node.js");
-  const path = await import("path");
-  const fs = await import("fs");
-  const ext = path.extname(filePath).toLowerCase();
-  if (ext === ".svg") {
-    const svg = renderSVG(series, opts);
-    fs.writeFileSync(filePath, svg, "utf8");
-    return filePath;
-  } else if (ext === ".png") {
-    const buf = await renderPNG(series, opts);
-    fs.writeFileSync(filePath, buf);
-    return filePath;
-  } else {
-    throw new Error("Unsupported output format: " + ext);
-  }
-}
-
-// Minimal CLI parsing and behaviour
-export async function main(args) {
-  const argv = Array.isArray(args) ? args : (typeof process !== "undefined" ? process.argv.slice(2) : []);
-  if (argv.includes("--version")) {
+export function main(args) {
+  if (args?.includes("--version")) {
     console.log(version);
     return;
   }
-  if (argv.includes("--identity")) {
+  if (args?.includes("--identity")) {
     console.log(JSON.stringify(getIdentity(), null, 2));
     return;
   }
-  if (argv.includes("--help") || argv.includes("-h") || argv.length === 0) {
-    const help = `Usage: node src/lib/main.js [options]\n\nOptions:\n  --expression "y=Math.sin(x)"   Expression to plot\n  --range "start:step:end"       Range for x values (e.g. -3.14:0.01:3.14)\n  --csv <file.csv>                Load time,value CSV file\n  --file <output.svg|output.png>  Output file path to save plot\n  --help                          Show this help message\n\nExamples:\n  node src/lib/main.js --expression "y=Math.sin(x)" --range "-3.14:0.01:3.14" --file output.svg\n  node src/lib/main.js --csv data.csv --file output.png`;
-    console.log(help);
-    return;
-  }
-
-  // parse flags
-  let expression = null, range = null, csv = null, outFile = null;
-  for (let i = 0; i < argv.length; i++) {
-    const a = argv[i];
-    if (a === "--expression") { expression = argv[++i]; }
-    else if (a === "--range") { range = argv[++i]; }
-    else if (a === "--csv") { csv = argv[++i]; }
-    else if (a === "--file") { outFile = argv[++i]; }
-  }
-
-  let series = [];
-  if (expression && range) {
-    const fn = parseExpression(expression);
-    series = generateSeriesFromRange(range, fn);
-  } else if (csv) {
-    const data = await loadCSV(csv);
-    series = data.map((d) => ({ x: d.time, y: d.value }));
-  } else {
-    console.log("No expression/range or csv provided. Use --help for usage.");
-    return;
-  }
-
-  if (outFile) {
-    await saveSeriesToFile(series, outFile);
-    console.log(`Wrote ${outFile}`);
-  } else {
-    // print SVG to stdout
-    const svg = renderSVG(series);
-    console.log(svg);
-  }
+  console.log(`${name}@${version}`);
 }
 
 if (isNode) {
   const { fileURLToPath } = await import("url");
   if (process.argv[1] === fileURLToPath(import.meta.url)) {
-    // executed as script
-    /* eslint-disable no-console */
-    await main();
+    const args = process.argv.slice(2);
+    main(args);
   }
 }

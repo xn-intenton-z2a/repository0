@@ -6,8 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "off"              # off | weekly | daily | hourly | continuous
-model = "gpt-5-mini"
+supervisor = "continuous"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -47,7 +46,7 @@ profile = "max"
 #   gpt-4.1         — High capability, large context. Best for thorough analysis.
 # Note: reasoning-effort only works with gpt-5-mini and o4-mini.
 # For other models it is automatically skipped.
-model = "gpt-5-mini"
+model = "claude-sonnet-4"
 #
 # Override individual knobs below. Omit or comment out to use profile defaults.
 # reasoning-effort = "low"       # low | medium | high | none (none = disable entirely)
