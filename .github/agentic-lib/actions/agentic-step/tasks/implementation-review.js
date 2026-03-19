@@ -48,7 +48,10 @@ function buildReviewPrompt(mission, config, agentInstructions, agentLogsSummary)
     "   - Tests that don't assert anything meaningful (empty/trivial)",
     "   - Features listed as done in docs but missing from code",
     "   - PRs merged without test coverage for the claimed feature",
-    "4. Call report_implementation_review with your findings.",
+    "4. Check the MISSION.md Acceptance Criteria checkboxes (`- [ ]`). For each criterion,",
+    "   if you verified it is implemented AND unit-tested, include its exact text in the",
+    "   `acceptanceCriteriaMet` array. Copy the criterion text exactly as it appears after `- [ ]`.",
+    "5. Call report_implementation_review with your findings.",
     "",
     "**You MUST call report_implementation_review exactly once.**",
   ].join("\n");
@@ -166,15 +169,47 @@ export async function implementationReview(context) {
             },
             description: "Metrics that may be misleading about actual progress",
           },
+          acceptanceCriteriaMet: {
+            type: "array",
+            items: { type: "string" },
+            description: "Exact text of each acceptance criterion from MISSION.md that is verified as implemented AND unit-tested. Copy the text after '- [ ]' exactly.",
+          },
         },
         required: ["elements", "gaps", "advice"],
       },
-      handler: async ({ elements, gaps, advice, misleadingMetrics }) => {
+      handler: async ({ elements, gaps, advice, misleadingMetrics, acceptanceCriteriaMet }) => {
         reviewResult.elements = elements || [];
         reviewResult.gaps = gaps || [];
         reviewResult.advice = advice || "";
         reviewResult.misleadingMetrics = misleadingMetrics || [];
-        return { textResultForLlm: `Review recorded: ${elements?.length || 0} elements traced, ${gaps?.length || 0} gaps found` };
+
+        // Update MISSION.md checkboxes based on verified acceptance criteria
+        const metCriteria = acceptanceCriteriaMet || [];
+        if (metCriteria.length > 0) {
+          try {
+            const missionPath = config.paths?.mission?.path || "MISSION.md";
+            const { readFileSync, writeFileSync } = await import("fs");
+            let missionContent = readFileSync(missionPath, "utf8");
+            let checkedCount = 0;
+            for (const criterionText of metCriteria) {
+              // Match the checkbox line containing this criterion text (fuzzy: trim whitespace)
+              const escaped = criterionText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").trim();
+              const re = new RegExp(`- \\[ \\] ${escaped}`);
+              if (re.test(missionContent)) {
+                missionContent = missionContent.replace(re, `- [x] ${criterionText.trim()}`);
+                checkedCount++;
+              }
+            }
+            if (checkedCount > 0) {
+              writeFileSync(missionPath, missionContent, "utf8");
+              core.info(`Updated ${checkedCount} acceptance criteria checkboxes in ${missionPath}`);
+            }
+          } catch (err) {
+            core.warning(`Could not update MISSION.md checkboxes: ${err.message}`);
+          }
+        }
+
+        return { textResultForLlm: `Review recorded: ${elements?.length || 0} elements traced, ${gaps?.length || 0} gaps found, ${metCriteria.length} criteria checked` };
       },
     });
 

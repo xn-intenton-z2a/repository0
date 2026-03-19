@@ -40,6 +40,10 @@ on:
         type: string
         required: false
         default: "false"
+      log-branch:
+        type: string
+        required: false
+        default: "agentic-lib-logs"
       ref:
         type: string
         required: false

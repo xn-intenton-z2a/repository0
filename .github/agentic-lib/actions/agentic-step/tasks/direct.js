@@ -65,7 +65,7 @@ function detectDedicatedTests() {
  * Build the metric-based mission-complete advisory string.
  * This is the mechanical check — purely rule-based, no LLM.
  */
-function buildMetricAssessment(ctx, config) {
+async function buildMetricAssessment(ctx, config) {
   const thresholds = config.missionCompleteThresholds || {};
   const minResolved = thresholds.minResolvedIssues ?? 3;
   const maxTodos = thresholds.maxSourceTodos ?? 0;
@@ -78,6 +78,12 @@ function buildMetricAssessment(ctx, config) {
   } catch { /* ignore parse errors */ }
   const criticalGaps = reviewGaps.filter((g) => g.severity === "critical");
 
+  // Acceptance criteria from MISSION.md checkboxes
+  const { countAcceptanceCriteria } = await import("../../../copilot/telemetry.js");
+  const missionPath = config.paths?.mission?.path || "MISSION.md";
+  const acceptance = countAcceptanceCriteria(missionPath);
+  const acceptanceMet = acceptance.total > 0 && acceptance.met > acceptance.total / 2;
+
   // C6: Removed "Dedicated tests" metric; using cumulative transforms instead
   const metrics = [
     { metric: "Open issues", value: ctx.issuesSummary.length, target: 0, met: ctx.issuesSummary.length === 0 },
@@ -87,6 +93,7 @@ function buildMetricAssessment(ctx, config) {
     { metric: "Cumulative transforms", value: ctx.cumulativeTransformationCost, target: 1, met: ctx.cumulativeTransformationCost >= 1 },
     { metric: "Budget", value: ctx.cumulativeTransformationCost, target: ctx.transformationBudget || "unlimited", met: !(ctx.transformationBudget > 0 && ctx.cumulativeTransformationCost >= ctx.transformationBudget) },
     { metric: "Implementation review", value: criticalGaps.length === 0 ? "No critical gaps" : `${criticalGaps.length} critical gap(s)`, target: "No critical gaps", met: criticalGaps.length === 0 },
+    { metric: "Acceptance criteria", value: acceptance.total > 0 ? `${acceptance.met}/${acceptance.total}` : "N/A", target: "> 50%", met: acceptanceMet },
   ];
 
   const allMet = metrics.every((m) => m.met);
@@ -158,6 +165,9 @@ function buildPrompt(ctx, agentInstructions, metricAssessment) {
     "Consider the implementation review findings — if critical gaps exist, do NOT declare mission-complete.",
     "Check the acceptance criteria in the Mission section above. If all criteria are clearly satisfied by the current source code and tests (verified via read_file), you SHOULD declare mission-complete even if not all mechanical metrics are MET.",
     "For simple missions (few functions, clear acceptance criteria), do not require elaborate test coverage or documentation beyond what the acceptance criteria specify.",
+    "",
+    "**Post-merge evaluation context:** This director runs AFTER a dev transformation has been merged. The source code, tests, README, and website you see are the result of that merge. The acceptance criteria checkboxes in MISSION.md reflect the implementation review's findings. If the metrics show all conditions MET and the acceptance criteria are > 50% checked, you should declare mission-complete unless you find a critical implementation gap via read_file. Do not defer to a future run — the pipeline has a structural 2-run minimum, and this is your chance to complete in 1 run.",
+    "",
     "Then call report_director_decision with your determination.",
     "",
     "**You MUST call report_director_decision exactly once.**",
@@ -485,7 +495,7 @@ export async function direct(context) {
   };
 
   // Build metric-based advisory
-  const metricAssessment = buildMetricAssessment(ctx, config);
+  const metricAssessment = await buildMetricAssessment(ctx, config);
   core.info(`Metric assessment: ${metricAssessment.assessment}`);
 
   // --- LLM decision via hybrid session ---

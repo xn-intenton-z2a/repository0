@@ -132,6 +132,31 @@ else
         git rebase --abort 2>/dev/null || true
       }
     }
+
+    # W3b: After successful rebase (no conflict), re-apply our boolean true values.
+    # The rebase may have replayed our commit on top of a remote state with false values,
+    # causing our true values to be lost. Re-apply them from the saved copy.
+    STATE_FILE="agentic-lib-state.toml"
+    if [ -f "${TMPDIR}/ours-${STATE_FILE}" ] && [ -f "$STATE_FILE" ]; then
+      NEEDS_AMEND=false
+      while IFS='=' read -r key val; do
+        key=$(echo "$key" | xargs)
+        val=$(echo "$val" | xargs)
+        if [ "$val" = "true" ]; then
+          CURRENT=$(grep "^${key} = " "$STATE_FILE" 2>/dev/null | sed 's/.*= *//' | xargs || true)
+          if [ "$CURRENT" != "true" ]; then
+            sed -i "s/^${key} = .*/${key} = true/" "$STATE_FILE" 2>/dev/null || \
+              sed -i'' "s/^${key} = .*/${key} = true/" "$STATE_FILE" 2>/dev/null || true
+            NEEDS_AMEND=true
+          fi
+        fi
+      done < "${TMPDIR}/ours-${STATE_FILE}"
+      if [ "$NEEDS_AMEND" = "true" ]; then
+        echo "push-to-logs: re-applied boolean true values after rebase"
+        git add "$STATE_FILE"
+        git commit --amend --no-edit 2>/dev/null || true
+      fi
+    fi
     sleep $((attempt * 2))
     if [ "$attempt" -eq "$MAX_RETRIES" ]; then
       echo "::warning::push-to-logs: failed to push after $MAX_RETRIES attempts"
