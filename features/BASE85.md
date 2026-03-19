@@ -2,20 +2,23 @@ BASE85
 
 # Summary
 
-Add an ASCII85/Z85-compatible encoding with encodeBase85(uint8Array) and decodeBase85(string) exports. This provides a denser printable representation (~6.41 bits/char) and will be used to compare UUID encodings against base62 and custom higher bases.
+Implement a Z85-compatible base85 encoding and decoding for Uint8Array. Provide UUID shorthand helpers and document the chosen variant, bits per character, and expected UUID encoded length.
 
 # Motivation
 
-Base85/Z85 is a compact binary-to-printable encoding used in several projects; including it ensures the library offers progressively denser built-in encodings and a realistic benchmark for densest encodings.
+Base85 (Z85) provides higher density than base62 and is a practical built-in option for comparing printable encoding densities for UUIDs and arbitrary binary.
 
 # Specification
 
-- Export named functions: encodeBase85(uint8Array) and decodeBase85(string).
-- Support both Ascii85 and Z85 variants internally or expose Z85 as the default for printable-only charset; document which variant is used.
-- Document bits per char and expected encoded length for 16 bytes (20 characters for the selected variant).
+- Named exports (from src/lib/main.js): encodeBase85(uint8Array) -> string, decodeBase85(string) -> Uint8Array.
+- UUID shorthand named exports: encodeUUIDBase85(uuidString) and decodeUUIDBase85(encodedString). Shorthand: strip dashes from UUID, encode 16 bytes, do NOT reverse (unless mission shorthand requires reversal for this encoding; document chosen behaviour). For consistency with mission shorthand, the library must document whether reversal is applied per-encoding; tests must reflect chosen behaviour.
+- Chosen variant: Z85 (printable, non-control ASCII). Document differences vs Ascii85 and why Z85 was chosen.
+- Metadata: name: "base85", charsetSize: 85, bitsPerChar: ~6.41, expectedUuidLength: 20 characters (verify exact length in tests).
 
 # Tests / Acceptance Criteria
 
-- Round-trip property: decodeBase85(encodeBase85(buf)) === buf for arbitrary Uint8Array inputs including empty, single-byte, all-zero, and all-0xFF buffers.
-- UUID shorthand: encodeUUIDBase85(uuidString) and decodeUUIDBase85(encodedString) round-trip the 16-byte UUID correctly and produce the expected ~20-char output.
-- Unit tests cover edge cases and assert the UUID encoded length and bits per character metadata are recorded in the encoding listing.
+- Round-trip: decodeBase85(encodeBase85(buf)) === buf for edge cases: empty, 1 byte, all-0x00, all-0xFF, and random buffers.
+- UUID shorthand: encodeUUIDBase85 and decodeUUIDBase85 round-trip the 16 UUID bytes for sample UUIDs and produce the expected ~20-char output.
+- Export checks: named exports exist and are functions exported from src/lib/main.js.
+- Documentation: README or encoding listing includes the chosen variant and its bitsPerChar value.
+- Edge behavior: decoder rejects input containing invalid characters for the selected variant and errors are deterministic and documented.

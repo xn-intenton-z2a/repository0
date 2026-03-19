@@ -2,20 +2,23 @@ ENCODING_LISTING
 
 # Summary
 
-Add an encodings registry and listing API that returns metadata for every available encoding. The API will allow clients to enumerate built-in encodings and any custom encodings created at runtime.
+Provide a registry and listing API that exposes metadata for all built-in and runtime-created encodings so clients and tests can compare density and expected UUID lengths.
 
 # Motivation
 
-Comparing density and charset properties across encodings is core to the mission. A standardized listing enables README comparison tables, tests that compare UUID lengths, and user selection of encodings by density.
+Comparing encodings by bits per character and expected UUID length is central to the mission; a single authoritative listing prevents duplicated calculations in tests and README generation.
 
 # Specification
 
-- Export a function listEncodings() -> Array of encoding metadata objects. Each object includes: name, charsetSize, bitsPerChar (floating point), estimatedUuidLength (for 16 bytes), urlSafe (boolean), and description.
-- The registry must include the built-in encodings base62 and base85 and the example high-density encoding from HIGH_DENSITY_CUSTOM.
-- Provide a helper sortByDensity(descending=true) that returns encodings ordered by bitsPerChar.
+- Named export (from src/lib/main.js): listEncodings() -> Array of encoding metadata objects.
+- Encoding metadata object fields: name (string), charsetSize (integer), bitsPerChar (number, precise to at least 4 decimal places), estimatedUuidLength (integer for 16 bytes), urlSafe (boolean), description (string).
+- Built-ins: listEncodings must include entries for base62 and base85 and the built-in high-density example encoding.
+- Helpers: export sortEncodingsByDensity(descending=true) -> Array to return encodings ordered by bitsPerChar.
+- The listing must be derived from encoding implementations (not hard-coded estimates) to ensure tests and README use accurate values.
 
 # Tests / Acceptance Criteria
 
-- listEncodings() returns an array containing entries for base62, base85, and the high-density example, each with accurate bitsPerChar values and charset sizes.
-- Tests assert that sorting by density places the densest encoding first and that the listed estimatedUuidLength values match the actual encoded lengths produced by the respective encode functions.
-- README generation: the data from listEncodings is sufficient to generate the UUID encoding comparison table required by the mission; a unit test should exercise this by asserting the comparison table data contains expected entries and numeric values.
+- listEncodings returns an array containing objects for base62, base85, and the high-density example, each with accurate charsetSize and bitsPerChar values.
+- sortEncodingsByDensity(true) places the densest encoding first; tests compute bitsPerChar from the encoding implementation to assert correctness.
+- Integration test: using listEncodings data to build a UUID comparison table yields the same lengths as actual encodeUUID* outputs for each encoding.
+- Export checks: listEncodings and sortEncodingsByDensity are named exports from src/lib/main.js and covered by unit tests.
