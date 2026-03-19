@@ -11,7 +11,7 @@ Base85 (Z85) provides higher density than base62 and is a practical built-in opt
 # Specification
 
 - Named exports (from src/lib/main.js): encodeBase85(uint8Array) -> string, decodeBase85(string) -> Uint8Array.
-- UUID shorthand named exports: encodeUUIDBase85(uuidString) and decodeUUIDBase85(encodedString). Shorthand: strip dashes from UUID, encode 16 bytes, do NOT reverse (unless mission shorthand requires reversal for this encoding; document chosen behaviour). For consistency with mission shorthand, the library must document whether reversal is applied per-encoding; tests must reflect chosen behaviour.
+- UUID shorthand named exports: encodeUUIDBase85(uuidString) and decodeUUIDBase85(encodedString). Shorthand: strip dashes from the canonical UUID, encode the resulting 16 bytes, then reverse the final encoded string to maintain consistent mission shorthand across all encodings. Tests must assert this reversal behaviour and round-trip correctness.
 - Chosen variant: Z85 (printable, non-control ASCII). Document differences vs Ascii85 and why Z85 was chosen.
 - Metadata: name: "base85", charsetSize: 85, bitsPerChar: ~6.41, expectedUuidLength: 20 characters (verify exact length in tests).
 

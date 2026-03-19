@@ -10,7 +10,9 @@ Reference material and documentation sources for this project. These were select
 - https://base91.sourceforge.net/
 - https://en.wikipedia.org/wiki/Base62
 - https://www.npmjs.com/package/base62
+- https://www.npmjs.com/package/base91
 - https://en.wikipedia.org/wiki/ASCII#Printable_characters
+- https://datatracker.ietf.org/doc/html/rfc4122
 - https://datatracker.ietf.org/doc/html/draft-peabody-dispatch-new-uuid-format
 
 These sources were chosen to provide authoritative specifications and implementation notes for: base64/base64url (RFC 4648 + MDN), printable ASCII character ranges and rules, Z85 (ZeroMQ spec), Ascii85, Base91, Base62 references, and the UUID v7 format draft used by the mission.
