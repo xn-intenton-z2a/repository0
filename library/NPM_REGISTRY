@@ -1,0 +1,26 @@
+TABLE OF CONTENTS
+1. Package metadata and common API patterns
+2. Typical exported functions and signatures
+3. Notes on production usage and tests
+
+NORMALISED EXTRACT
+NPM package registry metadata (package: roman-numerals) typically contains package name, versions, repository link, and README with usage examples. Typical package APIs export functions similar to:
+- toRoman(number) -> string
+- fromRoman(string) -> number
+
+Common notes:
+- Many packages implement the greedy algorithm and the canonical regex for validation.
+- Check package README and repository for license, test vectors, and edge-case handling (strict vs permissive parsing).
+
+REFERENCE DETAILS
+Recommended checks when depending on a package:
+- Ensure the package validates input strictly for production if round-trip property is required.
+- Prefer packages that expose named exports or plain functions that can be imported and tested.
+
+DETAILED DIGEST
+Source: https://registry.npmjs.org/roman-numerals
+Retrieved: 2026-03-19
+Content: registry metadata and README content describing typical API usage and examples; use for verifying community implementations and test vectors.
+
+ATTRIBUTION
+Original source: npm registry metadata for package roman-numerals and associated README.
