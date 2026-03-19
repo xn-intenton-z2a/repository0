@@ -2,28 +2,33 @@
 
 Summary
 
-Add a convenience feature to encode and decode UUIDs using the existing encodings with a shorthand API. The shorthand strips dashes from UUID v7 string input, converts hex to 16 bytes, reverses the byte order (as required by the mission), and encodes using a named encoding. Decoding performs the reverse steps and returns a canonical dashed UUID string.
+Provide a concise UUID shorthand API that leverages the encodings feature to encode and decode UUID v7 values. The shorthand converts a UUID string to the 16-byte representation required by the mission (strip dashes, hex -> bytes, reverse byte order), encodes it with a named encoding, and decodes back to a canonical dashed lowercase UUID string.
 
 Goals
 
-- Provide uuidEncode(encodingName, uuidString) -> string
-- Provide uuidDecode(encodingName, encodedString) -> uuidString (canonical dashed lower-case hex groups)
-- Use the library encode/decode primitives to perform binary-to-text transformation.
-- Ensure round-trip: uuidDecode(encoding, uuidEncode(encoding, uuid)) == normalized uuid (lowercase, dashes in canonical positions).
+- Provide uuidEncode(encodingName: string, uuidString: string) -> string
+- Provide uuidDecode(encodingName: string, encodedString: string) -> string (canonical dashed lowercase)
+- Reuse encode/decode primitives from ENCODINGS; do not duplicate encoding logic.
+- Validate input strictly and return clear errors for invalid UUID inputs.
 
 API & Behaviour
 
-- Named exports: uuidEncode, uuidDecode.
-- uuidEncode should accept a UUID string (with or without dashes) validate length and characters, strip dashes, convert to 16-byte Uint8Array, reverse the byte order, then call encode and return the encoded string.
-- uuidDecode should call decode, reverse the byte order of the resulting 16 bytes, and return a canonical UUID string formatted as 8-4-4-4-12 lowercase hex.
+- Named exports from src/lib/main.js: uuidEncode, uuidDecode.
+- uuidEncode behaviour:
+  - Accept UUID with or without dashes, uppercase or lowercase.
+  - Validate hex length equals 32 after stripping dashes; reject otherwise with a thrown Error.
+  - Convert hex to a 16-byte Uint8Array, reverse the byte order, call encode(encodingName, bytes), and return the encoded string.
+- uuidDecode behaviour:
+  - Call decode(encodingName, encodedString) to obtain bytes, verify length is 16, reverse byte order, format as canonical dashed lowercase UUID (8-4-4-4-12) and return.
+- Round-trip property: uuidDecode(encoding, uuidEncode(encoding, uuid)) equals normalized canonical uuid (lowercase with dashes).
 
 Acceptance Criteria
 
 - uuidEncode and uuidDecode are exported from src/lib/main.js and documented in README.
-- Round-trip for valid UUID v7 strings across all built-in encodings.
-- Input validation rejects non-UUID input with a clear error.
-- Unit tests covering variants: dashed uuid, undashed uuid, uppercase input, invalid length, and round-trip verification for every built-in encoding.
+- Round-trip correctness for valid UUID v7 values across all built-in encodings and any custom encodings created via createEncoding.
+- Input validation rejects invalid UUID strings with descriptive errors (invalid characters, wrong length).
+- Unit tests cover: dashed and undashed inputs, uppercase inputs, invalid length, invalid characters, and round-trip verification for each built-in encoding.
 
 Notes
 
-Keep the shorthand strictly as a thin convenience layer with clear validation and deterministic formatting. This feature depends on the encodings feature and must be implemented after or together with ENCODINGS.
+Keep the shorthand as a thin, well-tested convenience layer dependent on the encodings API. Do not change the canonical UUID formatting rules.
