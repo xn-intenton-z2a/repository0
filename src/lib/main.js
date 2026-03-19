@@ -46,20 +46,35 @@ export function hammingString(a, b) {
 
 // Hamming distance between two non-negative integers by differing bits
 export function hammingBits(a, b) {
-  if (!Number.isInteger(a) || !Number.isInteger(b)) {
-    throw new TypeError("hammingBits: both arguments must be integers");
+  const isBigInt = (v) => typeof v === 'bigint';
+  const isNumberInt = (v) => typeof v === 'number' && Number.isInteger(v);
+  if (!(isNumberInt(a) || isBigInt(a)) || !(isNumberInt(b) || isBigInt(b))) {
+    throw new TypeError("hammingBits: both arguments must be integers (Number or BigInt)");
   }
-  if (a < 0 || b < 0) {
+  if ((isNumberInt(a) && a < 0) || (isNumberInt(b) && b < 0) || (isBigInt(a) && a < 0n) || (isBigInt(b) && b < 0n)) {
     throw new RangeError("hammingBits: integers must be non-negative");
   }
-  // Use XOR and popcount
-  let x = a ^ b;
-  let count = 0;
-  while (x) {
-    count += x & 1;
-    x = x >>> 1;
+  // Use XOR and popcount; support BigInt
+  if (isBigInt(a) || isBigInt(b)) {
+    // coerce both to BigInt
+    const A = isBigInt(a) ? a : BigInt(a);
+    const B = isBigInt(b) ? b : BigInt(b);
+    let x = A ^ B;
+    let count = 0n;
+    while (x) {
+      count += x & 1n;
+      x = x >> 1n;
+    }
+    return Number(count);
+  } else {
+    let x = a ^ b;
+    let count = 0;
+    while (x) {
+      count += x & 1;
+      x = x >>> 1;
+    }
+    return count;
   }
-  return count;
 }
 
 export function main(args) {

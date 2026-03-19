@@ -19,6 +19,14 @@ describe("hammingString", () => {
     expect(hammingString(a, b)).toBe(1);
   });
 
+  test("large strings handled correctly", () => {
+    const a = 'x'.repeat(10000);
+    const b = 'x'.repeat(10000).split('');
+    b[500] = 'y';
+    b[9999] = 'z';
+    expect(hammingString(a, b.join(''))).toBe(2);
+  });
+
   test("different lengths throws RangeError", () => {
     expect(() => hammingString("abc", "ab")).toThrow(RangeError);
   });
@@ -40,10 +48,17 @@ describe("hammingBits", () => {
     expect(hammingBits(0, 0)).toBe(0);
   });
 
-  test("large integers", () => {
+  test("large integers (Number and BigInt)", () => {
     const a = 0b1010101010101010;
     const b = 0b0101010101010101;
     expect(hammingBits(a, b)).toBe(16);
+
+    // BigInt large
+    const bigA = (1n << 50n) - 1n; // 50 ones
+    const bigB = 0n;
+    expect(hammingBits(bigA, bigB)).toBe(50);
+    // mixed Number and BigInt
+    expect(hammingBits(bigA, Number(bigA))).toBe(0);
   });
 
   test("non-integer throws TypeError", () => {
@@ -56,5 +71,6 @@ describe("hammingBits", () => {
   test("negative integers throw RangeError", () => {
     expect(() => hammingBits(-1, 2)).toThrow(RangeError);
     expect(() => hammingBits(1, -2)).toThrow(RangeError);
+    expect(() => hammingBits(-1n, 2n)).toThrow(RangeError);
   });
 });
