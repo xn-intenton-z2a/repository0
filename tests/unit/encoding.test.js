@@ -34,9 +34,22 @@ describe('Encodings', () => {
 
   test('custom encoding creation and round-trip', () => {
     const cs = '0123456789abcdef';
-    createEncoding('testCustom', cs);
+    createEncoding('testCustom', cs, { allowAmbiguous: true });
     const src = new Uint8Array([1,2,3,4,5]);
     expect(decode('testCustom', encode('testCustom', src))).toEqual(src);
+  });
+
+  test('createEncoding rejects ambiguous characters when not allowed', () => {
+    expect(() => createEncoding('badAmb', '0O1lI')).toThrow(TypeError);
+  });
+
+  test('encode/decode throw on invalid input types', () => {
+    // encode expects Uint8Array
+    // @ts-ignore - intentionally wrong type
+    expect(() => encode('base62', [1,2,3])).toThrow(TypeError);
+    // decode expects string
+    // @ts-ignore
+    expect(() => decode('base62', 123)).toThrow(TypeError);
   });
 
   test('uuid encoding lengths and densest < 22', () => {
