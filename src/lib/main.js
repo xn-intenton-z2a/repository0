@@ -27,52 +27,6 @@ export function getIdentity() {
   return { name, version, description };
 }
 
-// Unicode-aware string Hamming distance (compares code points)
-export function stringHamming(a, b) {
-  if (typeof a !== "string" || typeof b !== "string") {
-    throw new TypeError("stringHamming requires string arguments");
-  }
-  const aPoints = Array.from(a); // iterates code points, not UTF-16 code units
-  const bPoints = Array.from(b);
-  if (aPoints.length !== bPoints.length) {
-    throw new RangeError("stringHamming requires strings of equal length (in code points)");
-  }
-  let diffs = 0;
-  for (let i = 0; i < aPoints.length; i++) {
-    if (aPoints[i] !== bPoints[i]) diffs++;
-  }
-  return diffs;
-}
-
-// Integer Hamming distance (bit-level). Accepts Number (integer, >=0) or BigInt (>=0n).
-export function intHamming(a, b) {
-  const validNumber = (v) => typeof v === "number" && Number.isInteger(v);
-  const validBigInt = (v) => typeof v === "bigint";
-
-  if (!validNumber(a) && !validBigInt(a)) {
-    throw new TypeError("intHamming requires integer arguments (Number or BigInt)");
-  }
-  if (!validNumber(b) && !validBigInt(b)) {
-    throw new TypeError("intHamming requires integer arguments (Number or BigInt)");
-  }
-
-  // Convert both to BigInt for safe bit operations
-  const aBig = typeof a === "bigint" ? a : BigInt(a);
-  const bBig = typeof b === "bigint" ? b : BigInt(b);
-
-  if (aBig < 0n || bBig < 0n) {
-    throw new RangeError("intHamming requires non-negative integers");
-  }
-
-  let x = aBig ^ bBig;
-  let count = 0;
-  while (x) {
-    if (x & 1n) count++;
-    x >>= 1n;
-  }
-  return count;
-}
-
 export function main(args) {
   if (args?.includes("--version")) {
     console.log(version);
