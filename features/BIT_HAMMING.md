@@ -1,25 +1,30 @@
-BIT_HAMMING
+# BIT_HAMMING
 
 Overview
 
-Compute Hamming distance between two non-negative integers by counting differing bits in their binary representation.
+Compute the Hamming distance between two non-negative integers by counting differing bits in their binary representation. This feature provides a single named export from the library (hammingBits) that is safe, validated, and efficient.
 
-Behavior
+Behaviour
 
-- Export a named function bitHamming(x, y) from src/lib/main.js.
-- If either argument is not a number or is not an integer, throw TypeError.
-- If either argument is negative, throw RangeError.
-- Compute differing bits using an efficient bit-popcount of x XOR y and return the count (integer >= 0).
-- Support large integers within JavaScript safe integer range; validate inputs accordingly.
+- Export a named function hammingBits(x, y) from src/lib/main.js.
+- Validate inputs:
+  - If either argument is not a number or not an integer, throw TypeError.
+  - If either argument is negative, throw RangeError.
+  - If either argument is not a safe integer (Number.isSafeInteger), throw RangeError.
+- Implementation:
+  - Compute the XOR of x and y, then count set bits (popcount) to return the number of differing bits.
+  - Use an efficient bitwise popcount algorithm suitable for JavaScript Numbers within the safe integer range.
+- Documentation and tests should show normal, edge and error cases.
 
 Acceptance Criteria
 
-- bitHamming(1, 4) returns 2
-- bitHamming(0, 0) returns 0
-- bitHamming rejects negative integers with RangeError
-- bitHamming rejects non-integer or non-number inputs with TypeError
-- Works for large integers within Number.isSafeInteger limits
+- hammingBits(1, 4) returns 2
+- hammingBits(0, 0) returns 0
+- hammingBits rejects negative integers with RangeError
+- hammingBits rejects non-integer or non-number inputs with TypeError
+- hammingBits rejects values outside Number.isSafeInteger with RangeError
+- Unit tests cover large values within safe integer range and edge cases
 
 Notes
 
-- Include unit tests demonstrating popcount correctness and edge cases (zero, same values, large values).
+- Keep API small and focused; the README and example pages should include simple usage examples and the expected outputs.
