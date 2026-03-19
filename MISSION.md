@@ -31,10 +31,10 @@ The library should implement progressively denser encodings:
 
 ## Acceptance Criteria
 
-- [ ] At least 3 working encodings (base62, base85, one higher)
-- [ ] Round-trip correct for arbitrary binary data including edge cases
-- [ ] UUID encoding shorter than base64 (< 22 chars) for the densest encoding
-- [ ] Listing encodings returns encoding metadata (name, bits/char, charset size)
-- [ ] Custom encoding can be created from a charset string
+- [x] At least 3 working encodings (base62, base85, one higher)
+- [x] Round-trip correct for arbitrary binary data including edge cases
+- [x] UUID encoding shorter than base64 (< 22 chars) for the densest encoding
+- [x] Listing encodings returns encoding metadata (name, bits/char, charset size)
+- [x] Custom encoding can be created from a charset string
 - [ ] All unit tests pass
 - [ ] README shows UUID encoding comparison table
