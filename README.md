@@ -1,128 +1,46 @@
 # repo
 
-This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests on a schedule.
+A small library for computing Hamming distances between strings and non-negative integers.
 
-## Getting Started
+## API
 
-1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
-2. **Configure GitHub** — see [Setup](#setup) below
-3. **Push to main** — the autonomous workflows take over from here
+Import named functions from src/lib/main.js:
 
-The system will create issues from your mission, generate code to resolve them, run tests, and open PRs. A supervisor agent orchestrates the pipeline, and you can interact through GitHub Discussions.
+- hammingString(a, b): number
+  - Computes Hamming distance between two strings by Unicode code points.
+  - Throws TypeError if inputs are not strings.
+  - Throws RangeError if strings have different lengths (in Unicode code points).
 
-## Hamming distance API
+- hammingBits(a, b): number
+  - Computes Hamming distance between two non-negative integers by differing bits.
+  - Throws TypeError if inputs are not integers.
+  - Throws RangeError if any integer is negative.
 
-This library provides two named exports for computing Hamming distances:
+- getIdentity(): { name, version, description }
 
-- `hammingString(a, b)` — compares two strings by Unicode code points and returns the number of differing positions.
-  - Throws `TypeError` if either argument is not a string.
-  - Throws `RangeError` if the strings differ in length (counting Unicode code points).
-  - Example: `hammingString("karolin", "kathrin") === 3`
+## Examples
 
-- `hammingBits(a, b)` — compares two non-negative integers and returns the number of differing bits.
-  - Throws `TypeError` if either argument is not an integer.
-  - Throws `RangeError` if either argument is negative.
-  - Example: `hammingBits(1, 4) === 2` (1 -> 001, 4 -> 100)
+```js
+import { hammingString, hammingBits } from './src/lib/main.js';
 
-These functions are exported from `src/lib/main.js` and re-exported to the browser via `src/web/lib.js`.
-
-## Setup
-
-### Required Secrets
-
-Add these in your repository: **Settings → Secrets and variables → Actions → New repository secret**
-
-| Secret | How to create | Purpose |
-|--------|---------------|---------|
-| `COPILOT_GITHUB_TOKEN` | [Fine-grained PAT](https://github.com/settings/tokens?type=beta) with **GitHub Copilot** → Read permission | Authenticates with the Copilot SDK for all agentic tasks |
-| `WORKFLOW_TOKEN` | [Classic PAT](https://github.com/settings/tokens) with **workflow** scope | Allows `init.yml` to update workflow files (GITHUB_TOKEN cannot modify `.github/workflows/`) |
-
-### Repository Settings
-
-| Setting | Where | Value |
-|---------|-------|-------|
-| GitHub Actions | Settings → Actions → General | Allow all actions |
-| Workflow permissions | Settings → Actions → General | Read and write permissions |
-| Allow GitHub Actions to create PRs | Settings → Actions → General | Checked |
-| GitHub Discussions | Settings → General → Features | Enabled (for the discussions bot) |
-
-### Optional: Branch Protection
-
-For production repositories, consider adding branch protection on `main`:
-- Require pull request reviews before merging
-- Require status checks to pass (select the `test` workflow)
-
-## How It Works
-
-```
-MISSION.md → [supervisor] → dispatch workflows → Issue → Code → Test → PR → Merge
-                                                    ↑                          |
-                                                    +——————————————————————————+
+console.log(hammingString('karolin','kathrin')); // 3
+console.log(hammingString('','')); // 0
+console.log(hammingBits(1,4)); // 2
+console.log(hammingBits(0,0)); // 0
 ```
 
-The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context (issues, PRs, workflow runs, features) and strategically dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
+## Website demo
 
-## File Layout
+Open `src/web/index.html` in a browser; it imports the library and displays demo examples including:
+- hammingString('karolin','kathrin') => 3
+- hammingString('','') => 0
+- hammingBits(1,4) => 2
+- hammingBits(0,0) => 0
+
+## Tests
+
+Run unit tests with:
 
 ```
-src/lib/main.js              ← library (browser-safe: identity + mission functions)
-src/web/index.html            ← web page (imports ./lib.js)
-src/web/lib.js                ← browser entry point (re-exports from ../lib/main.js)
-tests/unit/main.test.js       ← unit tests (import main.js directly, test API-level detail)
-tests/unit/web.test.js        ← web structure tests (read index.html as text, verify wiring)
-tests/behaviour/              ← Playwright E2E (serve from project root, import main.js for coupling)
-docs/                         ← build output (generated by npm run build:web)
-docs/lib.js                   ← generated: self-contained module for GitHub Pages
+npm test
 ```
-
-These files form a **coupled unit**. The library works in both Node and the browser:
-
-- `src/lib/main.js` is browser-safe — in Node it reads `package.json` via `createRequire`, in the browser via `fetch`
-- `src/web/lib.js` re-exports from `../lib/main.js` — the page imports the **real library**, not a generated copy
-- `src/web/index.html` imports `./lib.js` → displays library identity on the page
-- The behaviour test imports `getIdentity()` from `main.js` AND reads `#lib-version` from the rendered page → asserts they match
-- `npm run build:web` generates `docs/lib.js` as a self-contained module for production (GitHub Pages)
-
-This coupling proves the web page consumes the real library. Mission-specific functions should follow the same path — never duplicate library logic inline in the web page.
-
-## Test Strategy
-
-| Test layer | What it tests | How it binds |
-|------------|--------------|--------------|
-| **Unit tests** (`tests/unit/main.test.js`) | Library API: return values, error types, edge cases | Imports directly from `src/lib/main.js` |
-| **Web structure tests** (`tests/unit/web.test.js`) | HTML structure: expected elements, `lib.js` re-export | Reads `src/web/index.html` and `src/web/lib.js` as text |
-| **Behaviour tests** (`tests/behaviour/`) | End-to-end: page renders, displays real library values | Playwright serves from project root; coupling test imports `getIdentity()` from `main.js` and asserts the page displays the same version |
-
-The **coupling test** in the behaviour test is the key invariant: it proves the web page displays values from the actual library, not hardcoded or duplicated values. The page imports `lib.js` which re-exports from `main.js` which reads `package.json` — the same chain the unit tests exercise.
-
-## Configuration
-
-Edit `agentic-lib.toml` to tune the system:
-
-```toml
-[schedule]
-supervisor = "daily"    # off | weekly | daily | hourly | continuous
-
-[paths]
-mission = "MISSION.md"
-source = "src/lib/"
-tests = "tests/unit/"
-
-[limits]
-max-feature-issues = 2      # max concurrent feature issues
-max-attempts-per-issue = 2   # max retries per issue
-```
-
-## Updating
-
-The `init.yml` workflow runs daily and updates the agentic infrastructure automatically. To update manually:
-
-```bash
-npx @xn-intenton-z2a/agentic-lib@latest init
-```
-
-## Links
-
-- [MISSION.md](MISSION.md) — your project goals
-- [agentic-lib documentation](https://github.com/xn-intenton-z2a/agentic-lib) — full SDK docs
-- [intentïon website](https://xn--intenton-z2a.com)
