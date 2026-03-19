@@ -79,10 +79,58 @@ else
 
   for attempt in $(seq 1 $MAX_RETRIES); do
     git push origin "${BRANCH}" && break
-    echo "push-to-logs: push failed (attempt $attempt) — pulling and retrying"
+    echo "push-to-logs: push failed (attempt $attempt) — fetching latest and retrying"
+
+    # Fetch the latest remote state before rebasing
+    git fetch origin "${BRANCH}" 2>/dev/null || true
+
+    # Save our file contents before rebase (they may be lost on conflict)
+    for f in "${FILES[@]}"; do
+      cp "$f" "${TMPDIR}/ours-$(basename "$f")" 2>/dev/null || true
+    done
+
     git pull --rebase origin "${BRANCH}" || {
-      echo "push-to-logs: rebase conflict — aborting and retrying"
-      git rebase --abort 2>/dev/null || true
+      echo "push-to-logs: rebase conflict — resolving state file with merge strategy"
+
+      # For agentic-lib-state.toml conflicts, merge booleans (prefer true) and take max counters
+      STATE_FILE="agentic-lib-state.toml"
+      if git diff --name-only --diff-filter=U 2>/dev/null | grep -q "$STATE_FILE"; then
+        # Get the remote (theirs) version from the rebase base
+        git show "REBASE_HEAD:${STATE_FILE}" > "${TMPDIR}/ours-${STATE_FILE}" 2>/dev/null || true
+        git checkout --theirs "$STATE_FILE" 2>/dev/null || true
+
+        # Merge: for each boolean in our version that is true, set it true in theirs
+        if [ -f "${TMPDIR}/ours-${STATE_FILE}" ]; then
+          # Extract true booleans from our version and apply them
+          while IFS='=' read -r key val; do
+            key=$(echo "$key" | xargs)
+            val=$(echo "$val" | xargs)
+            if [ "$val" = "true" ]; then
+              # Set this key to true in the resolved file (theirs)
+              if grep -q "^${key} = " "$STATE_FILE" 2>/dev/null; then
+                sed -i "s/^${key} = .*/${key} = true/" "$STATE_FILE" 2>/dev/null || \
+                  sed -i'' "s/^${key} = .*/${key} = true/" "$STATE_FILE" 2>/dev/null || true
+              fi
+            fi
+          done < "${TMPDIR}/ours-${STATE_FILE}"
+        fi
+
+        git add "$STATE_FILE"
+      fi
+
+      # Resolve any other conflicting files by taking ours (our log files are authoritative)
+      for f in "${FILES[@]}"; do
+        if git diff --name-only --diff-filter=U 2>/dev/null | grep -q "$(basename "$f")"; then
+          cp "${TMPDIR}/ours-$(basename "$f")" "$f" 2>/dev/null || true
+          git add "$f"
+        fi
+      done
+
+      # Continue the rebase if there are resolved conflicts
+      git rebase --continue 2>/dev/null || {
+        echo "push-to-logs: rebase continue failed — aborting"
+        git rebase --abort 2>/dev/null || true
+      }
     }
     sleep $((attempt * 2))
     if [ "$attempt" -eq "$MAX_RETRIES" ]; then
