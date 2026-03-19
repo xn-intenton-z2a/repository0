@@ -51,7 +51,7 @@ function bigIntToBytes(v) {
 function encodeWithCharset(bytes, charset) {
   if (!(bytes instanceof Uint8Array)) throw new TypeError("encode expects Uint8Array");
   // encode length to preserve leading zeros
-  if (bytes.length === 0) return "0:";
+  if (bytes.length === 0) return "0\0";
   const base = BigInt(charset.length);
   let v = bytesToBigInt(bytes);
   let out = "";
@@ -60,12 +60,12 @@ function encodeWithCharset(bytes, charset) {
     out = charset[rem] + out;
     v = v / base;
   }
-  return `${bytes.length}:${out}`;
+  return `${bytes.length}\0${out}`;
 }
 
 function decodeWithCharset(str, charset) {
-  if (str === "0:") return new Uint8Array([]);
-  const parts = str.split(":");
+  if (str === "0\0") return new Uint8Array([]);
+  const parts = str.split("\0");
   if (parts.length !== 2) throw new Error('invalid encoded format');
   const len = parseInt(parts[0], 10);
   const payload = parts[1];
@@ -88,8 +88,9 @@ function decodeWithCharset(str, charset) {
 }
 
 function sanitizeCharset(chars) {
-  // remove control/space
-  return Array.from(chars).filter(c => c >= "!" && c <= "~").join("");
+  // remove control/space and ambiguous characters 0,O,1,l,I
+  const ambiguous = new Set(['0','O','1','l','I',' ']);
+  return Array.from(chars).filter(c => c >= '!' && c <= '~' && !ambiguous.has(c)).join('');
 }
 
 const builtins = new Map();
