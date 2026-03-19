@@ -2,32 +2,32 @@
 
 Purpose
 
-Define the bit-level Hamming distance API and behavior for non-negative integers. This feature specifies how to compute differing bits, validation rules, examples, and acceptance criteria.
+Define the bit-level Hamming distance API and behavior for non-negative integers. This feature specifies exact behavior, validation rules, examples, and acceptance criteria.
 
 Behavior
 
-- Export a named function integerHamming(x, y) from src/lib/main.js that returns the number of differing bits between two non-negative integers.
-- The function counts differing bits in the binary representation of x and y (Hamming weight of x XOR y).
+- Export a named function intHamming(x, y) from src/lib/main.js that returns the number of differing bits between two non-negative integers.
+- The function computes the Hamming weight (population count) of x XOR y. Accept Number (integer) or BigInt inputs; compute using BigInt internally for correctness on large values.
 
 Input validation
 
-- If either argument is not a finite integer number, throw TypeError.
-- If either argument is negative, throw RangeError.
+- If either argument is not a Number (integer) or BigInt, throw TypeError.
+- If either numeric argument is negative, throw RangeError.
 
 Examples (for tests)
 
-- integerHamming(1, 4) -> 2  (binary: 001 vs 100)
-- integerHamming(0, 0) -> 0
-- integerHamming(7, 15) -> 1  (0111 vs 1111)
+- intHamming(1, 4) -> 2  (binary: 001 vs 100)
+- intHamming(0, 0) -> 0
+- intHamming(7, 15) -> 1  (0111 vs 1111)
 
 Acceptance criteria
 
 - Bit-level Hamming distance between 1 and 4 is 2.
 - Bit-level Hamming distance between 0 and 0 is 0.
 - Passing negative integers throws RangeError.
-- Passing non-integer (e.g., 1.5) or non-number throws TypeError.
+- Passing non-integer or non-number/BigInt throws TypeError.
 
-Notes for implementation
+Implementation notes
 
-- Use an efficient population-count method for x ^ y; library document BIT_TWIDDLING_POPCOUNT.md may be used for guidance, but readability and correctness are primary.
-- Tests should include small, zero, and large integers to ensure correctness and performance.
+- Convert Number inputs to BigInt before bit operations to avoid precision issues.
+- Use a straightforward population-count loop on the xor result; prefer correctness and clarity over micro-optimisations.

@@ -2,12 +2,11 @@
 
 Purpose
 
-Provide a clear, testable specification for computing the Hamming distance between two strings of equal length. This feature defines behavior, errors, examples, and acceptance criteria so the library can implement and test string Hamming distances.
+Provide a clear, testable specification for computing the Hamming distance between two strings of equal length, measured in Unicode code points.
 
 Behavior
 
 - Export a named function stringHamming(a, b) from src/lib/main.js that returns the number of positions at which two input strings differ, measured by Unicode code points.
-- If a and b are equal-length strings, return a non-negative integer representing differing code point positions.
 - If both strings are empty, return 0.
 
 Input validation
@@ -28,7 +27,7 @@ Acceptance criteria
 - Calling stringHamming on strings of unequal code point length throws RangeError.
 - Passing a non-string for either argument throws TypeError.
 
-Notes for implementation
+Implementation notes
 
-- Implementation must compare Unicode code points (not UTF-16 code units). Use an approach that iterates code points (for example spread-to-array or for-of on strings) when measuring length and indexing positions for comparison.
-- Tests should include ASCII and multi-code-point inputs to ensure behavior is correct.
+- Perform length and per-position comparisons in code points (Array.from or for-of iteration). Do not rely on String.prototype.length for code point counts.
+- Tests should include ASCII and astral code point examples to validate correct behavior.

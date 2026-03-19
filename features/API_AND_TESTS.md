@@ -2,27 +2,30 @@
 
 Purpose
 
-Specify the public API surface and the test suite structure required to satisfy the mission and acceptance criteria. This feature ensures library exports, README examples, and unit tests are present and consistent.
+Ensure the public API surface and test suite align with the mission and the implementation in src/lib/main.js. This feature specifies the named exports, README examples, and the exact unit tests required to satisfy acceptance criteria.
 
 Public API
 
-- The module src/lib/main.js must export the following named functions:
-  - stringHamming(a, b)  -- computes Unicode-aware string Hamming distance.
-  - integerHamming(x, y) -- computes bit-level Hamming distance for non-negative integers.
-  - (optional) hamming -- a convenience function that dispatches based on argument types, but only if it does not duplicate behavior or confuse validation rules.
+- The module src/lib/main.js must export the following named functions and values:
+  - stringHamming(a, b)  -- computes Unicode-aware string Hamming distance (code point based).
+  - intHamming(x, y)     -- computes bit-level Hamming distance for non-negative integers (Number or BigInt).
+  - name, version, description, getIdentity() -- package identity exports used by the CLI and tests.
+
+Notes on naming
+
+- The exported function name for integer Hamming is intHamming in source; feature files and tests must reference intHamming to match implementation.
 
 Testing
 
-- Add unit tests in tests/unit/ that cover normal, edge, and error cases described in the mission and in the other feature specs.
-- Tests should assert specific numeric outputs (exact values) and verify thrown error types (TypeError, RangeError) where required.
+- Unit tests must live in tests/unit/ and assert exact numeric outputs and thrown error types for all acceptance cases.
+- Tests should cover normal cases, edge cases (empty strings, zero, very large integers via BigInt), Unicode code-point handling, and input validation errors.
 
 Acceptance criteria
 
-- README includes usage examples showing stringHamming and integerHamming and their outputs for the examples in the mission.
-- Unit tests cover: "karolin" vs "kathrin" -> 3; "" vs "" -> 0; unequal-length strings -> RangeError; integer cases 1 vs 4 -> 2; 0 vs 0 -> 0; non-number/non-string inputs throw TypeError; negative integers throw RangeError.
-- All public API are exported as named exports from src/lib/main.js.
+- README includes usage examples showing stringHamming and intHamming and their outputs for mission examples.
+- Unit tests assert: stringHamming("karolin", "kathrin") === 3; stringHamming("", "") === 0; unequal-length strings throw RangeError; intHamming(1, 4) === 2; intHamming(0, 0) === 0; negative integers throw RangeError; non-string/non-integer inputs throw TypeError.
+- All public API listed above are exported as named exports from src/lib/main.js.
 
-Notes for implementation
+Implementation notes
 
-- Keep tests small, deterministic, and focused on the API contract.
-- If an optional convenience hamming dispatcher is added, include tests showing it routes to the correct underlying function and enforces the same validation rules.
+- Keep tests deterministic and focused on the API contract. Do not add optional convenience wrappers unless clearly documented and tested.
