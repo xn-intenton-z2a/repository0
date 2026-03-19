@@ -27,6 +27,41 @@ export function getIdentity() {
   return { name, version, description };
 }
 
+// Hamming distance between two strings measured by Unicode code points
+export function hammingString(a, b) {
+  if (typeof a !== "string" || typeof b !== "string") {
+    throw new TypeError("hammingString: both arguments must be strings");
+  }
+  const aPoints = Array.from(a);
+  const bPoints = Array.from(b);
+  if (aPoints.length !== bPoints.length) {
+    throw new RangeError("hammingString: strings must have equal length (in Unicode code points)");
+  }
+  let dist = 0;
+  for (let i = 0; i < aPoints.length; i++) {
+    if (aPoints[i] !== bPoints[i]) dist++;
+  }
+  return dist;
+}
+
+// Hamming distance between two non-negative integers by differing bits
+export function hammingBits(a, b) {
+  if (!Number.isInteger(a) || !Number.isInteger(b)) {
+    throw new TypeError("hammingBits: both arguments must be integers");
+  }
+  if (a < 0 || b < 0) {
+    throw new RangeError("hammingBits: integers must be non-negative");
+  }
+  // Use XOR and popcount
+  let x = a ^ b;
+  let count = 0;
+  while (x) {
+    count += x & 1;
+    x = x >>> 1;
+  }
+  return count;
+}
+
 export function main(args) {
   if (args?.includes("--version")) {
     console.log(version);
