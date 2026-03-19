@@ -10,9 +10,10 @@ export function getIdentity() {
   return { name, version, description };
 }
 
-export function createEncoding(name, charsetString) {
+export function createEncoding(name, charsetString, options = {}) {
   if (!name || typeof name !== 'string') throw new TypeError('name must be a string');
-  const charset = validateCharset([...charsetString].join(''));
+  const { allowAmbiguous = false } = options;
+  const charset = validateCharset([...charsetString].join(''), allowAmbiguous);
   const size = [...charset].length;
   const bitsPerChar = Math.log2(size);
   const meta = { name, charset, charsetSize: size, bitsPerChar };
@@ -74,16 +75,18 @@ export function decodeRaw(encodingName, str, expectedLength = undefined) {
 export function encode(encodingName, bytes) {
   if (!(bytes instanceof Uint8Array)) throw new TypeError('input must be a Uint8Array');
   const { charsetArray } = getEncoding(encodingName);
-  // prepend 4-byte length header to preserve leading zeros and empty arrays
+  // prepend 1-byte marker and 4-byte length header to preserve leading zeros and make header recoverable
   const len = bytes.length;
+  const marker = new Uint8Array([1]);
   const header = new Uint8Array(4);
   header[0] = (len >>> 24) & 0xff;
   header[1] = (len >>> 16) & 0xff;
   header[2] = (len >>> 8) & 0xff;
   header[3] = (len) & 0xff;
-  const combined = new Uint8Array(4 + len);
-  combined.set(header, 0);
-  combined.set(bytes, 4);
+  const combined = new Uint8Array(1 + 4 + len);
+  combined.set(marker, 0);
+  combined.set(header, 1);
+  combined.set(bytes, 5);
   let n = bytesToBigInt(combined);
   const base = BigInt(charsetArray.length);
   if (n === 0n) return charsetArray[0];
@@ -102,9 +105,7 @@ export function decode(encodingName, str) {
   const base = BigInt(charsetArray.length);
   // special-case single-zero char
   if (str === charsetArray[0]) {
-    const combined = new Uint8Array(4); // zeros
-    const len = 0;
-    return combined.slice(4, 4 + len);
+    return new Uint8Array(0);
   }
   let n = 0n;
   const { charsetMap } = getEncoding(encodingName);
@@ -113,24 +114,35 @@ export function decode(encodingName, str) {
     if (idx === undefined) throw new Error('invalid character for encoding');
     n = n * base + BigInt(idx);
   }
-  let combined = bigintToBytes(n);
-  // ensure at least 4 bytes for header
-  if (combined.length < 4) {
-    const padded = new Uint8Array(4);
-    padded.set(combined, 4 - combined.length);
+  // reconstruct bytes from big int, ensuring header marker and length are recoverable
+  let bytes = [];
+  let temp = n;
+  if (temp === 0n) bytes.push(0);
+  while (temp > 0n) {
+    bytes.push(Number(temp & 0xffn));
+    temp >>= 8n;
+  }
+  bytes.reverse();
+  let combined = new Uint8Array(bytes.length);
+  combined.set(bytes, 0);
+  // ensure at least 5 bytes (marker + 4-byte length)
+  if (combined.length < 5) {
+    const padded = new Uint8Array(5);
+    padded.set(combined, 5 - combined.length);
     combined = padded;
   }
-  // read 4-byte big-endian length
-  const view = combined;
-  if (view.length < 4) throw new Error('decoded data too short');
-  const len = (view[0] << 24) + (view[1] << 16) + (view[2] << 8) + (view[3]);
-  const totalNeeded = 4 + len;
+  // check marker
+  if (combined[0] !== 1) {
+    throw new Error('invalid marker in encoded data');
+  }
+  const len = (combined[1] << 24) + (combined[2] << 16) + (combined[3] << 8) + (combined[4]);
+  const totalNeeded = 5 + len;
   if (combined.length < totalNeeded) {
     const padded = new Uint8Array(totalNeeded);
     padded.set(combined, totalNeeded - combined.length);
     combined = padded;
   }
-  return combined.slice(4, 4 + len);
+  return combined.slice(5, 5 + len);
 }
 
 export function encodeUUID(encodingName, uuidString) {

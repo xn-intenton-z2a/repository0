@@ -7,8 +7,8 @@
   "scripts": {
     "build": "npm run build:web",
     "build:web": "node .github/agentic-lib/scripts/build-web.cjs",
-    "test": "vitest --run tests/unit/*.test.js",
-    "test:unit": "vitest --run --coverage tests/unit/*.test.js",
+    "test": "VITEST_THREAD_COUNT=1 vitest --run tests/unit/*.test.js",
+    "test:unit": "VITEST_THREAD_COUNT=1 vitest --run --coverage tests/unit/*.test.js",
     "test:behaviour": "npx playwright test --config playwright.config.js",
     "start": "npm run build:web && npx serve docs",
     "start:cli": "node src/lib/main.js"
