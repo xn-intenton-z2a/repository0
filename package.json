@@ -1,7 +1,7 @@
 {
   "name": "repo",
   "version": "0.1.0",
-  "description": "",
+  "description": "A JavaScript library and CLI tool for generating plots from mathematical expressions and time series data",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
@@ -13,11 +13,12 @@
     "start": "npm run build:web && npx serve docs",
     "start:cli": "node src/lib/main.js"
   },
-  "keywords": [],
+  "keywords": ["plotting", "math", "svg", "png", "cli"],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.4.32"
+    "@xn-intenton-z2a/agentic-lib": "^7.4.32",
+    "canvas": "^3.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",
