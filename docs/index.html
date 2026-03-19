@@ -1,47 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>repository0</title>
-  <meta property="og:title" content="repository0">
-  <meta property="og:description" content="An autonomous repository powered by agentic-lib">
-  <meta property="og:type" content="website">
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 900px; margin: 0 auto; padding: 2rem; color: #333; }
     h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
-    a { color: #0366d6; }
-    .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
-    .identity dt { font-weight: bold; color: #666; }
-    .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background: #f6f8fa; }
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
   </style>
 </head>
 <body>
   <h1 id="lib-name">repository0</h1>
-  <div class="identity">
-    <dl>
-      <dt>Version</dt>
-      <dd id="lib-version">loading...</dd>
-      <dt>Description</dt>
-      <dd id="lib-description">loading...</dd>
-    </dl>
+  <div>
+    <strong>Version:</strong> <span id="lib-version">loading...</span>
   </div>
-  <h2>Output</h2>
-  <div id="demo-output">Loading library...</div>
-  <h2>About</h2>
-  <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
+  <h2>Available encodings</h2>
+  <div id="encodings-list">Loading...</div>
+  <h2>UUID length comparison</h2>
+  <div id="uuid-table">Loading...</div>
+  <h2>Raw demo output</h2>
+  <pre id="demo-output">Loading...</pre>
   <script type="module">
     try {
-      const { name, version, description } = await import('./lib.js');
-      document.getElementById('lib-name').textContent = name;
-      document.getElementById('lib-version').textContent = version;
-      document.getElementById('lib-description').textContent = description || '(no description)';
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
-      document.title = name + ' v' + version;
+      const lib = await import('./lib.js');
+      document.getElementById('lib-name').textContent = lib.name;
+      document.getElementById('lib-version').textContent = lib.version;
+
+      const encs = lib.listEncodings();
+      const encDiv = document.getElementById('encodings-list');
+      const table = document.createElement('table');
+      const header = document.createElement('tr');
+      header.innerHTML = '<th>Name</th><th>Bits/char</th><th>Charset size</th>';
+      table.appendChild(header);
+      for (const e of encs) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${e.name}</td><td>${e.bitsPerChar.toFixed(3)}</td><td>${e.charsetSize}</td>`;
+        table.appendChild(tr);
+      }
+      encDiv.innerHTML = '';
+      encDiv.appendChild(table);
+
+      // UUID comparison
+      const uuid = '00112233-4455-6677-8899-aabbccddeeff';
+      const cmp = document.getElementById('uuid-table');
+      const t2 = document.createElement('table');
+      t2.innerHTML = '<tr><th>Encoding</th><th>Encoded length</th><th>Encoded value</th></tr>';
+      for (const e of encs) {
+        try {
+          const val = lib.encodeUUID(e.name, uuid);
+          const row = document.createElement('tr');
+          row.innerHTML = `<td>${e.name}</td><td>${val.length}</td><td><code>${val}</code></td>`;
+          t2.appendChild(row);
+        } catch (err) {
+          const row = document.createElement('tr');
+          row.innerHTML = `<td>${e.name}</td><td colspan="2">error: ${err.message}</td>`;
+          t2.appendChild(row);
+        }
+      }
+      cmp.innerHTML = '';
+      cmp.appendChild(t2);
+
+      document.getElementById('demo-output').textContent = JSON.stringify({ identity: lib.getIdentity(), encodings: encs.map(e => ({ name: e.name, bits: e.bitsPerChar })) }, null, 2);
     } catch (e) {
-      document.getElementById('lib-version').textContent = '(error)';
-      document.getElementById('lib-description').textContent = e.message;
       document.getElementById('demo-output').textContent = 'Failed to load library: ' + e.message;
     }
   </script>
