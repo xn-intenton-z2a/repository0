@@ -2,17 +2,23 @@
 
 Purpose
 
-Provide concise, copy-paste-free examples demonstrating library usage for README and the website demo.
+Provide concise, copy-paste friendly examples for README and the website demo demonstrating correct function usage and expected outputs.
 
-Examples (plain text)
+Examples (plain text outputs)
 
-- fizzBuzz(15) -> returns an array: 1, 2, Fizz, 4, Buzz, Fizz, 7, 8, Fizz, Buzz, 11, Fizz, 13, 14, FizzBuzz
+- fizzBuzz(15) -> returns an array (strings where substitution occurs):
+  1, 2, Fizz, 4, Buzz, Fizz, 7, 8, Fizz, Buzz, 11, Fizz, 13, 14, FizzBuzz
 - fizzBuzzSingle(3) -> Fizz
 - fizzBuzzSingle(5) -> Buzz
 - fizzBuzzSingle(15) -> FizzBuzz
 - fizzBuzzSingle(7) -> 7
 
-Acceptance criteria
+Documentation guidance
 
-- README and website examples reflect the same plain-text examples above and the demo output on the website matches fizzBuzz(15) formatting.
-- Examples are human-readable and avoid quoting or escaped sequences so they can be used directly in documentation.
+- Use these examples verbatim in README and on the website demo to keep behaviour consistent.
+- Avoid fenced code blocks that require quoting escapes; present results as plain text alongside small import snippets using ES module syntax.
+
+Acceptance criteria (testable)
+
+- The README contains an Examples section that includes the fizzBuzz(15) sequence above and the single-value examples for 3, 5, 15 and 7.
+- The website demo displays the same fizzBuzz(15) sequence in the demo output area and the single examples match the documented results.

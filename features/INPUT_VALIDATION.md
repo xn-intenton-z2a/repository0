@@ -2,22 +2,22 @@
 
 Purpose
 
-Specify strict input validation rules for public FizzBuzz functions so behaviour is deterministic and well-documented.
+Specify deterministic input validation and stable error messages used by public FizzBuzz functions so unit tests can assert errors by value.
 
-Behavior
+Validation rules (ordered checks)
 
-- For both fizzBuzz and fizzBuzzSingle perform the following checks in order:
-  - If the argument is not a number or not an integer, throw TypeError.
-  - If the argument is a number but less than 0, throw RangeError.
-  - If the argument equals 0 and the function is fizzBuzz, return an empty array. For fizzBuzzSingle, behavior for 0 is undefined in tests and should throw RangeError (avoid accepting 0 for single-item semantics).
+1. If the provided argument is not of type 'number' or is not an integer according to Number.isInteger, throw TypeError with message: Argument must be an integer.
+2. If the provided numeric argument is less than 0, throw RangeError with message: Argument must be >= 0.
 
-Errors and types
+Special cases
 
-- Use the JavaScript built-ins TypeError and RangeError with clear messages suitable for assertions in tests.
+- fizzBuzz(0) is accepted and returns an empty array.
+- fizzBuzzSingle(0) is considered invalid and throws RangeError (0 is not a positive integer for the single-item API).
 
-Acceptance criteria
+Acceptance criteria (testable)
 
-- Passing 3.14 to either function causes TypeError.
-- Passing -1 to either function causes RangeError.
-- Passing 0 to fizzBuzz returns [] and does not throw.
-- Error messages are stable enough for strict equality assertions in tests (implementers may choose concise messages such as "Argument must be an integer" and "Argument must be >= 0").
+- Passing 3.14 to fizzBuzz throws TypeError and the error message equals Argument must be an integer.
+- Passing 3.14 to fizzBuzzSingle throws TypeError and the error message equals Argument must be an integer.
+- Passing -1 to fizzBuzz throws RangeError and the error message equals Argument must be >= 0.
+- Passing -1 to fizzBuzzSingle throws RangeError and the error message equals Argument must be >= 0.
+- Calling fizzBuzz(0) returns [] and does not throw.

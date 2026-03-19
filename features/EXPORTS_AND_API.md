@@ -2,16 +2,22 @@
 
 Purpose
 
-Define how the library is exported and consumed so downstream code and the website can import the functions reliably.
+Define the public module surface so consumers (library users, website, tests and CLI) can import and run the FizzBuzz functions reliably.
 
-Behavior
+API contract
 
-- Export both functions as named ES module exports from src/lib/main.js.
-- The package.json main entry already points to src/lib/main.js; implementations must keep the file as the canonical entrypoint for library consumers and CLI entry.
-- Provide clear examples in README showing how to import both functions using import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js' or from the package when published.
+- The project exports two named ES module exports from src/lib/main.js:
+  - fizzBuzz
+  - fizzBuzzSingle
+- Both exports accept a single argument and behave as specified in FIZZBUZZ_CORE and INPUT_VALIDATION.
 
-Acceptance criteria
+Consumer examples (informational)
 
-- Both fizzBuzz and fizzBuzzSingle are named exports of src/lib/main.js and can be imported via ES module syntax.
-- The project start:cli script (node src/lib/main.js) should continue to run without crashing when the exports exist (no runtime import errors).
-- README contains at least one import example demonstrating named imports and the expected outputs for fizzBuzz(15) and fizzBuzzSingle(3).
+- Import as named exports from the package or directly from the source file (ES module): import { fizzBuzz, fizzBuzzSingle } from 'repo' or from './src/lib/main.js' in local demos.
+- The CLI entry (npm run start:cli -> node src/lib/main.js) should not crash when the module provides these named exports; the CLI may import and invoke fizzBuzzSingle for quick demos.
+
+Acceptance criteria (testable)
+
+- src/lib/main.js exports fizzBuzz and fizzBuzzSingle as named exports.
+- Importing these names using ES module syntax does not throw at runtime.
+- The README contains at least one import example showing named imports and demonstrates expected outputs for fizzBuzz(15) and fizzBuzzSingle(3).
