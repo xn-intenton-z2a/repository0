@@ -26,6 +26,51 @@ export function listEncodings() {
   return Array.from(encodings.values()).map(e => ({ name: e.meta.name, bitsPerChar: e.meta.bitsPerChar, charsetSize: e.meta.charsetSize, charset: e.meta.charset }));
 }
 
+export function encodeRaw(encodingName, bytes) {
+  if (!(bytes instanceof Uint8Array)) throw new TypeError('input must be a Uint8Array');
+  const { charsetArray } = getEncoding(encodingName);
+  let n = bytesToBigInt(bytes);
+  const base = BigInt(charsetArray.length);
+  if (n === 0n) return charsetArray[0];
+  const out = [];
+  while (n > 0n) {
+    const rem = Number(n % base);
+    out.push(charsetArray[rem]);
+    n = n / base;
+  }
+  return out.reverse().join('');
+}
+
+export function decodeRaw(encodingName, str, expectedLength = undefined) {
+  if (typeof str !== 'string') throw new TypeError('input must be a string');
+  const { charsetArray } = getEncoding(encodingName);
+  const base = BigInt(charsetArray.length);
+  const { charsetMap } = getEncoding(encodingName);
+  if (str === charsetArray[0]) {
+    const bytes = new Uint8Array([0]);
+    if (expectedLength !== undefined) {
+      if (expectedLength === 0) return new Uint8Array(0);
+      const padded = new Uint8Array(expectedLength);
+      padded.set(bytes, expectedLength - bytes.length);
+      return padded;
+    }
+    return bytes;
+  }
+  let n = 0n;
+  for (const ch of str) {
+    const idx = charsetMap.get(ch);
+    if (idx === undefined) throw new Error('invalid character for encoding');
+    n = n * base + BigInt(idx);
+  }
+  let bytes = bigintToBytes(n);
+  if (expectedLength !== undefined && bytes.length < expectedLength) {
+    const padded = new Uint8Array(expectedLength);
+    padded.set(bytes, expectedLength - bytes.length);
+    bytes = padded;
+  }
+  return bytes;
+}
+
 export function encode(encodingName, bytes) {
   if (!(bytes instanceof Uint8Array)) throw new TypeError('input must be a Uint8Array');
   const { charsetArray } = getEncoding(encodingName);
@@ -95,11 +140,12 @@ export function encodeUUID(encodingName, uuidString) {
   const bytes = new Uint8Array(16);
   for (let i = 0; i < 16; i++) bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
   bytes.reverse(); // reverse as required by convention
-  return encode(encodingName, bytes);
+  // encode raw without length header to get compact representation for fixed-size UUIDs
+  return encodeRaw(encodingName, bytes);
 }
 
 export function decodeUUID(encodingName, encodedString) {
-  const bytes = decode(encodingName, encodedString);
+  const bytes = decodeRaw(encodingName, encodedString, 16);
   bytes.reverse();
   const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
   return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
