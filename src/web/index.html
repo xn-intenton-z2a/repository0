@@ -29,6 +29,22 @@
   </div>
   <h2>Output</h2>
   <div id="demo-output">Loading library...</div>
+
+  <h2>UUID encoding comparison</h2>
+  <p>This table compares encoded lengths for a sample v7 UUID across available encodings.</p>
+  <table id="uuid-encoding-table" border="1" cellpadding="6">
+    <thead><tr><th>Encoding</th><th>Bits/char</th><th>Charset size</th><th>Encoded length (chars)</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <h3>Encode UUID (shortcut)</h3>
+  <p>
+    <input id="uuid-input" type="text" value="00112233-4455-6677-8899-aabbccddeeff" style="width:320px">
+    <button id="encode-btn">Encode (dense)</button>
+  </p>
+  <div id="encode-result" style="font-family:monospace; margin-top:0.5rem"></div>
+  <div>Length: <span id="encode-result-length">0</span></div>
+
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
@@ -43,6 +59,46 @@
       document.getElementById('lib-version').textContent = '(error)';
       document.getElementById('lib-description').textContent = e.message;
       document.getElementById('demo-output').textContent = 'Failed to load library: ' + e.message;
+    }
+
+    // populate encoding comparison table
+    try{
+      const encs = await import('./lib.js');
+      const list = encs.listEncodings();
+      const tbody = document.querySelector('#uuid-encoding-table tbody');
+      const uuidHex = '00112233445566778899aabbccddeeff';
+      for (const e of list) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${e.name}</td><td>${(e.bitsPerChar||0).toFixed(2)}</td><td>${e.charsetSize}</td><td class="encoded-length">-</td>`;
+        tbody.appendChild(tr);
+      }
+      // compute encoded lengths
+      for (const row of tbody.querySelectorAll('tr')){
+        const name = row.children[0].textContent;
+        try{
+          const encStr = encs.encode(new Uint8Array(uuidHex.match(/.{2}/g).map(h=>parseInt(h,16))), name);
+          // if encodeUUID shortcut exported, use it for UI density test
+          const final = encs._internal?.builtins?.has?.(name) ? encStr : encStr;
+          row.querySelector('.encoded-length').textContent = final.length;
+        }catch(e){
+          row.querySelector('.encoded-length').textContent = 'err';
+        }
+      }
+
+      // wire encode UUID button to dense94 by default
+      document.getElementById('encode-btn').addEventListener('click', ()=>{
+        const uuid = document.getElementById('uuid-input').value;
+        try{
+          const enc = encs.encodeUUID ? encs.encodeUUID(uuid, 'dense94') : '';
+          document.getElementById('encode-result').textContent = enc;
+          document.getElementById('encode-result-length').textContent = enc.length;
+        } catch (err){
+          document.getElementById('encode-result').textContent = 'ERROR: '+err.message;
+          document.getElementById('encode-result-length').textContent = '0';
+        }
+      });
+    }catch(e){
+      // ignore
     }
   </script>
 </body>

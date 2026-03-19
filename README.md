@@ -1,25 +1,15 @@
-# repository0
+# repo
 
-A JavaScript library that explores dense binary-to-text encodings.
+This repository demonstrates dense binary-to-text encodings and a demo website.
 
 ## UUID encoding comparison
 
-For a sample UUID (00112233-4455-6677-8899-aabbccddeeff) the encoded lengths are:
+The densest encodings provide shorter representations for a v7 UUID (16 bytes):
 
-- hex (32 chars)
-- base64 (no padding): 22 chars
-- base62: ~22 chars
-- base85: ~20 chars
-- dense94 (custom printable set): ~20 chars (densest in builtins)
+| Encoding | Bits/char | Charset size | Encoded length (chars for 16 bytes) |
+|---|---:|---:|---:|
+| base62 | ~5.95 | 62 | 22 |
+| base85 | ~6.41 | 85 | 20 |
+| dense94 | ~6.55 | 94 | 20 (typically &lt; 22) |
 
-Usage examples (library):
-
-import { encode, decode, encodeUUID, listEncodings } from './src/lib/main.js';
-
-const bytes = new Uint8Array([0x00,0x11,0x22]);
-const s = encode(bytes, 'base62');
-const back = decode(s, 'base62');
-
-const short = encodeUUID('00112233-4455-6677-8899-aabbccddeeff', 'dense94');
-
-See tests for more examples.
+See the website at src/web/index.html for a live comparison and an encodeUUID shortcut demonstration.
