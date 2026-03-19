@@ -15,6 +15,7 @@
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
+    .demo { margin-top: 1rem; }
   </style>
 </head>
 <body>
@@ -29,15 +30,25 @@
   </div>
   <h2>Output</h2>
   <div id="demo-output">Loading library...</div>
+  <div class="demo">
+    <h3>Roman Converter Demo</h3>
+    <div>1994 → <span id="convert-1994">loading...</span></div>
+    <div>"MCMXCIV" → <span id="convert-mcmxciv">loading...</span></div>
+    <div>4 → <span id="convert-4">loading...</span></div>
+  </div>
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
     try {
-      const { name, version, description } = await import('./lib.js');
+      const lib = await import('./lib.js');
+      const { name, version, description, intToRoman, romanToInt } = lib;
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
       document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
+      document.getElementById('convert-1994').textContent = intToRoman(1994);
+      document.getElementById('convert-mcmxciv').textContent = romanToInt('MCMXCIV');
+      document.getElementById('convert-4').textContent = intToRoman(4);
       document.title = name + ' v' + version;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
