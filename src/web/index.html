@@ -33,26 +33,11 @@
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
     try {
-      const lib = await import('./lib.js');
-      const { name, version, description, hammingString, hammingBits } = lib;
+      const { name, version, description } = await import('./lib.js');
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
-      // Demo outputs for Hamming functions
-      const examples = [];
-      try {
-        examples.push({ type: 'hammingString', a: 'karolin', b: 'kathrin', result: hammingString('karolin','kathrin') });
-        examples.push({ type: 'hammingString', a: '', b: '', result: hammingString('','') });
-      } catch (e) {
-        examples.push({ error: e.message });
-      }
-      try {
-        examples.push({ type: 'hammingBits', a: 1, b: 4, result: hammingBits(1,4) });
-        examples.push({ type: 'hammingBits', a: 0, b: 0, result: hammingBits(0,0) });
-      } catch (e) {
-        examples.push({ error: e.message });
-      }
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, examples }, null, 2);
+      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
