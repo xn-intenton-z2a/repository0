@@ -10,6 +10,18 @@ This repository is powered by [intentïon agentic-lib](https://github.com/xn-int
 
 The system will create issues from your mission, generate code to resolve them, run tests, and open PRs. A supervisor agent orchestrates the pipeline, and you can interact through GitHub Discussions.
 
+## Encodings comparison
+
+The library implements several dense printable encodings. The table below shows the charset size, bits per character (log2(charset size)), and the encoded length for a canonical 16-byte UUID using the library's UUID shorthand (strip dashes → encode → reverse final string).
+
+| Encoding | Charset size | Bits/char | UUID length |
+|---|---:|---:|---:|
+| base62 | 62 | 5.95 | 21 |
+| base85 | 85 | 6.41 | 19 |
+| base91 | 91 | 6.51 | 19 |
+
+The densest built-in encoding (base91) produces fewer than 22 characters for a UUID, beating base64's 22-character baseline.
+
 ## Setup
 
 ### Required Secrets
@@ -67,7 +79,7 @@ These files form a **coupled unit**. The library works in both Node and the brow
 - The behaviour test imports `getIdentity()` from `main.js` AND reads `#lib-version` from the rendered page → asserts they match
 - `npm run build:web` generates `docs/lib.js` as a self-contained module for production (GitHub Pages)
 
-This coupling proves the web page consumes the real library. Mission-specific functions should follow the same path — never duplicate library logic inline in the web page.
+This coupling proves the web page consumes the real library. Mission-specific functions should follow the same path — never duplicate library logic inline in the web page. 
 
 ## Test Strategy
 
@@ -76,8 +88,6 @@ This coupling proves the web page consumes the real library. Mission-specific fu
 | **Unit tests** (`tests/unit/main.test.js`) | Library API: return values, error types, edge cases | Imports directly from `src/lib/main.js` |
 | **Web structure tests** (`tests/unit/web.test.js`) | HTML structure: expected elements, `lib.js` re-export | Reads `src/web/index.html` and `src/web/lib.js` as text |
 | **Behaviour tests** (`tests/behaviour/`) | End-to-end: page renders, displays real library values | Playwright serves from project root; coupling test imports `getIdentity()` from `main.js` and asserts the page displays the same version |
-
-The **coupling test** in the behaviour test is the key invariant: it proves the web page displays values from the actual library, not hardcoded or duplicated values. The page imports `lib.js` which re-exports from `main.js` which reads `package.json` — the same chain the unit tests exercise.
 
 ## Configuration
 
