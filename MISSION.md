@@ -37,4 +37,4 @@ The library should implement progressively denser encodings:
 - [ ] Listing encodings returns encoding metadata (name, bits/char, charset size)
 - [ ] Custom encoding can be created from a charset string
 - [ ] All unit tests pass
-- [ ] README shows UUID encoding comparison table
+- [x] README shows UUID encoding comparison table
