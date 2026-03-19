@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>repository0</title>
-  <meta property="og:title" content="repository0">
-  <meta property="og:description" content="An autonomous repository powered by agentic-lib">
-  <meta property="og:type" content="website">
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 900px; margin: 0 auto; padding: 2rem; color: #222; }
     h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
-    a { color: #0366d6; }
     .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
-    .identity dt { font-weight: bold; color: #666; }
-    .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-    #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
+    #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 3rem; }
+    .example { margin: 1rem 0; }
+    label { display:block; margin:0.25rem 0; font-weight:600 }
+    input[type="text"], input[type="number"] { width: 100%; padding: 0.5rem; border-radius: 4px; }
+    button { margin-top: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 6px; }
   </style>
 </head>
 <body>
@@ -27,18 +25,72 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
+
+  <h2>Hamming distance demo</h2>
+  <div class="example">
+    <h3>String (Unicode-aware)</h3>
+    <label for="s-a">String A</label>
+    <input id="s-a" type="text" value="karolin" />
+    <label for="s-b">String B</label>
+    <input id="s-b" type="text" value="kathrin" />
+    <button id="run-string">Compute stringHamming(a, b)</button>
+    <div id="hamming-string-result" style="margin-top:0.5rem; font-family:monospace"></div>
+  </div>
+
+  <div class="example">
+    <h3>Integers (bit-level)</h3>
+    <label for="i-a">Integer A (non-negative)</label>
+    <input id="i-a" type="number" value="1" />
+    <label for="i-b">Integer B (non-negative)</label>
+    <input id="i-b" type="number" value="4" />
+    <button id="run-int">Compute intHamming(a, b)</button>
+    <div id="hamming-int-result" style="margin-top:0.5rem; font-family:monospace"></div>
+  </div>
+
   <h2>Output</h2>
   <div id="demo-output">Loading library...</div>
-  <h2>About</h2>
-  <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
+
+  <p>See <a href="../README.md">README</a> for API documentation and examples.</p>
+
   <script type="module">
     try {
-      const { name, version, description } = await import('./lib.js');
+      const lib = await import('./lib.js');
+      // expose to page scope for debugging & behaviour tests
+      window.lib = lib;
+
+      const { name, version, description, stringHamming, intHamming } = lib;
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
       document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
+
+      // wire up demo buttons
+      document.getElementById('run-string').addEventListener('click', () => {
+        const a = document.getElementById('s-a').value;
+        const b = document.getElementById('s-b').value;
+        try {
+          const res = stringHamming(a, b);
+          document.getElementById('hamming-string-result').textContent = `stringHamming(${JSON.stringify(a)}, ${JSON.stringify(b)}) => ${res}`;
+        } catch (err) {
+          document.getElementById('hamming-string-result').textContent = `${err.name}: ${err.message}`;
+        }
+      });
+
+      document.getElementById('run-int').addEventListener('click', () => {
+        const a = Number(document.getElementById('i-a').value);
+        const b = Number(document.getElementById('i-b').value);
+        try {
+          const res = intHamming(a, b);
+          document.getElementById('hamming-int-result').textContent = `intHamming(${a}, ${b}) => ${res}`;
+        } catch (err) {
+          document.getElementById('hamming-int-result').textContent = `${err.name}: ${err.message}`;
+        }
+      });
+
+      // run default demos
+      document.getElementById('run-string').click();
+      document.getElementById('run-int').click();
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
       document.getElementById('lib-description').textContent = e.message;
