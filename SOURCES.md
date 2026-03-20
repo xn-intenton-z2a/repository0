@@ -9,6 +9,8 @@
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt
 - https://www.npmjs.com/package/hamming-distance
 - https://262.ecma-international.org/13.0/#sec-string.prototype-@@iterator
+- https://unicode.org/faq/utf_bom.html
+- https://unicode.org/versions/Unicode13.0.0/
 
 # Notes
 
@@ -18,3 +20,4 @@ Kept authoritative references covering:
 - JavaScript Unicode code point handling and String iterator (MDN + ECMA-262)
 - BigInt reference for large integer handling (MDN)
 - Example npm package for reference implementation patterns
+- Unicode FAQs and Unicode Version docs to clarify code point vs code unit handling
