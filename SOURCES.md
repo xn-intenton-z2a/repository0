@@ -13,6 +13,7 @@
 - https://262.ecma-international.org/13.0/#sec-string.prototype-@@iterator
 - https://unicode.org/faq/utf_bom.html
 - https://unicode.org/versions/Unicode13.0.0/
+- https://www.hackersdelight.org/hdcodetxt/popcnt.c
 
 # Notes
 
@@ -23,4 +24,5 @@ Kept authoritative references covering:
 - String.fromCodePoint and String.normalize (MDN) for proper Unicode code point handling
 - BigInt reference for large integer handling (MDN)
 - Example npm package for reference implementation patterns
+- Hacker's Delight popcount algorithms for efficient bit population count
 - Unicode FAQs and Unicode Version docs to clarify code point vs code unit handling
