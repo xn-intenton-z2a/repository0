@@ -19,8 +19,8 @@ A JavaScript library for computing Hamming distances — between equal-length st
 
 - [ ] Hamming distance between `"karolin"` and `"kathrin"` is `3`
 - [ ] Hamming distance between `""` and `""` is `0`
-- [ ] Hamming distance between strings of different lengths throws `RangeError`
-- [ ] Bit-level Hamming distance between `1` and `4` is `2` (binary: 001 vs 100)
-- [ ] Bit-level Hamming distance between `0` and `0` is `0`
+- [x] Hamming distance between strings of different lengths throws `RangeError`
+- [x] Bit-level Hamming distance between `1` and `4` is `2` (binary: 001 vs 100)
+- [x] Bit-level Hamming distance between `0` and `0` is `0`
 - [ ] All unit tests pass
-- [ ] README documents usage with examples
+- [x] README documents usage with examples
