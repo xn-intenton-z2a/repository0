@@ -9,6 +9,7 @@
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCodePoint
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/normalize
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt
+- https://262.ecma-international.org/13.0/#sec-bigint
 - https://www.npmjs.com/package/hamming-distance
 - https://262.ecma-international.org/13.0/#sec-string.prototype-@@iterator
 - https://unicode.org/faq/utf_bom.html
