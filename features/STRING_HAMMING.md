@@ -2,36 +2,42 @@
 
 Goal
 ----
-Provide a feature to compute the Hamming distance between two strings in terms of Unicode code points (not bytes or code units). Align with MISSION.md by being small, testable, and well-documented.
+Compute the Hamming distance between two strings measured in Unicode code points (not UTF-16 code units). Keep API minimal, testable, and consistent with MISSION.md validation rules.
 
 Behavior & API
 --------------
 - Function: `stringHamming(a: string, b: string): number`
 - Inputs: two strings `a` and `b`.
-- Output: non-negative integer representing the number of positions at which the corresponding Unicode code points are different.
-- Precondition: strings must have equal code point length; otherwise, function throws an `Error` with message `"unequal-length"`.
-- The function operates on Unicode code points (characters), so surrogate pairs and combining sequences are counted per code point as reported by iterating over the string with for..of or using Array.from(str).
+- Output: non-negative integer representing the number of positions at which the corresponding Unicode code points differ.
+- Validation: throw TypeError if inputs are not strings; throw RangeError if the strings have unequal code point length.
+- The function compares code points (use Array.from or for..of to iterate code points). Normalization (NFC/NFD) is not performed by default and should be done by callers when canonical equivalence is desired.
 
 Acceptance Criteria (Testable)
 ------------------------------
-1. Exact match: stringHamming('abc', 'abc') === 0
-2. Single difference: stringHamming('açd', 'acd') === 1 (ç vs c)
-3. Emoji difference: stringHamming('a😀b', 'a😁b') === 1
-4. Unequal lengths: stringHamming('ab', 'abc') throws Error('unequal-length')
-5. Combining characters: stringHamming('é', 'e\u0301') === 1 if inputs are not normalized; caller may normalize to treat as equal
+1. Hamming distance: stringHamming('karolin', 'kathrin') === 3
+2. Empty strings: stringHamming('', '') === 0
+3. Exact match: stringHamming('abc', 'abc') === 0
+4. Single difference: stringHamming('açd', 'acd') === 1
+5. Emoji difference: stringHamming('a😀b', 'a😁b') === 1
+6. Unequal lengths: stringHamming('ab', 'abc') throws RangeError
+7. Type validation: stringHamming(123 as any, 'abc') throws TypeError
+8. Combining characters: stringHamming('é', 'e\u0301') is 1 unless caller normalizes inputs
 
 Tests to include
 ----------------
-- Unit tests for basic ASCII strings
-- Tests with emoji and characters outside BMP (use literal emojis like '😀' and '😁')
-- Tests that verify error is thrown for unequal lengths
-- Tests that demonstrate behavior with combining marks vs precomposed characters (e.g., 'é' vs 'e' + combining acute)
+- Unit tests for ASCII and Unicode strings including BMP and non-BMP characters
+- Edge cases: empty strings, surrogate pairs, combining sequences
+- Error tests: non-string inputs and unequal code point length
 
 Implementation Notes
 --------------------
-- Use Array.from(a) and Array.from(b) or [...a] to iterate code points.
-- If lengths differ after code point split, throw `Error('unequal-length')`.
-- Count positions where codePointArrayA[i] !== codePointArrayB[i].
-- Keep API small and pure; no side effects.
-- Document edge cases: normalization (NFC vs NFD) is not performed by default; callers should normalize if they expect canonical equivalence.
-- Align with MISSION.md: small, well-documented, test-driven, and platform-neutral.
+- Use Array.from(a) and Array.from(b) to obtain arrays of code points.
+- If lengths differ, throw RangeError per mission validation rules.
+- Compare corresponding code points using strict equality and count differences.
+- Keep function pure and side-effect free; document normalization guidance in README.
+
+Alignment with MISSION.md
+-------------------------
+- Implements required string Hamming capability using code point iteration
+- Validates types and lengths as required by the mission (TypeError and RangeError)
+- Includes clear, testable acceptance criteria to be used by unit tests
