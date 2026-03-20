@@ -3,92 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plot Code Library</title>
-  <meta property="og:title" content="Plot Code Library">
-  <meta property="og:description" content="A JavaScript library for generating plots from mathematical expressions and time series data">
+  <title>repository0</title>
+  <meta property="og:title" content="repository0">
+  <meta property="og:description" content="An autonomous repository powered by agentic-lib">
   <meta property="og:type" content="website">
   <style>
-    body { 
-      font-family: system-ui, -apple-system, sans-serif; 
-      max-width: 1200px; 
-      margin: 0 auto; 
-      padding: 2rem; 
-      color: #333; 
-    }
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
     h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
-    h2 { color: #0366d6; margin-top: 2rem; }
     a { color: #0366d6; }
-    .identity { 
-      background: #f6f8fa; 
-      padding: 1rem; 
-      border-radius: 6px; 
-      margin: 1rem 0; 
-      font-family: monospace; 
-    }
+    .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-    .demo-section {
-      background: #f8f9fa;
-      padding: 1.5rem;
-      border-radius: 8px;
-      margin: 1rem 0;
-      border: 1px solid #e1e4e8;
-    }
-    .demo-controls {
-      margin-bottom: 1rem;
-    }
-    .demo-controls input, .demo-controls select {
-      margin: 0.25rem;
-      padding: 0.5rem;
-      border: 1px solid #d0d7de;
-      border-radius: 4px;
-      font-family: monospace;
-    }
-    .demo-controls button {
-      margin: 0.25rem;
-      padding: 0.5rem 1rem;
-      background: #0366d6;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .demo-controls button:hover { background: #0256cc; }
-    .demo-output { 
-      background: #ffffff; 
-      border: 1px solid #d0d7de; 
-      border-radius: 6px; 
-      padding: 1rem; 
-      margin-top: 1rem;
-      min-height: 300px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .error { color: #d73a49; font-family: monospace; }
-    .success { color: #28a745; font-family: monospace; }
-    .loading { color: #6f42c1; font-style: italic; }
-    #svg-display { max-width: 100%; height: auto; }
-    .cli-examples {
-      background: #1e1e1e;
-      color: #d4d4d4;
-      padding: 1rem;
-      border-radius: 6px;
-      font-family: monospace;
-      white-space: pre-wrap;
-      overflow-x: auto;
-    }
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1rem;
-      margin: 1rem 0;
-    }
+    #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
   </style>
 </head>
 <body>
-  <h1 id="lib-name">Plot Code Library</h1>
-  
+  <h1 id="lib-name">repository0</h1>
   <div class="identity">
     <dl>
       <dt>Version</dt>
@@ -97,189 +27,23 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
-
-  <div class="feature-grid">
-    <!-- Expression Plotting Demo -->
-    <div class="demo-section">
-      <h2>Mathematical Expression Plotting</h2>
-      <p>Generate plots from mathematical expressions using JavaScript Math functions.</p>
-      
-      <div class="demo-controls">
-        <div>
-          <label>Expression:</label><br>
-          <input type="text" id="expression-input" value="Math.sin(x)" style="width: 250px;">
-        </div>
-        <div>
-          <label>Range:</label><br>
-          <input type="text" id="range-input" value="-6.28:0.1:6.28" style="width: 180px;">
-        </div>
-        <div>
-          <button onclick="generateExpressionPlot()">Generate Plot</button>
-        </div>
-      </div>
-      
-      <div class="demo-output" id="expression-output">
-        <span class="loading">Click "Generate Plot" to create a mathematical function plot</span>
-      </div>
-    </div>
-
-    <!-- CSV Data Demo -->
-    <div class="demo-section">
-      <h2>CSV Time Series Data</h2>
-      <p>Plot time series data from CSV format with time,value columns.</p>
-      
-      <div class="demo-controls">
-        <div>
-          <label>Sample CSV Data:</label><br>
-          <textarea id="csv-input" rows="5" style="width: 100%; font-family: monospace;">time,value
-0,1
-1,4
-2,9
-3,16
-4,25</textarea>
-        </div>
-        <div>
-          <button onclick="generateCSVPlot()">Plot CSV Data</button>
-        </div>
-      </div>
-      
-      <div class="demo-output" id="csv-output">
-        <span class="loading">Click "Plot CSV Data" to visualize time series</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="demo-section">
-    <h2>CLI Usage Examples</h2>
-    <p>Command-line interface for generating plot files:</p>
-    
-    <div class="cli-examples" id="cli-examples">Loading CLI examples...</div>
-  </div>
-
-  <h2>Features</h2>
-  <ul>
-    <li><strong>Expression Parser:</strong> Parse mathematical expressions using JavaScript Math functions</li>
-    <li><strong>Range Evaluation:</strong> Evaluate expressions over numeric ranges with configurable step sizes</li>
-    <li><strong>CSV Data Loading:</strong> Load time series data from CSV files with time,value columns</li>
-    <li><strong>SVG Rendering:</strong> Generate scalable vector graphics with polyline elements and viewBox attributes</li>
-    <li><strong>PNG Output:</strong> Create bitmap images using HTML5 Canvas (Node.js only)</li>
-    <li><strong>File Saving:</strong> Save plots to files with automatic format detection (.svg/.png)</li>
-    <li><strong>CLI Interface:</strong> Full command-line interface with --expression, --range, --csv, and --file flags</li>
-  </ul>
-
+  <h2>Output</h2>
+  <div id="demo-output">Loading library...</div>
   <h2>About</h2>
-  <p>This website demonstrates the plotting library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
-
+  <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
-    import { 
-      name, 
-      version, 
-      description,
-      parseExpression,
-      evaluateRange,
-      renderSVG,
-      printUsage
-    } from './lib.js';
-
-    // Update library identity
     try {
+      const { name, version, description } = await import('./lib.js');
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
-      document.title = name + ' - ' + description;
+      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
+      document.title = name + ' v' + version;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
       document.getElementById('lib-description').textContent = e.message;
+      document.getElementById('demo-output').textContent = 'Failed to load library: ' + e.message;
     }
-
-    // Generate CLI examples
-    try {
-      // Capture printUsage output
-      const originalLog = console.log;
-      let cliOutput = '';
-      console.log = (msg) => { cliOutput += msg + '\\n'; };
-      
-      printUsage();
-      
-      console.log = originalLog;
-      document.getElementById('cli-examples').textContent = cliOutput;
-    } catch (e) {
-      document.getElementById('cli-examples').textContent = 'Error loading CLI examples: ' + e.message;
-    }
-
-    // Demo functions
-    window.generateExpressionPlot = function() {
-      const output = document.getElementById('expression-output');
-      output.innerHTML = '<span class="loading">Generating plot...</span>';
-      
-      try {
-        const expression = document.getElementById('expression-input').value;
-        const range = document.getElementById('range-input').value;
-        
-        // Parse and evaluate
-        const func = parseExpression(expression);
-        const points = evaluateRange(func, range);
-        
-        // Generate SVG
-        const svg = renderSVG(points);
-        
-        // Display SVG
-        output.innerHTML = svg;
-        
-      } catch (error) {
-        output.innerHTML = `<span class="error">Error: ${error.message}</span>`;
-      }
-    };
-
-    window.generateCSVPlot = function() {
-      const output = document.getElementById('csv-output');
-      output.innerHTML = '<span class="loading">Processing CSV data...</span>';
-      
-      try {
-        const csvText = document.getElementById('csv-input').value;
-        
-        // Parse CSV manually (since we can't use file system in browser)
-        const lines = csvText.trim().split('\\n');
-        const header = lines[0].split(',').map(h => h.trim());
-        
-        if (!header.includes('time') || !header.includes('value')) {
-          throw new Error('CSV must have "time" and "value" columns');
-        }
-        
-        const timeIndex = header.indexOf('time');
-        const valueIndex = header.indexOf('value');
-        
-        const points = [];
-        for (let i = 1; i < lines.length; i++) {
-          const values = lines[i].split(',').map(v => v.trim());
-          const time = Number(values[timeIndex]);
-          const value = Number(values[valueIndex]);
-          
-          if (!isNaN(time) && !isNaN(value)) {
-            points.push({ x: time, y: value });
-          }
-        }
-        
-        if (points.length === 0) {
-          throw new Error('No valid data points found');
-        }
-        
-        // Generate SVG
-        const svg = renderSVG(points);
-        
-        // Display SVG
-        output.innerHTML = svg;
-        
-      } catch (error) {
-        output.innerHTML = `<span class="error">Error: ${error.message}</span>`;
-      }
-    };
-
-    // Generate initial demo plots
-    setTimeout(() => {
-      generateExpressionPlot();
-      generateCSVPlot();
-    }, 100);
   </script>
 </body>
 </html>
