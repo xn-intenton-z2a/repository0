@@ -168,62 +168,14 @@ jobs:
             const isMaintenance = frequency === 'maintenance';
             const effectiveFrequency = isMaintenance ? 'weekly' : frequency;
 
-            // Proportional schedule maps for each workflow
-            const WORKFLOW_SCHEDULE_MAP = {
-              off: '0 0 31 2 *',
-              weekly: '25 6 * * 1',              // Monday 6:25am
-              daily: '25 6 * * *',               // Every day 6:25am
-              hourly: '25 * * * *',              // Every hour at :25
-              continuous: '5,25,45 * * * *',     // Every 20 min
-            };
-            const INIT_SCHEDULE_MAP = {
-              off: '0 0 31 2 *',
-              weekly: '0 4 1 * *',               // 1st of month 4:00am
-              daily: '0 4 * * 1',                // Monday 4:00am
-              hourly: '0 4 * * *',               // Every day 4:00am
-              continuous: '0 1,5,9,13,17,21 * * *', // Every 4 hours
-            };
-            const TEST_SCHEDULE_MAP = {
-              off: '0 0 31 2 *',
-              weekly: '40 6 * * 1',              // Monday 6:40am
-              daily: '40 6 * * *',               // Every day 6:40am
-              hourly: '40 0,4,8,12,16,20 * * *', // Every 4 hours at :40
-              continuous: '40 * * * *',           // Every hour at :40
-            };
-
-            // Helper: update cron in a workflow file
-            function updateWorkflowCron(path, cron, label) {
-              if (!fs.existsSync(path)) {
-                core.info(`${label}: file not found at ${path}, skipping`);
-                return;
-              }
-              let content = fs.readFileSync(path, 'utf8');
-              // Remove any duplicate schedule: blocks (keep only the first)
-              const dupScheduleRegex = /(\n  schedule:\n    - cron: "[^"]*"\n)(\s*schedule:\n\s*- cron: "[^"]*"\n)/;
-              if (dupScheduleRegex.test(content)) {
-                content = content.replace(dupScheduleRegex, '$1');
-                core.info(`${label}: removed duplicate schedule block`);
-              }
-              const cronRegex = /- cron: "[^"]*"/;
-              if (cronRegex.test(content)) {
-                content = content.replace(cronRegex, `- cron: "${cron}"`);
-              } else {
-                const scheduleBlock = `\n  schedule:\n    - cron: "${cron}"\n`;
-                content = content.replace(/\non:\n/, `\non:${scheduleBlock}`);
-              }
-              fs.writeFileSync(path, content);
-              core.info(`${label}: set cron to "${cron}"`);
-            }
-
-            const workflowPath = '.github/workflows/agentic-lib-workflow.yml';
-            const initPath = '.github/workflows/agentic-lib-init.yml';
-            const testPath = '.github/workflows/agentic-lib-test.yml';
+            // Shared schedule maps and helper (single source of truth)
+            const { WORKFLOW_SCHEDULE_MAP, updateAllSchedules } = require('./.github/agentic-lib/scripts/schedule-utils.cjs');
+            const logger = { info: core.info };
 
             const workflowCron = WORKFLOW_SCHEDULE_MAP[effectiveFrequency];
-            const initCron = INIT_SCHEDULE_MAP[effectiveFrequency];
-            const testCron = TEST_SCHEDULE_MAP[effectiveFrequency];
 
             // Check if the frequency is already set — skip if no-op (but never skip maintenance)
+            const workflowPath = '.github/workflows/agentic-lib-workflow.yml';
             const supervisorRegex2 = /^\s*supervisor\s*=\s*"([^"]*)"/m;
             if (!isMaintenance && fs.existsSync(tomlPath)) {
               const currentToml = fs.readFileSync(tomlPath, 'utf8');
@@ -242,9 +194,7 @@ jobs:
             }
 
             // Update all three workflow files proportionally
-            updateWorkflowCron(workflowPath, workflowCron, 'workflow');
-            updateWorkflowCron(initPath, initCron, 'init');
-            updateWorkflowCron(testPath, testCron, 'test');
+            updateAllSchedules(effectiveFrequency, logger);
 
             // Stamp the workflow file with current date
             if (fs.existsSync(workflowPath)) {

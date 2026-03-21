@@ -296,26 +296,16 @@ jobs:
             }
             if (!model) model = 'gpt-5-mini';
 
-            // Problem 4 fix: Use "never fires" cron for off instead of removing the block
-            const SCHEDULE_MAP = {
-              off: '0 0 31 2 *',
-              weekly: '25 6 * * 1',
-              daily: '25 6 * * *',
-              hourly: '25 * * * *',
-              continuous: '5,25,45 * * * *',
-            };
+            // Shared schedule maps and helper (single source of truth)
+            const { updateAllSchedules } = require('./.github/agentic-lib/scripts/schedule-utils.cjs');
+            const logger = { info: core.info };
 
+            // Update all three workflow files proportionally
+            updateAllSchedules(frequency, logger);
+
+            // Stamp the workflow file with current date
             if (fs.existsSync(workflowPath)) {
               let content = fs.readFileSync(workflowPath, 'utf8');
-              const cron = SCHEDULE_MAP[frequency];
-              // Replace existing cron or insert new schedule block
-              const cronRegex = /- cron: "[^"]*"/;
-              if (cronRegex.test(content)) {
-                content = content.replace(cronRegex, `- cron: "${cron}"`);
-              } else {
-                const scheduleBlock = `\n  schedule:\n    - cron: "${cron}"\n`;
-                content = content.replace(/\non:\n/, `\non:${scheduleBlock}`);
-              }
               const dateStamp = `# Schedule updated: ${new Date().toISOString()}`;
               const stampRegex = /^# Schedule updated: .*/m;
               if (stampRegex.test(content)) {
@@ -324,8 +314,8 @@ jobs:
                 content = content.replace(/^(# .*\n)+/m, (match) => match + dateStamp + '\n');
               }
               fs.writeFileSync(workflowPath, content);
-              core.info(`Updated schedule to: ${frequency}`);
             }
+            core.info(`Updated proportional schedules to: ${frequency}`);
 
             if (fs.existsSync(tomlPath)) {
               let toml = fs.readFileSync(tomlPath, 'utf8');
