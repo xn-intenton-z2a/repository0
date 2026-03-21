@@ -41,7 +41,6 @@ agentic-lib ships with 20 built-in missions plus two special modes, graded using
 | `4-kyu-apply-cron-engine` | 4 kyu | Cron expression parser |
 | `4-kyu-apply-dense-encoding` | 4 kyu | Dense binary encoding |
 | `4-kyu-analyze-json-schema-diff` | 4 kyu | JSON Schema diff |
-| `4-kyu-apply-owl-ontology` | 4 kyu | OWL ontology processor |
 | `3-kyu-analyze-lunar-lander` | 3 kyu | Lunar lander simulation |
 | `3-kyu-evaluate-time-series-lab` | 3 kyu | Time series analysis |
 | `2-kyu-create-markdown-compiler` | 2 kyu | Markdown compiler |
@@ -110,33 +109,27 @@ MISSION.md -> [supervisor] -> dispatch workflows -> Issue -> Code -> Test -> PR 
 
 The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context and dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
 
-## Configuration
+## FizzBuzz Examples
 
-Edit `agentic-lib.toml` to tune the system:
+The project mission implements two exported functions: `fizzBuzz(n)` and `fizzBuzzSingle(n)`.
 
-```toml
-[schedule]
-supervisor = "off"          # off | weekly | daily | hourly | continuous
-focus = "mission"           # mission | maintenance
+- `fizzBuzz(n)` returns an array of strings for numbers from `1` to `n` where multiples of 3 are replaced with `"Fizz"`, multiples of 5 with `"Buzz"`, and multiples of both with `"FizzBuzz"`. `fizzBuzz(0)` returns an empty array. Passing a negative number throws `RangeError` and passing a non-integer throws `TypeError`.
 
-[tuning]
-profile = "max"             # min | med | max
-model = "gpt-5-mini"       # gpt-5-mini | claude-sonnet-4 | gpt-4.1
+- `fizzBuzzSingle(n)` returns the FizzBuzz result for a single positive integer `n` (e.g. `3 -> "Fizz"`, `5 -> "Buzz"`, `7 -> "7"`). Non-integers throw `TypeError` and non-positive values throw `RangeError`.
 
-[mission-complete]
-acceptance-criteria-threshold = 50   # % of criteria that must be met
-min-resolved-issues = 1              # minimum closed issues
+Node (ESM) example: save as `example.mjs` and run with `node example.mjs` (Node >= 24):
+
+```js
+import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js';
+
+console.log(fizzBuzzSingle(3)); // "Fizz"
+console.log(fizzBuzzSingle(5)); // "Buzz"
+console.log(fizzBuzzSingle(15)); // "FizzBuzz"
+console.log(fizzBuzz(15));
+// ["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]
 ```
 
-## File Layout
-
-```
-src/lib/main.js              <- library (browser-safe)
-src/web/index.html            <- web page (imports ./lib.js)
-tests/unit/main.test.js       <- unit tests
-tests/behaviour/              <- Playwright E2E
-docs/                         <- build output for GitHub Pages
-```
+Browser example (uses the site at `src/web/index.html`): the page demonstrates `fizzBuzz(15)` and `fizzBuzzSingle(15)` in the Output panel.
 
 ## Updating
 

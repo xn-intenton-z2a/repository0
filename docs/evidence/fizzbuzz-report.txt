@@ -1,0 +1,7 @@
+FizzBuzz demonstration
+
+The library now implements fizzBuzz(n) and fizzBuzzSingle(n).
+- Example: fizzBuzz(15) produces 15 entries ending with "FizzBuzz".
+- Example: fizzBuzzSingle(3) -> "Fizz"; fizzBuzzSingle(5) -> "Buzz"; fizzBuzzSingle(7) -> "7".
+
+A JSON example is available at docs/examples/fizzbuzz-15.json
