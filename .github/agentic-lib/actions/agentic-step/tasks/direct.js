@@ -124,7 +124,7 @@ async function buildMetricAssessment(ctx, config) {
 /**
  * Build the director prompt (lean version — model explores via tools).
  */
-function buildPrompt(ctx, agentInstructions, metricAssessment) {
+function buildPrompt(ctx, agentInstructions, metricAssessment, config) {
   return [
     "## Instructions",
     agentInstructions,
@@ -508,7 +508,7 @@ export async function direct(context) {
 
   // --- LLM decision via hybrid session ---
   const agentInstructions = instructions || "You are the director. Evaluate mission readiness.";
-  const prompt = buildPrompt(ctx, agentInstructions, metricAssessment);
+  const prompt = buildPrompt(ctx, agentInstructions, metricAssessment, config);
 
   const systemPrompt =
     "You are the director of an autonomous coding repository. Your job is to evaluate whether the mission is complete, failed, or in progress. You produce a structured assessment — you do NOT dispatch workflows or create issues." +

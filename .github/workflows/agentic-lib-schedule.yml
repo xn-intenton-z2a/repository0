@@ -198,6 +198,12 @@ jobs:
                 return;
               }
               let content = fs.readFileSync(path, 'utf8');
+              // Remove any duplicate schedule: blocks (keep only the first)
+              const dupScheduleRegex = /(\n  schedule:\n    - cron: "[^"]*"\n)(\s*schedule:\n\s*- cron: "[^"]*"\n)/;
+              if (dupScheduleRegex.test(content)) {
+                content = content.replace(dupScheduleRegex, '$1');
+                core.info(`${label}: removed duplicate schedule block`);
+              }
               const cronRegex = /- cron: "[^"]*"/;
               if (cronRegex.test(content)) {
                 content = content.replace(cronRegex, `- cron: "${cron}"`);
