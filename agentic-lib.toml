@@ -6,7 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "off"       # off | weekly | daily | hourly | continuous
+supervisor = "hourly"       # off | weekly | daily | hourly | continuous
 focus = "mission"                 # mission | maintenance
 
 [paths]
@@ -184,8 +184,8 @@ total = 8
 8 = { text = "README documents usage with examples", met = false }
 
 [init]
-timestamp = "2026-03-21T10:06:50.683Z"
+timestamp = "2026-03-21T10:31:09.313Z"
 mode = "purge"
 mission = "7-kyu-understand-fizz-buzz"
 mission-type = "7-kyu-understand-fizz-buzz"
-version = "7.4.34"
+version = "7.4.35"
