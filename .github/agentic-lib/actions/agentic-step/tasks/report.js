@@ -356,7 +356,7 @@ export async function report(context) {
     const agentInstructions = context.instructions || "You are a benchmark analyst. Investigate the data and produce findings.";
 
     const createTools = (defineTool, _wp, logger) => {
-      const ghTools = createGitHubTools(octokit, owner, repoName, defineTool, logger);
+      const ghTools = createGitHubTools(octokit, repo, defineTool, logger);
       const gitTools = createGitTools(defineTool, logger);
 
       const reportTool = defineTool("report_analysis", {
