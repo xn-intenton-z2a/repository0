@@ -15,6 +15,8 @@
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
+    ul.fizz { background: #fff; padding: 1rem; border-radius: 6px; }
+    ul.fizz li { padding: 0.2rem 0; }
   </style>
 </head>
 <body>
@@ -27,18 +29,44 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
+  <h2>FizzBuzz Demo</h2>
+  <p>fizzBuzz(15):</p>
+  <ul id="fizz-list" class="fizz">Loading...</ul>
+  <h3>fizzBuzzSingle examples</h3>
+  <dl>
+    <dt>3</dt><dd id="fizz-single-3">...</dd>
+    <dt>5</dt><dd id="fizz-single-5">...</dd>
+    <dt>15</dt><dd id="fizz-single-15">...</dd>
+    <dt>7</dt><dd id="fizz-single-7">...</dd>
+  </dl>
+
   <h2>Output</h2>
   <div id="demo-output">Loading library...</div>
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
     try {
-      const { name, version, description } = await import('./lib.js');
+      const lib = await import('./lib.js');
+      const { name, version, description, fizzBuzz, fizzBuzzSingle } = lib;
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
       document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
+
+      // render fizzbuzz
+      const list = document.getElementById('fizz-list');
+      const items = fizzBuzz(15);
+      list.innerHTML = '';
+      for (const it of items) {
+        const li = document.createElement('li');
+        li.textContent = it;
+        list.appendChild(li);
+      }
+      document.getElementById('fizz-single-3').textContent = fizzBuzzSingle(3);
+      document.getElementById('fizz-single-5').textContent = fizzBuzzSingle(5);
+      document.getElementById('fizz-single-15').textContent = fizzBuzzSingle(15);
+      document.getElementById('fizz-single-7').textContent = fizzBuzzSingle(7);
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
       document.getElementById('lib-description').textContent = e.message;
