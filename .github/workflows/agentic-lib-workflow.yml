@@ -166,10 +166,23 @@ jobs:
           sparse-checkout-cone-mode: false
       - id: resolve
         uses: actions/github-script@v8
+        env:
+          INPUT_MODEL: ${{ inputs.model }}
+          INPUT_PROFILE: ${{ inputs.profile }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_MESSAGE: ${{ inputs.message }}
+          INPUT_ISSUE_NUMBER: ${{ inputs.issue-number }}
+          INPUT_SCHEDULE: ${{ inputs.schedule }}
+          INPUT_PR_NUMBER: ${{ inputs.pr-number }}
+          INPUT_CONFIG_PATH: ${{ inputs.config-path }}
+          INPUT_SKIP_MAINTAIN: ${{ inputs.skipMaintain }}
+          INPUT_DRY_RUN: ${{ inputs.dry-run }}
+          CONFIG_PATH: ${{ env.configPath }}
+          EVENT_NAME: ${{ github.event_name }}
         with:
           script: |
             const fs = require('fs');
-            const configPath = '${{ env.configPath }}';
+            const configPath = process.env.CONFIG_PATH;
             let toml = '';
             if (fs.existsSync(configPath)) toml = fs.readFileSync(configPath, 'utf8');
             const readToml = (key) => {
@@ -192,19 +205,19 @@ jobs:
               core.setOutput(name, value);
               return value;
             };
-            resolve('model', '${{ inputs.model }}', 'model', 'gpt-5-mini');
-            resolve('profile', '${{ inputs.profile }}', 'profile', '');
-            resolve('mode', '${{ inputs.mode }}', null, 'full');
-            resolve('message', '${{ inputs.message }}', null, '');
-            resolve('issue-number', '${{ inputs.issue-number }}', null, '');
-            resolve('schedule', '${{ inputs.schedule }}', null, '');
-            resolve('pr-number', '${{ inputs.pr-number }}', null, '');
-            resolve('config-path', '${{ inputs.config-path }}', null, '${{ env.configPath }}');
-            resolve('skipMaintain', '${{ inputs.skipMaintain }}', null, 'false');
+            resolve('model', process.env.INPUT_MODEL, 'model', 'gpt-5-mini');
+            resolve('profile', process.env.INPUT_PROFILE, 'profile', '');
+            resolve('mode', process.env.INPUT_MODE, null, 'full');
+            resolve('message', process.env.INPUT_MESSAGE, null, '');
+            resolve('issue-number', process.env.INPUT_ISSUE_NUMBER, null, '');
+            resolve('schedule', process.env.INPUT_SCHEDULE, null, '');
+            resolve('pr-number', process.env.INPUT_PR_NUMBER, null, '');
+            resolve('config-path', process.env.INPUT_CONFIG_PATH, null, process.env.CONFIG_PATH);
+            resolve('skipMaintain', process.env.INPUT_SKIP_MAINTAIN, null, 'false');
             // dry-run: schedule events default to false (live), others to true
-            const eventName = '${{ github.event_name }}';
+            const eventName = process.env.EVENT_NAME;
             const dryRunDefault = eventName === 'schedule' ? 'false' : 'true';
-            resolve('dry-run', '${{ inputs.dry-run }}', null, dryRunDefault);
+            resolve('dry-run', process.env.INPUT_DRY_RUN, null, dryRunDefault);
             // Bot config from TOML
             resolve('log-prefix', '', 'log-prefix', 'agent-log-');
             resolve('log-branch', '', 'log-branch', 'agentic-lib-logs');

@@ -45,6 +45,9 @@ jobs:
     steps:
       - id: resolve
         uses: actions/github-script@v8
+        env:
+          INPUT_DRY_RUN: ${{ inputs.dry-run }}
+          INPUT_SKIP_TESTS: ${{ inputs.skip-tests }}
         with:
           script: |
             const resolve = (name, input, configKey, defaultValue) => {
@@ -61,8 +64,8 @@ jobs:
               core.setOutput(name, value);
               return value;
             };
-            resolve('dry-run', '${{ inputs.dry-run }}', null, 'false');
-            resolve('skip-tests', '${{ inputs.skip-tests }}', null, 'false');
+            resolve('dry-run', process.env.INPUT_DRY_RUN, null, 'false');
+            resolve('skip-tests', process.env.INPUT_SKIP_TESTS, null, 'false');
 
   update:
     needs: [params]

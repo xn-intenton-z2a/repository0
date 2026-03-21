@@ -107,6 +107,12 @@ jobs:
           sparse-checkout-cone-mode: false
       - id: resolve
         uses: actions/github-script@v8
+        env:
+          INPUT_FREQUENCY: ${{ inputs.frequency }}
+          INPUT_MODEL: ${{ inputs.model }}
+          INPUT_PROFILE: ${{ inputs.profile }}
+          INPUT_FOCUS: ${{ inputs.focus }}
+          INPUT_DRY_RUN: ${{ inputs.dry-run }}
         with:
           script: |
             const fs = require('fs');
@@ -133,16 +139,16 @@ jobs:
               core.setOutput(name, value);
               return value;
             };
-            const frequency = resolve('frequency', '${{ inputs.frequency }}', 'supervisor', 'off');
-            resolve('model', '${{ inputs.model }}', 'model', 'gpt-5-mini');
-            resolve('profile', '${{ inputs.profile }}', 'profile', '');
-            let focus = resolve('focus', '${{ inputs.focus }}', 'focus', 'mission');
+            const frequency = resolve('frequency', process.env.INPUT_FREQUENCY, 'supervisor', 'off');
+            resolve('model', process.env.INPUT_MODEL, 'model', 'gpt-5-mini');
+            resolve('profile', process.env.INPUT_PROFILE, 'profile', '');
+            let focus = resolve('focus', process.env.INPUT_FOCUS, 'focus', 'mission');
             if (frequency === 'maintenance') {
               focus = 'maintenance';
               core.info(`param focus: overridden to 'maintenance' (frequency=maintenance)`);
               core.setOutput('focus', focus);
             }
-            resolve('dry-run', '${{ inputs.dry-run }}', null, 'false');
+            resolve('dry-run', process.env.INPUT_DRY_RUN, null, 'false');
             const maintenance = frequency === 'maintenance' ? 'true' : 'false';
             core.info(`param maintenance: derived='${maintenance}' (frequency='${frequency}')`);
             core.setOutput('maintenance', maintenance);

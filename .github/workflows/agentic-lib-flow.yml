@@ -195,6 +195,21 @@ jobs:
           sparse-checkout-cone-mode: false
       - id: resolve
         uses: actions/github-script@v8
+        env:
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_MISSION_SEED: ${{ inputs.mission-seed }}
+          INPUT_MISSION_TEXT: ${{ inputs.mission-text }}
+          INPUT_MODEL: ${{ inputs.model }}
+          INPUT_PROFILE: ${{ inputs.profile }}
+          INPUT_WORKFLOW_RUNS: ${{ inputs.workflow-runs }}
+          INPUT_SCHEDULE: ${{ inputs.schedule }}
+          INPUT_DRY_RUN: ${{ inputs.dry-run }}
+          INPUT_MESSAGE: ${{ inputs.message }}
+          INPUT_CONFIG_PATH: ${{ inputs.config-path }}
+          INPUT_SKIP_MAINTAIN: ${{ inputs.skipMaintain }}
+          INPUT_CREATE_SEED_ISSUES: ${{ inputs.create-seed-issues }}
+          INPUT_SKIP_TESTS: ${{ inputs.skip-tests }}
+          INPUT_GENERATE_REPORT: ${{ inputs.generate-report }}
         with:
           script: |
             const fs = require('fs');
@@ -221,20 +236,20 @@ jobs:
               core.setOutput(name, value);
               return value;
             };
-            resolve('mode', '${{ inputs.mode }}', null, 'purge');
-            resolve('mission-seed', '${{ inputs.mission-seed }}', null, '7-kyu-understand-fizz-buzz');
-            resolve('mission-text', '${{ inputs.mission-text }}', null, '');
-            resolve('model', '${{ inputs.model }}', 'model', 'gpt-5-mini');
-            resolve('profile', '${{ inputs.profile }}', 'profile', 'max');
-            resolve('workflow-runs', '${{ inputs.workflow-runs }}', null, '4');
-            resolve('schedule', '${{ inputs.schedule }}', null, 'off');
-            resolve('dry-run', '${{ inputs.dry-run }}', null, 'false');
-            resolve('message', '${{ inputs.message }}', null, '');
-            resolve('config-path', '${{ inputs.config-path }}', null, 'agentic-lib.toml');
-            resolve('skipMaintain', '${{ inputs.skipMaintain }}', null, 'false');
-            resolve('create-seed-issues', '${{ inputs.create-seed-issues }}', null, 'false');
-            resolve('skip-tests', '${{ inputs.skip-tests }}', null, 'true');
-            resolve('generate-report', '${{ inputs.generate-report }}', null, 'false');
+            resolve('mode', process.env.INPUT_MODE, null, 'purge');
+            resolve('mission-seed', process.env.INPUT_MISSION_SEED, null, '7-kyu-understand-fizz-buzz');
+            resolve('mission-text', process.env.INPUT_MISSION_TEXT, null, '');
+            resolve('model', process.env.INPUT_MODEL, 'model', 'gpt-5-mini');
+            resolve('profile', process.env.INPUT_PROFILE, 'profile', 'max');
+            resolve('workflow-runs', process.env.INPUT_WORKFLOW_RUNS, null, '4');
+            resolve('schedule', process.env.INPUT_SCHEDULE, null, 'off');
+            resolve('dry-run', process.env.INPUT_DRY_RUN, null, 'false');
+            resolve('message', process.env.INPUT_MESSAGE, null, '');
+            resolve('config-path', process.env.INPUT_CONFIG_PATH, null, 'agentic-lib.toml');
+            resolve('skipMaintain', process.env.INPUT_SKIP_MAINTAIN, null, 'false');
+            resolve('create-seed-issues', process.env.INPUT_CREATE_SEED_ISSUES, null, 'false');
+            resolve('skip-tests', process.env.INPUT_SKIP_TESTS, null, 'true');
+            resolve('generate-report', process.env.INPUT_GENERATE_REPORT, null, 'false');
 
   # ── Phase 0: Update agentic-lib package ────────────────────────────
   update:

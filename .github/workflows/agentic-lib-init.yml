@@ -161,6 +161,16 @@ jobs:
     steps:
       - id: resolve
         uses: actions/github-script@v8
+        env:
+          INPUT_DRY_RUN: ${{ inputs.dry-run }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_MISSION_SEED: ${{ inputs.mission-seed }}
+          INPUT_MISSION_TEXT: ${{ inputs.mission-text }}
+          INPUT_SCHEDULE: ${{ inputs.schedule }}
+          INPUT_MODEL: ${{ inputs.model }}
+          INPUT_PROFILE: ${{ inputs.profile }}
+          INPUT_CREATE_SEED_ISSUES: ${{ inputs.create-seed-issues }}
+          INPUT_RUN_WORKFLOW: ${{ inputs.run-workflow }}
         with:
           script: |
             const resolve = (name, input, configKey, defaultValue) => {
@@ -177,15 +187,15 @@ jobs:
               core.setOutput(name, value);
               return value;
             };
-            resolve('dry-run', '${{ inputs.dry-run }}', null, 'false');
-            resolve('mode', '${{ inputs.mode }}', null, 'purge');
-            resolve('mission-seed', '${{ inputs.mission-seed }}', null, '7-kyu-understand-fizz-buzz');
-            resolve('mission-text', '${{ inputs.mission-text }}', null, '');
-            resolve('schedule', '${{ inputs.schedule }}', null, '');
-            resolve('model', '${{ inputs.model }}', null, '');
-            resolve('profile', '${{ inputs.profile }}', null, '');
-            resolve('create-seed-issues', '${{ inputs.create-seed-issues }}', null, 'false');
-            resolve('run-workflow', '${{ inputs.run-workflow }}', null, 'true');
+            resolve('dry-run', process.env.INPUT_DRY_RUN, null, 'false');
+            resolve('mode', process.env.INPUT_MODE, null, 'purge');
+            resolve('mission-seed', process.env.INPUT_MISSION_SEED, null, '7-kyu-understand-fizz-buzz');
+            resolve('mission-text', process.env.INPUT_MISSION_TEXT, null, '');
+            resolve('schedule', process.env.INPUT_SCHEDULE, null, '');
+            resolve('model', process.env.INPUT_MODEL, null, '');
+            resolve('profile', process.env.INPUT_PROFILE, null, '');
+            resolve('create-seed-issues', process.env.INPUT_CREATE_SEED_ISSUES, null, 'false');
+            resolve('run-workflow', process.env.INPUT_RUN_WORKFLOW, null, 'true');
 
   # Step 1: Update agentic-lib and infrastructure (commits to main)
   # Skip tests when purge/reseed will replace all user code anyway

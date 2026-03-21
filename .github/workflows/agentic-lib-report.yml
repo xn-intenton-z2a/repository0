@@ -88,10 +88,17 @@ jobs:
           sparse-checkout-cone-mode: false
       - id: resolve
         uses: actions/github-script@v8
+        env:
+          INPUT_PERIOD_START: ${{ inputs.period-start }}
+          INPUT_PERIOD_END: ${{ inputs.period-end }}
+          INPUT_MODEL: ${{ inputs.model }}
+          INPUT_CONFIG_PATH: ${{ inputs.config-path }}
+          INPUT_DRY_RUN: ${{ inputs.dry-run }}
+          CONFIG_PATH: ${{ env.configPath }}
         with:
           script: |
             const fs = require('fs');
-            const configPath = '${{ env.configPath }}';
+            const configPath = process.env.CONFIG_PATH;
             let toml = '';
             if (fs.existsSync(configPath)) toml = fs.readFileSync(configPath, 'utf8');
             const readToml = (key) => {
@@ -114,11 +121,11 @@ jobs:
               core.setOutput(name, value);
               return value;
             };
-            resolve('period-start', '${{ inputs.period-start }}', null, '');
-            resolve('period-end', '${{ inputs.period-end }}', null, '');
-            resolve('model', '${{ inputs.model }}', 'model', 'gpt-5-mini');
-            resolve('config-path', '${{ inputs.config-path }}', null, '${{ env.configPath }}');
-            resolve('dry-run', '${{ inputs.dry-run }}', null, 'false');
+            resolve('period-start', process.env.INPUT_PERIOD_START, null, '');
+            resolve('period-end', process.env.INPUT_PERIOD_END, null, '');
+            resolve('model', process.env.INPUT_MODEL, 'model', 'gpt-5-mini');
+            resolve('config-path', process.env.INPUT_CONFIG_PATH, null, process.env.CONFIG_PATH);
+            resolve('dry-run', process.env.INPUT_DRY_RUN, null, 'false');
 
   generate-report:
     needs: [params]

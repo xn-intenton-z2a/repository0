@@ -70,6 +70,9 @@ jobs:
     steps:
       - id: resolve
         uses: actions/github-script@v8
+        env:
+          INPUT_PUSH_SCREENSHOT: ${{ inputs.push-screenshot }}
+          INPUT_LOG_BRANCH: ${{ inputs.log-branch }}
         with:
           script: |
             const resolve = (name, input, configKey, defaultValue) => {
@@ -86,8 +89,8 @@ jobs:
               core.setOutput(name, value);
               return value;
             };
-            resolve('push-screenshot', '${{ inputs.push-screenshot }}', null, 'false');
-            resolve('log-branch', '${{ inputs.log-branch }}', null, 'agentic-lib-logs');
+            resolve('push-screenshot', process.env.INPUT_PUSH_SCREENSHOT, null, 'false');
+            resolve('log-branch', process.env.INPUT_LOG_BRANCH, null, 'agentic-lib-logs');
 
   test:
     needs: [params]

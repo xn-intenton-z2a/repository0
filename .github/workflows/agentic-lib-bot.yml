@@ -97,6 +97,11 @@ jobs:
           sparse-checkout-cone-mode: false
       - id: resolve
         uses: actions/github-script@v8
+        env:
+          INPUT_MODEL: ${{ inputs.model }}
+          INPUT_DRY_RUN: ${{ inputs.dry-run }}
+          INPUT_DISCUSSION_URL: ${{ inputs.discussion-url }}
+          INPUT_MESSAGE: ${{ inputs.message }}
         with:
           script: |
             const fs = require('fs');
@@ -123,10 +128,10 @@ jobs:
               core.setOutput(name, value);
               return value;
             };
-            resolve('model', '${{ inputs.model }}', 'model', 'gpt-5-mini');
-            resolve('dry-run', '${{ inputs.dry-run }}', null, 'true');
-            resolve('discussion-url', '${{ inputs.discussion-url }}', null, '');
-            resolve('message', '${{ inputs.message }}', null, '');
+            resolve('model', process.env.INPUT_MODEL, 'model', 'gpt-5-mini');
+            resolve('dry-run', process.env.INPUT_DRY_RUN, null, 'true');
+            resolve('discussion-url', process.env.INPUT_DISCUSSION_URL, null, '');
+            resolve('message', process.env.INPUT_MESSAGE, null, '');
 
   respond:
     needs: params
