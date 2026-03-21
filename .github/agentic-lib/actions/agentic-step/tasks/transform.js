@@ -215,6 +215,11 @@ export async function transform(context) {
       })()),
     ] : []),
     "",
+    `## Focus Mode: ${config.focus === "maintenance" ? "MAINTENANCE" : "MISSION"}`,
+    config.focus === "maintenance"
+      ? "The mission is substantially complete. Focus on adding value to the existing codebase: improve test coverage, refactor for clarity, improve documentation, optimise performance. Do not create new feature issues or push for mission-complete."
+      : "Work toward completing the mission. Implement missing capabilities, resolve gaps, and advance toward mission completion.",
+    "",
     "## Your Task",
     "Analyze the mission and open issues (use list_issues tool).",
     "Read the source files you need (use read_file tool).",
@@ -331,6 +336,19 @@ export async function transform(context) {
   });
   const sessionDurationMs = Date.now() - sessionStartTime;
   core.info(`Transform session completed in ${Math.round(sessionDurationMs / 1000)}s (${result.tokensIn + result.tokensOut} tokens, maxToolCalls=${maxToolCalls})`);
+
+  // W15: Post-transform lockfile sync — if package.json was modified, regenerate lockfile
+  try {
+    const { execSync } = await import("child_process");
+    const gitDiff = execSync("git diff --name-only HEAD", { encoding: "utf8", timeout: 10000 }).trim();
+    if (gitDiff.split("\n").some(f => f.endsWith("package.json"))) {
+      core.info("package.json changed during transform — syncing lockfile");
+      execSync("npm install --package-lock-only", { encoding: "utf8", timeout: 60000, stdio: "pipe" });
+      core.info("Lockfile synced successfully");
+    }
+  } catch (err) {
+    core.warning(`Post-transform lockfile sync failed: ${err.message}`);
+  }
 
   // Detect mission-complete hint
   const lowerResult = (result.agentMessage || "").toLowerCase();

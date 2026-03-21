@@ -19,7 +19,7 @@ on:
       mode:
         type: string
         required: false
-        default: "update"
+        default: "purge"
       dry-run:
         type: string
         required: false
@@ -27,7 +27,7 @@ on:
       mission-seed:
         type: string
         required: false
-        default: "6-kyu-understand-hamming-distance"
+        default: "7-kyu-understand-fizz-buzz"
       mission-text:
         type: string
         required: false
@@ -58,11 +58,11 @@ on:
         description: "Init mode"
         type: choice
         required: false
-        default: "update"
+        default: "purge"
         options:
-          - update
-          - reseed
           - purge
+          - reseed
+          - update
       dry-run:
         description: "Preview changes without writing files"
         type: boolean
@@ -72,8 +72,10 @@ on:
         description: "Mission seed name (purge only)"
         type: choice
         required: false
-        default: "6-kyu-understand-hamming-distance"
+        default: "7-kyu-understand-fizz-buzz"
         options:
+          - random
+          - generate
           - 8-kyu-remember-empty
           - 8-kyu-remember-hello-world
           - 7-kyu-understand-fizz-buzz
@@ -158,7 +160,7 @@ jobs:
         with:
           script: |
             core.setOutput('dry-run', context.payload.inputs?.['dry-run'] || 'false');
-            core.setOutput('mission', context.payload.inputs?.['mission-seed'] || '6-kyu-understand-hamming-distance');
+            core.setOutput('mission', context.payload.inputs?.['mission-seed'] || '7-kyu-understand-fizz-buzz');
             core.setOutput('profile', context.payload.inputs?.['profile'] || '');
             core.setOutput('model', context.payload.inputs?.['model'] || '');
             core.setOutput('create-seed-issues', context.payload.inputs?.['create-seed-issues'] || 'false');
@@ -171,18 +173,18 @@ jobs:
     with:
       ref: ${{ inputs.ref }}
       dry-run: ${{ inputs.dry-run || 'false' }}
-      skip-tests: ${{ inputs.mode == 'reseed' || inputs.mode == 'purge' }}
+      skip-tests: ${{ inputs.mode != 'update' }}
     secrets: inherit
 
   # Step 2: Reseed/purge and configure (only if mode != update)
   # Use !cancelled() so purge runs even if update's npm test failed
   init:
     needs: [params, update]
-    if: "!cancelled() && (inputs.mode == 'reseed' || inputs.mode == 'purge')"
+    if: "!cancelled() && inputs.mode != 'update'"
     runs-on: ubuntu-latest
     env:
       INIT_MODE: ${{ inputs.mode }}
-      INIT_MISSION_SEED: ${{ inputs.mission-seed || '6-kyu-understand-hamming-distance' }}
+      INIT_MISSION_SEED: ${{ inputs.mission-seed || '7-kyu-understand-fizz-buzz' }}
       INIT_MISSION_TEXT: ${{ inputs.mission-text }}
     steps:
       - uses: actions/checkout@v6

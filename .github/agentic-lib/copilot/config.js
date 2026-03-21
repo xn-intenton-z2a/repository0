@@ -260,16 +260,29 @@ export function loadConfig(configPath) {
     minBranchCoverage: goals["min-branch-coverage"] ?? 30,
   };
 
-  // Mission-complete thresholds (with safe defaults)
+  // Mission-complete thresholds (with safe defaults from profile)
   // C6: Removed minDedicatedTests and requireDedicatedTests
   const mc = toml["mission-complete"] || {};
+  const activeProfile = profilesSection[tuning.profileName] || {};
   const missionCompleteThresholds = {
-    minResolvedIssues: mc["min-resolved-issues"] ?? 3,
-    maxSourceTodos: mc["max-source-todos"] ?? 0,
+    minResolvedIssues: mc["min-resolved-issues"] ?? activeProfile["min-resolved-issues"] ?? 1,
+    maxSourceTodos: mc["max-source-todos"] ?? activeProfile["max-source-todos"] ?? 0,
+    acceptanceCriteriaThreshold: mc["acceptance-criteria-threshold"] ?? activeProfile["acceptance-criteria-threshold"] ?? 50,
+    minCumulativeTransforms: mc["min-cumulative-transforms"] ?? activeProfile["min-cumulative-transforms"] ?? 1,
+    requireNoOpenIssues: mc["require-no-open-issues"] ?? true,
+    requireNoOpenPrs: mc["require-no-open-prs"] ?? true,
+    requireNoCriticalGaps: mc["require-no-critical-gaps"] ?? true,
   };
+
+  // Review issues cap (from limits, with profile fallback)
+  const reviewIssuesCap = limitsSection["review-issues-cap"] ?? activeProfile["review-issues-cap"] ?? 3;
+
+  // Schedule focus
+  const focus = toml.schedule?.focus || "mission";
 
   return {
     supervisor: toml.schedule?.supervisor || "daily",
+    focus,
     model: toml.tuning?.model || toml.schedule?.model || "gpt-5-mini",
     tuning,
     paths,
@@ -288,6 +301,7 @@ export function loadConfig(configPath) {
     init: toml.init || null,
     tdd: toml.tdd === true,
     missionCompleteThresholds,
+    reviewIssuesCap,
     coverageGoals,
     maxTokensPerMaintain: resolvedLimits.maxTokensPerMaintain || 200000,
     writablePaths,

@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-20T01:31:02.723Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -730,11 +729,30 @@ jobs:
           echo "- **Features:** ${{ steps.maintain-features.outputs.narrative }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Library:** ${{ steps.maintain-library.outputs.narrative }}" >> $GITHUB_STEP_SUMMARY
 
+      - name: Check health for commit message
+        id: health
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
+        run: |
+          if npm ci --ignore-scripts 2>/dev/null; then
+            TEST_OUTPUT=$(npm test 2>&1) || true
+            PASS_COUNT=$(echo "$TEST_OUTPUT" | grep -oP '\d+ passing' | head -1 || echo "")
+            FAIL_COUNT=$(echo "$TEST_OUTPUT" | grep -oP '\d+ failing' | head -1 || echo "")
+            if [ -n "$FAIL_COUNT" ]; then
+              echo "summary=maintain(features+library): ${PASS_COUNT:-0 passing}, ${FAIL_COUNT} [unstable]" >> $GITHUB_OUTPUT
+            elif [ -n "$PASS_COUNT" ]; then
+              echo "summary=maintain(features+library): ${PASS_COUNT} [healthy]" >> $GITHUB_OUTPUT
+            else
+              echo "summary=maintain(features+library): tests completed [healthy]" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "summary=maintain(features+library): [broken: npm ci failed]" >> $GITHUB_OUTPUT
+          fi
+
       - name: Commit and push changes
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
-          commit-message: "agentic-step: maintain features and library"
+          commit-message: "${{ steps.health.outputs.summary || 'agentic-step: maintain features and library' }}"
           push-ref: ${{ github.ref_name }}
           fail-on-conflict: "false"
 
@@ -1621,6 +1639,15 @@ jobs:
 #          fi
 #          echo "tests-passed=true" >> $GITHUB_OUTPUT
 #          echo "Behaviour tests passed"
+
+      - name: Sync lockfile if package.json changed
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true'
+        run: |
+          if git diff --name-only | grep -q 'package.json'; then
+            echo "package.json changed — syncing lockfile"
+            npm install --package-lock-only || echo "::warning::Lockfile sync failed"
+            git add package-lock.json 2>/dev/null || true
+          fi
 
       - name: Commit and push
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true' && steps.pre-commit-behaviour-test.outputs.tests-passed != 'false'

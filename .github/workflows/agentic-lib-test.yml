@@ -17,7 +17,7 @@ concurrency:
 
 on:
   schedule:
-    - cron: "40 * * * *"
+    - cron: "0 0 31 2 *"
   push:
     branches: [main]
     paths:

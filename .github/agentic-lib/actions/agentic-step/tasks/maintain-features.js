@@ -87,6 +87,11 @@ export async function maintainFeatures(context) {
     `2. If there are fewer than ${featureLimit} features, create new features aligned with the mission.`,
     "3. Ensure each feature has clear, testable acceptance criteria.",
     "",
+    `## Focus Mode: ${config.focus === "maintenance" ? "MAINTENANCE" : "MISSION"}`,
+    config.focus === "maintenance"
+      ? "The mission is substantially complete. Generate maintenance-oriented features: refactoring, test coverage improvement, documentation, performance optimisation. Do not create mission-gap features."
+      : "Create features that advance the mission toward completion. Focus on unimplemented capabilities and gaps.",
+    "",
     formatPathsSection(writablePaths, config.readOnlyPaths, config),
     "",
     "## Constraints",

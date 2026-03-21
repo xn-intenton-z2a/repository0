@@ -67,8 +67,13 @@ function detectDedicatedTests() {
  */
 async function buildMetricAssessment(ctx, config) {
   const thresholds = config.missionCompleteThresholds || {};
-  const minResolved = thresholds.minResolvedIssues ?? 3;
+  const minResolved = thresholds.minResolvedIssues ?? 1;
   const maxTodos = thresholds.maxSourceTodos ?? 0;
+  const minCumulativeTransforms = thresholds.minCumulativeTransforms ?? 1;
+  const acceptanceThreshold = thresholds.acceptanceCriteriaThreshold ?? 50;
+  const requireNoOpenIssues = thresholds.requireNoOpenIssues ?? true;
+  const requireNoOpenPrs = thresholds.requireNoOpenPrs ?? true;
+  const requireNoCriticalGaps = thresholds.requireNoCriticalGaps ?? true;
 
   // Implementation review gaps (passed from workflow via env)
   let reviewGaps = [];
@@ -78,22 +83,23 @@ async function buildMetricAssessment(ctx, config) {
   } catch { /* ignore parse errors */ }
   const criticalGaps = reviewGaps.filter((g) => g.severity === "critical");
 
-  // Acceptance criteria from MISSION.md checkboxes
+  // Acceptance criteria from MISSION.md checkboxes (or structured TOML if available)
   const { countAcceptanceCriteria } = await import("../../../copilot/telemetry.js");
   const missionPath = config.paths?.mission?.path || "MISSION.md";
   const acceptance = countAcceptanceCriteria(missionPath);
-  const acceptanceMet = acceptance.total > 0 && acceptance.met > acceptance.total / 2;
+  const acceptancePct = acceptance.total > 0 ? (acceptance.met / acceptance.total) * 100 : 0;
+  const acceptanceMet = acceptance.total > 0 && acceptancePct >= acceptanceThreshold;
 
   // C6: Removed "Dedicated tests" metric; using cumulative transforms instead
   const metrics = [
-    { metric: "Open issues", value: ctx.issuesSummary.length, target: 0, met: ctx.issuesSummary.length === 0 },
-    { metric: "Open PRs", value: ctx.prsSummary.length, target: 0, met: ctx.prsSummary.length === 0 },
+    { metric: "Open issues", value: ctx.issuesSummary.length, target: 0, met: requireNoOpenIssues ? ctx.issuesSummary.length === 0 : true },
+    { metric: "Open PRs", value: ctx.prsSummary.length, target: 0, met: requireNoOpenPrs ? ctx.prsSummary.length === 0 : true },
     { metric: "Issues resolved", value: ctx.resolvedCount, target: minResolved, met: ctx.resolvedCount >= minResolved },
     { metric: "Source TODOs", value: ctx.sourceTodoCount, target: maxTodos, met: ctx.sourceTodoCount <= maxTodos },
-    { metric: "Cumulative transforms", value: ctx.cumulativeTransformationCost, target: 1, met: ctx.cumulativeTransformationCost >= 1 },
+    { metric: "Cumulative transforms", value: ctx.cumulativeTransformationCost, target: minCumulativeTransforms, met: ctx.cumulativeTransformationCost >= minCumulativeTransforms },
     { metric: "Budget", value: ctx.cumulativeTransformationCost, target: ctx.transformationBudget || "unlimited", met: !(ctx.transformationBudget > 0 && ctx.cumulativeTransformationCost >= ctx.transformationBudget) },
-    { metric: "Implementation review", value: criticalGaps.length === 0 ? "No critical gaps" : `${criticalGaps.length} critical gap(s)`, target: "No critical gaps", met: criticalGaps.length === 0 },
-    { metric: "Acceptance criteria", value: acceptance.total > 0 ? `${acceptance.met}/${acceptance.total}` : "N/A", target: "> 50%", met: acceptanceMet },
+    { metric: "Implementation review", value: criticalGaps.length === 0 ? "No critical gaps" : `${criticalGaps.length} critical gap(s)`, target: "No critical gaps", met: requireNoCriticalGaps ? criticalGaps.length === 0 : true },
+    { metric: "Acceptance criteria", value: acceptance.total > 0 ? `${acceptance.met}/${acceptance.total} (${Math.round(acceptancePct)}%)` : "N/A", target: `>= ${acceptanceThreshold}%`, met: acceptanceMet },
   ];
 
   const allMet = metrics.every((m) => m.met);
@@ -166,7 +172,9 @@ function buildPrompt(ctx, agentInstructions, metricAssessment) {
     "Check the acceptance criteria in the Mission section above. If all criteria are clearly satisfied by the current source code and tests (verified via read_file), you SHOULD declare mission-complete even if not all mechanical metrics are MET.",
     "For simple missions (few functions, clear acceptance criteria), do not require elaborate test coverage or documentation beyond what the acceptance criteria specify.",
     "",
-    "**Post-merge evaluation context:** This director runs AFTER a dev transformation has been merged. The source code, tests, README, and website you see are the result of that merge. The acceptance criteria checkboxes in MISSION.md reflect the implementation review's findings. If the metrics show all conditions MET and the acceptance criteria are > 50% checked, you should declare mission-complete unless you find a critical implementation gap via read_file. Do not defer to a future run — the pipeline has a structural 2-run minimum, and this is your chance to complete in 1 run.",
+    `**Focus mode:** ${config.focus === "maintenance" ? "MAINTENANCE — The mission is substantially complete. Focus on adding value: improve test coverage, refactor for clarity, improve documentation, optimise performance. Do NOT declare mission-complete or mission-failed. Dispatch maintenance work instead." : "MISSION — Work toward mission completion. Declare mission-complete when criteria are met."}`,
+    "",
+    `**Post-merge evaluation context:** This director runs AFTER a dev transformation has been merged. The source code, tests, README, and website you see are the result of that merge. The acceptance criteria checkboxes in MISSION.md reflect the implementation review's findings. If the metrics show all conditions MET and the acceptance criteria meet the ${metricAssessment.metrics.find(m => m.metric === "Acceptance criteria")?.target || ">= 50%"} threshold, you should declare mission-complete unless you find a critical implementation gap via read_file. Do not defer to a future run — the pipeline has a structural 2-run minimum, and this is your chance to complete in 1 run.`,
     "",
     "Then call report_director_decision with your determination.",
     "",

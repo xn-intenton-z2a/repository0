@@ -70,6 +70,23 @@ export function countSourceLines(dir) {
  * @returns {{ met: number, total: number }}
  */
 export function countAcceptanceCriteria(missionPath) {
+  // W17: Try structured TOML first (primary source)
+  try {
+    const tomlPath = "agentic-lib.toml";
+    if (existsSync(tomlPath)) {
+      const toml = readFileSync(tomlPath, "utf8");
+      if (toml.includes("[acceptance-criteria]")) {
+        const totalMatch = toml.match(/^\s*total\s*=\s*(\d+)/m);
+        if (totalMatch) {
+          const total = parseInt(totalMatch[1], 10);
+          const metMatches = toml.match(/met\s*=\s*true/g) || [];
+          return { met: metMatches.length, total };
+        }
+      }
+    }
+  } catch { /* fall through to MISSION.md */ }
+
+  // Fallback: count checkboxes in MISSION.md
   if (!missionPath || !existsSync(missionPath)) return { met: 0, total: 0 };
   try {
     const content = readFileSync(missionPath, "utf8");
@@ -112,7 +129,7 @@ export function buildMissionMetrics(config, result, _limitsStatus, cumulativeCos
   const todoCount = countSourceTodos(srcRoot);
 
   const thresholds = config.missionCompleteThresholds || {};
-  const minResolved = thresholds.minResolvedIssues ?? 3;
+  const minResolved = thresholds.minResolvedIssues ?? 1;
   const maxTodos = thresholds.maxSourceTodos ?? 0;
 
   // C6: Dynamic metrics

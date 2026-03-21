@@ -48,9 +48,11 @@ function buildReviewPrompt(mission, config, agentInstructions, agentLogsSummary)
     "   - Tests that don't assert anything meaningful (empty/trivial)",
     "   - Features listed as done in docs but missing from code",
     "   - PRs merged without test coverage for the claimed feature",
-    "4. Check the MISSION.md Acceptance Criteria checkboxes (`- [ ]`). For each criterion,",
-    "   if you verified it is implemented AND unit-tested, include its exact text in the",
-    "   `acceptanceCriteriaMet` array. Copy the criterion text exactly as it appears after `- [ ]`.",
+    "4. Check the MISSION.md Acceptance Criteria. For each criterion that you verified is",
+    "   implemented AND unit-tested, include its **index number** (1-based) in the",
+    "   `acceptanceCriteriaMetIndices` array. Also include the text in `acceptanceCriteriaMet`",
+    "   for backwards compatibility. The indexed criteria are listed in agentic-lib.toml",
+    "   under [acceptance-criteria] if available.",
     "5. Call report_implementation_review with your findings.",
     "",
     "**You MUST call report_implementation_review exactly once.**",
@@ -172,34 +174,83 @@ export async function implementationReview(context) {
           acceptanceCriteriaMet: {
             type: "array",
             items: { type: "string" },
-            description: "Exact text of each acceptance criterion from MISSION.md that is verified as implemented AND unit-tested. Copy the text after '- [ ]' exactly.",
+            description: "Text of each acceptance criterion verified as implemented AND unit-tested (for backwards compatibility).",
+          },
+          acceptanceCriteriaMetIndices: {
+            type: "array",
+            items: { type: "integer" },
+            description: "1-based indices of acceptance criteria verified as met (preferred over text matching). See [acceptance-criteria] in agentic-lib.toml.",
           },
         },
         required: ["elements", "gaps", "advice"],
       },
-      handler: async ({ elements, gaps, advice, misleadingMetrics, acceptanceCriteriaMet }) => {
+      handler: async ({ elements, gaps, advice, misleadingMetrics, acceptanceCriteriaMet, acceptanceCriteriaMetIndices }) => {
         reviewResult.elements = elements || [];
         reviewResult.gaps = gaps || [];
         reviewResult.advice = advice || "";
         reviewResult.misleadingMetrics = misleadingMetrics || [];
 
-        // Update MISSION.md checkboxes based on verified acceptance criteria
+        const metIndices = acceptanceCriteriaMetIndices || [];
         const metCriteria = acceptanceCriteriaMet || [];
-        if (metCriteria.length > 0) {
+        const totalUpdated = metIndices.length || metCriteria.length;
+
+        // W17: Update structured TOML acceptance criteria by index (primary)
+        if (metIndices.length > 0) {
+          try {
+            const { readFileSync, writeFileSync } = await import("fs");
+            const tomlPath = config.configToml ? "agentic-lib.toml" : null;
+            if (tomlPath && readFileSync(tomlPath, "utf8").includes("[acceptance-criteria]")) {
+              let toml = readFileSync(tomlPath, "utf8");
+              for (const idx of metIndices) {
+                const regex = new RegExp(`^(${idx}\\s*=\\s*\\{[^}]*met\\s*=\\s*)false`, "m");
+                if (regex.test(toml)) {
+                  toml = toml.replace(regex, "$1true");
+                }
+              }
+              writeFileSync(tomlPath, toml, "utf8");
+              core.info(`Updated ${metIndices.length} acceptance criteria by index in TOML`);
+            }
+          } catch (err) {
+            core.warning(`Could not update TOML acceptance criteria: ${err.message}`);
+          }
+        }
+
+        // Also update MISSION.md checkboxes (best-effort, not critical)
+        if (metCriteria.length > 0 || metIndices.length > 0) {
           try {
             const missionPath = config.paths?.mission?.path || "MISSION.md";
             const { readFileSync, writeFileSync } = await import("fs");
             let missionContent = readFileSync(missionPath, "utf8");
             let checkedCount = 0;
-            for (const criterionText of metCriteria) {
-              // Match the checkbox line containing this criterion text (fuzzy: trim whitespace)
-              const escaped = criterionText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").trim();
-              const re = new RegExp(`- \\[ \\] ${escaped}`);
-              if (re.test(missionContent)) {
-                missionContent = missionContent.replace(re, `- [x] ${criterionText.trim()}`);
-                checkedCount++;
+
+            // Index-based update: find the Nth checkbox and check it
+            if (metIndices.length > 0) {
+              const lines = missionContent.split("\n");
+              let checkboxIdx = 0;
+              for (let i = 0; i < lines.length; i++) {
+                if (/^- \[ \] /.test(lines[i])) {
+                  checkboxIdx++;
+                  if (metIndices.includes(checkboxIdx)) {
+                    lines[i] = lines[i].replace(/^- \[ \] /, "- [x] ");
+                    checkedCount++;
+                  }
+                }
+              }
+              missionContent = lines.join("\n");
+            }
+
+            // Text-based update (fallback for backwards compatibility)
+            if (checkedCount === 0 && metCriteria.length > 0) {
+              for (const criterionText of metCriteria) {
+                const escaped = criterionText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").trim();
+                const re = new RegExp(`- \\[ \\] ${escaped}`);
+                if (re.test(missionContent)) {
+                  missionContent = missionContent.replace(re, `- [x] ${criterionText.trim()}`);
+                  checkedCount++;
+                }
               }
             }
+
             if (checkedCount > 0) {
               writeFileSync(missionPath, missionContent, "utf8");
               core.info(`Updated ${checkedCount} acceptance criteria checkboxes in ${missionPath}`);
@@ -209,7 +260,7 @@ export async function implementationReview(context) {
           }
         }
 
-        return { textResultForLlm: `Review recorded: ${elements?.length || 0} elements traced, ${gaps?.length || 0} gaps found, ${metCriteria.length} criteria checked` };
+        return { textResultForLlm: `Review recorded: ${elements?.length || 0} elements traced, ${gaps?.length || 0} gaps found, ${totalUpdated} criteria checked` };
       },
     });
 

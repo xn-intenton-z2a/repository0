@@ -18,9 +18,10 @@ on:
         required: false
         default: ""
       frequency:
-        description: "How often the workflow should run"
-        required: true
+        description: "How often the workflow should run (empty = read from agentic-lib.toml)"
+        required: false
         type: string
+        default: ""
       model:
         description: "Copilot SDK model to use"
         required: false
@@ -39,16 +40,27 @@ on:
   workflow_dispatch:
     inputs:
       frequency:
-        description: "How often the workflow should run (maintenance = weekly + remove mission-complete + unlimited budget)"
-        required: true
+        description: "How often the workflow should run (empty = read from agentic-lib.toml, maintenance = weekly + remove mission-complete + unlimited budget)"
+        required: false
         type: choice
+        default: ""
         options:
+          - ""
           - "off"
           - "maintenance"
           - "weekly"
           - "daily"
           - "hourly"
           - "continuous"
+      focus:
+        description: "Focus mode (empty = read from agentic-lib.toml)"
+        required: false
+        type: choice
+        default: ""
+        options:
+          - ""
+          - "mission"
+          - "maintenance"
       model:
         description: "Copilot SDK model to use (empty = read from agentic-lib.toml)"
         required: false
@@ -85,16 +97,36 @@ jobs:
       frequency: ${{ steps.resolve.outputs.frequency }}
       model: ${{ steps.resolve.outputs.model }}
       profile: ${{ steps.resolve.outputs.profile }}
+      focus: ${{ steps.resolve.outputs.focus }}
       maintenance: ${{ steps.resolve.outputs.maintenance }}
     steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: agentic-lib.toml
+          sparse-checkout-cone-mode: false
       - id: resolve
         uses: actions/github-script@v8
         with:
           script: |
-            const frequency = context.payload.inputs?.['frequency'] || 'off';
+            const fs = require('fs');
+            const tomlPath = 'agentic-lib.toml';
+            let tomlContent = '';
+            if (fs.existsSync(tomlPath)) tomlContent = fs.readFileSync(tomlPath, 'utf8');
+            const readToml = (key) => {
+              const m = tomlContent.match(new RegExp(`^\\s*${key}\\s*=\\s*"([^"]*)"`, 'm'));
+              return m ? m[1] : '';
+            };
+            let frequency = context.payload.inputs?.['frequency'] || '';
+            if (!frequency) frequency = readToml('supervisor') || 'off';
+            const model = context.payload.inputs?.['model'] || '';
+            const profile = context.payload.inputs?.['profile'] || '';
+            let focus = context.payload.inputs?.['focus'] || '';
+            if (!focus) focus = readToml('focus') || 'mission';
+            if (frequency === 'maintenance') focus = 'maintenance';
             core.setOutput('frequency', frequency);
-            core.setOutput('model', context.payload.inputs?.['model'] || '');
-            core.setOutput('profile', context.payload.inputs?.['profile'] || '');
+            core.setOutput('model', model);
+            core.setOutput('profile', profile);
+            core.setOutput('focus', focus);
             core.setOutput('maintenance', frequency === 'maintenance' ? 'true' : 'false');
 
   update-schedule:
@@ -116,8 +148,8 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const frequency = '${{ inputs.frequency }}';
-            const workflowPath = '.github/workflows/agentic-lib-workflow.yml';
+            const frequency = '${{ needs.params.outputs.frequency }}';
+            const focus = '${{ needs.params.outputs.focus }}';
             const tomlPath = 'agentic-lib.toml';
             let model = '${{ inputs.model }}';
             if (!model && fs.existsSync(tomlPath)) {
@@ -126,75 +158,101 @@ jobs:
               if (m) model = m[1];
             }
             if (!model) model = 'gpt-5-mini';
-            const profile = '${{ inputs.profile }}';
+            let profile = '${{ inputs.profile }}';
+            if (!profile && fs.existsSync(tomlPath)) {
+              const toml = fs.readFileSync(tomlPath, 'utf8');
+              const m = toml.match(/^\s*profile\s*=\s*"([^"]*)"/m);
+              if (m) profile = m[1];
+            }
 
             const isMaintenance = frequency === 'maintenance';
             const effectiveFrequency = isMaintenance ? 'weekly' : frequency;
 
-            // Problem 4 fix: Use a "never fires" cron for off instead of removing the block.
-            // Keeping the schedule: block permanently avoids GitHub cron de-registration issues.
-            const SCHEDULE_MAP = {
+            // Proportional schedule maps for each workflow
+            const WORKFLOW_SCHEDULE_MAP = {
               off: '0 0 31 2 *',
-              weekly: '25 6 * * 1',
-              daily: '25 6 * * *',
-              hourly: '25 * * * *',
-              continuous: '5,25,45 * * * *',
+              weekly: '25 6 * * 1',              // Monday 6:25am
+              daily: '25 6 * * *',               // Every day 6:25am
+              hourly: '25 * * * *',              // Every hour at :25
+              continuous: '5,25,45 * * * *',     // Every 20 min
+            };
+            const INIT_SCHEDULE_MAP = {
+              off: '0 0 31 2 *',
+              weekly: '0 4 1 * *',               // 1st of month 4:00am
+              daily: '0 4 * * 1',                // Monday 4:00am
+              hourly: '0 4 * * *',               // Every day 4:00am
+              continuous: '0 1,5,9,13,17,21 * * *', // Every 4 hours
+            };
+            const TEST_SCHEDULE_MAP = {
+              off: '0 0 31 2 *',
+              weekly: '40 6 * * 1',              // Monday 6:40am
+              daily: '40 6 * * *',               // Every day 6:40am
+              hourly: '40 0,4,8,12,16,20 * * *', // Every 4 hours at :40
+              continuous: '40 * * * *',           // Every hour at :40
             };
 
-            // Update agentic-lib-workflow.yml schedule
-            let content = fs.readFileSync(workflowPath, 'utf8');
-            const cron = SCHEDULE_MAP[effectiveFrequency];
+            // Helper: update cron in a workflow file
+            function updateWorkflowCron(path, cron, label) {
+              if (!fs.existsSync(path)) {
+                core.info(`${label}: file not found at ${path}, skipping`);
+                return;
+              }
+              let content = fs.readFileSync(path, 'utf8');
+              const cronRegex = /- cron: "[^"]*"/;
+              if (cronRegex.test(content)) {
+                content = content.replace(cronRegex, `- cron: "${cron}"`);
+              } else {
+                const scheduleBlock = `\n  schedule:\n    - cron: "${cron}"\n`;
+                content = content.replace(/\non:\n/, `\non:${scheduleBlock}`);
+              }
+              fs.writeFileSync(path, content);
+              core.info(`${label}: set cron to "${cron}"`);
+            }
+
+            const workflowPath = '.github/workflows/agentic-lib-workflow.yml';
+            const initPath = '.github/workflows/agentic-lib-init.yml';
+            const testPath = '.github/workflows/agentic-lib-test.yml';
+
+            const workflowCron = WORKFLOW_SCHEDULE_MAP[effectiveFrequency];
+            const initCron = INIT_SCHEDULE_MAP[effectiveFrequency];
+            const testCron = TEST_SCHEDULE_MAP[effectiveFrequency];
 
             // Check if the frequency is already set — skip if no-op (but never skip maintenance)
-            // Must check BOTH the config file AND the workflow file to avoid desynchronisation
             const supervisorRegex2 = /^\s*supervisor\s*=\s*"([^"]*)"/m;
             if (!isMaintenance && fs.existsSync(tomlPath)) {
               const currentToml = fs.readFileSync(tomlPath, 'utf8');
               const currentMatch = currentToml.match(supervisorRegex2);
               const currentFreq = currentMatch ? currentMatch[1] : '';
-              // Also check the workflow file has the expected cron schedule
+              const wfContent = fs.existsSync(workflowPath) ? fs.readFileSync(workflowPath, 'utf8') : '';
               const cronRegex = /- cron: "([^"]*)"/;
-              const workflowCronMatch = content.match(cronRegex);
+              const workflowCronMatch = wfContent.match(cronRegex);
               const currentCron = workflowCronMatch ? workflowCronMatch[1] : null;
-              const expectedCron = cron; // from SCHEDULE_MAP
               const configMatches = currentFreq === frequency;
-              const workflowMatches = currentCron === expectedCron;
+              const workflowMatches = currentCron === workflowCron;
               if (configMatches && workflowMatches) {
                 core.info(`Schedule already set to ${frequency} — no change needed`);
                 return;
               }
-              if (configMatches && !workflowMatches) {
-                core.info(`Config says ${frequency} but workflow cron is "${currentCron}" (expected "${expectedCron}") — updating workflow`);
+            }
+
+            // Update all three workflow files proportionally
+            updateWorkflowCron(workflowPath, workflowCron, 'workflow');
+            updateWorkflowCron(initPath, initCron, 'init');
+            updateWorkflowCron(testPath, testCron, 'test');
+
+            // Stamp the workflow file with current date
+            if (fs.existsSync(workflowPath)) {
+              let content = fs.readFileSync(workflowPath, 'utf8');
+              const dateStamp = `# Schedule updated: ${new Date().toISOString()}`;
+              const stampRegex = /^# Schedule updated: .*/m;
+              if (stampRegex.test(content)) {
+                content = content.replace(stampRegex, dateStamp);
+              } else {
+                content = content.replace(/^(# .*\n)+/m, (match) => match + dateStamp + '\n');
               }
+              fs.writeFileSync(workflowPath, content);
             }
-
-            // Replace existing schedule cron or insert a new block
-            const cronRegexReplace = /- cron: "[^"]*"/;
-            if (cronRegexReplace.test(content)) {
-              content = content.replace(cronRegexReplace, `- cron: "${cron}"`);
-            } else {
-              // No schedule block exists — insert one after 'on:'
-              const scheduleBlock = `\n  schedule:\n    - cron: "${cron}"\n`;
-              content = content.replace(
-                /\non:\n/,
-                `\non:${scheduleBlock}`
-              );
-            }
-
-            // Stamp the file with current date so the commit is never empty
-            const dateStamp = `# Schedule updated: ${new Date().toISOString()}`;
-            const stampRegex = /^# Schedule updated: .*/m;
-            if (stampRegex.test(content)) {
-              content = content.replace(stampRegex, dateStamp);
-            } else {
-              content = content.replace(
-                /^(# .*\n)+/m,
-                (match) => match + dateStamp + '\n'
-              );
-            }
-
-            fs.writeFileSync(workflowPath, content);
-            core.info(`Updated workflow schedule to: ${effectiveFrequency} (cron: ${cron || 'none'})`);
+            core.info(`Updated proportional schedules: workflow=${effectiveFrequency}, init=${effectiveFrequency}(proportional), test=${effectiveFrequency}(proportional)`);
 
             // Maintenance mode: remove mission-complete/failed signals
             if (isMaintenance) {
@@ -206,7 +264,7 @@ jobs:
               }
             }
 
-            // Update agentic-lib.toml with model and supervisor settings
+            // Update agentic-lib.toml with model, supervisor, focus, and profile settings
             if (fs.existsSync(tomlPath)) {
               let toml = fs.readFileSync(tomlPath, 'utf8');
 
@@ -227,6 +285,14 @@ jobs:
                 toml = toml.replace(scheduleSupervisorRegex, `$1supervisor = "${frequency}"`);
               }
 
+              // Update focus
+              const focusRegex = /^(\s*focus\s*=\s*)"[^"]*"/m;
+              if (focusRegex.test(toml)) {
+                toml = toml.replace(focusRegex, `$1"${focus}"`);
+              } else if (toml.match(/^\[schedule\]/m)) {
+                toml = toml.replace(/^(\s*supervisor\s*=\s*"[^"]*".*$)/m, `$1\nfocus = "${focus}"`);
+              }
+
               if (profile) {
                 const profileRegex = /(\[tuning\][^\[]*?)(^\s*profile\s*=\s*"[^"]*")/m;
                 if (profileRegex.test(toml)) {
@@ -244,7 +310,7 @@ jobs:
               }
 
               fs.writeFileSync(tomlPath, toml);
-              core.info(`Updated agentic-lib.toml: model=${model}, supervisor=${frequency}${profile ? ', profile=' + profile : ''}`);
+              core.info(`Updated agentic-lib.toml: model=${model}, supervisor=${frequency}, focus=${focus}${profile ? ', profile=' + profile : ''}`);
             } else {
               core.warning('agentic-lib.toml not found — skipping config update');
             }
@@ -260,7 +326,7 @@ jobs:
           git config user.email "${TOKEN_ID}+${TOKEN_USER}@users.noreply.github.com"
           FREQUENCY="${{ inputs.frequency }}"
           MODEL="${{ inputs.model }}"
-          git add .github/workflows/agentic-lib-workflow.yml agentic-lib.toml
+          git add .github/workflows/agentic-lib-workflow.yml .github/workflows/agentic-lib-init.yml .github/workflows/agentic-lib-test.yml agentic-lib.toml
           # Stage removed mission files ONLY if maintenance mode deleted them
           if [ "$FREQUENCY" = "maintenance" ]; then
             git rm --ignore-unmatch MISSION_COMPLETE.md MISSION_FAILED.md 2>/dev/null || true

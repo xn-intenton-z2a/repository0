@@ -237,8 +237,9 @@ export async function reviewIssue(context) {
     return reviewSingleIssue({ octokit, repo, config, targetIssueNumber: issueNumber, instructions, model, tuning: t, logFilePath, screenshotFilePath });
   }
 
-  // Batch mode: find up to 3 unreviewed issues
-  const issueNumbers = await findUnreviewedIssues(octokit, repo, 3);
+  // Batch mode: find unreviewed issues (cap from config, default 3)
+  const reviewCap = config.reviewIssuesCap ?? 3;
+  const issueNumbers = await findUnreviewedIssues(octokit, repo, reviewCap);
   if (issueNumbers.length === 0) {
     return { outcome: "nop", details: "No open automated issues to review" };
   }
@@ -248,7 +249,17 @@ export async function reviewIssue(context) {
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
 
+  // W19: Remaining-time guard — work within the 10-minute step timeout
+  const STEP_TIMEOUT_MS = 10 * 60 * 1000;
+  const MIN_REMAINING_MS = 4 * 60 * 1000; // need at least 4 min for a review
+  const batchStart = Date.now();
+
   for (const num of issueNumbers) {
+    const elapsed = Date.now() - batchStart;
+    if (elapsed + MIN_REMAINING_MS > STEP_TIMEOUT_MS) {
+      core.warning(`Skipping issue #${num} — only ${Math.round((STEP_TIMEOUT_MS - elapsed) / 1000)}s remaining (need ${MIN_REMAINING_MS / 1000}s). Reviewed ${results.length}/${issueNumbers.length} issues.`);
+      break;
+    }
     core.info(`Batch reviewing issue #${num} (${results.length + 1}/${issueNumbers.length})`);
     const result = await reviewSingleIssue({
       octokit, repo, config, targetIssueNumber: num, instructions, model, tuning: t, logFilePath, screenshotFilePath,
