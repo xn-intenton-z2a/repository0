@@ -7,6 +7,7 @@
 
 [schedule]
 supervisor = "off"       # off | weekly | daily | hourly | continuous
+model = "gpt-5-mini"
 focus = "mission"                 # mission | maintenance
 
 [paths]
