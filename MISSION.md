@@ -16,11 +16,11 @@ A JavaScript library exporting FizzBuzz functions. This is the simplest possible
 
 ## Acceptance Criteria
 
-- [ ] `fizzBuzz(15)` returns the correct 15-element array ending with "FizzBuzz"
-- [ ] `fizzBuzzSingle(3)` returns "Fizz"
-- [ ] `fizzBuzzSingle(5)` returns "Buzz"
-- [ ] `fizzBuzzSingle(15)` returns "FizzBuzz"
-- [ ] `fizzBuzzSingle(7)` returns "7"
-- [ ] `fizzBuzz(0)` returns `[]`
+- [x] `fizzBuzz(15)` returns the correct 15-element array ending with "FizzBuzz"
+- [x] `fizzBuzzSingle(3)` returns "Fizz"
+- [x] `fizzBuzzSingle(5)` returns "Buzz"
+- [x] `fizzBuzzSingle(15)` returns "FizzBuzz"
+- [x] `fizzBuzzSingle(7)` returns "7"
+- [x] `fizzBuzz(0)` returns `[]`
 - [ ] All unit tests pass
 - [ ] README documents usage with examples
