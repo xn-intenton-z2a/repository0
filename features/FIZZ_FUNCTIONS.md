@@ -2,13 +2,19 @@ FIZZ_FUNCTIONS
 
 # FIZZ_FUNCTIONS
 
+Status: Implemented
+
 Goal
 
 Provide a clear, testable specification for the core FizzBuzz library functions exported from src/lib/main.js and the unit tests that verify them.
 
 Description
 
-This feature specifies the API, behaviour, edge cases and acceptance criteria for two named exports: fizzBuzz and fizzBuzzSingle. The implementation must be provided in src/lib/main.js and exercised by unit tests in tests/unit to meet the mission.
+This feature specifies the API, behaviour, edge cases and final acceptance criteria for two named exports: fizzBuzz and fizzBuzzSingle. The implementation lives at src/lib/main.js and is exercised by unit tests in tests/unit.
+
+Implementation
+
+- See implementation: src/lib/main.js
 
 API
 
@@ -29,18 +35,19 @@ Testing
 - Unit tests must cover normal cases and all edge cases above.
 - Tests should assert exact string values and errors thrown for invalid inputs.
 
-Acceptance Criteria
+Final Acceptance Criteria
 
-1. fizzBuzz(15) returns an array of 15 strings with element 15 equal to "FizzBuzz".
-2. fizzBuzzSingle(3) returns "Fizz".
-3. fizzBuzzSingle(5) returns "Buzz".
-4. fizzBuzzSingle(15) returns "FizzBuzz".
-5. fizzBuzzSingle(7) returns "7".
-6. fizzBuzz(0) returns an empty array.
-7. Negative inputs to fizzBuzz and fizzBuzzSingle throw RangeError.
-8. Non-integer inputs to fizzBuzz and fizzBuzzSingle throw TypeError.
-9. All unit tests pass in the repository test harness.
+1. The repository exports named functions fizzBuzz and fizzBuzzSingle from src/lib/main.js.
+2. fizzBuzz(15) returns an array of 15 strings with element 15 equal to "FizzBuzz".
+3. fizzBuzzSingle(3) returns "Fizz".
+4. fizzBuzzSingle(5) returns "Buzz".
+5. fizzBuzzSingle(15) returns "FizzBuzz".
+6. fizzBuzzSingle(7) returns "7".
+7. fizzBuzz(0) returns an empty array.
+8. Passing a negative integer to fizzBuzz or fizzBuzzSingle throws RangeError.
+9. Passing a non-integer (e.g., 3.5, '4', null, undefined) to either function throws TypeError.
+10. Unit tests covering the examples and error cases exist under tests/unit and pass when running npm test.
 
 Notes
 
-Keep the implementation minimal and fully covered by unit tests to satisfy the mission.
+- The implementation is intentionally minimal and should remain straightforward to keep tests readable and deterministic.
