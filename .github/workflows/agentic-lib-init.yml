@@ -10,8 +10,6 @@ name: agentic-lib-init
 run-name: "agentic-lib-init ${{ inputs.mode || 'update' }} [${{ github.ref_name }}]"
 
 on:
-  schedule:
-    - cron: "0 4 1 * *"
   workflow_call:
     inputs:
       ref:
