@@ -28,7 +28,7 @@ on:
       profile:
         type: string
         required: false
-        default: "max"
+        default: ""
       workflow-runs:
         type: string
         required: false
@@ -116,11 +116,12 @@ on:
           - claude-sonnet-4
           - gpt-4.1
       profile:
-        description: "Tuning profile"
+        description: "Tuning profile (empty = read from agentic-lib.toml)"
         type: choice
         required: false
-        default: "max"
+        default: ""
         options:
+          - ""
           - min
           - med
           - max
@@ -240,7 +241,7 @@ jobs:
             resolve('mission-seed', process.env.INPUT_MISSION_SEED, null, '7-kyu-understand-fizz-buzz');
             resolve('mission-text', process.env.INPUT_MISSION_TEXT, null, '');
             resolve('model', process.env.INPUT_MODEL, 'model', 'gpt-5-mini');
-            resolve('profile', process.env.INPUT_PROFILE, 'profile', 'max');
+            resolve('profile', process.env.INPUT_PROFILE, 'profile', '');
             resolve('workflow-runs', process.env.INPUT_WORKFLOW_RUNS, null, '4');
             resolve('schedule', process.env.INPUT_SCHEDULE, null, 'off');
             resolve('dry-run', process.env.INPUT_DRY_RUN, null, 'false');
