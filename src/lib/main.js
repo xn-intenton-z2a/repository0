@@ -27,40 +27,6 @@ export function getIdentity() {
   return { name, version, description };
 }
 
-// FizzBuzz library
-// Validate input helpers
-function validateIntegerInput(n, allowZero = true) {
-  if (typeof n !== "number" || Number.isNaN(n) || !Number.isFinite(n) || !Number.isInteger(n)) {
-    throw new TypeError("Input must be an integer number");
-  }
-  if (!allowZero && n <= 0) {
-    throw new RangeError("Input must be a positive integer");
-  }
-  if (allowZero === true && n < 0) {
-    throw new RangeError("Input must be >= 0");
-  }
-}
-
-export function fizzBuzzSingle(n) {
-  // Single value must be a positive integer
-  validateIntegerInput(n, false);
-  if (n % 15 === 0) return "FizzBuzz";
-  if (n % 3 === 0) return "Fizz";
-  if (n % 5 === 0) return "Buzz";
-  return String(n);
-}
-
-export function fizzBuzz(n) {
-  // n may be zero (returns []) or positive integer
-  validateIntegerInput(n, true);
-  if (n === 0) return [];
-  const out = [];
-  for (let i = 1; i <= n; i++) {
-    out.push(fizzBuzzSingle(i));
-  }
-  return out;
-}
-
 export function main(args) {
   if (args?.includes("--version")) {
     console.log(version);
