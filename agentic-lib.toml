@@ -7,7 +7,6 @@
 
 [schedule]
 supervisor = "off"       # off | weekly | daily | hourly | continuous
-model = "gpt-5-mini"
 focus = "mission"                 # mission | maintenance
 
 [paths]
@@ -185,8 +184,8 @@ total = 8
 8 = { text = "README documents usage with examples", met = false }
 
 [init]
-timestamp = "2026-03-21T16:49:16.467Z"
+timestamp = "2026-03-21T20:02:28.750Z"
 mode = "purge"
 mission = "7-kyu-understand-fizz-buzz"
 mission-type = "7-kyu-understand-fizz-buzz"
-version = "7.4.38"
+version = "7.4.46"
