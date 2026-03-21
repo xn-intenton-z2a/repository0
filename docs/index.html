@@ -17,6 +17,7 @@
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
     ul.fizz { background: #fff; padding: 1rem; border-radius: 6px; }
     ul.fizz li { padding: 0.2rem 0; }
+    .error { color: #b00020; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -39,6 +40,9 @@
     <dt>15</dt><dd id="fizz-single-15">...</dd>
     <dt>7</dt><dd id="fizz-single-7">...</dd>
   </dl>
+
+  <h3>Invalid input handling (demo)</h3>
+  <p id="fizz-invalid" class="error">checking...</p>
 
   <h2>Output</h2>
   <div id="demo-output">Loading library...</div>
@@ -67,6 +71,14 @@
       document.getElementById('fizz-single-5').textContent = fizzBuzzSingle(5);
       document.getElementById('fizz-single-15').textContent = fizzBuzzSingle(15);
       document.getElementById('fizz-single-7').textContent = fizzBuzzSingle(7);
+
+      // demo invalid input handling: call fizzBuzzSingle(0) and show the error message
+      try {
+        fizzBuzzSingle(0);
+        document.getElementById('fizz-invalid').textContent = 'no error thrown';
+      } catch (err) {
+        document.getElementById('fizz-invalid').textContent = err.name + ': ' + err.message;
+      }
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
       document.getElementById('lib-description').textContent = e.message;
