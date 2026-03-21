@@ -31,4 +31,10 @@ describe("Website", () => {
     expect(html).toContain("lib-name");
     expect(html).toContain("lib-version");
   });
+
+  test("index.html contains fizzbuzz demo elements", () => {
+    const html = readFileSync("src/web/index.html", "utf8");
+    expect(html).toContain("fizzbuzz-array");
+    expect(html).toContain("fizzbuzz-single");
+  });
 });
