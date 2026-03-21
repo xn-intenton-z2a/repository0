@@ -44,4 +44,30 @@ npx @xn-intenton-z2a/agentic-lib init --purge --mission 7-kyu-understand-fizz-bu
 
 This resets the repository to a clean state with your chosen mission in `MISSION.md`. The default mission is **fizz-buzz** (7-kyu).
 
+## Usage Examples
+
+The library exports two named functions: `fizzBuzz(n)` and `fizzBuzzSingle(n)`.
+
+Example (Node / ESM):
+
+```js
+import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js';
+
+console.log(fizzBuzzSingle(3)); // "Fizz"
+console.log(fizzBuzzSingle(5)); // "Buzz"
+console.log(fizzBuzzSingle(15)); // "FizzBuzz"
+console.log(fizzBuzz(15));
+// ["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]
+```
+
+Example (browser):
+
+```html
+<script type="module">
+  import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js';
+  const out = fizzBuzz(15).join(', ');
+  document.querySelector('#demo-output').textContent = `fizzBuzz(15):\n${out}`;
+</script>
+```
+
 ... (rest unchanged)
