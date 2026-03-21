@@ -1,0 +1,248 @@
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2025-2026 Polycode Limited
+# .github/workflows/agentic-lib-report.yml
+#
+# Benchmark report generator: mechanically gathers pipeline data for a time period,
+# optionally enriches via LLM, and commits the report to repo root on main.
+
+name: agentic-lib-report
+run-name: "agentic-lib-report [${{ github.ref_name }}]"
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: false
+        default: ""
+      period-start:
+        type: string
+        required: false
+        default: ""
+      period-end:
+        type: string
+        required: false
+        default: ""
+      model:
+        type: string
+        required: false
+        default: ""
+      config-path:
+        type: string
+        required: false
+        default: ""
+      dry-run:
+        type: string
+        required: false
+        default: "false"
+  workflow_dispatch:
+    inputs:
+      period-start:
+        description: "Report period start (ISO 8601, default: most recent init run)"
+        type: string
+        required: false
+        default: ""
+      period-end:
+        description: "Report period end (ISO 8601, default: now)"
+        type: string
+        required: false
+        default: ""
+      model:
+        description: "Copilot SDK model for LLM enrichment"
+        type: choice
+        required: false
+        default: ""
+        options:
+          - ""
+          - gpt-5-mini
+          - claude-sonnet-4
+          - gpt-4.1
+      dry-run:
+        description: "Skip commit and push"
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+  issues: read
+  pull-requests: read
+  actions: read
+
+env:
+  configPath: "agentic-lib.toml"
+
+jobs:
+  params:
+    runs-on: ubuntu-latest
+    outputs:
+      period-start: ${{ steps.resolve.outputs.period-start }}
+      period-end: ${{ steps.resolve.outputs.period-end }}
+      model: ${{ steps.resolve.outputs.model }}
+      config-path: ${{ steps.resolve.outputs.config-path }}
+      dry-run: ${{ steps.resolve.outputs.dry-run }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: ${{ env.configPath }}
+          sparse-checkout-cone-mode: false
+      - id: resolve
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const configPath = '${{ env.configPath }}';
+            let toml = '';
+            if (fs.existsSync(configPath)) toml = fs.readFileSync(configPath, 'utf8');
+            const readToml = (key) => {
+              const m = toml.match(new RegExp(`^\\s*${key}\\s*=\\s*"([^"]*)"`, 'm'));
+              return m ? m[1] : '';
+            };
+            const resolve = (name, input, configKey, defaultValue) => {
+              let value = input || '';
+              let source = 'input';
+              if (!value && configKey) {
+                value = readToml(configKey);
+                source = value ? 'config' : '';
+              }
+              if (!value) {
+                value = defaultValue;
+                source = 'default';
+              }
+              const configVal = configKey ? readToml(configKey) : 'N/A';
+              core.info(`param ${name}: input='${input}' config='${configVal}' default='${defaultValue}' → '${value}' (source: ${source})`);
+              core.setOutput(name, value);
+              return value;
+            };
+            resolve('period-start', '${{ inputs.period-start }}', null, '');
+            resolve('period-end', '${{ inputs.period-end }}', null, '');
+            resolve('model', '${{ inputs.model }}', 'model', 'gpt-5-mini');
+            resolve('config-path', '${{ inputs.config-path }}', null, '${{ env.configPath }}');
+            resolve('dry-run', '${{ inputs.dry-run }}', null, 'false');
+
+  generate-report:
+    needs: [params]
+    runs-on: ubuntu-latest
+    outputs:
+      report-file: ${{ steps.write.outputs.report-file }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || 'main' }}
+          fetch-depth: 0
+          token: ${{ secrets.WORKFLOW_TOKEN || github.token }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Self-init (agentic-lib dev only)
+        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+        run: bash scripts/self-init.sh
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: |
+          npm ci
+          if [ -d "../../copilot" ]; then
+            ln -sf "$(pwd)/node_modules" ../../copilot/node_modules
+          fi
+
+      - name: Fetch state and logs from logs branch
+        run: |
+          git fetch origin agentic-lib-logs --depth=1 2>/dev/null || true
+          git show origin/agentic-lib-logs:agentic-lib-state.toml > agentic-lib-state.toml 2>/dev/null || echo "# no state" > agentic-lib-state.toml
+          # Fetch agent log files for context
+          git ls-tree origin/agentic-lib-logs --name-only 2>/dev/null | grep '^agent-log-' | sort > /tmp/log-files.txt || true
+          while read -r logfile; do
+            git show "origin/agentic-lib-logs:${logfile}" > "${logfile}" 2>/dev/null || true
+          done < /tmp/log-files.txt
+          # Fetch screenshot from logs branch
+          git show origin/agentic-lib-logs:SCREENSHOT_INDEX.png > SCREENSHOT_INDEX.png 2>/dev/null || true
+
+      - name: Fetch website from GitHub Pages
+        run: |
+          REPO_NAME="${{ github.event.repository.name }}"
+          OWNER="${{ github.repository_owner }}"
+          curl -sL --max-time 15 "https://${OWNER}.github.io/${REPO_NAME}/" > /tmp/website.html 2>/dev/null || echo "<html><body>No website available</body></html>" > /tmp/website.html
+          echo "Website fetched: $(wc -c < /tmp/website.html) bytes"
+
+      - name: Run report task
+        id: report
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "report"
+          config: ${{ needs.params.outputs.config-path }}
+          instructions: ".github/agents/agent-report.md"
+          model: ${{ needs.params.outputs.model }}
+          period-start: ${{ needs.params.outputs.period-start }}
+          period-end: ${{ needs.params.outputs.period-end }}
+
+      - name: Write report file
+        id: write
+        shell: bash
+        run: |
+          REPORT_NUM=$(printf "%03d" $(( $(ls BENCHMARK_REPORT_*.md 2>/dev/null | wc -l) + 1 )))
+          REPORT_FILE="BENCHMARK_REPORT_${REPORT_NUM}.md"
+          # The report content is in the action output; write it via env var to handle multiline
+          cat > "${REPORT_FILE}" << 'REPORT_EOF'
+          ${{ steps.report.outputs.report-content }}
+          REPORT_EOF
+          echo "report-file=${REPORT_FILE}" >> $GITHUB_OUTPUT
+          echo "Generated ${REPORT_FILE}"
+
+      - name: Commit and push report
+        if: needs.params.outputs.dry-run != 'true' && github.repository != 'xn-intenton-z2a/agentic-lib'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add BENCHMARK_REPORT_*.md
+          git diff --staged --quiet && echo "No report to commit" && exit 0
+          git commit -m "report: benchmark report [skip ci]"
+          MAX_RETRIES=3
+          PUSH_SUCCESS=""
+          for attempt in $(seq 1 $MAX_RETRIES); do
+            case $attempt in
+              1)
+                echo "=== Attempt 1: rebase ==="
+                git pull --rebase origin main || {
+                  git rebase --abort 2>/dev/null || true
+                  sleep $((10 + RANDOM % 10))
+                  continue
+                }
+                ;;
+              2)
+                echo "=== Attempt 2: merge ==="
+                git pull --no-rebase origin main || {
+                  git merge --abort 2>/dev/null || true
+                  sleep $((20 + RANDOM % 10))
+                  continue
+                }
+                ;;
+              3)
+                echo "=== Attempt 3: merge -X theirs ==="
+                git pull -X theirs --no-rebase origin main || {
+                  git merge --abort 2>/dev/null || true
+                  sleep $((30 + RANDOM % 10))
+                  continue
+                }
+                ;;
+            esac
+            git push origin main && { PUSH_SUCCESS="true"; break; }
+            echo "Push failed on attempt $attempt"
+            sleep $((attempt * 10 + RANDOM % 10))
+          done
+          if [ "$PUSH_SUCCESS" != "true" ]; then
+            echo "::warning::Failed to push report after $MAX_RETRIES attempts — saved as artifact"
+          fi
+
+      - name: Upload report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-report
+          path: BENCHMARK_REPORT_*.md
+          if-no-files-found: ignore

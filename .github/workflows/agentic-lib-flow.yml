@@ -65,6 +65,10 @@ on:
         type: string
         required: false
         default: "true"
+      generate-report:
+        type: string
+        required: false
+        default: "false"
   workflow_dispatch:
     inputs:
       mode:
@@ -157,8 +161,8 @@ on:
         type: string
         required: false
         default: ""
-      skipMaintain:
-        description: "Skip maintain job in workflow runs"
+      generate-report:
+        description: "Generate enriched benchmark report after flow"
         type: boolean
         required: false
         default: false
@@ -183,6 +187,7 @@ jobs:
       skipMaintain: ${{ steps.resolve.outputs.skipMaintain }}
       create-seed-issues: ${{ steps.resolve.outputs.create-seed-issues }}
       skip-tests: ${{ steps.resolve.outputs.skip-tests }}
+      generate-report: ${{ steps.resolve.outputs.generate-report }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -229,6 +234,7 @@ jobs:
             resolve('skipMaintain', '${{ inputs.skipMaintain }}', null, 'false');
             resolve('create-seed-issues', '${{ inputs.create-seed-issues }}', null, 'false');
             resolve('skip-tests', '${{ inputs.skip-tests }}', null, 'true');
+            resolve('generate-report', '${{ inputs.generate-report }}', null, 'false');
 
   # ── Phase 0: Update agentic-lib package ────────────────────────────
   update:
@@ -1007,3 +1013,14 @@ jobs:
         with:
           name: benchmark-report
           path: BENCHMARK_REPORT_FLOW_*.md
+
+  # ── Enriched benchmark report (opt-in) ──────────────────────────
+  enriched-report:
+    needs: [params, generate-report]
+    if: always() && needs.params.outputs.generate-report == 'true'
+    uses: ./.github/workflows/agentic-lib-report.yml
+    with:
+      model: ${{ inputs.model }}
+      config-path: ${{ inputs.config-path }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+    secrets: inherit

@@ -13,7 +13,7 @@ inputs:
   task:
     description: >
       The task to perform. One of: resolve-issue, fix-code, transform, maintain-features,
-      maintain-library, enhance-issue, review-issue, discussions, supervise
+      maintain-library, enhance-issue, review-issue, discussions, supervise, report
     required: true
   config:
     description: "Path to agentic-lib.toml configuration file"
@@ -50,6 +50,14 @@ inputs:
     description: "Copilot SDK model to use"
     required: false
     default: "gpt-5-mini"
+  period-start:
+    description: "Report period start (ISO 8601, default: most recent init run)"
+    required: false
+    default: ""
+  period-end:
+    description: "Report period end (ISO 8601, default: now)"
+    required: false
+    default: ""
 
 outputs:
   result:
@@ -66,6 +74,8 @@ outputs:
     description: "Argument for the chosen action (free text)"
   narrative:
     description: "One-sentence English narrative of what the task did and why"
+  report-content:
+    description: "Generated report content (report task only)"
 
 runs:
   using: "node24"

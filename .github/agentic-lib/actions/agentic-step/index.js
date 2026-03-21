@@ -32,13 +32,14 @@ import { discussions } from "./tasks/discussions.js";
 import { supervise } from "./tasks/supervise.js";
 import { direct } from "./tasks/direct.js";
 import { implementationReview } from "./tasks/implementation-review.js";
+import { report } from "./tasks/report.js";
 
 const TASKS = {
   "resolve-issue": resolveIssue, "fix-code": fixCode, "transform": transform,
   "maintain-features": maintainFeatures, "maintain-library": maintainLibrary,
   "enhance-issue": enhanceIssue, "review-issue": reviewIssue,
   "discussions": discussions, "supervise": supervise, "direct": direct,
-  "implementation-review": implementationReview,
+  "implementation-review": implementationReview, "report": report,
 };
 
 async function run() {
@@ -88,6 +89,8 @@ async function run() {
       discussionUrl: core.getInput("discussion-url"),
       commentNodeId: core.getInput("comment-node-id"),
       commentCreatedAt: core.getInput("comment-created-at"),
+      periodStart: core.getInput("period-start"),
+      periodEnd: core.getInput("period-end"),
       octokit: github.getOctokit(process.env.GITHUB_TOKEN),
       repo: github.context.repo, github: github.context,
       logFilePath, screenshotFilePath,
@@ -102,7 +105,7 @@ async function run() {
 
     // Set outputs
     core.setOutput("result", result.outcome || "completed");
-    for (const [key, field] of [["pr-number", "prNumber"], ["tokens-used", "tokensUsed"], ["model", "model"], ["action", "action"], ["action-arg", "actionArg"], ["narrative", "narrative"]]) {
+    for (const [key, field] of [["pr-number", "prNumber"], ["tokens-used", "tokensUsed"], ["model", "model"], ["action", "action"], ["action-arg", "actionArg"], ["narrative", "narrative"], ["report-content", "reportContent"]]) {
       if (result[field]) core.setOutput(key, String(result[field]));
     }
 
