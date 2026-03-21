@@ -39,7 +39,7 @@ test = "npm ci && npm test"
 [tuning]
 # Profile sets defaults for all tuning and limit knobs: min | med | max
 # Profile definitions live in [profiles.*] sections below.
-profile = "max"
+profile = "min"
 #
 # Model selection — each has different strengths:
 #   gpt-5-mini      — Fast, cheap, supports reasoning-effort. Best for CI and iteration.
@@ -181,8 +181,8 @@ total = 8
 8 = { text = "README documents usage with examples", met = false }
 
 [init]
-timestamp = "2026-03-21T21:29:40.508Z"
+timestamp = "2026-03-21T22:27:55.328Z"
 mode = "purge"
 mission = "7-kyu-understand-fizz-buzz"
 mission-type = "7-kyu-understand-fizz-buzz"
-version = "7.4.48"
+version = "7.4.50"
