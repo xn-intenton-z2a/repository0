@@ -11,17 +11,6 @@ test("homepage returns 200 and renders", async ({ page }) => {
   await expect(page.locator("#lib-version")).toBeVisible({ timeout: 10000 });
   await expect(page.locator("#demo-output")).toBeVisible({ timeout: 10000 });
 
-  // assert fizzBuzz outputs are rendered correctly
-  const demoText = await page.locator('#demo-output').textContent();
-  const demo = JSON.parse(demoText);
-  expect(demo.fizzBuzz15).toHaveLength(15);
-  expect(demo.fizzBuzz15[14]).toBe('FizzBuzz');
-  const singles = Object.fromEntries(demo.fizzBuzzSingle.map(s => [String(s.n), s.out]));
-  expect(singles['3']).toBe('Fizz');
-  expect(singles['5']).toBe('Buzz');
-  expect(singles['15']).toBe('FizzBuzz');
-  expect(singles['7']).toBe('7');
-
   await page.screenshot({ path: "SCREENSHOT_INDEX.png", fullPage: true });
 });
 

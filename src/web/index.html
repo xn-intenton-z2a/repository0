@@ -33,18 +33,11 @@
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
     try {
-      const { name, version, description, fizzBuzz, fizzBuzzSingle } = await import('./lib.js');
+      const { name, version, description } = await import('./lib.js');
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
-      // render demo outputs
-      const fb15 = fizzBuzz(15);
-      const singleVals = [3,5,15,7].map(n => ({ n, out: fizzBuzzSingle(n) }));
-      const demo = {
-        fizzBuzz15: fb15,
-        fizzBuzzSingle: singleVals
-      };
-      document.getElementById('demo-output').textContent = JSON.stringify(demo, null, 2);
+      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
