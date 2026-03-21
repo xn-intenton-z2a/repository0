@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-21T17:21:00.682Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -137,6 +136,21 @@ jobs:
   # ─── Normalise inputs ──────────────────────────────────────────────
   params:
     runs-on: ubuntu-latest
+    outputs:
+      model: ${{ steps.resolve.outputs.model }}
+      profile: ${{ steps.resolve.outputs.profile }}
+      mode: ${{ steps.resolve.outputs.mode }}
+      message: ${{ steps.resolve.outputs.message }}
+      issue-number: ${{ steps.resolve.outputs.issue-number }}
+      schedule: ${{ steps.resolve.outputs.schedule }}
+      pr-number: ${{ steps.resolve.outputs.pr-number }}
+      dry-run: ${{ steps.resolve.outputs.dry-run }}
+      config-path: ${{ steps.resolve.outputs.config-path }}
+      skipMaintain: ${{ steps.resolve.outputs.skipMaintain }}
+      log-prefix: ${{ steps.resolve.outputs.log-prefix }}
+      log-branch: ${{ steps.resolve.outputs.log-branch }}
+      screenshot-file: ${{ steps.resolve.outputs.screenshot-file }}
+      mission-complete: ${{ steps.resolve.outputs.mission-complete }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -146,85 +160,65 @@ jobs:
             MISSION_COMPLETE.md
             MISSION_FAILED.md
           sparse-checkout-cone-mode: false
-      - name: Normalise params
-        id: normalise
-        shell: bash
-        run: |
-          MODEL='${{ inputs.model }}'
-          if [ -z "$MODEL" ] && [ -f "${{ env.configPath }}" ]; then
-            TOML_MODEL=$(grep '^\s*model' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
-            MODEL="${TOML_MODEL}"
-          fi
-          echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
-          PROFILE='${{ inputs.profile }}'
-          if [ -z "$PROFILE" ] && [ -f "${{ env.configPath }}" ]; then
-            TOML_PROFILE=$(grep '^\s*profile' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
-            PROFILE="${TOML_PROFILE}"
-          fi
-          echo "profile=${PROFILE}" >> $GITHUB_OUTPUT
-          MODE='${{ inputs.mode }}'
-          echo "mode=${MODE:-full}" >> $GITHUB_OUTPUT
-          echo "message=${{ inputs.message }}" >> $GITHUB_OUTPUT
-          ISSUE='${{ inputs.issue-number }}'
-          echo "issue-number=${ISSUE}" >> $GITHUB_OUTPUT
-          SCHEDULE='${{ inputs.schedule }}'
-          echo "schedule=${SCHEDULE}" >> $GITHUB_OUTPUT
-          PR='${{ inputs.pr-number }}'
-          echo "pr-number=${PR}" >> $GITHUB_OUTPUT
-          DRY_RUN='${{ inputs.dry-run }}'
-          # Schedule triggers have no inputs, so DRY_RUN is empty.
-          # Default to false for schedule events (they should run live).
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            DRY_RUN="${DRY_RUN:-false}"
-          else
-            DRY_RUN="${DRY_RUN:-true}"
-          fi
-          echo "dry-run=${DRY_RUN}" >> $GITHUB_OUTPUT
-          CONFIG='${{ inputs.config-path }}'
-          echo "config-path=${CONFIG:-${{ env.configPath }}}" >> $GITHUB_OUTPUT
-          # Bot config: log prefix, log branch, screenshot file
-          LOG_PREFIX=""
-          LOG_BRANCH=""
-          SCREENSHOT=""
-          if [ -f "${{ env.configPath }}" ]; then
-            LOG_PREFIX=$(grep '^\s*log-prefix' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
-            LOG_BRANCH=$(grep '^\s*log-branch' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
-            SCREENSHOT=$(grep '^\s*screenshot-file' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/' || true)
-          fi
-          echo "log-prefix=${LOG_PREFIX:-agent-log-}" >> $GITHUB_OUTPUT
-          echo "log-branch=${LOG_BRANCH:-agentic-lib-logs}" >> $GITHUB_OUTPUT
-          echo "screenshot-file=${SCREENSHOT:-SCREENSHOT_INDEX.png}" >> $GITHUB_OUTPUT
-      - name: Check mission-complete signal (W4)
-        id: mission-check
-        shell: bash
-        run: |
-          SUPERVISOR=""
-          if [ -f "${{ env.configPath }}" ]; then
-            SUPERVISOR=$(grep '^\s*supervisor\s*=' "${{ env.configPath }}" 2>/dev/null | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/' || true)
-          fi
-          if [ -f MISSION_COMPLETE.md ] && [ "$SUPERVISOR" != "maintenance" ]; then
-            echo "mission-complete=true" >> $GITHUB_OUTPUT
-            echo "::notice::Mission is complete — most jobs will be skipped"
-          elif [ -f MISSION_FAILED.md ]; then
-            echo "mission-complete=true" >> $GITHUB_OUTPUT
-            echo "::notice::Mission has failed — most jobs will be skipped"
-          else
-            echo "mission-complete=false" >> $GITHUB_OUTPUT
-          fi
-    outputs:
-      model: ${{ steps.normalise.outputs.model }}
-      profile: ${{ steps.normalise.outputs.profile }}
-      mode: ${{ steps.normalise.outputs.mode }}
-      message: ${{ steps.normalise.outputs.message }}
-      issue-number: ${{ steps.normalise.outputs.issue-number }}
-      schedule: ${{ steps.normalise.outputs.schedule }}
-      pr-number: ${{ steps.normalise.outputs.pr-number }}
-      dry-run: ${{ steps.normalise.outputs.dry-run }}
-      config-path: ${{ steps.normalise.outputs.config-path }}
-      log-prefix: ${{ steps.normalise.outputs.log-prefix }}
-      log-branch: ${{ steps.normalise.outputs.log-branch }}
-      screenshot-file: ${{ steps.normalise.outputs.screenshot-file }}
-      mission-complete: ${{ steps.mission-check.outputs.mission-complete }}
+      - id: resolve
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const configPath = '${{ env.configPath }}';
+            let toml = '';
+            if (fs.existsSync(configPath)) toml = fs.readFileSync(configPath, 'utf8');
+            const readToml = (key) => {
+              const m = toml.match(new RegExp(`^\\s*${key}\\s*=\\s*"([^"]*)"`, 'm'));
+              return m ? m[1] : '';
+            };
+            const resolve = (name, input, configKey, defaultValue) => {
+              let value = input || '';
+              let source = 'input';
+              if (!value && configKey) {
+                value = readToml(configKey);
+                source = value ? 'config' : '';
+              }
+              if (!value) {
+                value = defaultValue;
+                source = 'default';
+              }
+              const configVal = configKey ? readToml(configKey) : 'N/A';
+              core.info(`param ${name}: input='${input}' config='${configVal}' default='${defaultValue}' → '${value}' (source: ${source})`);
+              core.setOutput(name, value);
+              return value;
+            };
+            resolve('model', '${{ inputs.model }}', 'model', 'gpt-5-mini');
+            resolve('profile', '${{ inputs.profile }}', 'profile', '');
+            resolve('mode', '${{ inputs.mode }}', null, 'full');
+            resolve('message', '${{ inputs.message }}', null, '');
+            resolve('issue-number', '${{ inputs.issue-number }}', null, '');
+            resolve('schedule', '${{ inputs.schedule }}', null, '');
+            resolve('pr-number', '${{ inputs.pr-number }}', null, '');
+            resolve('config-path', '${{ inputs.config-path }}', null, '${{ env.configPath }}');
+            resolve('skipMaintain', '${{ inputs.skipMaintain }}', null, 'false');
+            // dry-run: schedule events default to false (live), others to true
+            const eventName = '${{ github.event_name }}';
+            const dryRunDefault = eventName === 'schedule' ? 'false' : 'true';
+            resolve('dry-run', '${{ inputs.dry-run }}', null, dryRunDefault);
+            // Bot config from TOML
+            resolve('log-prefix', '', 'log-prefix', 'agent-log-');
+            resolve('log-branch', '', 'log-branch', 'agentic-lib-logs');
+            resolve('screenshot-file', '', 'screenshot-file', 'SCREENSHOT_INDEX.png');
+            // Mission-complete check (W4)
+            const supervisor = readToml('supervisor');
+            const hasMissionComplete = fs.existsSync('MISSION_COMPLETE.md');
+            const hasMissionFailed = fs.existsSync('MISSION_FAILED.md');
+            let missionComplete = 'false';
+            if (hasMissionComplete && supervisor !== 'maintenance') {
+              missionComplete = 'true';
+              core.notice('Mission is complete — most jobs will be skipped');
+            } else if (hasMissionFailed) {
+              missionComplete = 'true';
+              core.notice('Mission has failed — most jobs will be skipped');
+            }
+            core.info(`param mission-complete: MISSION_COMPLETE.md=${hasMissionComplete} MISSION_FAILED.md=${hasMissionFailed} supervisor='${supervisor}' → '${missionComplete}'`);
+            core.setOutput('mission-complete', missionComplete);
 
   # ─── PR Cleanup: merge/close/delete stale PRs and branches ─────────
   pr-cleanup:

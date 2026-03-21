@@ -65,13 +65,29 @@ jobs:
   params:
     runs-on: ubuntu-latest
     outputs:
-      dry-run: ${{ steps.resolve.outputs.dry-run }}
+      push-screenshot: ${{ steps.resolve.outputs.push-screenshot }}
+      log-branch: ${{ steps.resolve.outputs.log-branch }}
     steps:
       - id: resolve
         uses: actions/github-script@v8
         with:
           script: |
-            core.setOutput('dry-run', context.payload.inputs?.['dry-run'] || 'false');
+            const resolve = (name, input, configKey, defaultValue) => {
+              let value = input || '';
+              let source = 'input';
+              if (!value && configKey) {
+                source = '';
+              }
+              if (!value) {
+                value = defaultValue;
+                source = 'default';
+              }
+              core.info(`param ${name}: input='${input}' default='${defaultValue}' → '${value}' (source: ${source})`);
+              core.setOutput(name, value);
+              return value;
+            };
+            resolve('push-screenshot', '${{ inputs.push-screenshot }}', null, 'false');
+            resolve('log-branch', '${{ inputs.log-branch }}', null, 'agentic-lib-logs');
 
   test:
     needs: [params]

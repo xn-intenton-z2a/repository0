@@ -84,27 +84,49 @@ env:
 jobs:
   params:
     runs-on: ubuntu-latest
+    outputs:
+      model: ${{ steps.resolve.outputs.model }}
+      dry-run: ${{ steps.resolve.outputs.dry-run }}
+      discussion-url: ${{ steps.resolve.outputs.discussion-url }}
+      message: ${{ steps.resolve.outputs.message }}
     steps:
       - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref || github.ref }}
           sparse-checkout: ${{ env.configPath }}
           sparse-checkout-cone-mode: false
-      - name: Normalise params
-        id: normalise
-        shell: bash
-        run: |
-          MODEL='${{ inputs.model }}'
-          if [ -z "$MODEL" ] && [ -f "${{ env.configPath }}" ]; then
-            TOML_MODEL=$(grep '^\s*model' "${{ env.configPath }}" | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/')
-            MODEL="${TOML_MODEL}"
-          fi
-          echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
-          DRY_RUN='${{ inputs.dry-run }}'
-          echo "dry-run=${DRY_RUN:-true}" >> $GITHUB_OUTPUT
-    outputs:
-      model: ${{ steps.normalise.outputs.model }}
-      dry-run: ${{ steps.normalise.outputs.dry-run }}
+      - id: resolve
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const configPath = '${{ env.configPath }}';
+            let toml = '';
+            if (fs.existsSync(configPath)) toml = fs.readFileSync(configPath, 'utf8');
+            const readToml = (key) => {
+              const m = toml.match(new RegExp(`^\\s*${key}\\s*=\\s*"([^"]*)"`, 'm'));
+              return m ? m[1] : '';
+            };
+            const resolve = (name, input, configKey, defaultValue) => {
+              let value = input || '';
+              let source = 'input';
+              if (!value && configKey) {
+                value = readToml(configKey);
+                source = value ? 'config' : '';
+              }
+              if (!value) {
+                value = defaultValue;
+                source = 'default';
+              }
+              const configVal = configKey ? readToml(configKey) : 'N/A';
+              core.info(`param ${name}: input='${input}' config='${configVal}' default='${defaultValue}' → '${value}' (source: ${source})`);
+              core.setOutput(name, value);
+              return value;
+            };
+            resolve('model', '${{ inputs.model }}', 'model', 'gpt-5-mini');
+            resolve('dry-run', '${{ inputs.dry-run }}', null, 'true');
+            resolve('discussion-url', '${{ inputs.discussion-url }}', null, '');
+            resolve('message', '${{ inputs.message }}', null, '');
 
   respond:
     needs: params

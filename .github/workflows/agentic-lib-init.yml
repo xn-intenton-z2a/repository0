@@ -10,8 +10,6 @@ name: agentic-lib-init
 run-name: "agentic-lib-init ${{ inputs.mode || 'update' }} [${{ github.ref_name }}]"
 
 on:
-  schedule:
-    - cron: "0 0 31 2 *"
   workflow_call:
     inputs:
       ref:
@@ -152,20 +150,42 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       dry-run: ${{ steps.resolve.outputs.dry-run }}
-      mission: ${{ steps.resolve.outputs.mission }}
-      profile: ${{ steps.resolve.outputs.profile }}
+      mode: ${{ steps.resolve.outputs.mode }}
+      mission-seed: ${{ steps.resolve.outputs.mission-seed }}
+      mission-text: ${{ steps.resolve.outputs.mission-text }}
+      schedule: ${{ steps.resolve.outputs.schedule }}
       model: ${{ steps.resolve.outputs.model }}
+      profile: ${{ steps.resolve.outputs.profile }}
       create-seed-issues: ${{ steps.resolve.outputs.create-seed-issues }}
+      run-workflow: ${{ steps.resolve.outputs.run-workflow }}
     steps:
       - id: resolve
         uses: actions/github-script@v8
         with:
           script: |
-            core.setOutput('dry-run', context.payload.inputs?.['dry-run'] || 'false');
-            core.setOutput('mission', context.payload.inputs?.['mission-seed'] || '7-kyu-understand-fizz-buzz');
-            core.setOutput('profile', context.payload.inputs?.['profile'] || '');
-            core.setOutput('model', context.payload.inputs?.['model'] || '');
-            core.setOutput('create-seed-issues', context.payload.inputs?.['create-seed-issues'] || 'false');
+            const resolve = (name, input, configKey, defaultValue) => {
+              let value = input || '';
+              let source = 'input';
+              if (!value && configKey) {
+                source = '';
+              }
+              if (!value) {
+                value = defaultValue;
+                source = 'default';
+              }
+              core.info(`param ${name}: input='${input}' default='${defaultValue}' → '${value}' (source: ${source})`);
+              core.setOutput(name, value);
+              return value;
+            };
+            resolve('dry-run', '${{ inputs.dry-run }}', null, 'false');
+            resolve('mode', '${{ inputs.mode }}', null, 'purge');
+            resolve('mission-seed', '${{ inputs.mission-seed }}', null, '7-kyu-understand-fizz-buzz');
+            resolve('mission-text', '${{ inputs.mission-text }}', null, '');
+            resolve('schedule', '${{ inputs.schedule }}', null, '');
+            resolve('model', '${{ inputs.model }}', null, '');
+            resolve('profile', '${{ inputs.profile }}', null, '');
+            resolve('create-seed-issues', '${{ inputs.create-seed-issues }}', null, 'false');
+            resolve('run-workflow', '${{ inputs.run-workflow }}', null, 'true');
 
   # Step 1: Update agentic-lib and infrastructure (commits to main)
   # Skip tests when purge/reseed will replace all user code anyway

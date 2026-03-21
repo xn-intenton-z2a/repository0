@@ -11,6 +11,60 @@ name: agentic-lib-flow
 run-name: "agentic-lib-flow [${{ github.ref_name }}] ${{ inputs.mission-seed }} (${{ inputs.workflow-runs }} runs)"
 
 on:
+  workflow_call:
+    inputs:
+      mode:
+        type: string
+        required: false
+        default: "purge"
+      mission-seed:
+        type: string
+        required: false
+        default: "7-kyu-understand-fizz-buzz"
+      model:
+        type: string
+        required: false
+        default: "gpt-5-mini"
+      profile:
+        type: string
+        required: false
+        default: "max"
+      workflow-runs:
+        type: string
+        required: false
+        default: "4"
+      schedule:
+        type: string
+        required: false
+        default: "off"
+      dry-run:
+        type: string
+        required: false
+        default: "false"
+      message:
+        type: string
+        required: false
+        default: ""
+      config-path:
+        type: string
+        required: false
+        default: ""
+      skipMaintain:
+        type: string
+        required: false
+        default: "false"
+      mission-text:
+        type: string
+        required: false
+        default: ""
+      create-seed-issues:
+        type: string
+        required: false
+        default: "false"
+      skip-tests:
+        type: string
+        required: false
+        default: "true"
   workflow_dispatch:
     inputs:
       mode:
@@ -88,29 +142,118 @@ on:
           - "weekly"
           - "daily"
           - "hourly"
+      dry-run:
+        description: "Skip all push/PR/merge operations"
+        type: boolean
+        required: false
+        default: false
+      message:
+        description: "Context message for supervisor/bot"
+        type: string
+        required: false
+        default: ""
+      config-path:
+        description: "Config file path (default: agentic-lib.toml)"
+        type: string
+        required: false
+        default: ""
+      skipMaintain:
+        description: "Skip maintain job in workflow runs"
+        type: boolean
+        required: false
+        default: false
 
 permissions: write-all
 
 jobs:
+  # ── Params: normalise all inputs ─────────────────────────────────
+  params:
+    runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.resolve.outputs.mode }}
+      mission-seed: ${{ steps.resolve.outputs.mission-seed }}
+      mission-text: ${{ steps.resolve.outputs.mission-text }}
+      model: ${{ steps.resolve.outputs.model }}
+      profile: ${{ steps.resolve.outputs.profile }}
+      workflow-runs: ${{ steps.resolve.outputs.workflow-runs }}
+      schedule: ${{ steps.resolve.outputs.schedule }}
+      dry-run: ${{ steps.resolve.outputs.dry-run }}
+      message: ${{ steps.resolve.outputs.message }}
+      config-path: ${{ steps.resolve.outputs.config-path }}
+      skipMaintain: ${{ steps.resolve.outputs.skipMaintain }}
+      create-seed-issues: ${{ steps.resolve.outputs.create-seed-issues }}
+      skip-tests: ${{ steps.resolve.outputs.skip-tests }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: agentic-lib.toml
+          sparse-checkout-cone-mode: false
+      - id: resolve
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const configPath = 'agentic-lib.toml';
+            let toml = '';
+            if (fs.existsSync(configPath)) toml = fs.readFileSync(configPath, 'utf8');
+            const readToml = (key) => {
+              const m = toml.match(new RegExp(`^\\s*${key}\\s*=\\s*"([^"]*)"`, 'm'));
+              return m ? m[1] : '';
+            };
+            const resolve = (name, input, configKey, defaultValue) => {
+              let value = input || '';
+              let source = 'input';
+              if (!value && configKey) {
+                value = readToml(configKey);
+                source = value ? 'config' : '';
+              }
+              if (!value) {
+                value = defaultValue;
+                source = 'default';
+              }
+              const configVal = configKey ? readToml(configKey) : 'N/A';
+              core.info(`param ${name}: input='${input}' config='${configVal}' default='${defaultValue}' → '${value}' (source: ${source})`);
+              core.setOutput(name, value);
+              return value;
+            };
+            resolve('mode', '${{ inputs.mode }}', null, 'purge');
+            resolve('mission-seed', '${{ inputs.mission-seed }}', null, '7-kyu-understand-fizz-buzz');
+            resolve('mission-text', '${{ inputs.mission-text }}', null, '');
+            resolve('model', '${{ inputs.model }}', 'model', 'gpt-5-mini');
+            resolve('profile', '${{ inputs.profile }}', 'profile', 'max');
+            resolve('workflow-runs', '${{ inputs.workflow-runs }}', null, '4');
+            resolve('schedule', '${{ inputs.schedule }}', null, 'off');
+            resolve('dry-run', '${{ inputs.dry-run }}', null, 'false');
+            resolve('message', '${{ inputs.message }}', null, '');
+            resolve('config-path', '${{ inputs.config-path }}', null, 'agentic-lib.toml');
+            resolve('skipMaintain', '${{ inputs.skipMaintain }}', null, 'false');
+            resolve('create-seed-issues', '${{ inputs.create-seed-issues }}', null, 'false');
+            resolve('skip-tests', '${{ inputs.skip-tests }}', null, 'true');
+
   # ── Phase 0: Update agentic-lib package ────────────────────────────
   update:
-    if: inputs.mode != 'skip'
+    needs: [params]
+    if: needs.params.outputs.mode != 'skip'
     uses: ./.github/workflows/agentic-lib-update.yml
     with:
-      skip-tests: 'true'
+      skip-tests: ${{ needs.params.outputs.skip-tests }}
+      dry-run: ${{ needs.params.outputs.dry-run }}
     secrets: inherit
 
   # ── Phase 0b: Init (purge/reseed/update) ───────────────────────────
   init:
-    needs: [update]
-    if: always() && inputs.mode != 'skip' && (needs.update.result == 'success' || needs.update.result == 'skipped')
+    needs: [params, update]
+    if: always() && needs.params.outputs.mode != 'skip' && (needs.update.result == 'success' || needs.update.result == 'skipped')
     uses: ./.github/workflows/agentic-lib-init.yml
     with:
-      mode: ${{ inputs.mode }}
-      mission-seed: ${{ inputs.mission-seed }}
-      model: ${{ inputs.model }}
-      profile: ${{ inputs.profile }}
-      schedule: ${{ inputs.schedule }}
+      mode: ${{ needs.params.outputs.mode }}
+      mission-seed: ${{ needs.params.outputs.mission-seed }}
+      mission-text: ${{ needs.params.outputs.mission-text }}
+      model: ${{ needs.params.outputs.model }}
+      profile: ${{ needs.params.outputs.profile }}
+      schedule: ${{ needs.params.outputs.schedule }}
+      dry-run: ${{ needs.params.outputs.dry-run }}
+      create-seed-issues: ${{ needs.params.outputs.create-seed-issues }}
     secrets: inherit
 
   # ── Round 1: test + bot + up to 4 workflow runs ────────────────────
@@ -124,6 +267,9 @@ jobs:
     needs: [test-1]
     if: always() && needs.test-1.result == 'success'
     uses: ./.github/workflows/agentic-lib-bot.yml
+    with:
+      model: ${{ inputs.model }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-1:
@@ -150,6 +296,13 @@ jobs:
     needs: [check-1]
     if: always() && needs.check-1.result == 'success' && needs.check-1.outputs.mission-over != 'true' && inputs.workflow-runs >= 1
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-2:
@@ -175,6 +328,13 @@ jobs:
     needs: [check-2]
     if: always() && needs.check-2.result == 'success' && needs.check-2.outputs.mission-over != 'true' && inputs.workflow-runs >= 2
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-3:
@@ -200,6 +360,13 @@ jobs:
     needs: [check-3]
     if: always() && needs.check-3.result == 'success' && needs.check-3.outputs.mission-over != 'true' && inputs.workflow-runs >= 3
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-4:
@@ -225,6 +392,13 @@ jobs:
     needs: [check-4]
     if: always() && needs.check-4.result == 'success' && needs.check-4.outputs.mission-over != 'true' && inputs.workflow-runs >= 4
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   # ── Round 2: test + bot + up to 4 more workflow runs ───────────────
@@ -238,6 +412,9 @@ jobs:
     needs: [test-2]
     if: always() && needs.test-2.result == 'success'
     uses: ./.github/workflows/agentic-lib-bot.yml
+    with:
+      model: ${{ inputs.model }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-5:
@@ -263,6 +440,13 @@ jobs:
     needs: [check-5]
     if: always() && needs.check-5.result == 'success' && needs.check-5.outputs.mission-over != 'true' && inputs.workflow-runs >= 5
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-6:
@@ -288,6 +472,13 @@ jobs:
     needs: [check-6]
     if: always() && needs.check-6.result == 'success' && needs.check-6.outputs.mission-over != 'true' && inputs.workflow-runs >= 6
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-7:
@@ -313,6 +504,13 @@ jobs:
     needs: [check-7]
     if: always() && needs.check-7.result == 'success' && needs.check-7.outputs.mission-over != 'true' && inputs.workflow-runs >= 7
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-8:
@@ -338,6 +536,13 @@ jobs:
     needs: [check-8]
     if: always() && needs.check-8.result == 'success' && needs.check-8.outputs.mission-over != 'true' && inputs.workflow-runs >= 8
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   # ── Round 3: test + bot + up to 4 more workflow runs ───────────────
@@ -351,6 +556,9 @@ jobs:
     needs: [test-3]
     if: always() && needs.test-3.result == 'success'
     uses: ./.github/workflows/agentic-lib-bot.yml
+    with:
+      model: ${{ inputs.model }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-9:
@@ -376,6 +584,13 @@ jobs:
     needs: [check-9]
     if: always() && needs.check-9.result == 'success' && needs.check-9.outputs.mission-over != 'true' && inputs.workflow-runs >= 9
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-10:
@@ -401,6 +616,13 @@ jobs:
     needs: [check-10]
     if: always() && needs.check-10.result == 'success' && needs.check-10.outputs.mission-over != 'true' && inputs.workflow-runs >= 10
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-11:
@@ -426,6 +648,13 @@ jobs:
     needs: [check-11]
     if: always() && needs.check-11.result == 'success' && needs.check-11.outputs.mission-over != 'true' && inputs.workflow-runs >= 11
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-12:
@@ -451,6 +680,13 @@ jobs:
     needs: [check-12]
     if: always() && needs.check-12.result == 'success' && needs.check-12.outputs.mission-over != 'true' && inputs.workflow-runs >= 12
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   # ── Round 4: test + bot + up to 4 more workflow runs ───────────────
@@ -464,6 +700,9 @@ jobs:
     needs: [test-4]
     if: always() && needs.test-4.result == 'success'
     uses: ./.github/workflows/agentic-lib-bot.yml
+    with:
+      model: ${{ inputs.model }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-13:
@@ -489,6 +728,13 @@ jobs:
     needs: [check-13]
     if: always() && needs.check-13.result == 'success' && needs.check-13.outputs.mission-over != 'true' && inputs.workflow-runs >= 13
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-14:
@@ -514,6 +760,13 @@ jobs:
     needs: [check-14]
     if: always() && needs.check-14.result == 'success' && needs.check-14.outputs.mission-over != 'true' && inputs.workflow-runs >= 14
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-15:
@@ -539,6 +792,13 @@ jobs:
     needs: [check-15]
     if: always() && needs.check-15.result == 'success' && needs.check-15.outputs.mission-over != 'true' && inputs.workflow-runs >= 15
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   check-16:
@@ -564,6 +824,13 @@ jobs:
     needs: [check-16]
     if: always() && needs.check-16.result == 'success' && needs.check-16.outputs.mission-over != 'true' && inputs.workflow-runs >= 16
     uses: ./.github/workflows/agentic-lib-workflow.yml
+    with:
+      model: ${{ inputs.model }}
+      profile: ${{ inputs.profile }}
+      dry-run: ${{ inputs.dry-run || 'false' }}
+      skipMaintain: ${{ inputs.skipMaintain || 'false' }}
+      config-path: ${{ inputs.config-path }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   # ── Final: test + bot (always runs) ────────────────────────────────
@@ -577,6 +844,9 @@ jobs:
     needs: [test-final]
     if: always() && needs.test-final.result == 'success'
     uses: ./.github/workflows/agentic-lib-bot.yml
+    with:
+      model: ${{ inputs.model }}
+      message: ${{ inputs.message }}
     secrets: inherit
 
   # ── Verify: MISSION_COMPLETE.md must exist ─────────────────────────

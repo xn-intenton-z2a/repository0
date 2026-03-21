@@ -98,6 +98,7 @@ jobs:
       model: ${{ steps.resolve.outputs.model }}
       profile: ${{ steps.resolve.outputs.profile }}
       focus: ${{ steps.resolve.outputs.focus }}
+      dry-run: ${{ steps.resolve.outputs.dry-run }}
       maintenance: ${{ steps.resolve.outputs.maintenance }}
     steps:
       - uses: actions/checkout@v6
@@ -109,25 +110,42 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const tomlPath = 'agentic-lib.toml';
-            let tomlContent = '';
-            if (fs.existsSync(tomlPath)) tomlContent = fs.readFileSync(tomlPath, 'utf8');
+            const configPath = 'agentic-lib.toml';
+            let toml = '';
+            if (fs.existsSync(configPath)) toml = fs.readFileSync(configPath, 'utf8');
             const readToml = (key) => {
-              const m = tomlContent.match(new RegExp(`^\\s*${key}\\s*=\\s*"([^"]*)"`, 'm'));
+              const m = toml.match(new RegExp(`^\\s*${key}\\s*=\\s*"([^"]*)"`, 'm'));
               return m ? m[1] : '';
             };
-            let frequency = context.payload.inputs?.['frequency'] || '';
-            if (!frequency) frequency = readToml('supervisor') || 'off';
-            const model = context.payload.inputs?.['model'] || '';
-            const profile = context.payload.inputs?.['profile'] || '';
-            let focus = context.payload.inputs?.['focus'] || '';
-            if (!focus) focus = readToml('focus') || 'mission';
-            if (frequency === 'maintenance') focus = 'maintenance';
-            core.setOutput('frequency', frequency);
-            core.setOutput('model', model);
-            core.setOutput('profile', profile);
-            core.setOutput('focus', focus);
-            core.setOutput('maintenance', frequency === 'maintenance' ? 'true' : 'false');
+            const resolve = (name, input, configKey, defaultValue) => {
+              let value = input || '';
+              let source = 'input';
+              if (!value && configKey) {
+                value = readToml(configKey);
+                source = value ? 'config' : '';
+              }
+              if (!value) {
+                value = defaultValue;
+                source = 'default';
+              }
+              const configVal = configKey ? readToml(configKey) : 'N/A';
+              core.info(`param ${name}: input='${input}' config='${configVal}' default='${defaultValue}' → '${value}' (source: ${source})`);
+              core.setOutput(name, value);
+              return value;
+            };
+            const frequency = resolve('frequency', '${{ inputs.frequency }}', 'supervisor', 'off');
+            resolve('model', '${{ inputs.model }}', 'model', 'gpt-5-mini');
+            resolve('profile', '${{ inputs.profile }}', 'profile', '');
+            let focus = resolve('focus', '${{ inputs.focus }}', 'focus', 'mission');
+            if (frequency === 'maintenance') {
+              focus = 'maintenance';
+              core.info(`param focus: overridden to 'maintenance' (frequency=maintenance)`);
+              core.setOutput('focus', focus);
+            }
+            resolve('dry-run', '${{ inputs.dry-run }}', null, 'false');
+            const maintenance = frequency === 'maintenance' ? 'true' : 'false';
+            core.info(`param maintenance: derived='${maintenance}' (frequency='${frequency}')`);
+            core.setOutput('maintenance', maintenance);
 
   update-schedule:
     needs: [params]

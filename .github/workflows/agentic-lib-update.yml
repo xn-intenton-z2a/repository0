@@ -41,12 +41,28 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       dry-run: ${{ steps.resolve.outputs.dry-run }}
+      skip-tests: ${{ steps.resolve.outputs.skip-tests }}
     steps:
       - id: resolve
         uses: actions/github-script@v8
         with:
           script: |
-            core.setOutput('dry-run', context.payload.inputs?.['dry-run'] || 'false');
+            const resolve = (name, input, configKey, defaultValue) => {
+              let value = input || '';
+              let source = 'input';
+              if (!value && configKey) {
+                source = '';
+              }
+              if (!value) {
+                value = defaultValue;
+                source = 'default';
+              }
+              core.info(`param ${name}: input='${input}' default='${defaultValue}' → '${value}' (source: ${source})`);
+              core.setOutput(name, value);
+              return value;
+            };
+            resolve('dry-run', '${{ inputs.dry-run }}', null, 'false');
+            resolve('skip-tests', '${{ inputs.skip-tests }}', null, 'false');
 
   update:
     needs: [params]
