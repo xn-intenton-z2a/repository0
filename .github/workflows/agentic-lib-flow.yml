@@ -1009,7 +1009,7 @@ jobs:
           fi
 
       - name: Upload report artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: benchmark-report
           path: BENCHMARK_REPORT_FLOW_*.md
