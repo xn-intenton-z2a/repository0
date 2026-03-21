@@ -22,5 +22,5 @@ A JavaScript library exporting FizzBuzz functions. This is the simplest possible
 - [x] `fizzBuzzSingle(15)` returns "FizzBuzz"
 - [x] `fizzBuzzSingle(7)` returns "7"
 - [x] `fizzBuzz(0)` returns `[]`
-- [ ] All unit tests pass
-- [ ] README documents usage with examples
+- [x] All unit tests pass
+- [x] README documents usage with examples
