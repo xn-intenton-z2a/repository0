@@ -2,24 +2,22 @@
 
 Summary
 
-Define precise input validation rules and testable behaviour for invalid inputs so consumers and tests have deterministic expectations.
+Status: Implemented.
 
-Validation rules
+Input validation for both fizzBuzz and fizzBuzzSingle is implemented in src/lib/main.js via a shared helper. Behaviour includes TypeError for non-number or non-integer inputs, and RangeError for negative values. fizzBuzzSingle intentionally treats zero as invalid (RangeError) while fizzBuzz(0) returns an empty array.
 
-- Type check: if the input is not a number or if Number.isInteger(input) is false then throw a TypeError.
-- Range check: if the input is a number but less than zero then throw a RangeError.
-- Zero handling: input value zero is valid for fizzBuzz and returns an empty array; for fizzBuzzSingle zero may be allowed or tested depending on API decision, but tests should assert expected behaviour. Prefer treating fizzBuzzSingle(0) as returning 0 as string or throw; for clarity require tests to assert that fizzBuzzSingle only accepts positive integers greater than zero and will throw RangeError for 0 or negative if that behaviour is chosen. The core mission requires fizzBuzz(0) returns empty array; tests must verify that case.
+Evidence
 
-Test cases (explicit)
+- Implementation: validateIntegerInput helper in src/lib/main.js and calls from fizzBuzz and fizzBuzzSingle.
+- Tests: tests/unit/fizzbuzz.test.js asserts TypeError and RangeError behaviours for invalid inputs and fizzBuzz(0).
 
-- Non-number input such as a string should cause TypeError.
-- Non-integer numeric input such as 4.5 should cause TypeError.
-- Negative integers such as -1 should cause RangeError.
-- Zero passed to fizzBuzz returns empty array.
+Acceptance criteria (met)
 
-Acceptance criteria
+- Non-number input throws TypeError.
+- Non-integer numeric input throws TypeError.
+- Negative integers throw RangeError.
+- fizzBuzz(0) returns an empty array.
 
-- There are unit tests asserting TypeError is thrown for non-number and non-integer inputs.
-- There are unit tests asserting RangeError is thrown for negative inputs.
-- There is a unit test asserting fizzBuzz(0) returns an empty array.
-- The project uses Number.isInteger for integer checks and typeof for number checks as observed in implementation.
+Notes
+
+This feature is pruned from the active backlog because validation and tests are present.

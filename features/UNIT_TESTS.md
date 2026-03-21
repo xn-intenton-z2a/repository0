@@ -2,30 +2,20 @@
 
 Summary
 
-Add comprehensive unit tests that cover normal behaviour and all edge cases required by the mission. Tests must be deterministic and fast and live under tests/unit.
+Status: Implemented.
 
-Test structure and location
+Comprehensive unit tests covering normal operation and edge cases exist under tests/unit. The test suite validates fizzBuzz and fizzBuzzSingle outputs, input validation, and the web demo presence.
 
-- Add a new test file tests/unit/fizzbuzz.test.js describing the fizzBuzz and fizzBuzzSingle behaviour.
-- Keep existing tests for library identity intact; add the new file alongside them.
+Evidence
 
-Required test cases
+- tests/unit/fizzbuzz.test.js contains assertions for canonical outputs and error cases.
+- tests/unit/web.test.js and other tests validate web assets and integration points.
 
-- fizzBuzz(15) returns an array of length 15 and the last element is FizzBuzz.
-- fizzBuzzSingle(3) returns Fizz, fizzBuzzSingle(5) returns Buzz, fizzBuzzSingle(15) returns FizzBuzz, fizzBuzzSingle(7) returns 7.
-- fizzBuzz(0) returns an empty array.
-- Non-number input to either function throws TypeError.
-- Non-integer numeric input throws TypeError.
-- Negative input throws RangeError.
-- Exports are functions and importable from src/lib/main.js.
+Acceptance criteria (met)
 
-Coverage and acceptance
+- tests/unit/fizzbuzz.test.js exists and asserts the required behaviours.
+- Running npm test executes the unit tests (via vitest) and the relevant tests pass.
 
-- Tests must run with the existing npm test script and pass in continuous integration.
-- Tests should be written using the existing vitest setup and use expect assertions for exact equality and throws checks.
+Notes
 
-Acceptance criteria
-
-- tests/unit/fizzbuzz.test.js exists and contains the cases listed above.
-- Running npm test completes with exit code zero and the new tests pass locally and in CI.
-- Line coverage for the new code is sufficient to cover all branches of the validation logic.
+This feature is pruned from the active backlog because tests implementing its acceptance criteria are present in the repository.

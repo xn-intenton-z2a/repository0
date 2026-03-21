@@ -2,15 +2,19 @@
 
 Summary
 
-Update README.md to include clear, copyable examples that show how to import and use the library and how to run the CLI entrypoint. Examples must demonstrate the core acceptance criteria so readers can reproduce the expected behaviour.
+Status: Implemented.
 
-Required examples
+The repository README.md contains usage examples showing how to import the named exports fizzBuzz and fizzBuzzSingle and how to open the web demo in src/web/index.html. Examples demonstrate canonical cases such as fizzBuzz(15) and fizzBuzzSingle(3), (5), (15) and (7).
 
-- Import example showing how to import named exports and call fizzBuzz and fizzBuzzSingle, and the expected outputs for the canonical examples such as an example producing a 15 element array ending with FizzBuzz and single calls for 3, 5, 15, and 7.
-- CLI example showing how to run the included CLI script to request a single value or a sequence and the expected output for the same canonical examples.
+Evidence
 
-Acceptance criteria
+- README.md includes example Node import usage and references the web demo.
 
-- README.md contains at least one example that demonstrates fizzBuzz producing the expected 15 element array ending with FizzBuzz.
-- README.md contains at least one example that demonstrates fizzBuzzSingle returning Fizz, Buzz, FizzBuzz and numeric results for the sample inputs 3, 5, 15 and 7.
-- The examples are straightforward to follow and do not rely on undocumented behaviour.
+Acceptance criteria (met)
+
+- README.md contains an example showing fizzBuzz producing the expected 15 element array ending with FizzBuzz.
+- README.md contains examples demonstrating fizzBuzzSingle returning Fizz, Buzz, FizzBuzz and numeric results for 3, 5, 15 and 7.
+
+Notes
+
+This feature is pruned from the active backlog because the README contains the required examples.

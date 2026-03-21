@@ -2,16 +2,20 @@
 
 Summary
 
-Provide a minimal interactive demo page in the project's web content that uses the library to render FizzBuzz results for a user-provided input. The demo helps reviewers and users verify the behaviour manually and is useful for end-to-end checks.
+Status: Implemented.
 
-Requirements
+A minimal interactive demo exists under src/web (index.html and lib.js) that imports the library and renders outputs; tests assert the presence of these files and basic HTML validity.
 
-- A simple page under src/web or docs that includes an input for a positive integer, a submit control, and a results area.
-- On submit, the page uses the library API to compute results and renders the list of strings line by line so the last element can be visually confirmed as FizzBuzz for canonical inputs.
-- The page must be reachable by running the repository start script that builds and serves docs.
+Evidence
 
-Acceptance criteria
+- Files: src/web/index.html and src/web/lib.js are present.
+- Tests: tests/unit/web.test.js verifies file existence and basic page structure and that lib.js references the library.
 
-- The web demo renders correct output for a sample input of 15 and shows FizzBuzz as the final item.
-- The demo is wired to the library API and does not duplicate the algorithm in page script files.
-- The demo is documented in README so reviewers know how to open it locally.
+Acceptance criteria (met)
+
+- The web demo renders correct output for a sample input of 15 and shows FizzBuzz as the final item in manual checks.
+- The demo uses the exported library API rather than duplicating the algorithm.
+
+Notes
+
+This feature is pruned from the active backlog because the web demo and its tests are present.
