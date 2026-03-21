@@ -2,30 +2,36 @@ FIZZBUZZ_LIBRARY
 
 Purpose
 
-Specify and track the core library feature: named exports fizzBuzz and fizzBuzzSingle that implement the FizzBuzz mission.
+Specify the core JavaScript library feature: named exports fizzBuzz and fizzBuzzSingle implementing the FizzBuzz mission requirements.
 
 Description
 
-Provide a small, well-tested JavaScript library exporting two named functions from src/lib/main.js:
+Implement two named ESM exports from src/lib/main.js:
 
 - fizzBuzz(n): returns an array of strings for the sequence 1..n applying Fizz/Buzz/FizzBuzz rules.
 - fizzBuzzSingle(n): returns the single string result for a single positive integer n.
 
-Both functions must validate inputs and handle edge cases per the mission:
+Input validation and edge cases (identical behaviour for both functions):
 
 - If n is 0, fizzBuzz returns an empty array.
-- If n is negative, both functions throw a RangeError with a descriptive message.
-- If n is not an integer (including NaN), both functions throw a TypeError with a descriptive message.
+- If n is negative, both functions throw RangeError with a clear message.
+- If n is not an integer (including NaN), both functions throw TypeError with a clear message.
+
+Implementation notes
+
+- Use idiomatic ESM exports and keep functions pure and side-effect free.
+- Keep logic shared where possible: fizzBuzz should call fizzBuzzSingle to build the array.
+- Ensure messages used in thrown errors are descriptive and stable for unit tests.
 
 Acceptance criteria
 
 1. Exports: src/lib/main.js exports named functions fizzBuzz and fizzBuzzSingle.
-2. Correctness: fizzBuzz(15) returns an array of length 15 with the correct Fizz/Buzz/FizzBuzz replacements.
-3. Single: fizzBuzzSingle(3) -> "Fizz", fizzBuzzSingle(5) -> "Buzz", fizzBuzzSingle(15) -> "FizzBuzz", fizzBuzzSingle(7) -> "7".
-4. Edge cases: fizzBuzz(0) -> [], negative inputs throw RangeError, non-integers throw TypeError.
-5. Tests: Unit tests in tests/unit verify all behaviors and edge cases.
-6. Documentation: README includes usage examples showing both functions.
+2. Correctness: fizzBuzz(15) returns an array of length 15 with the correct Fizz/Buzz/FizzBuzz replacements and the last element equals "FizzBuzz".
+3. Single: fizzBuzzSingle(3) returns "Fizz", fizzBuzzSingle(5) returns "Buzz", fizzBuzzSingle(15) returns "FizzBuzz", fizzBuzzSingle(7) returns "7".
+4. Edge cases: fizzBuzz(0) returns [], negative inputs throw RangeError, non-integers (including 3.5 and NaN) throw TypeError.
+5. Tests: Unit tests in tests/unit verify all behaviours and edge cases with exact expected messages for thrown errors.
+6. Documentation: README includes usage examples for both fizzBuzz and fizzBuzzSingle and shows CLI example if CLI is present.
 
 Notes
 
-Keep implementation minimal and idiomatic ESM JavaScript. Tests should be deterministic and small.
+Keep implementation minimal and well-documented. Tests should be deterministic and reference exact error messages and return values so acceptance can be validated by CI.
