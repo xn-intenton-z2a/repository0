@@ -16,7 +16,7 @@ Add a small CLI entrypoint using the existing start:cli script (node src/lib/mai
 Acceptance criteria
 
 1. CLI behaviour: running node src/lib/main.js 15 prints the 15-item fizzBuzz sequence to stdout as a single comma-separated line and exits with status 0.
-2. Validation: running node src/lib/main.js -3 or node src/lib/main.js 3.5 prints a human-readable error message to stderr and exits with a non-zero status.
+2. Validation: running node src/lib/main.js -3 prints "n must be a non-negative integer" to stderr and exits with a non-zero status; running node src/lib/main.js 3.5 or node src/lib/main.js NaN prints "n must be an integer" to stderr and exits with a non-zero status.
 3. Default: running node src/lib/main.js with no arguments prints fizzBuzz(15) to stdout and exits with status 0.
 4. Documentation: README includes a short example demonstrating the CLI usage and sample output.
 

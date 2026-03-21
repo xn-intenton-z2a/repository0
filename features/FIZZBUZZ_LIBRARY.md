@@ -14,8 +14,8 @@ Implement two named ESM exports from src/lib/main.js:
 Input validation and edge cases (identical behaviour for both functions):
 
 - If n is 0, fizzBuzz returns an empty array.
-- If n is negative, both functions throw RangeError with a clear message.
-- If n is not an integer (including NaN), both functions throw TypeError with a clear message.
+- If n is negative, both functions throw RangeError with the message "n must be a non-negative integer".
+- If n is not an integer (including NaN), both functions throw TypeError with the message "n must be an integer".
 
 Implementation notes
 
@@ -28,8 +28,8 @@ Acceptance criteria
 1. Exports: src/lib/main.js exports named functions fizzBuzz and fizzBuzzSingle.
 2. Correctness: fizzBuzz(15) returns an array of length 15 with the correct Fizz/Buzz/FizzBuzz replacements and the last element equals "FizzBuzz".
 3. Single: fizzBuzzSingle(3) returns "Fizz", fizzBuzzSingle(5) returns "Buzz", fizzBuzzSingle(15) returns "FizzBuzz", fizzBuzzSingle(7) returns "7".
-4. Edge cases: fizzBuzz(0) returns [], negative inputs throw RangeError, non-integers (including 3.5 and NaN) throw TypeError.
-5. Tests: Unit tests in tests/unit verify all behaviours and edge cases with exact expected messages for thrown errors.
+4. Edge cases: fizzBuzz(0) returns [], negative inputs throw RangeError with message "n must be a non-negative integer", non-integers (including 3.5 and NaN) throw TypeError with message "n must be an integer".
+5. Tests: Unit tests in tests/unit verify all behaviours and edge cases and assert the exact error messages specified above.
 6. Documentation: README includes usage examples for both fizzBuzz and fizzBuzzSingle and shows CLI example if CLI is present.
 
 Notes
