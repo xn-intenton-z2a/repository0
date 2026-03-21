@@ -23,57 +23,26 @@ npx @xn-intenton-z2a/agentic-lib init --purge --mission 7-kyu-understand-fizz-bu
 
 This resets the repository to a clean state with your chosen mission in `MISSION.md`. The default mission is **fizz-buzz** (7-kyu).
 
-#### Built-in Missions
+### FizzBuzz Library
 
-agentic-lib ships with 20 built-in missions plus two special modes, graded using [Codewars kyu/dan](https://docs.codewars.com/concepts/kata/) difficulty:
+This repository includes a small FizzBuzz library exported from `src/lib/main.js` with two named exports:
 
-| Mission | Kyu/Dan | Description |
-|---------|---------|-------------|
-| `random` | — | Randomly select from all built-in missions |
-| `generate` | — | Ask the LLM to generate a novel mission |
-| `8-kyu-remember-empty` | 8 kyu | Blank template |
-| `8-kyu-remember-hello-world` | 8 kyu | Hello World |
-| `7-kyu-understand-fizz-buzz` | 7 kyu | Classic FizzBuzz (default) |
-| `6-kyu-understand-hamming-distance` | 6 kyu | Hamming distance (strings + bits) |
-| `6-kyu-understand-roman-numerals` | 6 kyu | Roman numeral conversion |
-| `5-kyu-apply-ascii-face` | 5 kyu | ASCII face art |
-| `5-kyu-apply-string-utils` | 5 kyu | 10 string utility functions |
-| `4-kyu-apply-cron-engine` | 4 kyu | Cron expression parser |
-| `4-kyu-apply-dense-encoding` | 4 kyu | Dense binary encoding |
-| `4-kyu-analyze-json-schema-diff` | 4 kyu | JSON Schema diff |
-| `4-kyu-apply-owl-ontology` | 4 kyu | OWL ontology processor |
-| `3-kyu-analyze-lunar-lander` | 3 kyu | Lunar lander simulation |
-| `3-kyu-evaluate-time-series-lab` | 3 kyu | Time series analysis |
-| `2-kyu-create-markdown-compiler` | 2 kyu | Markdown compiler |
-| `2-kyu-create-plot-code-lib` | 2 kyu | Code visualization library |
-| `1-kyu-create-ray-tracer` | 1 kyu | Ray tracer |
-| `1-dan-create-c64-emulator` | 1 dan | C64 emulator |
-| `1-dan-create-planning-engine` | 1 dan | Planning engine |
-| `2-dan-create-self-hosted` | 2 dan | Self-hosted AGI vision |
+- `fizzBuzz(n)` — returns an array of strings for numbers 1..n applying Fizz/Buzz/FizzBuzz rules. `fizzBuzz(0)` returns `[]`.
+- `fizzBuzzSingle(n)` — returns the FizzBuzz string for a single positive integer (e.g., `3 -> "Fizz"`, `5 -> "Buzz"`, `15 -> "FizzBuzz"`, `7 -> "7"`).
 
-List all available missions:
+Input validation:
+- Non-integer inputs throw TypeError
+- Negative inputs throw RangeError
 
-```bash
-npx @xn-intenton-z2a/agentic-lib iterate --list-missions
+Example (Node):
+
+```js
+import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js';
+console.log(fizzBuzz(15));
+console.log(fizzBuzzSingle(3)); // -> "Fizz"
 ```
 
-#### Write Your Own Mission
-
-Edit `MISSION.md` directly — describe what you want to build, the features, requirements, and acceptance criteria as checkboxes:
-
-```markdown
-# Mission
-
-Build a CLI tool that converts CSV files to formatted Markdown tables.
-
-## Features
-- Read CSV from file or stdin
-- Auto-detect delimiter
-
-## Acceptance Criteria
-- [ ] Reading a CSV with 3 columns produces a 3-column Markdown table
-- [ ] All unit tests pass
-```
+Example (browser): open `src/web/index.html` and the page will display a small FizzBuzz demo (1..15) and single-value examples.
 
 ### Step 3: Enable GitHub Copilot and Configure Secrets
 
@@ -109,24 +78,6 @@ MISSION.md -> [supervisor] -> dispatch workflows -> Issue -> Code -> Test -> PR 
 ```
 
 The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context and dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
-
-## Configuration
-
-Edit `agentic-lib.toml` to tune the system:
-
-```toml
-[schedule]
-supervisor = "off"          # off | weekly | daily | hourly | continuous
-focus = "mission"           # mission | maintenance
-
-[tuning]
-profile = "max"             # min | med | max
-model = "gpt-5-mini"       # gpt-5-mini | claude-sonnet-4 | gpt-4.1
-
-[mission-complete]
-acceptance-criteria-threshold = 50   # % of criteria that must be met
-min-resolved-issues = 1              # minimum closed issues
-```
 
 ## File Layout
 
