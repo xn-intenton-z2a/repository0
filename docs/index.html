@@ -37,16 +37,7 @@
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
-      const out = {
-        identity: { name, version, description },
-        examples: {
-          "stringHamming('karolin','kathrin')": await import('./lib.js').then(m=>m.stringHamming('karolin','kathrin')),
-          "stringHamming('','')": await import('./lib.js').then(m=>m.stringHamming('','')),
-          "bitHamming(1,4)": await import('./lib.js').then(m=>m.bitHamming(1,4)),
-          "bitHamming(0,0)": await import('./lib.js').then(m=>m.bitHamming(0,0))
-        }
-      };
-      document.getElementById('demo-output').textContent = JSON.stringify(out, null, 2);
+      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
