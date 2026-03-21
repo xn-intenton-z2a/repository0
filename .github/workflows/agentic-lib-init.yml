@@ -10,8 +10,6 @@ name: agentic-lib-init
 run-name: "agentic-lib-init ${{ inputs.mode || 'update' }} [${{ github.ref_name }}]"
 
 on:
-  schedule:
-    - cron: "0 0 31 2 *"
   workflow_call:
     inputs:
       ref:
@@ -299,7 +297,11 @@ jobs:
             if (!model) model = 'gpt-5-mini';
 
             // Shared schedule maps and helper (single source of truth)
-            const { updateAllSchedules } = require('./.github/agentic-lib/scripts/schedule-utils.cjs');
+            // In consumer repos: .github/agentic-lib/scripts/; in agentic-lib itself: src/scripts/
+            const scheduleUtilsPath = fs.existsSync('./.github/agentic-lib/scripts/schedule-utils.cjs')
+              ? './.github/agentic-lib/scripts/schedule-utils.cjs'
+              : './src/scripts/schedule-utils.cjs';
+            const { updateAllSchedules } = require(scheduleUtilsPath);
             const logger = { info: core.info };
 
             // Update all three workflow files proportionally
