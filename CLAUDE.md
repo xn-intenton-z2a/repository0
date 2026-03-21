@@ -1,34 +1,5 @@
 # Claude Code Memory - intentïon repository0
 
-> **DO NOT USE `cd <dir> && git ...` — USE `git -C <dir> ...` ALWAYS.**
-> This is a multi-repo workspace. Each subdirectory is its own git repo.
-> Using `cd` in compound commands triggers security prompts every time.
-> This applies to YOU and to ANY AGENT YOU SPAWN. Never use the Agent tool
-> for simple file reads or git operations in subdirectories either.
-
-## Context Survival (CRITICAL — read this first after every compaction)
-
-**After compaction or at session start:**
-1. Read all `PLAN_*.md` files in the project root — these are the active goals
-2. Run `TaskList` to see tracked tasks with status
-3. Do NOT start new work without checking these first
-
-**During work:**
-- When the user gives a new requirement, add it to the relevant `PLAN_*.md` or create a new one
-- Track all user goals as Tasks with status (pending → in_progress → completed)
-- Update `PLAN_*.md` with progress before context gets large
-
-**PLAN file pattern:**
-- Active plans live at project root: `PLAN_<DESCRIPTION>.md`
-- Each plan has user assertions verbatim at the top (non-negotiable requirements)
-- If no plan file exists for the current work, create one before starting
-- Never nest plans in subdirectories — always project root
-
-**Anti-patterns to avoid:**
-- Do NOT drift to side issues when a plan file defines the priority
-- Do NOT silently fail and move on — throw, don't skip
-- Do NOT ask obvious questions — read the plan file
-
 ## What This Repository Is
 
 A **template repository** that demonstrates the agentic-lib workflows. Starting point for new agentic projects. The code in `src/lib/main.js` is the focus of the workflow and is modified by the workflow to deliver project goals.
