@@ -39,41 +39,6 @@ export function main(args) {
   console.log(`${name}@${version}`);
 }
 
-// FizzBuzz implementation
-function validateIntegerInput(n) {
-  if (typeof n !== 'number' || Number.isNaN(n)) {
-    throw new TypeError('n must be a number');
-  }
-  if (!Number.isFinite(n)) {
-    throw new RangeError('n must be finite');
-  }
-  if (!Number.isInteger(n)) {
-    throw new TypeError('n must be an integer');
-  }
-}
-
-export function fizzBuzzSingle(n) {
-  validateIntegerInput(n);
-  if (n <= 0) {
-    throw new RangeError('n must be a positive integer');
-  }
-  if (n % 15 === 0) return 'FizzBuzz';
-  if (n % 3 === 0) return 'Fizz';
-  if (n % 5 === 0) return 'Buzz';
-  return String(n);
-}
-
-export function fizzBuzz(n) {
-  validateIntegerInput(n);
-  if (n === 0) return [];
-  if (n < 0) throw new RangeError('n must be non-negative');
-  const result = [];
-  for (let i = 1; i <= n; i++) {
-    result.push(fizzBuzzSingle(i));
-  }
-  return result;
-}
-
 if (isNode) {
   const { fileURLToPath } = await import("url");
   if (process.argv[1] === fileURLToPath(import.meta.url)) {
