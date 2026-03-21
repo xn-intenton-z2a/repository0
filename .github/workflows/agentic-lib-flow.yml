@@ -152,16 +152,16 @@ on:
         type: boolean
         required: false
         default: false
-      message:
-        description: "Context message for supervisor/bot"
-        type: string
+      skipMaintain:
+        description: "Skip maintain job in workflow runs"
+        type: boolean
         required: false
-        default: ""
-      config-path:
-        description: "Config file path (default: agentic-lib.toml)"
-        type: string
+        default: false
+      create-seed-issues:
+        description: "Create initial seed issues after purge"
+        type: boolean
         required: false
-        default: ""
+        default: false
       generate-report:
         description: "Generate enriched benchmark report after flow"
         type: boolean
