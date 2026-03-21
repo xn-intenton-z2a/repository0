@@ -37,7 +37,17 @@
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
+      // Show identity and a small FizzBuzz demo
       document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
+      // run fizzBuzz(15) in the browser demo
+      try {
+        const { fizzBuzz } = await import('./lib.js');
+        const result = fizzBuzz(15);
+        const pretty = result.join(', ');
+        document.getElementById('demo-output').textContent = `fizzBuzz(15):\n${pretty}`;
+      } catch (e) {
+        // if fizzBuzz not available, keep identity display
+      }
       document.title = name + ' v' + version;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
