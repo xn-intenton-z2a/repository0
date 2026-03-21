@@ -30,8 +30,8 @@ export function getIdentity() {
 // FizzBuzz library functions
 export function fizzBuzzSingle(n) {
   if (!Number.isInteger(n)) throw new TypeError("n must be an integer");
-  if (n < 0) throw new RangeError("n must be non-negative");
-  if (n === 0) return "0";
+  // fizzBuzzSingle is defined for positive integers only
+  if (n <= 0) throw new RangeError("n must be a positive integer");
   if (n % 15 === 0) return "FizzBuzz";
   if (n % 3 === 0) return "Fizz";
   if (n % 5 === 0) return "Buzz";
