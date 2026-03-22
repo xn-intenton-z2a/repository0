@@ -97,11 +97,15 @@ async function run() {
     };
 
     // C1: Read persistent state from agentic-lib-state.toml
-    const state = readState(".");
+    readState(".");  // warm up / validate
 
     const startTime = Date.now();
     const result = await handler(context);
     const durationMs = Date.now() - startTime;
+
+    // W3 fix: Re-read state after task — handlers like direct.js may have
+    // written mission-complete or other status updates to disk during execution.
+    const state = readState(".");
 
     // Set outputs
     core.setOutput("result", result.outcome || "completed");

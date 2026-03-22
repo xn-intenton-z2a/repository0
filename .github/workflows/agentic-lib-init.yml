@@ -75,7 +75,6 @@ on:
         default: "7-kyu-understand-fizz-buzz"
         options:
           - random
-          - generate
           - 8-kyu-remember-empty
           - 8-kyu-remember-hello-world
           - 7-kyu-understand-fizz-buzz
