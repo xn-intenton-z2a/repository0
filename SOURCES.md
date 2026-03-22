@@ -6,5 +6,7 @@ Reference material and documentation sources for this project.
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
 - https://www.npmjs.com/package/fizzbuzz
+- https://vitest.dev/guide/

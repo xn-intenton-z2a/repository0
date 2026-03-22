@@ -25,7 +25,7 @@ Extracted technical content retrieved: 2026-03-22
 ATTRIBUTION AND CRAWL SIZE
 Source: https://www.npmjs.com/package/fizzbuzz
 Retrieved: 2026-03-22
-Bytes downloaded during crawl: 7220
+Bytes downloaded during crawl: 7177
 
 RECOMMENDATION
 - Implement the required functions locally and export them as named ESM exports; rely on third-party packages only for non-trivial shared functionality.

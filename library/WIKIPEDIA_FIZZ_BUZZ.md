@@ -50,7 +50,7 @@ Extracted technical content (paraphrased to concrete rules useful for implementa
 ATTRIBUTION AND CRAWL SIZE
 Source: https://en.wikipedia.org/wiki/Fizz_buzz
 Retrieved: 2026-03-22
-Bytes downloaded during crawl: 63472
+Bytes downloaded during crawl: 63463
 
 USAGE NOTES
 - Use strict integer checks for input validation (Number.isInteger) and throw RangeError/TypeError as required by the mission acceptance criteria.
