@@ -7,7 +7,6 @@
 
 [schedule]
 supervisor = "off"       # off | weekly | daily | hourly | continuous
-model = "gpt-5-mini"
 focus = "mission"                 # mission | maintenance
 
 [paths]
@@ -120,7 +119,7 @@ review-issues-cap = 3                  # max issues reviewed per batch
 min-resolved-issues = 1                # mission-complete: minimum closed-as-RESOLVED issues
 min-cumulative-transforms = 1          # mission-complete: minimum transform cycles
 max-source-todos = 1                   # mission-complete: max TODO comments in src
-acceptance-criteria-threshold = 80     # mission-complete: % acceptance criteria required
+acceptance-criteria-threshold = 90     # mission-complete: % acceptance criteria required
 
 [profiles.max]
 reasoning-effort = "high"              # low | medium | high | none
@@ -146,7 +145,7 @@ review-issues-cap = 4                  # max issues reviewed per batch (may need
 min-resolved-issues = 1                # mission-complete: minimum closed-as-RESOLVED issues
 min-cumulative-transforms = 1          # mission-complete: minimum transform cycles
 max-source-todos = 0                   # mission-complete: max TODO comments in src
-acceptance-criteria-threshold = 80     # mission-complete: % acceptance criteria required
+acceptance-criteria-threshold = 90     # mission-complete: % acceptance criteria required
 
 [goals]
 # W12/W13: Code coverage thresholds — stated in all code-changing prompts
@@ -182,8 +181,8 @@ total = 8
 8 = { text = "README documents usage with examples", met = false }
 
 [init]
-timestamp = "2026-03-21T23:21:18.544Z"
+timestamp = "2026-03-22T01:07:45.567Z"
 mode = "purge"
 mission = "7-kyu-understand-fizz-buzz"
 mission-type = "7-kyu-understand-fizz-buzz"
-version = "7.4.52"
+version = "7.4.56"

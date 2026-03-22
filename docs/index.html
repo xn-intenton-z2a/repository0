@@ -15,7 +15,6 @@
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
-    pre#fizzbuzz-array { background: #fff; color: #111; padding: 0.5rem; border-radius: 6px; overflow: auto; }
   </style>
 </head>
 <body>
@@ -30,46 +29,20 @@
   </div>
   <h2>Output</h2>
   <div id="demo-output">Loading library...</div>
-
-  <h2>FizzBuzz Demo</h2>
-  <div id="fizzbuzz-demo">
-    <div><strong>FizzBuzz(15):</strong>
-      <pre id="fizzbuzz-array">loading...</pre>
-    </div>
-    <div><strong>FizzBuzzSingle(7):</strong> <span id="fizzbuzz-single">loading...</span></div>
-  </div>
-
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
     try {
-      const lib = await import('./lib.js');
-      const { name, version, description, fizzBuzz, fizzBuzzSingle } = lib;
+      const { name, version, description } = await import('./lib.js');
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
       document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
-
-      try {
-        const arr = fizzBuzz(15);
-        document.getElementById('fizzbuzz-array').textContent = JSON.stringify(arr, null, 2);
-      } catch (e) {
-        document.getElementById('fizzbuzz-array').textContent = 'Error: ' + e.message;
-      }
-
-      try {
-        document.getElementById('fizzbuzz-single').textContent = fizzBuzzSingle(7);
-      } catch (e) {
-        document.getElementById('fizzbuzz-single').textContent = 'Error: ' + e.message;
-      }
-
       document.title = name + ' v' + version;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(error)';
       document.getElementById('lib-description').textContent = e.message;
       document.getElementById('demo-output').textContent = 'Failed to load library: ' + e.message;
-      document.getElementById('fizzbuzz-array').textContent = 'Failed to load library';
-      document.getElementById('fizzbuzz-single').textContent = 'Failed to load library';
     }
   </script>
 </body>
