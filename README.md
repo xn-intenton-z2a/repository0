@@ -110,23 +110,30 @@ MISSION.md -> [supervisor] -> dispatch workflows -> Issue -> Code -> Test -> PR 
 
 The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context and dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
 
-## Configuration
+## FizzBuzz API
 
-Edit `agentic-lib.toml` to tune the system:
+This repository provides a tiny FizzBuzz library exported from `src/lib/main.js`.
 
-```toml
-[schedule]
-supervisor = "off"          # off | weekly | daily | hourly | continuous
-focus = "mission"           # mission | maintenance
+- fizzBuzzSingle(n): returns the FizzBuzz string for a single integer (e.g. "Fizz", "Buzz", "FizzBuzz", or the number as a string).
+- fizzBuzz(n): returns an array of FizzBuzz strings for 1..n. `fizzBuzz(0)` returns an empty array.
 
-[tuning]
-profile = "max"             # min | med | max
-model = "gpt-5-mini"       # gpt-5-mini | claude-sonnet-4 | gpt-4.1
+Examples:
 
-[mission-complete]
-acceptance-criteria-threshold = 50   # % of criteria that must be met
-min-resolved-issues = 1              # minimum closed issues
+```js
+import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js';
+
+console.log(fizzBuzzSingle(3)); // "Fizz"
+console.log(fizzBuzzSingle(5)); // "Buzz"
+console.log(fizzBuzzSingle(15)); // "FizzBuzz"
+console.log(fizzBuzzSingle(7)); // "7"
+console.log(fizzBuzz(15)); // ["1","2","Fizz","4","Buzz",...,"FizzBuzz"]
+console.log(fizzBuzz(0)); // []
 ```
+
+Edge cases:
+
+- Negative numbers throw RangeError
+- Non-integers throw TypeError
 
 ## File Layout
 
